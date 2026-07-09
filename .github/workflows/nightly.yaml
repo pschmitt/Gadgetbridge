@@ -91,5 +91,5 @@ jobs:
 
             Not a stable release — see [tagged releases](../../releases) for those.
           files: ${{ steps.apk.outputs.path }}
-          prerelease: true
-          make_latest: false
+          prerelease: false
+          make_latest: true
