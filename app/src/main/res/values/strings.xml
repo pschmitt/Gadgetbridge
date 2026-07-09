@@ -3061,9 +3061,10 @@
     <string name="prefs_events_forwarding_workoutstart_broadcast_default_value" translatable="false">nodomain.freeyourgadget.gadgetbridge.WorkoutStarted</string>
     <string name="prefs_events_forwarding_workoutstop">On Workout Stop</string>
     <string name="prefs_events_forwarding_workoutstop_broadcast_default_value" translatable="false">nodomain.freeyourgadget.gadgetbridge.WorkoutStopped</string>
+    <string name="prefs_events_forwarding_test_sent">Test event fired</string>
     <string name="prefs_events_forwarding_broadcast_title">Broadcast message</string>
     <string name="prefs_events_forwarding_broadcast_package">Broadcast package</string>
-    <string name="prefs_events_forwarding_action_title">Run action</string>
+    <string name="prefs_events_forwarding_action_title">Action</string>
     <string name="pref_header_filter">Sports Activities Filter</string>
     <string name="pref_header_statistics">Sports Activities Statistics</string>
     <string name="activity_filter_date_from">From</string>

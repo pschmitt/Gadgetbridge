@@ -42,10 +42,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsCustomizer;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsHandler;
 import nodomain.freeyourgadget.gadgetbridge.activities.xiaomi.XiaomiVibrationPatternsActivity;
+import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventWorkoutState;
 import nodomain.freeyourgadget.gadgetbridge.devices.huami.HuamiConst;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.activity.XiaomiActivityFileFetcher;
@@ -79,6 +81,26 @@ public class XiaomiSettingsCustomizer implements DeviceSpecificSettingsCustomize
                 final Intent intent = new Intent(handler.getContext(), XiaomiVibrationPatternsActivity.class);
                 intent.putExtra(GBDevice.EXTRA_DEVICE, handler.getDevice());
                 handler.getContext().startActivity(intent);
+                return true;
+            });
+        }
+
+        final Preference testWorkoutStartPref = handler.findPreference("events_forwarding_workoutstart_test");
+        if (testWorkoutStartPref != null) {
+            testWorkoutStartPref.setOnPreferenceClickListener(preference -> {
+                new GBDeviceEventWorkoutState(GBDeviceEventWorkoutState.WorkoutStatus.STARTED, null)
+                        .evaluate(handler.getContext(), handler.getDevice());
+                GB.toast(handler.getContext(), handler.getContext().getString(R.string.prefs_events_forwarding_test_sent), Toast.LENGTH_SHORT, GB.INFO);
+                return true;
+            });
+        }
+
+        final Preference testWorkoutStopPref = handler.findPreference("events_forwarding_workoutstop_test");
+        if (testWorkoutStopPref != null) {
+            testWorkoutStopPref.setOnPreferenceClickListener(preference -> {
+                new GBDeviceEventWorkoutState(GBDeviceEventWorkoutState.WorkoutStatus.STOPPED, null)
+                        .evaluate(handler.getContext(), handler.getDevice());
+                GB.toast(handler.getContext(), handler.getContext().getString(R.string.prefs_events_forwarding_test_sent), Toast.LENGTH_SHORT, GB.INFO);
                 return true;
             });
         }

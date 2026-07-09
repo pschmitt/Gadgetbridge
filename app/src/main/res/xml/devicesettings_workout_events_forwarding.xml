@@ -28,6 +28,10 @@
                 android:key="prefs_events_forwarding_workoutstart_broadcast_package"
                 android:title="@string/prefs_events_forwarding_broadcast_package"
                 app:useSimpleSummaryProvider="true" />
+            <Preference
+                android:icon="@drawable/ic_send"
+                android:key="events_forwarding_workoutstart_test"
+                android:title="@string/test" />
         </PreferenceCategory>
 
         <PreferenceCategory
@@ -50,6 +54,10 @@
                 android:key="prefs_events_forwarding_workoutstop_broadcast_package"
                 android:title="@string/prefs_events_forwarding_broadcast_package"
                 app:useSimpleSummaryProvider="true" />
+            <Preference
+                android:icon="@drawable/ic_send"
+                android:key="events_forwarding_workoutstop_test"
+                android:title="@string/test" />
         </PreferenceCategory>
 
     </PreferenceScreen>
