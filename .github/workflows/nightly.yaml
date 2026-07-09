@@ -23,7 +23,19 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check if this commit already has a tagged release
+        id: tagcheck
+        run: |
+          tag=$(git tag --points-at HEAD | grep -E '^v' | head -n1 || true)
+          if [ -n "$tag" ]; then
+            echo "HEAD is already tagged as $tag (has a real release with an APK) — skipping nightly build."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Set up JDK 21
+        if: steps.tagcheck.outputs.skip != 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -31,17 +43,21 @@ jobs:
           cache: gradle
 
       - name: Accept Android SDK licenses
+        if: steps.tagcheck.outputs.skip != 'true'
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
 
       - name: Install Android SDK platform/build-tools
+        if: steps.tagcheck.outputs.skip != 'true'
         run: |
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36.1' 'build-tools;36.1.0'
 
       - name: Build mainline nightly APK
+        if: steps.tagcheck.outputs.skip != 'true'
         run: ./gradlew assembleMainlineNightly --stacktrace
 
       - name: Rename APK to a fixed filename
+        if: steps.tagcheck.outputs.skip != 'true'
         id: apk
         run: |
           src=$(find app/build/outputs/apk/mainline/nightly -name '*.apk' | head -n1)
@@ -54,15 +70,18 @@ jobs:
           echo "path=$dest" >> "$GITHUB_OUTPUT"
 
       - name: Move nightly tag
+        if: steps.tagcheck.outputs.skip != 'true'
         run: |
           git tag -f nightly
           git push origin nightly --force
 
       - name: Record build time
+        if: steps.tagcheck.outputs.skip != 'true'
         id: date
         run: echo "date=$(date -u +'%Y-%m-%d %H:%M UTC')" >> "$GITHUB_OUTPUT"
 
       - name: Publish nightly release
+        if: steps.tagcheck.outputs.skip != 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: nightly
