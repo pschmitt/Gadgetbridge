@@ -407,7 +407,14 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
                 break;
             case 8:
                 // SPORTS_OUTDOOR_WALKING_V2 v8: extended walking layout.
-                //   7-byte data-valid bitmap: FF CF F8 BF FB BB BF (one nibble per field group).
+                //   7-byte data-valid bitmap, one nibble per optional field group — this is
+                //   not a fixed magic constant, it varies per workout depending on which
+                //   sensors/features were active. Two variants observed so far, both sharing
+                //   the identical 21-byte record layout decoded in case 108 below:
+                //     FF CF F8 BF FB BB BF
+                //     FF CF FA BF FB BF FF — validated: decoded per-record HR range 91-195 bpm
+                //                            (avg 172) matched the paired summary's HR_MIN/
+                //                            HR_MAX/HR_AVG of 90/195/171.
                 //   27-byte segment header:
                 //     offset  0- 3: int32 initHeight  (always 0 in captured data)
                 //     offset  4- 7: int32 recordCount
@@ -418,15 +425,22 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
                 //     offset 21-22: int16 itTotalPaces
                 //     offset 23-26: int32 itTotalDuration
                 //   21-byte records — layout decoded below in case 108.
-                expectedSignature = new byte[]{
-                        (byte) 0xFF, (byte) 0xCF, (byte) 0xF8, (byte) 0xBF,
-                        (byte) 0xFB, (byte) 0xBB, (byte) 0xBF
-                };
-                segmentHeaderSize = 27;
-                recordSize = 21;
-                tsPosition = 8;
-                nrPosition = 4;
-                layoutCode = 108;
+                if (bytes.length >= 15
+                        && bytes[8] == (byte) 0xFF && bytes[9] == (byte) 0xCF
+                        && bytes[11] == (byte) 0xBF && bytes[12] == (byte) 0xFB
+                        && ((bytes[10] == (byte) 0xF8 && bytes[13] == (byte) 0xBB && bytes[14] == (byte) 0xBF)
+                            || (bytes[10] == (byte) 0xFA && bytes[13] == (byte) 0xBF && bytes[14] == (byte) 0xFF))) {
+                    expectedSignature = Arrays.copyOfRange(bytes, 8, 15);
+                    segmentHeaderSize = 27;
+                    recordSize = 21;
+                    tsPosition = 8;
+                    nrPosition = 4;
+                    layoutCode = 108;
+                } else {
+                    LOG.warn("Unknown v8 DETAILS signature: {}",
+                            GB.hexdump(bytes, 8, Math.min(7, bytes.length - 8)));
+                    return null;
+                }
                 break;
             default:
                 LOG.warn("Unable to parse workout details version {}", version);
