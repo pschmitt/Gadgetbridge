@@ -5,6 +5,10 @@ on:
     - cron: '0 6 * * *'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
   pull-requests: write
@@ -40,6 +44,26 @@ jobs:
           git branch -f sync-upstream upstream/master
           git push origin sync-upstream --force
 
+      - name: Generate commit summary
+        if: steps.check.outputs.has_new == 'true'
+        id: summary
+        run: |
+          commit_count=$(git rev-list --count master..upstream/master)
+          {
+            echo "body<<GB_SYNC_EOF"
+            echo "Automated sync of new commits from the upstream Codeberg repository (https://codeberg.org/Freeyourgadget/Gadgetbridge). Review and merge to bring them into master."
+            echo ""
+            echo "## New commits ($commit_count)"
+            echo ""
+            git log --no-merges --pretty='format:- %h %s (%an)' master..upstream/master | head -100
+            if [ "$commit_count" -gt 100 ]; then
+              echo ""
+              echo "_...and $((commit_count - 100)) more, truncated._"
+            fi
+            echo ""
+            echo "GB_SYNC_EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Ensure a single open sync PR
         if: steps.check.outputs.has_new == 'true'
         env:
@@ -51,7 +75,8 @@ jobs:
               --base master \
               --head sync-upstream \
               --title "Sync with upstream (Freeyourgadget/Gadgetbridge)" \
-              --body "Automated sync of new commits from the upstream Codeberg repository (https://codeberg.org/Freeyourgadget/Gadgetbridge). Review and merge to bring them into master."
+              --body "${{ steps.summary.outputs.body }}"
           else
-            echo "PR #$existing already open; branch push above already updated it."
+            gh pr edit "$existing" --body "${{ steps.summary.outputs.body }}"
+            echo "PR #$existing already open; branch push above already updated it, body refreshed with latest commit summary."
           fi
