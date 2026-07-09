@@ -3050,7 +3050,7 @@
     <!-- Device Actions Preferences -->
     <string name="prefs_events_forwarding_summary">Use device events to trigger actions and Android broadcasts</string>
     <string name="prefs_events_forwarding_title">Device actions</string>
-    <string name="prefs_events_forwarding_workout_title">Workout actions</string>
+    <string name="prefs_events_forwarding_workout_title">Actions</string>
     <string name="prefs_events_forwarding_fellsleep">On Fall Asleep</string>
     <string name="prefs_events_forwarding_fellsleep_broadcast_default_value" translatable="false">nodomain.freeyourgadget.gadgetbridge.FellAsleep</string>
     <string name="prefs_events_forwarding_wokeup">On Wake Up</string>

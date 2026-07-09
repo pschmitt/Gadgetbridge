@@ -26,6 +26,7 @@ import android.os.Parcel;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.preference.MultiSelectListPreference;
 import androidx.preference.Preference;
 
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -84,6 +86,9 @@ public class XiaomiSettingsCustomizer implements DeviceSpecificSettingsCustomize
                 return true;
             });
         }
+
+        setActionSummaryProvider(handler.findPreference("events_forwarding_workoutstart_action_selections"));
+        setActionSummaryProvider(handler.findPreference("events_forwarding_workoutstop_action_selections"));
 
         final Preference testWorkoutStartPref = handler.findPreference("events_forwarding_workoutstart_test");
         if (testWorkoutStartPref != null) {
@@ -153,6 +158,28 @@ public class XiaomiSettingsCustomizer implements DeviceSpecificSettingsCustomize
 
     @Override
     public void writeToParcel(@NonNull final Parcel dest, final int flags) {
+    }
+
+    private static void setActionSummaryProvider(final Preference preference) {
+        if (!(preference instanceof MultiSelectListPreference)) {
+            return;
+        }
+        ((MultiSelectListPreference) preference).setSummaryProvider(pref -> {
+            final MultiSelectListPreference multiSelectPref = (MultiSelectListPreference) pref;
+            final Set<String> selected = multiSelectPref.getValues();
+            final CharSequence[] entryValues = multiSelectPref.getEntryValues();
+            final CharSequence[] entries = multiSelectPref.getEntries();
+            if (selected.isEmpty() || entryValues == null || entries == null) {
+                return multiSelectPref.getContext().getString(R.string.none);
+            }
+            final List<String> selectedEntries = new ArrayList<>();
+            for (int i = 0; i < entryValues.length; i++) {
+                if (selected.contains(entryValues[i].toString())) {
+                    selectedEntries.add(entries[i].toString());
+                }
+            }
+            return String.join(", ", selectedEntries);
+        });
     }
 
     private static final AtomicBoolean PARSING_FROM_STORAGE = new AtomicBoolean(false);
