@@ -3050,12 +3050,17 @@
     <!-- Device Actions Preferences -->
     <string name="prefs_events_forwarding_summary">Use device events to trigger actions and Android broadcasts</string>
     <string name="prefs_events_forwarding_title">Device actions</string>
+    <string name="prefs_events_forwarding_workout_title">Workout actions</string>
     <string name="prefs_events_forwarding_fellsleep">On Fall Asleep</string>
     <string name="prefs_events_forwarding_fellsleep_broadcast_default_value" translatable="false">nodomain.freeyourgadget.gadgetbridge.FellAsleep</string>
     <string name="prefs_events_forwarding_wokeup">On Wake Up</string>
     <string name="prefs_events_forwarding_wokeup_broadcast_default_value" translatable="false">nodomain.freeyourgadget.gadgetbridge.WokeUp</string>
     <string name="prefs_events_forwarding_startnonwear">On Not Wearing</string>
     <string name="prefs_events_forwarding_startnonwear_broadcast_default_value" translatable="false">nodomain.freeyourgadget.gadgetbridge.StartNonWear</string>
+    <string name="prefs_events_forwarding_workoutstart">On Workout Start</string>
+    <string name="prefs_events_forwarding_workoutstart_broadcast_default_value" translatable="false">nodomain.freeyourgadget.gadgetbridge.WorkoutStarted</string>
+    <string name="prefs_events_forwarding_workoutstop">On Workout Stop</string>
+    <string name="prefs_events_forwarding_workoutstop_broadcast_default_value" translatable="false">nodomain.freeyourgadget.gadgetbridge.WorkoutStopped</string>
     <string name="prefs_events_forwarding_broadcast_title">Broadcast message</string>
     <string name="prefs_events_forwarding_broadcast_package">Broadcast package</string>
     <string name="prefs_events_forwarding_action_title">Run action</string>

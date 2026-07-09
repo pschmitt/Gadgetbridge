@@ -25,9 +25,9 @@
       android-composition = android-nixpkgs.sdk.${system} (
         sdkPkgs: with sdkPkgs; [
           cmdline-tools-latest
-          build-tools-36-0-0
+          build-tools-36-1-0
           platform-tools
-          platforms-android-36
+          platforms-android-36-1
         ]
       );
 
@@ -56,10 +56,10 @@
             # Add Android tools to PATH
             export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
             export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
-            export PATH=$PATH:$ANDROID_SDK_ROOT/build-tools/36.0.0
+            export PATH=$PATH:$ANDROID_SDK_ROOT/build-tools/36.1.0
 
             # Gradle configuration
-            export GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.project.android.aapt2FromMavenOverride=$ANDROID_SDK_ROOT/build-tools/36.0.0/aapt2"
+            export GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.project.android.aapt2FromMavenOverride=$ANDROID_SDK_ROOT/build-tools/36.1.0/aapt2"
 
             echo "Java version: $(java -version 2>&1 | head -n1)"
 

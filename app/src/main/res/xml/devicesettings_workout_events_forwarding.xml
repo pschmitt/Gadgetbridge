@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceScreen
+        android:key="screen_workout_events_forwarding"
+        android:icon="@drawable/ic_run_circle"
+        android:persistent="false"
+        android:summary="@string/prefs_events_forwarding_summary"
+        android:title="@string/prefs_events_forwarding_workout_title">
+
+        <PreferenceCategory
+            android:title="@string/prefs_events_forwarding_workoutstart"
+            android:icon="@drawable/ic_run_circle">
+
+            <MultiSelectListPreference
+                android:entries="@array/device_action_options"
+                android:entryValues="@array/device_action_values"
+                android:key="events_forwarding_workoutstart_action_selections"
+                android:defaultValue="@array/empty_array"
+                android:title="@string/prefs_events_forwarding_action_title" />
+            <EditTextPreference
+                android:defaultValue="@string/prefs_events_forwarding_workoutstart_broadcast_default_value"
+                android:key="prefs_events_forwarding_workoutstart_broadcast"
+                android:title="@string/prefs_events_forwarding_broadcast_title"
+                app:useSimpleSummaryProvider="true" />
+            <EditTextPreference
+                android:defaultValue=""
+                android:key="prefs_events_forwarding_workoutstart_broadcast_package"
+                android:title="@string/prefs_events_forwarding_broadcast_package"
+                app:useSimpleSummaryProvider="true" />
+        </PreferenceCategory>
+
+        <PreferenceCategory
+            android:title="@string/prefs_events_forwarding_workoutstop"
+            android:icon="@drawable/ic_run_circle">
+
+            <MultiSelectListPreference
+                android:entries="@array/device_action_options"
+                android:entryValues="@array/device_action_values"
+                android:key="events_forwarding_workoutstop_action_selections"
+                android:defaultValue="@array/empty_array"
+                android:title="@string/prefs_events_forwarding_action_title" />
+            <EditTextPreference
+                android:defaultValue="@string/prefs_events_forwarding_workoutstop_broadcast_default_value"
+                android:key="prefs_events_forwarding_workoutstop_broadcast"
+                android:title="@string/prefs_events_forwarding_broadcast_title"
+                app:useSimpleSummaryProvider="true" />
+            <EditTextPreference
+                android:defaultValue=""
+                android:key="prefs_events_forwarding_workoutstop_broadcast_package"
+                android:title="@string/prefs_events_forwarding_broadcast_package"
+                app:useSimpleSummaryProvider="true" />
+        </PreferenceCategory>
+
+    </PreferenceScreen>
+</androidx.preference.PreferenceScreen>

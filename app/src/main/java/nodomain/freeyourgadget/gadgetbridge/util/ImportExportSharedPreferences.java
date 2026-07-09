@@ -135,6 +135,8 @@ public class ImportExportSharedPreferences {
                             case DeviceSettingsPreferenceConst.PREF_DEVICE_ACTION_FELL_SLEEP_SELECTIONS:
                             case DeviceSettingsPreferenceConst.PREF_DEVICE_ACTION_START_NON_WEAR_SELECTIONS:
                             case DeviceSettingsPreferenceConst.PREF_DEVICE_ACTION_WOKE_UP_SELECTIONS:
+                            case DeviceSettingsPreferenceConst.PREF_DEVICE_ACTION_WORKOUT_START_SELECTIONS:
+                            case DeviceSettingsPreferenceConst.PREF_DEVICE_ACTION_WORKOUT_STOP_SELECTIONS:
                             // GarminCapability enum
                             case GarminPreferences.PREF_GARMIN_CAPABILITIES:
                             // mac addresses
