@@ -83,6 +83,14 @@ jobs:
           mv "$src" "$dest"
           echo "path=$dest" >> "$GITHUB_OUTPUT"
 
+      - name: Upload APK artifact
+        if: steps.tagcheck.outputs.skip != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: gadgetbridge-nightly-apk
+          path: ${{ steps.apk.outputs.path }}
+          retention-days: 14
+
       - name: Move nightly tag
         if: steps.tagcheck.outputs.skip != 'true'
         run: |
