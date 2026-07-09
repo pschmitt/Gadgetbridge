@@ -1,0 +1,57 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+
+      - name: Fetch upstream (Codeberg)
+        run: |
+          git remote add upstream https://codeberg.org/Freeyourgadget/Gadgetbridge.git
+          git fetch upstream master
+
+      - name: Check for new upstream commits
+        id: check
+        run: |
+          if git merge-base --is-ancestor upstream/master HEAD; then
+            echo "No new upstream commits."
+            echo "has_new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_new=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update sync-upstream branch
+        if: steps.check.outputs.has_new == 'true'
+        run: |
+          git branch -f sync-upstream upstream/master
+          git push origin sync-upstream --force
+
+      - name: Ensure a single open sync PR
+        if: steps.check.outputs.has_new == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          existing=$(gh pr list --head sync-upstream --state open --json number --jq '.[0].number // empty')
+          if [ -z "$existing" ]; then
+            gh pr create \
+              --base master \
+              --head sync-upstream \
+              --title "Sync with upstream (Freeyourgadget/Gadgetbridge)" \
+              --body "Automated sync of new commits from the upstream Codeberg repository (https://codeberg.org/Freeyourgadget/Gadgetbridge). Review and merge to bring them into master."
+          else
+            echo "PR #$existing already open; branch push above already updated it."
+          fi
