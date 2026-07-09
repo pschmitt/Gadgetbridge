@@ -1,4 +1,4 @@
-name: Nightly
+name: Release (latest)
 
 on:
   push:
@@ -14,7 +14,7 @@ permissions:
   contents: write
 
 jobs:
-  nightly:
+  release-latest:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,7 +28,7 @@ jobs:
         run: |
           tag=$(git tag --points-at HEAD | grep -E '^v' | head -n1 || true)
           if [ -n "$tag" ]; then
-            echo "HEAD is already tagged as $tag (has a real release with an APK) — skipping nightly build."
+            echo "HEAD is already tagged as $tag (has a real release with an APK) — skipping the latest build."
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
@@ -79,7 +79,7 @@ jobs:
             echo "No APK found" >&2
             exit 1
           fi
-          dest="$(dirname "$src")/gadgetbridge-nightly.apk"
+          dest="$(dirname "$src")/gadgetbridge-latest.apk"
           mv "$src" "$dest"
           echo "path=$dest" >> "$GITHUB_OUTPUT"
 
@@ -87,27 +87,27 @@ jobs:
         if: steps.tagcheck.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: gadgetbridge-nightly-apk
+          name: gadgetbridge-latest-apk
           path: ${{ steps.apk.outputs.path }}
           retention-days: 14
 
-      - name: Move nightly tag
+      - name: Move latest tag
         if: steps.tagcheck.outputs.skip != 'true'
         run: |
-          git tag -f nightly
-          git push origin nightly --force
+          git tag -f latest
+          git push origin latest --force
 
       - name: Record build time
         if: steps.tagcheck.outputs.skip != 'true'
         id: date
         run: echo "date=$(date -u +'%Y-%m-%d %H:%M UTC')" >> "$GITHUB_OUTPUT"
 
-      - name: Publish nightly release
+      - name: Publish latest release
         if: steps.tagcheck.outputs.skip != 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: nightly
-          name: "Nightly build"
+          tag_name: latest
+          name: "Latest build"
           body: |
             Automated build of the latest master (${{ github.sha }}), built ${{ steps.date.outputs.date }}.
 
