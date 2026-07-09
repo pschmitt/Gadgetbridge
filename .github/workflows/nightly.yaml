@@ -34,6 +34,10 @@ jobs:
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Export ANDROID_HOME
+        if: steps.tagcheck.outputs.skip != 'true'
+        run: echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+
       - name: Set up JDK 21
         if: steps.tagcheck.outputs.skip != 'true'
         uses: actions/setup-java@v4
@@ -42,19 +46,29 @@ jobs:
           java-version: '21'
           cache: gradle
 
-      - name: Accept Android SDK licenses
+      - name: Cache Android SDK platform/build-tools
         if: steps.tagcheck.outputs.skip != 'true'
+        id: android-sdk-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.ANDROID_HOME }}/platforms/android-36.1
+            ${{ env.ANDROID_HOME }}/build-tools/36.1.0
+          key: android-sdk-36.1-${{ runner.os }}
+
+      - name: Accept Android SDK licenses
+        if: steps.tagcheck.outputs.skip != 'true' && steps.android-sdk-cache.outputs.cache-hit != 'true'
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
 
       - name: Install Android SDK platform/build-tools
-        if: steps.tagcheck.outputs.skip != 'true'
+        if: steps.tagcheck.outputs.skip != 'true' && steps.android-sdk-cache.outputs.cache-hit != 'true'
         run: |
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36.1' 'build-tools;36.1.0'
 
       - name: Build mainline nightly APK
         if: steps.tagcheck.outputs.skip != 'true'
-        run: ./gradlew assembleMainlineNightly --stacktrace
+        run: ./gradlew assembleMainlineNightly --stacktrace --build-cache
 
       - name: Rename APK to a fixed filename
         if: steps.tagcheck.outputs.skip != 'true'
