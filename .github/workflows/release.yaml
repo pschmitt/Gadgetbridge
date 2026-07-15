@@ -58,8 +58,20 @@ jobs:
       - name: Test
         run: ./gradlew test --stacktrace --build-cache
 
+      - name: Decode nightly signing keystore
+        id: keystore
+        run: |
+          path="$RUNNER_TEMP/nightly.keystore"
+          echo "${{ secrets.NIGHTLY_KEYSTORE_BASE64 }}" | base64 -d > "$path"
+          echo "path=$path" >> "$GITHUB_OUTPUT"
+
       - name: Build mainline nightly APK
-        run: ./gradlew assembleMainlineNightly --stacktrace --build-cache
+        run: |
+          ./gradlew assembleMainlineNightly --stacktrace --build-cache \
+            -Dnightly_store_file=${{ steps.keystore.outputs.path }} \
+            -Dnightly_store_password=${{ secrets.NIGHTLY_STORE_PASSWORD }} \
+            -Dnightly_key_alias=${{ secrets.NIGHTLY_KEY_ALIAS }} \
+            -Dnightly_key_password=${{ secrets.NIGHTLY_KEY_PASSWORD }}
 
       - name: Locate APK
         id: apk
