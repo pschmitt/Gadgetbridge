@@ -66,9 +66,22 @@ jobs:
         run: |
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36.1' 'build-tools;36.1.0'
 
+      - name: Decode nightly signing keystore
+        if: steps.tagcheck.outputs.skip != 'true'
+        id: keystore
+        run: |
+          path="$RUNNER_TEMP/nightly.keystore"
+          echo "${{ secrets.NIGHTLY_KEYSTORE_BASE64 }}" | base64 -d > "$path"
+          echo "path=$path" >> "$GITHUB_OUTPUT"
+
       - name: Build mainline nightly APK
         if: steps.tagcheck.outputs.skip != 'true'
-        run: ./gradlew assembleMainlineNightly --stacktrace --build-cache
+        run: |
+          ./gradlew assembleMainlineNightly --stacktrace --build-cache \
+            -Dnightly_store_file=${{ steps.keystore.outputs.path }} \
+            -Dnightly_store_password=${{ secrets.NIGHTLY_STORE_PASSWORD }} \
+            -Dnightly_key_alias=${{ secrets.NIGHTLY_KEY_ALIAS }} \
+            -Dnightly_key_password=${{ secrets.NIGHTLY_KEY_PASSWORD }}
 
       - name: Rename APK to a fixed filename
         if: steps.tagcheck.outputs.skip != 'true'
