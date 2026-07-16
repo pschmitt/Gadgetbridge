@@ -1,5 +1,14 @@
 Gadgetbridge is hosted on [codeberg.org](https://codeberg.org/Freeyourgadget/Gadgetbridge/).
 
+This repository is [pschmitt](https://github.com/pschmitt)'s fork, built and released via GitHub
+Actions instead of the upstream F-Droid nightly repo. Grab a build from the
+[Releases page](https://github.com/pschmitt/Gadgetbridge/releases), or auto-update via
+[Obtainium](https://obtainium.imranr.dev/):
+
+[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="60">][obtainium-link]
+
+[obtainium-link]: https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22nodomain.freeyourgadget.gadgetbridge.nightly%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fpschmitt%2FGadgetbridge%22%2C%22author%22%3A%22pschmitt%22%2C%22name%22%3A%22Gadgetbridge%20(pschmitt%20fork)%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%2C%5C%22trackOnly%5C%22%3Afalse%7D%22%7D
+
 
 Gadgetbridge
 ============
