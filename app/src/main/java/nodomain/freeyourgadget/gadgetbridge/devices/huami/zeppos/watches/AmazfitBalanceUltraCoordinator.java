@@ -1,4 +1,4 @@
-/*  Copyright (C) 2023-2024 Daniel Dakhno, José Rebelo
+/*  Copyright (C) 2026 José Rebelo
 
     This file is part of Gadgetbridge.
 
@@ -28,33 +28,41 @@ import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.devices.huami.zeppos.ZeppOsCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 
-public class AmazfitCheetahRoundCoordinator extends ZeppOsCoordinator {
+public class AmazfitBalanceUltraCoordinator extends ZeppOsCoordinator {
+    @Override
+    public boolean isExperimental() {
+        // untested
+        return true;
+    }
+
+    @Override
+    public ConnectionType getConnectionType() {
+        // unconfirmed
+        return ConnectionType.BOTH;
+    }
+
     @Override
     public List<String> getDeviceBluetoothNames() {
-        return Collections.singletonList("Amazfit Cheetah R");
+        // never seen, assumption
+        return Collections.singletonList("Amazfit Balance Ultra");
     }
 
     @Override
     public Set<Integer> getDeviceSources() {
         return new HashSet<>(Arrays.asList(
-                8192256, // chinese mainland version
-                8192257
+                11075840, // chinese mainland version
+                11075841
         ));
     }
 
     @Override
     public int getDeviceNameResource() {
-        return R.string.devicetype_amazfit_cheetah_round;
+        return R.string.devicetype_amazfit_balance_ultra;
     }
 
     @Override
     public boolean mainMenuHasMoreSection() {
-        return true;
-    }
-
-    @Override
-    public boolean supportsGpxUploads(final GBDevice device) {
-        return true;
+        return false;
     }
 
     @Override
@@ -68,8 +76,13 @@ public class AmazfitCheetahRoundCoordinator extends ZeppOsCoordinator {
     }
 
     @Override
+    public boolean supportsWifiHotspot(final GBDevice device) {
+        return true;
+    }
+
+    @Override
     public boolean supportsBluetoothPhoneCalls(final GBDevice device) {
-        return false;
+        return true;
     }
 
     @Override

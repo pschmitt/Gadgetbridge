@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 
 import nodomain.freeyourgadget.gadgetbridge.BuildConfig;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.entries.ActivitySummaryEntry;
@@ -42,7 +43,6 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrack;
 import nodomain.freeyourgadget.gadgetbridge.model.GPSCoordinate;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.FileType;
-import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.GarminTimeUtils;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.FitFile;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.RecordData;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.GarminSport;
@@ -56,6 +56,7 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitSession;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitSet;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitSplit;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitTimestampCorrelation;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitWorkout;
 
 /**
@@ -95,6 +96,7 @@ public class FitExporter {
     private static final int LMT_LENGTH = 8;
     private static final int LMT_SPLIT = 9;
     private static final int LMT_SET = 10;
+    private static final int LMT_TIMESTAMP_CORRELATION = 11;
 
     // FIT lap intensity codes (from intensity_t in the FIT spec)
     private static final int FIT_INTENSITY_ACTIVE = 0;
@@ -265,6 +267,14 @@ public class FitExporter {
         final long startSeconds = startMs / 1000L;
         final long endSeconds = Math.max(startSeconds, endMs / 1000L);
         final long elapsedSeconds = endSeconds - startSeconds;
+        // DST-aware offset of the phone's current zone at the workout instant. Evaluated at
+        // endMs so it pairs with the activity message's timestamp (endSeconds); the two only
+        // differ for a workout spanning a DST transition. BaseActivitySummary stores no
+        // per-workout timezone, so the phone's current zone is the best available signal.
+        final int utcOffsetSeconds = TimeZone.getDefault().getOffset(endMs) / 1000;
+        // Offset evaluated at startMs, paired with the timestamp_correlation record's
+        // startSeconds (differs from utcOffsetSeconds only across a DST transition).
+        final int utcOffsetSecondsStart = TimeZone.getDefault().getOffset(startMs) / 1000;
 
         if (track == null) {
             LOG.warn("performExport: track is null for summary {} — emitting fallback single-lap shell file",
@@ -320,6 +330,9 @@ public class FitExporter {
         final List<RecordData> records = new ArrayList<>();
         records.add(buildFileId(startSeconds));
         records.add(buildFileCreator());
+        // Correlates the session start across UTC / local / FIT clocks so importers can
+        // recover the recording timezone from a single record at the session's starttime.
+        records.add(buildTimestampCorrelation(startSeconds, utcOffsetSecondsStart));
         // wkt_name lets importers (Endurain) display the user-facing activity name
         // instead of falling back to a generic "Workout" label.
         final String workoutName = summary.getName();
@@ -489,7 +502,7 @@ public class FitExporter {
         }
         records.add(buildSession(summaryData, totalAgg, sport, subSport, startSeconds, elapsedSeconds, emittedLaps, sumLapStrokes,
                 track != null ? track.getLengths().size() : 0, summary.getName()));
-        records.add(buildActivity(endSeconds, elapsedSeconds));
+        records.add(buildActivity(endSeconds, elapsedSeconds, utcOffsetSeconds));
 
         final FitFile fitFile = new FitFile(records);
         final byte[] bytes = fitFile.getOutgoingMessage();
@@ -546,6 +559,18 @@ public class FitExporter {
                 .setNumber(0)
                 .setProductName("Gadgetbridge")
                 .build(LMT_FILE_ID);
+    }
+
+    private RecordData buildTimestampCorrelation(final long startSeconds, final int utcOffsetSeconds) {
+        // All three fields are FIT TIMESTAMP type, so the encoder subtracts the Garmin epoch
+        // automatically — pass raw Unix seconds. system_timestamp and timestamp are the UTC
+        // start instant; local_timestamp carries the phone-zone offset so importers recover
+        // the timezone as local_timestamp - system_timestamp.
+        return new FitTimestampCorrelation.Builder()
+                .setSystemTimestamp(startSeconds)
+                .setLocalTimestamp(startSeconds + utcOffsetSeconds)
+                .setTimestamp(startSeconds)
+                .build(LMT_TIMESTAMP_CORRELATION);
     }
 
     private RecordData buildFileCreator() {
@@ -1483,15 +1508,17 @@ public class FitExporter {
         return b.build(LMT_SESSION);
     }
 
-    private RecordData buildActivity(final long endSeconds, final long elapsedSeconds) {
+    private RecordData buildActivity(final long endSeconds, final long elapsedSeconds,
+                                     final int utcOffsetSeconds) {
         // NativeFITMessage.ACTIVITY field 0 (total_timer_time) is declared without scale —
         // FIT spec is scale=1000 unit=s, so pre-multiply seconds → milliseconds.
-        // Field 5 (local_timestamp) likewise lacks the TIMESTAMP marker, so the encoder
-        // does not subtract the Garmin epoch — do it manually so importers read the
-        // right wall-clock time (we don't track timezone offset, so use endSeconds as-is).
+        // Field 5 (local_timestamp) is a FIT TIMESTAMP, so the encoder subtracts the Garmin
+        // epoch — pass raw Unix seconds plus the phone-zone UTC offset so local_timestamp
+        // holds the local wall-clock; importers recover the timezone as
+        // local_timestamp - timestamp == utcOffsetSeconds (0 when the phone is in UTC).
         return new FitActivity.Builder()
                 .setTimestamp(endSeconds)
-                .setLocalTimestamp(endSeconds - GarminTimeUtils.GARMIN_TIME_EPOCH)
+                .setLocalTimestamp(endSeconds + utcOffsetSeconds)
                 .setTotalTimerTime(elapsedSeconds * 1000L)
                 .setNumSessions(1)
                 .setType(ACTIVITY_TYPE_MANUAL)

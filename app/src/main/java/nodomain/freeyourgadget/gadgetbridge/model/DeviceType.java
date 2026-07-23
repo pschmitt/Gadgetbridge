@@ -97,6 +97,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.fenix.GarminF
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.fenix.GarminFenix5Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.fenix.GarminFenix5PlusCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.fenix.GarminFenix5SCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.fenix.GarminFenix5SPlusCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.fenix.GarminFenix5XPlusCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.fenix.GarminFenix6Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.fenix.GarminFenix6ProCoordinator;
@@ -206,6 +207,10 @@ import nodomain.freeyourgadget.gadgetbridge.devices.gloryfit.watches.Y6Coordinat
 import nodomain.freeyourgadget.gadgetbridge.devices.gree.GreeAcCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.hama.fit6900.HamaFit6900DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.haylou.HaylouS35AncCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.huami.zeppos.watches.AmazfitBalance3Coordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.huami.zeppos.watches.AmazfitBalanceUltraCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.huami.zeppos.watches.AmazfitBipMaxCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.huami.zeppos.watches.AmazfitCheetah2UltraCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.xiaomi.watches.MiBand10ProCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.victron.VictronSmartShuntCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.xplora.XploraXmoveDeviceCoordinator;
@@ -616,11 +621,13 @@ public enum DeviceType {
     AMAZFITBIP3PRO(AmazfitBip3ProCoordinator.class),
     AMAZFITCHEETAHPRO(AmazfitCheetahProCoordinator.class),
     AMAZFITCHEETAH2PRO(AmazfitCheetah2ProCoordinator.class),
+    AMAZFITCHEETAH2ULTRA(AmazfitCheetah2UltraCoordinator.class),
     AMAZFITCHEETAHSQUARE(AmazfitCheetahSquareCoordinator.class),
     AMAZFITCHEETAHROUND(AmazfitCheetahRoundCoordinator.class),
     AMAZFITBIP5(AmazfitBip5Coordinator.class),
     AMAZFITBIP5UNITY(AmazfitBip5UnityCoordinator.class),
     AMAZFITBIP6(AmazfitBip6Coordinator.class),
+    AMAZFITBIPMAX(AmazfitBipMaxCoordinator.class),
     AMAZFITTREXULTRA(AmazfitTRexUltraCoordinator.class),
     AMAZFITTREXULTRA2(AmazfitTRexUltra2Coordinator.class),
     AMAZFITGTRMINI(AmazfitGTRMiniCoordinator.class),
@@ -628,6 +635,8 @@ public enum DeviceType {
     AMAZFITBALANCE(AmazfitBalanceCoordinator.class),
     AMAZFITBALANCE2(AmazfitBalance2Coordinator.class),
     AMAZFITBALANCE2XT(AmazfitBalance2XTCoordinator.class),
+    AMAZFITBALANCE3(AmazfitBalance3Coordinator.class),
+    AMAZFITBALANCEULTRA(AmazfitBalanceUltraCoordinator.class),
     AMAZFITACTIVE(AmazfitActiveCoordinator.class),
     AMAZFITACTIVE2(AmazfitActive2RoundCoordinator.class),
     AMAZFITACTIVE2NFC(AmazfitActive2NfcCoordinator.class),
@@ -713,6 +722,7 @@ public enum DeviceType {
     GARMIN_FENIX_3_HR(GarminFenix3HrCoordinator.class),
     GARMIN_FENIX_5(GarminFenix5Coordinator.class),
     GARMIN_FENIX_5S(GarminFenix5SCoordinator.class),
+    GARMIN_FENIX_5S_PLUS(GarminFenix5SPlusCoordinator.class),
     GARMIN_FENIX_5_PLUS(GarminFenix5PlusCoordinator.class),
     GARMIN_FENIX_5X_PLUS(GarminFenix5XPlusCoordinator.class),
     GARMIN_FENIX_6(GarminFenix6Coordinator.class),

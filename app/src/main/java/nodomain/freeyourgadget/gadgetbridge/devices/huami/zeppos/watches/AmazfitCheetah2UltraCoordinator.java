@@ -1,4 +1,4 @@
-/*  Copyright (C) 2023-2024 Daniel Dakhno, José Rebelo
+/*  Copyright (C) 2026 José Rebelo
 
     This file is part of Gadgetbridge.
 
@@ -19,7 +19,6 @@ package nodomain.freeyourgadget.gadgetbridge.devices.huami.zeppos.watches;
 import androidx.annotation.NonNull;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,33 +27,44 @@ import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.devices.huami.zeppos.ZeppOsCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 
-public class AmazfitCheetahRoundCoordinator extends ZeppOsCoordinator {
+public class AmazfitCheetah2UltraCoordinator extends ZeppOsCoordinator {
+    @Override
+    public boolean isExperimental() {
+        // untested
+        return true;
+    }
+
+    @Override
+    public ConnectionType getConnectionType() {
+        // unconfirmed
+        return ConnectionType.BOTH;
+    }
+
     @Override
     public List<String> getDeviceBluetoothNames() {
-        return Collections.singletonList("Amazfit Cheetah R");
+        // never seen, assumption
+        return Arrays.asList(
+                "Amazfit Cheetah 2 Ultra",
+                "Cheetah 2 Ultra"
+        );
     }
 
     @Override
     public Set<Integer> getDeviceSources() {
         return new HashSet<>(Arrays.asList(
-                8192256, // chinese mainland version
-                8192257
+                9961728, // chinese mainland version
+                9961729
         ));
     }
 
     @Override
     public int getDeviceNameResource() {
-        return R.string.devicetype_amazfit_cheetah_round;
+        return R.string.devicetype_amazfit_cheetah_2_ultra;
     }
 
     @Override
     public boolean mainMenuHasMoreSection() {
-        return true;
-    }
-
-    @Override
-    public boolean supportsGpxUploads(final GBDevice device) {
-        return true;
+        return false;
     }
 
     @Override
@@ -68,8 +78,13 @@ public class AmazfitCheetahRoundCoordinator extends ZeppOsCoordinator {
     }
 
     @Override
+    public boolean supportsWifiHotspot(final GBDevice device) {
+        return true;
+    }
+
+    @Override
     public boolean supportsBluetoothPhoneCalls(final GBDevice device) {
-        return false;
+        return true;
     }
 
     @Override
