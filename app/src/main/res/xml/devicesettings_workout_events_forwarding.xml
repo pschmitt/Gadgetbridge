@@ -8,6 +8,14 @@
         android:summary="@string/prefs_events_forwarding_summary"
         android:title="@string/prefs_events_forwarding_workout_title">
 
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:icon="@drawable/ic_activity_unknown_small"
+            android:key="workout_start_on_phone"
+            android:layout="@layout/preference_checkbox"
+            android:summary="@string/pref_workout_start_on_phone_summary"
+            android:title="@string/pref_workout_start_on_phone_title" />
+
         <PreferenceCategory
             android:title="@string/prefs_events_forwarding_workoutstart"
             android:icon="@drawable/ic_run_circle">
