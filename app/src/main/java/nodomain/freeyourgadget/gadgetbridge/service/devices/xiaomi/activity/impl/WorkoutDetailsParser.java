@@ -36,22 +36,10 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivityPoint;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrack;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.activity.XiaomiActivityFileId;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.activity.XiaomiActivityParser;
-import nodomain.freeyourgadget.gadgetbridge.util.ArrayUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 
 public class WorkoutDetailsParser extends XiaomiActivityParser {
     private static final Logger LOG = LoggerFactory.getLogger(WorkoutDetailsParser.class);
-
-    /** Known v8 data-valid bitmaps. The bitmap is not a fixed signature - it varies with the
-     *  workout type (one nibble per field group) - but every known value shares the same
-     *  27-byte header and 21-byte records, decoded as layout 108, verified against the
-     *  paired SUMMARY files. */
-    private static final byte[][] V8_SIGNATURES = {
-            // walking
-            {(byte) 0xFF, (byte) 0xCF, (byte) 0xF8, (byte) 0xBF, (byte) 0xFB, (byte) 0xBB, (byte) 0xBF},
-            // outdoor running, which populates more field groups than walking
-            {(byte) 0xFF, (byte) 0xCF, (byte) 0xFA, (byte) 0xBF, (byte) 0xFB, (byte) 0xBF, (byte) 0xFF},
-    };
 
     /** Per-record output of {@link #parseBytes}. Fields are nullable when the version
      *  format does not encode them. Decoupled from {@link XiaomiActivitySample} so parsed
@@ -213,15 +201,33 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
         return records;
     }
 
-    /** Returns whichever of {@code known} matches the payload signature at offset 8, or null. */
-    @Nullable
-    private static byte[] findSignature(final byte[] bytes, final byte[][] known) {
-        for (final byte[] sig : known) {
-            if (ArrayUtils.equals(bytes, sig, 8)) {
-                return sig;
+    /**
+     * Whether the segments account for every byte of the payload: repeated
+     * {@code segmentHeaderSize}-byte headers, each declaring a record count at
+     * {@code nrPosition}, followed by that many {@code recordSize}-byte records, ending
+     * exactly on the end of the payload. The record counts come from the payload itself,
+     * so a wrong record size leaves a remainder in one of the segments - which identifies
+     * the layout without having to enumerate the leading bytes.
+     */
+    private static boolean segmentsConsumePayload(final byte[] bytes, final int payloadStart,
+                                                  final int segmentHeaderSize, final int recordSize,
+                                                  final int nrPosition) {
+        final int limit = bytes.length - 4; // the trailing CRC32 is not part of the payload
+        int pos = payloadStart;
+        while (pos < limit) {
+            if (pos + segmentHeaderSize > limit) {
+                return false;
             }
+            final int nr = ByteBuffer.wrap(bytes, pos + nrPosition, 4)
+                    .order(ByteOrder.LITTLE_ENDIAN)
+                    .getInt();
+            pos += segmentHeaderSize;
+            if (nr <= 0 || recordSize <= 0 || nr > (limit - pos) / recordSize) {
+                return false;
+            }
+            pos += nr * recordSize;
         }
-        return null;
+        return pos == limit;
     }
 
     @Nullable
@@ -238,7 +244,10 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
         // signature-keyed variants can override both independently.
         final int tsPosition;
         final int nrPosition;
+        // Null when the leading bytes are a per-workout bitmap rather than a fixed
+        // signature; signatureSize then says how many bytes to skip.
         final byte[] expectedSignature;
+        int signatureSize = 0;
 
         switch (version) {
             case 2:
@@ -430,7 +439,9 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
                 break;
             case 8:
                 // SPORTS_OUTDOOR_WALKING_V2 v8: extended walking / outdoor running layout.
-                //   7-byte data-valid bitmap, matched against V8_SIGNATURES (see there).
+                //   7-byte data-valid bitmap. Not a signature: it varies with the workout
+                //   type and with what the watch recorded, so it is not matched at all -
+                //   the layout below is confirmed structurally instead.
                 //   27-byte segment header:
                 //     offset  0- 3: int32 initHeight  (always 0 in captured data)
                 //     offset  4- 7: int32 recordCount
@@ -441,17 +452,18 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
                 //     offset 21-22: int16 itTotalPaces
                 //     offset 23-26: int32 itTotalDuration
                 //   21-byte records — layout decoded below in case 108.
-                expectedSignature = findSignature(bytes, V8_SIGNATURES);
-                if (expectedSignature == null) {
-                    LOG.warn("Unknown v8 DETAILS bitmap: {}",
-                            GB.hexdump(bytes, 8, Math.min(7, bytes.length - 8)));
-                    return null;
-                }
+                expectedSignature = null; // per-workout bitmap, nothing to compare against
+                signatureSize = 7;
                 segmentHeaderSize = 27;
                 recordSize = 21;
                 tsPosition = 8;
                 nrPosition = 4;
                 layoutCode = 108;
+                if (!segmentsConsumePayload(bytes, 8 + signatureSize, segmentHeaderSize, recordSize, nrPosition)) {
+                    LOG.warn("v8 DETAILS payload is not consistent with the known layout, bitmap {}",
+                            GB.hexdump(bytes, 8, Math.min(7, bytes.length - 8)));
+                    return null;
+                }
                 break;
             case 9:
                 // SPORTS_OUTDOOR_WALKING_V2 v9: as v8 above, but the records are 25 bytes and
@@ -473,11 +485,14 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
         }
 
         // Validate signature at byte offset 8 (after 7-byte fileId + 1 padding)
-        final byte[] actualSignature = Arrays.copyOfRange(bytes, 8, 8 + expectedSignature.length);
-        if (!Arrays.equals(expectedSignature, actualSignature)) {
-            LOG.warn("Unexpected signature for v{}: expected {} got {}",
-                    version, GB.hexdump(expectedSignature), GB.hexdump(actualSignature));
-            return null;
+        if (expectedSignature != null) {
+            final byte[] actualSignature = Arrays.copyOfRange(bytes, 8, 8 + expectedSignature.length);
+            if (!Arrays.equals(expectedSignature, actualSignature)) {
+                LOG.warn("Unexpected signature for v{}: expected {} got {}",
+                        version, GB.hexdump(expectedSignature), GB.hexdump(actualSignature));
+                return null;
+            }
+            signatureSize = expectedSignature.length;
         }
 
         final ByteBuffer buf = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
@@ -488,7 +503,7 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
         if (padding != 0) {
             LOG.warn("Expected 0 padding after fileId, got {}", padding);
         }
-        buf.get(new byte[expectedSignature.length]); // skip signature
+        buf.get(new byte[signatureSize]); // skip signature / bitmap
 
         final List<WorkoutDetailRecord> records = new ArrayList<>();
 
