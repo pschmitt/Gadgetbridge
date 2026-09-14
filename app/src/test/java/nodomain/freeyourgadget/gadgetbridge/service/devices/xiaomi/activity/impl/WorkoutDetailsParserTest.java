@@ -65,6 +65,16 @@ public class WorkoutDetailsParserTest {
      *                 v6: [steps, hr, events, cadence, speedRaw_int24]
      */
     private static byte[] buildBytes(final int version, final Segment... segments) {
+        return buildBytes(version, null, segments);
+    }
+
+    /**
+     * As {@link #buildBytes(int, Segment...)}, but with an explicit leading signature. Version 8
+     * starts with a per-workout data-valid bitmap rather than a fixed signature, so its tests
+     * need to supply one.
+     */
+    private static byte[] buildBytes(final int version, final byte[] signatureOverride,
+                                     final Segment... segments) {
         final byte[] signature;
         final int segmentHeaderSize;
         final int recordSize;
@@ -100,6 +110,16 @@ public class WorkoutDetailsParserTest {
                 segmentHeaderSize = 13;
                 recordSize = 12;
                 tsPosition = 4;
+                break;
+            case 8:
+                // per-workout data-valid bitmap; the walking one unless a test overrides it
+                signature = signatureOverride != null ? signatureOverride : new byte[]{
+                        (byte) 0xFF, (byte) 0xCF, (byte) 0xF8, (byte) 0xBF,
+                        (byte) 0xFB, (byte) 0xBB, (byte) 0xBF
+                };
+                segmentHeaderSize = 27;
+                recordSize = 21;
+                tsPosition = 8;
                 break;
             case 9:
                 signature = new byte[]{
@@ -171,6 +191,13 @@ public class WorkoutDetailsParserTest {
                         buf.put((byte) rec[4]); // spo2
                         buf.put((byte) rec[5]); // cadence
                         buf.putShort((short) rec[6]); // pace
+                        break;
+                    case 8:
+                        buf.put((byte) rec[0]); // steps, in the low nibble
+                        buf.put((byte) rec[1]); // hr
+                        buf.put(new byte[8]);   // flags, heightChange, distanceInc, stride, 4 unknown
+                        buf.put((byte) rec[2]); // cadence
+                        buf.put(new byte[10]);  // pace and 4 trailing shorts
                         break;
                     case 9:
                         buf.put((byte) rec[0]); // steps, in the low nibble
@@ -961,5 +988,116 @@ public class WorkoutDetailsParserTest {
         // one record per second from the segment start
         assertEquals(1787401873, records.get(0).ts);
         assertEquals(1787401876, records.get(3).ts);
+    }
+
+    // ---- v8: the leading bytes are a per-workout bitmap, so the layout is confirmed
+    //      structurally rather than by matching them ----
+
+    private static final byte[] V8_WALKING = {
+            (byte) 0xFF, (byte) 0xCF, (byte) 0xF8, (byte) 0xBF, (byte) 0xFB, (byte) 0xBB, (byte) 0xBF
+    };
+    private static final byte[] V8_OUTDOOR_RUNNING = {
+            (byte) 0xFF, (byte) 0xCF, (byte) 0xFA, (byte) 0xBF, (byte) 0xFB, (byte) 0xBF, (byte) 0xFF
+    };
+    private static final byte[] V8_OUTDOOR_WALKING = {
+            (byte) 0xDF, (byte) 0xCB, (byte) 0xF8, (byte) 0xBB, (byte) 0xFB, (byte) 0xBB, (byte) 0xBF
+    };
+
+    @Test
+    public void testV8CapturedBitmaps() {
+        for (final byte[] bitmap : new byte[][]{V8_WALKING, V8_OUTDOOR_RUNNING, V8_OUTDOOR_WALKING}) {
+            final byte[] bytes = buildBytes(8, bitmap, new Segment(1700000000, new int[][]{
+                    {3, 80, 90},
+                    {2, 95, 91},
+                    {4, 110, 92},
+            }));
+
+            final List<WorkoutDetailRecord> records = WorkoutDetailsParser.parseBytes(makeFileId(8), bytes);
+
+            assertNotNull(records);
+            assertEquals(3, records.size());
+            assertEquals(80, records.get(0).hr);
+            assertEquals(110, records.get(2).hr);
+            assertEquals(3, records.get(0).steps.intValue());
+            assertEquals(90, records.get(0).cadence.intValue());
+            assertEquals(1700000000, records.get(0).ts);
+            assertEquals(1700000002, records.get(2).ts);
+        }
+    }
+
+    /**
+     * The bitmap varies with the workout type, so a value nobody has captured yet must still
+     * decode as long as the segments add up.
+     */
+    @Test
+    public void testV8UncapturedBitmap() {
+        final byte[] unseen = {
+                (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE
+        };
+        final byte[] bytes = buildBytes(8, unseen, new Segment(1700000000, new int[][]{
+                {1, 70, 88},
+                {1, 72, 89},
+        }));
+
+        final List<WorkoutDetailRecord> records = WorkoutDetailsParser.parseBytes(makeFileId(8), bytes);
+
+        assertNotNull(records);
+        assertEquals(2, records.size());
+        assertEquals(70, records.get(0).hr);
+        assertEquals(72, records.get(1).hr);
+    }
+
+    @Test
+    public void testV8MultiSegment() {
+        final byte[] bytes = buildBytes(8, V8_OUTDOOR_WALKING,
+                new Segment(1700000000, new int[][]{{1, 60, 80}, {1, 61, 81}}),
+                new Segment(1700001000, new int[][]{{1, 70, 82}, {1, 71, 83}, {1, 72, 84}}));
+
+        final List<WorkoutDetailRecord> records = WorkoutDetailsParser.parseBytes(makeFileId(8), bytes);
+
+        assertNotNull(records);
+        assertEquals(5, records.size());
+        assertEquals(1700000001, records.get(1).ts);
+        assertEquals(70, records.get(2).hr);
+        assertEquals(1700001000, records.get(2).ts);
+    }
+
+    @Test
+    public void testV8RejectsPayloadShortOfARecord() {
+        final byte[] bytes = buildBytes(8, V8_WALKING, new Segment(1700000000, new int[][]{
+                {1, 80, 90}, {1, 95, 91},
+        }));
+        // drop a byte from the records, keeping the trailing CRC32 in place
+        final byte[] truncated = new byte[bytes.length - 1];
+        System.arraycopy(bytes, 0, truncated, 0, bytes.length - 5);
+        System.arraycopy(bytes, bytes.length - 4, truncated, truncated.length - 4, 4);
+
+        assertNull(WorkoutDetailsParser.parseBytes(makeFileId(8), truncated));
+    }
+
+    @Test
+    public void testV8RejectsPayloadWithATrailingByte() {
+        final byte[] bytes = buildBytes(8, V8_WALKING, new Segment(1700000000, new int[][]{
+                {1, 80, 90}, {1, 95, 91},
+        }));
+        final byte[] padded = new byte[bytes.length + 1];
+        System.arraycopy(bytes, 0, padded, 0, bytes.length - 4);
+        System.arraycopy(bytes, bytes.length - 4, padded, padded.length - 4, 4);
+
+        assertNull(WorkoutDetailsParser.parseBytes(makeFileId(8), padded));
+    }
+
+    @Test
+    public void testV8RejectsSegmentWithAWrongRecordCount() {
+        final byte[] bytes = buildBytes(8, V8_WALKING, new Segment(1700000000, new int[][]{
+                {1, 80, 90}, {1, 95, 91},
+        }));
+        // the record count sits at offset 4 of the segment header, which follows the 7-byte
+        // file id, the padding byte and the 7-byte bitmap
+        final int nrOffset = 7 + 1 + 7 + 4;
+        final ByteBuffer buf = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+        buf.putInt(nrOffset, buf.getInt(nrOffset) + 1);
+
+        assertNull(WorkoutDetailsParser.parseBytes(makeFileId(8), bytes));
     }
 }
