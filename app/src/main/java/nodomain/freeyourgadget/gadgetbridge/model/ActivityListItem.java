@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutUploadStatus;
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.FormatUtils;
 
@@ -43,6 +44,7 @@ public class ActivityListItem {
     private final ImageView activityIcon;
     private final ImageView gpsIcon;
     private final ImageView photoIcon;
+    private final ImageView uploadIcon;
 
     private final int backgroundColor;
     private final int alternateColor;
@@ -73,6 +75,7 @@ public class ActivityListItem {
         this.activityIcon = itemView.findViewById(R.id.line_layout_activity_icon);
         this.gpsIcon = itemView.findViewById(R.id.line_layout_gps_icon);
         this.photoIcon = itemView.findViewById(R.id.line_layout_photo_icon);
+        this.uploadIcon = itemView.findViewById(R.id.line_layout_upload_icon);
 
         this.backgroundColor = 0;
         this.alternateColor = getThemedColor(itemView.getContext(), R.attr.alternate_row_background);
@@ -90,6 +93,7 @@ public class ActivityListItem {
                        final long duration,
                        final boolean hasGps,
                        final boolean hasHeaderPhoto,
+                       @Nullable final WorkoutUploadStatus uploadStatus,
                        @Nullable final Date date,
                        final boolean zebraStripe,
                        final boolean selected) {
@@ -157,6 +161,14 @@ public class ActivityListItem {
             photoIcon.setVisibility(View.VISIBLE);
         } else {
             photoIcon.setVisibility(View.GONE);
+        }
+
+        if (uploadStatus != null) {
+            uploadIcon.setImageResource(uploadStatus.getIconRes());
+            uploadIcon.setContentDescription(uploadIcon.getContext().getString(uploadStatus.getLabelRes()));
+            uploadIcon.setVisibility(View.VISIBLE);
+        } else {
+            uploadIcon.setVisibility(View.GONE);
         }
 
         activityIcon.setImageResource(activityKind.getIcon());

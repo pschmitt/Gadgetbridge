@@ -55,18 +55,24 @@ import nodomain.freeyourgadget.gadgetbridge.capabilities.widgets.WidgetManager;
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.SleepAsAndroidFeature;
 import nodomain.freeyourgadget.gadgetbridge.devices.InstallHandler;
+import nodomain.freeyourgadget.gadgetbridge.devices.GenericTrainingLoadAcuteSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider;
+import nodomain.freeyourgadget.gadgetbridge.devices.WorkoutLoadSampleProvider;
+import nodomain.freeyourgadget.gadgetbridge.devices.XiaomiDailySummarySampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummaryDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
+import nodomain.freeyourgadget.gadgetbridge.entities.GenericTrainingLoadAcuteSample;
 import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiActivityFileDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiActivitySampleDao;
+import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiDailySummarySample;
 import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiDailySummarySampleDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiManualSampleDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiSleepStageSampleDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiSleepTimeSampleDao;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
+import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryParser;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrackProvider;
 import nodomain.freeyourgadget.gadgetbridge.model.BodyEnergySample;
@@ -76,6 +82,8 @@ import nodomain.freeyourgadget.gadgetbridge.model.RespiratoryRateSample;
 import nodomain.freeyourgadget.gadgetbridge.model.Spo2Sample;
 import nodomain.freeyourgadget.gadgetbridge.model.StressSample;
 import nodomain.freeyourgadget.gadgetbridge.model.TemperatureSample;
+import nodomain.freeyourgadget.gadgetbridge.model.TrainingLoadStatus;
+import nodomain.freeyourgadget.gadgetbridge.model.WorkoutLoadSample;
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.XiaomiUuids;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.XiaomiPreferences;
@@ -194,6 +202,18 @@ public abstract class XiaomiCoordinator extends AbstractBLEDeviceCoordinator {
     @Override
     public TimeSampleProvider<? extends PaiSample> getPaiSampleProvider(@NonNull final GBDevice device, final DaoSession session) {
         return new XiaomiPaiSampleProvider(device, session);
+    }
+
+    @Override
+    public TimeSampleProvider<? extends GenericTrainingLoadAcuteSample> getTrainingAcuteLoadSampleProvider(@NonNull final GBDevice device, final DaoSession session) {
+        return new GenericTrainingLoadAcuteSampleProvider(device, session);
+    }
+
+    @Override
+    public TimeSampleProvider<? extends WorkoutLoadSample> getWorkoutLoadSampleProvider(@NonNull final GBDevice device, final DaoSession session) {
+        // WorkoutSummaryParser emits the per-workout load under WORKOUT_LOAD, not the TRAINING_LOAD
+        // key the provider defaults to.
+        return new WorkoutLoadSampleProvider(device, session, ActivitySummaryEntries.WORKOUT_LOAD);
     }
 
     @Override
@@ -324,6 +344,38 @@ public abstract class XiaomiCoordinator extends AbstractBLEDeviceCoordinator {
     @Override
     public boolean supportsPaiTime(@NonNull GBDevice device) {
         return false;
+    }
+
+    @Override
+    public boolean supportsTrainingLoad(@NonNull GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsTrainingLoadChronic(@NonNull GBDevice device) {
+        // The band reports a weekly training load and a status zone, but no chronic load.
+        return false;
+    }
+
+    @Nullable
+    @Override
+    public TrainingLoadStatus getTrainingLoadStatus(@NonNull final GBDevice device, @NonNull final DaoSession session, final long untilTs) {
+        final XiaomiDailySummarySample sample = new XiaomiDailySummarySampleProvider(device, session).getLatestSample(untilTs);
+        if (sample == null || sample.getTrainingLoadLevel() == null) {
+            return null;
+        }
+        switch (sample.getTrainingLoadLevel()) {
+            case 1:
+                return TrainingLoadStatus.LOW;
+            case 2:
+                return TrainingLoadStatus.OPTIMAL;
+            case 3:
+                return TrainingLoadStatus.HIGH;
+            case 4:
+                return TrainingLoadStatus.VERY_HIGH;
+            default:
+                return null;
+        }
     }
 
     @Override

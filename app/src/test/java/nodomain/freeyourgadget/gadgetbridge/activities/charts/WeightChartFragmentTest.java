@@ -54,14 +54,15 @@ public class WeightChartFragmentTest extends TestBase {
     private static final float WEIGHT_KG = 80f;
     private static final int IMPEDANCE_OHM = 500;
 
-    @Test
-    public void estimatesWithTheHeightRecordedAtTheTimeOfTheMeasurement() {
+    /**
+     * Profile says HEIGHT_NOW_CM (valid from now); an older record says the user was
+     * HEIGHT_THEN_CM for the years before. Returns a measurement taken in that earlier period.
+     */
+    private GenericWeightSample measurementTakenWhenShorter(final Integer impedanceOhm) {
         GBApplication.getPrefs().getPreferences().edit()
                 .putString(ActivityUser.PREF_USER_HEIGHT_CM, String.valueOf(HEIGHT_NOW_CM))
                 .apply();
-        // Current attributes (HEIGHT_NOW_CM, valid from now) come from the profile...
         final User user = DBHelper.getUser(daoSession);
-        // ...and an older record says the user was shorter for the years before.
         final long now = System.currentTimeMillis();
         final UserAttributes earlier = new UserAttributes();
         earlier.setUserId(user.getId());
@@ -72,11 +73,31 @@ public class WeightChartFragmentTest extends TestBase {
         daoSession.getUserAttributesDao().insert(earlier);
         user.resetUserAttributesList();
 
-        final long measuredAt = now - 1_000 * DAY;
         final GenericWeightSample sample = new GenericWeightSample();
-        sample.setTimestamp(measuredAt);
+        sample.setTimestamp(now - 1_000 * DAY);
         sample.setWeightKg(WEIGHT_KG);
-        sample.setImpedanceOhm(IMPEDANCE_OHM);
+        sample.setImpedanceOhm(impedanceOhm);
+        return sample;
+    }
+
+    @Test
+    public void bmiUsesTheHeightRecordedAtTheTimeOfTheMeasurement() {
+        final GenericWeightSample sample = measurementTakenWhenShorter(null);
+
+        final Float bmi = WeightChartFragment.estimateBmi(daoSession, sample);
+
+        assertNotNull(bmi);
+        assertEquals(WEIGHT_KG / (1.6f * 1.6f), bmi, 0.001f);
+        assertNotEquals(WEIGHT_KG / (1.8f * 1.8f), bmi, 0.01f);
+        // BMI needs no impedance, unlike the rest of the estimates
+        assertNull(WeightChartFragment.estimateComposition(daoSession, sample));
+        assertNull(WeightChartFragment.estimateBmi(daoSession, null));
+    }
+
+    @Test
+    public void estimatesWithTheHeightRecordedAtTheTimeOfTheMeasurement() {
+        final GenericWeightSample sample = measurementTakenWhenShorter(IMPEDANCE_OHM);
+        final long measuredAt = sample.getTimestamp();
 
         final BodyCompositionCalculator.BodyComposition actual = WeightChartFragment.estimateComposition(daoSession, sample);
 

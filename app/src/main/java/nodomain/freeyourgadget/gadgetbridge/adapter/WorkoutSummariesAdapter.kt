@@ -9,6 +9,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutListViewModel
+import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutUploadStatus
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind
@@ -32,6 +33,13 @@ class WorkoutSummariesAdapter(
     var dashboardStats: WorkoutListViewModel.DashboardStats? = null
     var isDashboardLoading: Boolean = false
 
+    /**
+     * Upload state per summary id, for the indicator on each row. Resolved off the main thread
+     * with the summaries themselves (see [WorkoutListViewModel]), because it reads the database
+     * and stats the exported files; a summary missing from the map shows no indicator.
+     */
+    var uploadStatuses: Map<Long, WorkoutUploadStatus> = emptyMap()
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -44,7 +52,6 @@ class WorkoutSummariesAdapter(
 
             2 -> // item
                 ActivityItemViewHolder(
-                    device,
                     LayoutInflater.from(context).inflate(R.layout.activity_list_item, parent, false)
                 )
 
@@ -78,7 +85,7 @@ class WorkoutSummariesAdapter(
 
     fun getActivityKindFilter(): Int = activityKindFilter
 
-    class ActivityItemViewHolder(val device: GBDevice, itemView: View) : AbstractActivityListingViewHolder<BaseActivitySummary>(itemView) {
+    inner class ActivityItemViewHolder(itemView: View) : AbstractActivityListingViewHolder<BaseActivitySummary>(itemView) {
         private val activityListItem = ActivityListItem(itemView)
 
         override fun fill(position: Int, summary: BaseActivitySummary, selected: Boolean) {
@@ -106,6 +113,7 @@ class WorkoutSummariesAdapter(
                 summary.endTime.time - summary.startTime.time,
                 hasGps,
                 workout.summary.headerPhoto != null,
+                uploadStatuses[summary.id],
                 summary.startTime,
                 position % 2 == 1,
                 selected

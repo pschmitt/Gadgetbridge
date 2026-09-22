@@ -33,6 +33,16 @@ public class CoMapsNavigationReceiverFactory {
                 }).toList();
     }
 
+    public static List<Pair<Uri, CoMapsNavigationRouteReceiver>> createCoMapsNavigationRouteReceiversForApplication(
+            Application application, Handler handler) {
+        return discoverInstalledVersions(application.getPackageManager()).stream()
+                .map(app -> {
+                    Uri uri = Uri.parse("content://" + app + AUTHORITY_SUFFIX + "/route");
+                    CoMapsNavigationRouteReceiver receiver = new CoMapsNavigationRouteReceiver(handler, application, uri);
+                    return new Pair<>(uri, receiver);
+                }).toList();
+    }
+
     public static List<String> discoverInstalledVersions(PackageManager packageManager) {
         List<String> installed = new ArrayList<>();
 

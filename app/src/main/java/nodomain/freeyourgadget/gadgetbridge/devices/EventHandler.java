@@ -39,6 +39,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.Contact;
 import nodomain.freeyourgadget.gadgetbridge.model.MusicSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.MusicStateSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.NavigationInfoSpec;
+import nodomain.freeyourgadget.gadgetbridge.model.NavigationRouteSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.Reminder;
 import nodomain.freeyourgadget.gadgetbridge.model.WorldClock;
@@ -83,6 +84,8 @@ public interface EventHandler {
     void onChangePhoneSilentMode(int ringerMode);
 
     void onSetNavigationInfo(@NonNull NavigationInfoSpec navigationInfoSpec);
+
+    void onSetNavigationRoute(@NonNull NavigationRouteSpec navigationRouteSpec);
 
     void onEnableRealtimeSteps(boolean enable);
 

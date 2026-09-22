@@ -47,7 +47,10 @@ public class OneMoreSonoFlowProtocol extends GBDeviceProtocol {
                 return OneMorePacket.createSetNoiseControlModePacket(mode);
 
             case DeviceSettingsPreferenceConst.PREF_SOUNDCORE_LDAC_MODE:
-                return OneMorePacket.createSetLdacModePacket(prefs.getBoolean(config, false));
+                if (OneMoreSonoFlowSupport.supportsLdac(getDevice())) {
+                    return OneMorePacket.createSetLdacModePacket(prefs.getBoolean(config, false));
+                }
+                return super.encodeSendConfiguration(config);
 
             case DeviceSettingsPreferenceConst.PREF_DUAL_DEVICE_SUPPORT:
                 return OneMorePacket.createSetDualDeviceModePacket(prefs.getBoolean(config, false));

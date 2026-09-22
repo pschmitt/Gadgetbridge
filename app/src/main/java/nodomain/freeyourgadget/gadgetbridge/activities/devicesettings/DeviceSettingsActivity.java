@@ -16,13 +16,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities.devicesettings;
 
-import android.content.Intent;
-
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.bytehamster.lib.preferencesearch.SearchPreferenceResult;
 
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractSettingsActivityV2;
+import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.DeviceSettingsSpec;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 
@@ -46,16 +45,30 @@ public class DeviceSettingsActivity extends AbstractSettingsActivityV2 {
     @Override
     public void onSearchResultClicked(final SearchPreferenceResult result) {
         final GBDevice device = getIntent().getParcelableExtra(GBDevice.EXTRA_DEVICE);
-        DeviceCoordinator coordinator = device.getDeviceCoordinator();
-        DeviceSpecificSettings deviceSpecificSettings = coordinator.getDeviceSpecificSettings(device);
+        final MENU_ENTRY_POINTS menu_entry = (MENU_ENTRY_POINTS) getIntent().getSerializableExtra(MENU_ENTRY_POINT);
+        final DeviceCoordinator coordinator = device.getDeviceCoordinator();
+        final DeviceSettingsSpec modelSpec = coordinator.getDeviceSettings(device);
 
-        String rootScreenForSubScreen = deviceSpecificSettings.getRootScreenForSubScreen(result.getResourceFile());
-
-        if (rootScreenForSubScreen != null) {
-            final Intent intent = getIntent(); // FIXME new Intent(this, DeviceSettingsActivity.class);
-            intent.putExtra(EXTRA_PREF_SCREEN, rootScreenForSubScreen);
-            intent.putExtra(EXTRA_PREF_HIGHLIGHT, result.getKey());
-            startActivity(intent);
+        if (modelSpec != null && modelSpec.containsKey(result.getKey())) {
+            // A preference indexed programmatically by DeviceSettingsIndexer - resolve the screen
+            // that holds it directly from the model, since it has no XML-derived result.getScreen().
+            navigateToSearchResult(result, modelSpec.findScreenKeyForPreference(result.getKey()));
+            return;
         }
+
+        if (result.getScreen() != null) {
+            // A nested PreferenceScreen inside an indexed XML file - the library already resolved it.
+            navigateToSearchResult(result, result.getScreen());
+            return;
+        }
+
+        final DeviceSpecificSettings deviceSpecificSettings = DeviceSpecificSettingsFragment.buildDeviceSpecificSettings(device, menu_entry);
+        final String rootScreenForSubScreen = deviceSpecificSettings.getRootScreenForSubScreen(result.getResourceFile());
+        if (rootScreenForSubScreen != null) {
+            navigateToSearchResult(result, rootScreenForSubScreen);
+            return;
+        }
+
+        super.onSearchResultClicked(result);
     }
 }

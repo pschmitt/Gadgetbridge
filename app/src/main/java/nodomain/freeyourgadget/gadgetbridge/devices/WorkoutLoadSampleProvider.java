@@ -51,10 +51,20 @@ public class WorkoutLoadSampleProvider implements TimeSampleProvider<WorkoutLoad
 
     private final GBDevice device;
     private final DaoSession session;
+    private final String loadKey;
 
     public WorkoutLoadSampleProvider(final GBDevice device, final DaoSession session) {
+        this(device, session, ActivitySummaryEntries.TRAINING_LOAD);
+    }
+
+    /**
+     * @param loadKey the summary-data entry the per-workout load is stored under, for devices that
+     *                use a key other than {@link ActivitySummaryEntries#TRAINING_LOAD}.
+     */
+    public WorkoutLoadSampleProvider(final GBDevice device, final DaoSession session, final String loadKey) {
         this.device = device;
         this.session = session;
+        this.loadKey = loadKey;
     }
 
     @NonNull
@@ -80,7 +90,7 @@ public class WorkoutLoadSampleProvider implements TimeSampleProvider<WorkoutLoad
         fillSummaryData(coordinator, samples);
 
         return samples.stream()
-                .map(GarminWorkoutLoadSample::fromActivitySummary)
+                .map(summary -> GarminWorkoutLoadSample.fromActivitySummary(summary, loadKey))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
@@ -125,7 +135,7 @@ public class WorkoutLoadSampleProvider implements TimeSampleProvider<WorkoutLoad
         summaryDao.detachAll();
         fillSummaryData(coordinator, samples);
 
-        return !samples.isEmpty() ? GarminWorkoutLoadSample.fromActivitySummary(samples.get(0)) : null;
+        return !samples.isEmpty() ? GarminWorkoutLoadSample.fromActivitySummary(samples.get(0), loadKey) : null;
     }
 
     private void fillSummaryData(final DeviceCoordinator coordinator,
@@ -162,7 +172,7 @@ public class WorkoutLoadSampleProvider implements TimeSampleProvider<WorkoutLoad
         final List<BaseActivitySummary> samples = qb.build().list();
         summaryDao.detachAll();
 
-        return !samples.isEmpty() ? GarminWorkoutLoadSample.fromActivitySummary(samples.get(0)) : null;
+        return !samples.isEmpty() ? GarminWorkoutLoadSample.fromActivitySummary(samples.get(0), loadKey) : null;
     }
 
     public static class GarminWorkoutLoadSample implements WorkoutLoadSample {
@@ -185,13 +195,13 @@ public class WorkoutLoadSampleProvider implements TimeSampleProvider<WorkoutLoad
         }
 
         @Nullable
-        public static GarminWorkoutLoadSample fromActivitySummary(final BaseActivitySummary summary) {
+        public static GarminWorkoutLoadSample fromActivitySummary(final BaseActivitySummary summary, final String loadKey) {
             final String summaryDataJson = summary.getSummaryData();
             if (summaryDataJson == null) {
                 return null;
             }
 
-            if (!summaryDataJson.contains(ActivitySummaryEntries.TRAINING_LOAD)) {
+            if (!summaryDataJson.contains(loadKey)) {
                 return null;
             }
 
@@ -200,7 +210,7 @@ public class WorkoutLoadSampleProvider implements TimeSampleProvider<WorkoutLoad
                 return null;
             }
 
-            final int value = summaryData.getNumber(ActivitySummaryEntries.TRAINING_LOAD, 0).intValue();
+            final int value = summaryData.getNumber(loadKey, 0).intValue();
             if (value == 0) {
                 return null;
             }

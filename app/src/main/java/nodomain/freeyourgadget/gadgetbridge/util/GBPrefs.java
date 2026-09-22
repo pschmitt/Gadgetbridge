@@ -133,6 +133,11 @@ public class GBPrefs extends Prefs {
 
     public static final String NAVIGATION_APP_COMAPS = "navigation_app_comaps";
 
+    // Online fitness trackers auto-upload (Endurain / Wanderer)
+    public static final String ENDURAIN_AUTO_UPLOAD_ENABLED = "endurain_auto_upload_enabled";
+    public static final String ENDURAIN_REPLACE_ON_TRACK_CHANGE = "endurain_replace_on_track_change";
+    public static final String WANDERER_AUTO_UPLOAD_ENABLED = "wanderer_auto_upload_enabled";
+
     public GBPrefs(final SharedPreferences sharedPrefs) {
         super(sharedPrefs);
     }

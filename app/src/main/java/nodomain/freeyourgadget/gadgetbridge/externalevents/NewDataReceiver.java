@@ -38,12 +38,14 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
+import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutUploadWorker;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
 import nodomain.freeyourgadget.gadgetbridge.util.healthconnect.HealthConnectSyncWorker;
 
 public class NewDataReceiver extends BroadcastReceiver {
     private static final String HEALTH_CONNECT_SYNC_WORKER_TAG = "HealthConnectSyncWorker";
+    private static final String WORKOUT_UPLOAD_WORKER_TAG = "WorkoutUploadWorker";
     // Debounce window: a fetch can emit several ACTION_NEW_DATA broadcasts in quick succession
     // (multi-phase or chatty drivers fire mid-fetch), and a sync that runs against a half-fetched
     // database can miss or duplicate records. Delay the sync and restart the timer on every new
@@ -78,6 +80,7 @@ public class NewDataReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         GBPrefs prefs = GBApplication.getPrefs();
+        maybeScheduleAutoUpload(context, intent, prefs);
         if (ACTION_NEW_DATA.equals(intent.getAction()) &&
                 prefs.getBoolean(GBPrefs.HEALTH_CONNECT_ENABLED, false) &&
                 prefs.getBoolean(GBPrefs.HEALTH_CONNECT_SYNC_ON_EVENT, false)) {
@@ -120,5 +123,44 @@ public class NewDataReceiver extends BroadcastReceiver {
                 syncRequest
             );
         }
+    }
+
+    /**
+     * Enqueues a {@link WorkoutUploadWorker} (debounced, per device) when either Endurain or
+     * Wanderer auto-upload is enabled. Mirrors the Health Connect debounce so a burst of
+     * ACTION_NEW_DATA during one fetch results in a single upload run.
+     */
+    private void maybeScheduleAutoUpload(Context context, Intent intent, GBPrefs prefs) {
+        if (!prefs.getBoolean(GBPrefs.ENDURAIN_AUTO_UPLOAD_ENABLED, false) &&
+                !prefs.getBoolean(GBPrefs.WANDERER_AUTO_UPLOAD_ENABLED, false)) {
+            return;
+        }
+
+        final GBDevice device = intent.getParcelableExtra(GBDevice.EXTRA_DEVICE);
+        final String deviceAddress = device != null ? device.getAddress() : null;
+        if (deviceAddress == null || deviceAddress.isBlank()) {
+            LOG.warn("ACTION_NEW_DATA received without device information, skipping auto-upload");
+            return;
+        }
+
+        String workName = WORKOUT_UPLOAD_WORKER_TAG + "_" + deviceAddress;
+
+        OneTimeWorkRequest uploadRequest = new OneTimeWorkRequest.Builder(WorkoutUploadWorker.class)
+            .addTag(WORKOUT_UPLOAD_WORKER_TAG)
+            .setInitialDelay(DEBOUNCE_SECONDS, TimeUnit.SECONDS)
+            .setInputData(
+                new Data.Builder()
+                    .putString(WorkoutUploadWorker.INPUT_DEVICE_ADDRESS, deviceAddress)
+                    .build()
+            )
+            .build();
+
+        LOG.debug("Scheduling auto-upload for device: {} with work name: {}", deviceAddress, workName);
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            workName,
+            ExistingWorkPolicy.REPLACE,
+            uploadRequest
+        );
     }
 }

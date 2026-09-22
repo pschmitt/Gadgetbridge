@@ -5,6 +5,10 @@ import android.net.Uri;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,6 +19,8 @@ import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiHttpService;
 import nodomain.freeyourgadget.gadgetbridge.util.HttpUtils;
 
 public class GarminHttpRequest {
+    private static final Logger LOG = LoggerFactory.getLogger(GarminHttpRequest.class);
+
     private final GdiHttpService.HttpService.RawRequest rawRequest;
     private final GdiHttpService.HttpService.WebRequest webRequest;
 
@@ -82,6 +88,26 @@ public class GarminHttpRequest {
 
     public byte[] getBody() {
         return rawRequest != null ? rawRequest.getRawBody().toByteArray() : webRequest.getBody().toByteArray();
+    }
+
+    public byte[] getBodyToSend() {
+        if (rawRequest != null) {
+            if (rawRequest.hasBody()) {
+                return rawRequest.getBody().getBytes(StandardCharsets.UTF_8);
+            }
+            return rawRequest.getRawBody().toByteArray();
+        } else {
+            final byte[] webRequestBodyBytes = webRequest.getBody().toByteArray();
+            if (webRequestBodyBytes != null) {
+                try {
+                    return GarminJson.decode(webRequestBodyBytes).toString().getBytes(StandardCharsets.UTF_8);
+                } catch (final GarminJsonException e) {
+                    LOG.error("WebRequest body is not GarminJson, will send raw bytes", e);
+                    return webRequestBodyBytes;
+                }
+            }
+        }
+        return null;
     }
 
     public String getMethod() {

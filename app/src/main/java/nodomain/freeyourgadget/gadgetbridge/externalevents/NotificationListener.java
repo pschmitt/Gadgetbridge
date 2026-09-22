@@ -220,7 +220,7 @@ public class NotificationListener extends NotificationListenerService {
                             try {
                                 PendingIntent pi = sbn.getNotification().contentIntent;
                                 if (pi != null) {
-                                    pi.send();
+                                    sendAllowingBackgroundActivityStart(pi);
                                 }
                             } catch (final PendingIntent.CanceledException e) {
                                 LOG.error("Failed to open notification {}", sbn.getId());
@@ -283,14 +283,7 @@ public class NotificationListener extends NotificationListenerService {
                                 RemoteInput.addResultsToIntent(new RemoteInput[]{remoteInput}, localIntent, extras);
                                 actionIntent.send(context, 0, localIntent);
                             } else {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                                    final ActivityOptions activityOptions = ActivityOptions.makeBasic();
-                                    final Bundle bundle = activityOptions.setPendingIntentBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED)
-                                            .toBundle();
-                                    actionIntent.send(bundle);
-                                } else {
-                                    actionIntent.send();
-                                }
+                                sendAllowingBackgroundActivityStart(actionIntent);
                             }
                             mActionLookup.remove(handle);
                         } catch (final PendingIntent.CanceledException e) {
@@ -303,6 +296,20 @@ public class NotificationListener extends NotificationListenerService {
             }
         }
     };
+
+    /// Send a PendingIntent, granting it our background activity start privileges, which
+    /// Android 14 and later require to start an activity from the background
+    private static void sendAllowingBackgroundActivityStart(final PendingIntent pendingIntent)
+            throws PendingIntent.CanceledException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            final ActivityOptions activityOptions = ActivityOptions.makeBasic();
+            final Bundle bundle = activityOptions.setPendingIntentBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED)
+                    .toBundle();
+            pendingIntent.send(bundle);
+        } else {
+            pendingIntent.send();
+        }
+    }
 
     @Override
     public void onCreate() {

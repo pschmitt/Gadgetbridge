@@ -222,6 +222,22 @@ public abstract class AbstractPreferenceFragment extends PreferenceFragmentCompa
     }
 
     protected void index(@XmlRes final int preferencesResId, final int breadcrumb) {
+        final SearchConfiguration searchConfiguration = getSearchConfiguration();
+        if (searchConfiguration != null) {
+            final SearchConfiguration.SearchIndexItem indexItem = searchConfiguration.index(preferencesResId);
+            if (breadcrumb != 0) {
+                indexItem.addBreadcrumb(breadcrumb);
+            }
+        }
+    }
+
+    /**
+     * Returns the {@link SearchConfiguration} for this fragment's "searchPreference" preference,
+     * lazily creating it the first time it is needed. Returns null if the current preference
+     * screen does not declare a "searchPreference" preference.
+     */
+    @Nullable
+    protected SearchConfiguration getSearchConfiguration() {
         if (mSearchConfiguration == null) {
             final SearchPreference searchPreference = findPreference("searchPreference");
             if (searchPreference != null) {
@@ -232,12 +248,7 @@ public abstract class AbstractPreferenceFragment extends PreferenceFragmentCompa
             }
         }
 
-        if (mSearchConfiguration != null) {
-            final SearchConfiguration.SearchIndexItem indexItem = mSearchConfiguration.index(preferencesResId);
-            if (breadcrumb != 0) {
-                indexItem.addBreadcrumb(breadcrumb);
-            }
-        }
+        return mSearchConfiguration;
     }
 
     /**

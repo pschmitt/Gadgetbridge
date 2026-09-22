@@ -27,9 +27,10 @@ import java.nio.ByteOrder;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
-import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
+import nodomain.freeyourgadget.gadgetbridge.devices.GenericTrainingLoadAcuteSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.XiaomiDailySummarySampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
+import nodomain.freeyourgadget.gadgetbridge.entities.GenericTrainingLoadAcuteSample;
 import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiDailySummarySample;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.activity.XiaomiActivityFileId;
@@ -106,18 +107,34 @@ public class DailySummaryParser extends XiaomiActivityParser {
         try (DBHandler handler = GBApplication.acquireDB()) {
             final DaoSession session = handler.getDaoSession();
 
-            sample.setDevice(DBHelper.getDevice(device, session));
-            sample.setUser(DBHelper.getUser(session));
-
             final XiaomiDailySummarySampleProvider sampleProvider = new XiaomiDailySummarySampleProvider(device, session);
-            sampleProvider.addSample(sample);
+            if (!sampleProvider.persistSamples(sample, context)) {
+                return false;
+            }
+
+            return persistTrainingLoad(context, device, session, sample);
         } catch (final Exception e) {
             GB.toast(context, "Error saving daily summary", Toast.LENGTH_LONG, GB.ERROR);
             LOG.error("Error saving daily summary", e);
             return false;
         }
+    }
 
-        return true;
+    /**
+     * Mirrors the band's weekly training load into the generic acute training-load samples so the
+     * Load chart can trend it. The band has no chronic load, so nothing is written to the chronic
+     * samples; the status zone that goes with the load is read straight from the daily summary by
+     * {@code XiaomiCoordinator#getTrainingLoadStatus}. A slot the band did not report stays null,
+     * so a genuine 0 for a rest week is still stored.
+     */
+    private boolean persistTrainingLoad(final Context context, final GBDevice device, final DaoSession session, final XiaomiDailySummarySample sample) {
+        if (sample.getTrainingLoadWeek() == null) {
+            return true;
+        }
+        final GenericTrainingLoadAcuteSample acute = new GenericTrainingLoadAcuteSample();
+        acute.setTimestamp(sample.getTimestamp());
+        acute.setValue(sample.getTrainingLoadWeek());
+        return new GenericTrainingLoadAcuteSampleProvider(device, session).persistSamples(acute, context);
     }
 
     /**

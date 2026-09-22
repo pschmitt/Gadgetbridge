@@ -40,6 +40,7 @@ import java.util.UUID;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceApp;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.qhybrid.requests.fossil_hr.image.ImageConverter;
 import nodomain.freeyourgadget.gadgetbridge.util.BitmapUtil;
+import nodomain.freeyourgadget.gadgetbridge.util.FileUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.UriHelper;
 
 /**
@@ -121,10 +122,10 @@ public class FossilFileReader {
     }
 
     private void parseFirmware() throws IOException {
-        InputStream in = new BufferedInputStream(uriHelper.openInputStream());
-        byte[] bytes = new byte[in.available()];
-        in.read(bytes);
-        in.close();
+        byte[] bytes;
+        try (InputStream in = new BufferedInputStream(uriHelper.openInputStream())) {
+            bytes = FileUtils.readAll(in);
+        }
         ByteBuffer buf = ByteBuffer.wrap(bytes);
         buf.order(ByteOrder.LITTLE_ENDIAN);
         buf.position(20);
@@ -137,10 +138,10 @@ public class FossilFileReader {
     private void parseApp() throws IOException, JSONException {
         mAppKeys = new JSONObject();
         mAppKeys.put("creator", "(unknown)");
-        InputStream in = new BufferedInputStream(uriHelper.openInputStream());
-        byte[] bytes = new byte[in.available()];
-        in.read(bytes);
-        in.close();
+        byte[] bytes;
+        try (InputStream in = new BufferedInputStream(uriHelper.openInputStream())) {
+            bytes = FileUtils.readAll(in);
+        }
         ByteBuffer buf = ByteBuffer.wrap(bytes);
         buf.order(ByteOrder.LITTLE_ENDIAN);
         buf.position(8);  // skip file handle and version
@@ -258,10 +259,10 @@ public class FossilFileReader {
     }
 
     private byte[] getFileContentsByName(String filename, int startPos, int endPos, boolean cutTrailingNull) throws IOException {
-        InputStream in = new BufferedInputStream(uriHelper.openInputStream());
-        byte[] bytes = new byte[in.available()];
-        in.read(bytes);
-        in.close();
+        byte[] bytes;
+        try (InputStream in = new BufferedInputStream(uriHelper.openInputStream())) {
+            bytes = FileUtils.readAll(in);
+        }
         ByteBuffer buf = ByteBuffer.wrap(bytes);
         buf.order(ByteOrder.LITTLE_ENDIAN);
         buf.position(startPos);

@@ -35,6 +35,11 @@ class WorkoutListViewModel : ViewModel() {
     private val _isDashboardLoading = MutableLiveData<Boolean>()
     val isDashboardLoading: LiveData<Boolean> = _isDashboardLoading
 
+    private val _uploadStatuses = MutableLiveData<Map<Long, WorkoutUploadStatus>>(emptyMap())
+
+    /** Upload state per summary id, for the indicator on each row of the list. */
+    val uploadStatuses: LiveData<Map<Long, WorkoutUploadStatus>> = _uploadStatuses
+
     fun loadSummaries(
         gbDevice: GBDevice,
         activityKindFilter: Int,
@@ -67,6 +72,10 @@ class WorkoutListViewModel : ViewModel() {
                         deviceFilter,
                         itemsFilter
                     )
+                }
+
+                _uploadStatuses.value = withContext(Dispatchers.IO) {
+                    resolveUploadStatuses(summaries)
                 }
 
                 val allSummaries: MutableList<BaseActivitySummary> = mutableListOf()
@@ -114,6 +123,29 @@ class WorkoutListViewModel : ViewModel() {
                 }
             }
         }
+    }
+
+    /**
+     * Upload state of every summary in [summaries], keyed by summary id and skipping those with
+     * nothing to show. Reads the upload table and the stored summary data once each, then stats
+     * the files each fingerprint covers, so it belongs on the IO dispatcher rather than a row bind.
+     */
+    private fun resolveUploadStatuses(
+        summaries: List<BaseActivitySummary>
+    ): Map<Long, WorkoutUploadStatus> {
+        val context = GBApplication.getContext()
+        val targets = WorkoutUploadTargets.active(context, GBApplication.getPrefs())
+        val summaryIds = summaries.mapNotNull { it.id }
+        val rowsBySummary = WorkoutUploadStore.rowsForSummaries(summaryIds)
+        if (targets.isEmpty() && rowsBySummary.isEmpty()) {
+            return emptyMap()
+        }
+        val storedSummaryData = WorkoutUploadStore.storedSummaryData(summaryIds)
+        return summaries.mapNotNull { summary ->
+            val id = summary.id ?: return@mapNotNull null
+            workoutUploadStatus(summary, rowsBySummary[id].orEmpty(), targets, storedSummaryData[id])
+                ?.let { id to it }
+        }.toMap()
     }
 
     private fun loadSummariesFromDatabase(

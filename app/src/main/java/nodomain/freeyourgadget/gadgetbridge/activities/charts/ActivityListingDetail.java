@@ -94,6 +94,7 @@ public class ActivityListingDetail extends DialogFragment {
                 false,
                 false,
                 null,
+                null,
                 false,
                 false
         );

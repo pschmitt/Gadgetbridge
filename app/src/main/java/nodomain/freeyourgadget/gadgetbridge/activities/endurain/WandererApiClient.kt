@@ -83,6 +83,96 @@ class WandererApiClient(
     }
 
     /**
+     * Resolves the handle of the account [apiToken] belongs to, or null when it cannot be read.
+     *
+     * Wanderer exposes no "current user" endpoint, so this goes the long way round: the token list
+     * carries the owner's user id, and the user record carries the name the handle is built from.
+     * [apiToken] is passed in explicitly because during setup it is not persisted yet.
+     */
+    fun fetchUserHandle(apiToken: String, callback: (String?) -> Unit) {
+        Thread {
+            try {
+                val headers = mutableMapOf("Authorization" to "Bearer $apiToken")
+                val tokens = InternetUtils.doJsonRequest(
+                    uri = "$baseUrl/api/v1/api-token".toUri(),
+                    requestHeaders = headers
+                )
+                val userId = tokens?.optJSONArray("items")?.optJSONObject(0)?.optString("user")
+                if (userId.isNullOrEmpty()) {
+                    LOG.warn("Wanderer token list carries no user id, cannot resolve the handle")
+                    callback(null)
+                    return@Thread
+                }
+                val user = InternetUtils.doJsonRequest(
+                    uri = "$baseUrl/api/v1/user/$userId".toUri(),
+                    requestHeaders = headers
+                )
+                val username = user?.optString("username")
+                callback(if (username.isNullOrEmpty()) null else username)
+            } catch (e: Exception) {
+                LOG.error("Failed to resolve the Wanderer handle", e)
+                callback(null)
+            }
+        }.start()
+    }
+
+    /**
+     * Replaces the track of the existing trail [trailId] with [file], keeping the trail id and
+     * everything the user set on it.
+     *
+     * The endpoint is multipart with the track under `gpx` (not `file`, which the API reference
+     * gives), and it requires the trail id in the body as well as in the path, or it answers 500:
+     * <https://github.com/open-wanderer/wanderer/issues/1198>.
+     *
+     * It stores the new track but re-derives only the bounding box from it, so [stats] must carry
+     * the distance, duration and elevation; anything omitted keeps the value of the previous
+     * track: <https://github.com/open-wanderer/wanderer/issues/1199>.
+     *
+     * `POST /api/v1/trail/{id}/file` is documented as "Upload trail file" and would be the
+     * obvious endpoint for this, but on Wanderer 0.20.0 it answers 200 and changes nothing at
+     * all: <https://github.com/open-wanderer/wanderer/issues/1197>.
+     *
+     * [callback] fires with (success, reason); reason is null on success, otherwise a server
+     * message or network explanation.
+     */
+    fun updateActivityFile(
+        trailId: String,
+        file: File,
+        stats: Map<String, String> = emptyMap(),
+        callback: (Boolean, String?) -> Unit
+    ) {
+        Thread {
+            try {
+                val uri = "$baseUrl/api/v1/trail/form/$trailId".toUri()
+
+                InternetUtils.uploadBinaryFile(
+                    uri = uri,
+                    file = file,
+                    requestHeaders = buildHeaders(),
+                    fileFieldName = "gpx",
+                    formFields = mapOf("id" to trailId) + stats
+                ) { success, statusCode, responseText, reason ->
+                    if (success && statusCode != null && statusCode in 200..299) {
+                        LOG.info("Replaced track of Wanderer trail {}", trailId)
+                        callback(true, null)
+                    } else {
+                        val message = try {
+                            if (responseText != null) JSONObject(responseText).getString("message") else null
+                        } catch (e: Exception) {
+                            null
+                        } ?: reason ?: statusCode?.let { "HTTP $it" }
+                        LOG.error("Updating trail {} failed: {}", trailId, message)
+                        callback(false, message)
+                    }
+                }
+            } catch (e: Exception) {
+                LOG.error("Trail update error", e)
+                callback(false, e.localizedMessage)
+            }
+        }.start()
+    }
+
+    /**
      * Upload activity file (GPX)
      */
     fun uploadActivity(file: File, callback: (String?, String?) -> Unit) {

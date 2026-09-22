@@ -37,6 +37,7 @@ import nodomain.freeyourgadget.gadgetbridge.activities.heartratezones.HeartRateS
 import nodomain.freeyourgadget.gadgetbridge.devices.huawei.ui.HuaweiStressCalibrationActivity;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huawei.HuaweiWorkoutGbParser;
+import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutUploadWorker;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
 import nodomain.freeyourgadget.gadgetbridge.util.XTimePreference;
@@ -96,6 +97,10 @@ public class HuaweiSettingsCustomizer implements DeviceSpecificSettingsCustomize
                 GB.toast("Starting workout reparse", Toast.LENGTH_SHORT, 0);
                 new HuaweiWorkoutGbParser(handler.getDevice(), handler.getContext()).parseAllWorkouts();
                 GB.toast("Workout reparse is complete", Toast.LENGTH_SHORT, 0);
+                // A reparse can enrich workouts that were already uploaded to an online fitness
+                // tracker. Unlike the other devices, this path emits no ACTION_NEW_DATA, so the
+                // upload worker has to be told directly.
+                WorkoutUploadWorker.enqueue(handler.getContext(), handler.getDevice().getAddress());
 
                 ((SwitchPreferenceCompat) preference).setChecked(false);
             }

@@ -60,7 +60,7 @@ message FileModifiedFlags {
 
 message TransferStatusRequest {
   optional FileId uid = 1;
-  optional uint32 unk2 = 2;
+  optional uint32 handle = 2;
 }
 
 message TransferStatusResponse {
@@ -82,19 +82,21 @@ message NewFileNotification {
 
 message FileSetFlags {
   optional FileId file = 1;
-  optional FileId flags = 2;
+  optional FileId set_flags = 2;
+  optional FileId remove_flags = 3;
 }
 
 message FileUpdateNotification {
   optional FileId file = 1;
-  optional FileId flags = 2;
+  optional FileId flags_set = 2;
+  optional FileId flags_removed = 3;
 }
 
 message FileRequest {
   optional File file = 1;
   optional uint32 unk2 = 2; // 24
   optional uint32 unk3 = 3; // 0
-  optional uint32 unk4 = 4; // 0 - likely a content offset
+  optional uint64 unk4 = 4; // 0 - likely a content offset
   optional uint32 unk5 = 5; // 15
 }
 
@@ -115,8 +117,9 @@ message FileListRequest {
   optional uint32 max_count = 3; // maximum per FileListResponse, not total max
   // Exclusion flags? If we omit this, it sends back already synced files going back months.
   // 0x000000000000a5a5 / 42405 appears to be the "already synced" flag.
-  optional FileId flags1 = 4;
-  optional FileId flags2 = 5; // 0x000000000000a5a5 / 42405
+  repeated FileId flags1 = 4;
+  repeated FileId flags2 = 5; // 0x000000000000a5a5 / 42405
+  repeated FileType types = 6;
   repeated uint32 include_metadata = 7; // 0: include File.timestamp
 }
 
@@ -147,7 +150,7 @@ message FileId {
 }
 
 message FileType {
-  optional uint32 unk1 = 1; // 0 fit, 3 binary
+  optional uint32 code = 1; // 0 fit, 3 binary
   optional string name = 2;
-  optional uint32 code = 3; // 8 monitor 9 sports
+  optional uint32 name_id = 3; // 8 monitor 9 sports
 }

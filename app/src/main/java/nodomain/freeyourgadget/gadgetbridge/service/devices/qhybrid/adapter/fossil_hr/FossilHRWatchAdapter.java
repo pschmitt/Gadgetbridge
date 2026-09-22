@@ -1076,8 +1076,7 @@ public class FossilHRWatchAdapter extends FossilWatchAdapter {
 
     private void uploadFileIncludesHeader(InputStream fis) throws IOException {
         final Intent resultIntent = new Intent(QHybridSupport.QHYBRID_ACTION_UPLOADED_FILE);
-        byte[] fileData = new byte[fis.available()];
-        fis.read(fileData);
+        byte[] fileData = FileUtils.readAll(fis);
 
         short handleBytes = (short) (fileData[0] & 0xFF | ((fileData[1] & 0xFF) << 8));
         FileHandle handle = FileHandle.fromHandle(handleBytes);

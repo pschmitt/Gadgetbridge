@@ -125,8 +125,8 @@ public class ZipBackupImportJob extends AbstractZipBackupJob {
 
                 try (InputStream inputStream = zipFile.getInputStream(externalFile);
                      FileOutputStream fout = new FileOutputStream(targetExternalFile)) {
-                    while (inputStream.available() > 0) {
-                        final int bytes = inputStream.read(copyBuffer);
+                    int bytes;
+                    while ((bytes = inputStream.read(copyBuffer)) > 0) {
                         fout.write(copyBuffer, 0, bytes);
                     }
                 } catch (final Exception e) {

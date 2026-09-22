@@ -242,5 +242,19 @@
     "type": "MIT",
     "url": "https://github.com/ByteHamster/SearchPreference",
     "path": "licenses/bytehamster.txt"
+  },
+  {
+    "name": "Vico",
+    "owner": "Patryk & Patrick",
+    "type": "Apache 2.0",
+    "url": "https://github.com/patrykandpatrick/vico",
+    "path": "licenses/apache-2.0.txt"
+  },
+  {
+    "name": "Kaitai Struct: runtime library for Java",
+    "owner": "Kaitai Project",
+    "type": "MIT",
+    "url": "https://github.com/kaitai-io/kaitai_struct_java_runtime",
+    "path": "licenses/kaitai-struct-runtime.txt"
   }
 ]

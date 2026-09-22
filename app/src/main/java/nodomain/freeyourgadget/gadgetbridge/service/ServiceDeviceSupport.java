@@ -47,6 +47,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.Contact;
 import nodomain.freeyourgadget.gadgetbridge.model.MusicSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.MusicStateSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.NavigationInfoSpec;
+import nodomain.freeyourgadget.gadgetbridge.model.NavigationRouteSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.Reminder;
 import nodomain.freeyourgadget.gadgetbridge.model.WorldClock;
@@ -258,6 +259,15 @@ public class ServiceDeviceSupport implements DeviceSupport {
         }
         delegate.onSetNavigationInfo(navigationInfoSpec);
     }
+
+    @Override
+    public void onSetNavigationRoute(NavigationRouteSpec navigationRouteSpec) {
+        if (checkBusy("set navigation route")) {
+            return;
+        }
+        delegate.onSetNavigationRoute(navigationRouteSpec);
+    }
+
 
     @Override
     public void onInstallApp(Uri uri, @NonNull final Bundle options) {

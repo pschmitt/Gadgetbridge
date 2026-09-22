@@ -50,6 +50,18 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginEnd="8dp" />
 
+            <ImageButton
+                android:id="@+id/alarm_item_delete"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginEnd="16dp"
+                android:layout_toStartOf="@+id/alarm_item_toggle"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/delete"
+                android:src="@drawable/ic_delete"
+                app:tint="?android:attr/textColorSecondary" />
+
             <LinearLayout
                 android:id="@+id/dowSelector"
                 android:layout_width="fill_parent"

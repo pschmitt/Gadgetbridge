@@ -50,7 +50,7 @@ class RoidmiF8Coordinator : AbstractBLEDeviceCoordinator() {
 
     override fun getBatteryCount(device: GBDevice): Int = 1
 
-    override fun getBondingStyle(): Int = DeviceCoordinator.BONDING_STYLE_NONE
+    override fun getBondingStyle(): Int = BONDING_STYLE_NONE
 
     /**
      * The Roidmi F8 follows the Xiaomi / miio standard: it must be authenticated with the
@@ -131,8 +131,8 @@ class RoidmiF8Coordinator : AbstractBLEDeviceCoordinator() {
             title = R.string.pref_roidmi_f8_reset_filter_title,
             icon = R.drawable.ic_filter_alt,
             confirmationMessage = R.string.pref_roidmi_f8_reset_filter_confirm,
-        ) { handler ->
-            handler.notifyPreferenceChanged(DeviceSettingsPreferenceConst.PREF_ROIDMI_F8_RESET_FILTER)
+        ) { _, device ->
+            GBApplication.deviceService(device).onSendConfiguration(DeviceSettingsPreferenceConst.PREF_ROIDMI_F8_RESET_FILTER)
             true
         }
     }

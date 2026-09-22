@@ -17,6 +17,8 @@
 package nodomain.freeyourgadget.gadgetbridge.devices.oppo;
 
 import android.util.Pair;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothClass;
 
 import androidx.annotation.NonNull;
 
@@ -29,6 +31,7 @@ import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpec
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsScreen;
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLClassicDeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
+import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceCandidate;
 import nodomain.freeyourgadget.gadgetbridge.model.BatteryConfig;
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.oppo.OppoHeadphonesSupport;
@@ -56,6 +59,29 @@ public abstract class OppoHeadphonesCoordinator extends AbstractBLClassicDeviceC
     @Override
     public int getBatteryCount(final GBDevice device) {
         return 3;
+    }
+
+    @Override
+    public boolean supports(@NonNull GBDeviceCandidate candidate) {
+        if (!super.supports(candidate)) {
+            return false;
+        }
+
+        final BluetoothDevice device = candidate.getDevice();
+        if (device == null) {
+            return false;
+        }
+
+        final BluetoothClass deviceClass = device.getBluetoothClass();
+        if (deviceClass == null) {
+            return false;
+        }
+
+        if (deviceClass.getMajorDeviceClass() == BluetoothClass.Device.Major.AUDIO_VIDEO) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override

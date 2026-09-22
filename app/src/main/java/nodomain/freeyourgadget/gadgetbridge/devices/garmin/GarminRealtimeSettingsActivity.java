@@ -47,6 +47,7 @@ public class GarminRealtimeSettingsActivity extends AbstractSettingsActivityV2 {
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         final MenuInflater inflater = getMenuInflater();
+        getFragment().ifPresent(fragment -> fragment.populateMenu(menu));
         inflater.inflate(R.menu.menu_garmin_realtime_settings, menu);
         return true;
     }

@@ -1,5 +1,7 @@
 package nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.http;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -34,6 +36,7 @@ public class GarminJson {
     private static final byte TYPE_MAP = 0x0b;
     private static final byte TYPE_SINT64 = 0x0e;
     private static final byte TYPE_DOUBLE = 0x0f;
+    private static final byte TYPE_CHAR = 0x13;
 
     public static byte[] encode(final JsonElement object) throws GarminJsonException {
         try {
@@ -161,6 +164,7 @@ public class GarminJson {
         }
     }
 
+    @NonNull
     public static JsonElement decode(final byte[] bytes) throws GarminJsonException {
         if (bytes.length < 4 + 4 + 1) {
             throw new GarminJsonException("Not enough bytes for GarminJson in " + GB.hexdump(bytes));
@@ -327,6 +331,8 @@ public class GarminJson {
                 // Decoding is breadth-first - don't decode children yet
                 // return placeholder with the expected number of children
                 return new MapPlaceholder(new JsonObject(), mapSize);
+            case TYPE_CHAR:
+                throw new GarminJsonException("Unsupported TYPE_CHAR (0x13 / 19) with payload value 0x" + Integer.toHexString(buffer.getInt()));
             default:
                 throw new GarminJsonException("Unknown type: 0x" + Integer.toHexString(type & 0xFF));
         }

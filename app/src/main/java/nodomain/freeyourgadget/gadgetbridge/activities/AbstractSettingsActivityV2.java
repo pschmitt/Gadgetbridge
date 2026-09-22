@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -129,6 +130,20 @@ public abstract class AbstractSettingsActivityV2 extends AbstractGBActivity impl
 
     @Override
     public void onSearchResultClicked(final SearchPreferenceResult result) {
+        navigateToSearchResult(result, result.getScreen());
+    }
+
+    /**
+     * Closes the search page and navigates to a search result. Unlike {@link SearchPreferenceResult#getScreen()},
+     * {@code screenKey} can be resolved by the caller from somewhere other than the library's own XML parsing
+     * (e.g. from a {@link nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.DeviceSettingsSpec},
+     * for a preference that was indexed programmatically and therefore has no XML-derived screen).
+     *
+     * @param result    the clicked search result.
+     * @param screenKey the key of the {@link PreferenceScreen} to navigate to, or null to
+     *                  highlight the result on the current screen.
+     */
+    protected void navigateToSearchResult(final SearchPreferenceResult result, @Nullable final String screenKey) {
         final FragmentManager fragmentManager = getSupportFragmentManager();
 
         result.closeSearchPage(this);
@@ -146,7 +161,7 @@ public abstract class AbstractSettingsActivityV2 extends AbstractGBActivity impl
 
         final String currentScreen = currentPreferenceFragment.getPreferenceScreen().getKey();
 
-        if (result.getScreen() != null && !result.getScreen().equals(currentScreen)) {
+        if (screenKey != null && !screenKey.equals(currentScreen)) {
             final PreferenceFragmentCompat newFragmentForScreen = newFragment();
             final Bundle args;
             if (newFragmentForScreen.getArguments() != null) {
@@ -154,12 +169,12 @@ public abstract class AbstractSettingsActivityV2 extends AbstractGBActivity impl
             } else {
                 args = new Bundle();
             }
-            args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, result.getScreen());
+            args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, screenKey);
             newFragmentForScreen.setArguments(args);
 
             fragmentManager.beginTransaction()
                     .replace(R.id.settings_container, newFragmentForScreen)
-                    .addToBackStack("search_goto_" + result.getScreen())
+                    .addToBackStack("search_goto_" + screenKey)
                     .commit();
             result.highlight(newFragmentForScreen);
         } else {

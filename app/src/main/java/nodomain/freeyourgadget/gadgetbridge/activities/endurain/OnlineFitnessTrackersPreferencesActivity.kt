@@ -141,10 +141,17 @@ class OnlineFitnessTrackersPreferencesActivity : AbstractSettingsActivityV2() {
         }
 
         private fun updateLogoutPreferenceVisibility() {
-            findPreference<Preference>("pref_key_endurain_log_out")?.isVisible = vm.endurainTokenManager.isLoggedIn()
-            findPreference<Preference>("pref_key_endurain_log_in")?.isVisible = !vm.endurainTokenManager.isLoggedIn()
-            findPreference<Preference>("pref_key_wanderer_log_out")?.isVisible = WandererTokenManager(requireContext()).isLoggedIn()
-            findPreference<Preference>("pref_key_wanderer_log_in")?.isVisible = !WandererTokenManager(requireContext()).isLoggedIn()
+            val endurainLoggedIn = vm.endurainTokenManager.isLoggedIn()
+            val wandererLoggedIn = WandererTokenManager(requireContext()).isLoggedIn()
+
+            findPreference<Preference>("pref_key_endurain_log_out")?.isVisible = endurainLoggedIn
+            findPreference<Preference>("pref_key_endurain_log_in")?.isVisible = !endurainLoggedIn
+            findPreference<Preference>("pref_key_wanderer_log_out")?.isVisible = wandererLoggedIn
+            findPreference<Preference>("pref_key_wanderer_log_in")?.isVisible = !wandererLoggedIn
+
+            // Auto-upload only makes sense once the integration is logged in.
+            findPreference<Preference>("endurain_auto_upload_enabled")?.isEnabled = endurainLoggedIn
+            findPreference<Preference>("wanderer_auto_upload_enabled")?.isEnabled = wandererLoggedIn
         }
 
         private fun updateStatus() {

@@ -23,6 +23,21 @@
             android:key="pref_key_endurain_log_out"
             android:title="@string/pref_endurain_log_out_title"
             android:summary="@string/pref_endurain_log_out_summary" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="endurain_auto_upload_enabled"
+            android:layout="@layout/preference_checkbox"
+            android:icon="@drawable/ic_file_upload"
+            android:title="@string/pref_endurain_auto_upload_title"
+            android:summary="@string/pref_endurain_auto_upload_summary" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:dependency="endurain_auto_upload_enabled"
+            android:key="endurain_replace_on_track_change"
+            android:layout="@layout/preference_checkbox"
+            android:icon="@drawable/ic_warning"
+            android:title="@string/pref_endurain_replace_on_track_change_title"
+            android:summary="@string/pref_endurain_replace_on_track_change_summary" />
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/pref_category_wanderer">
@@ -41,5 +56,12 @@
             android:key="pref_key_wanderer_log_out"
             android:title="@string/pref_wanderer_log_out_title"
             android:summary="@string/pref_endurain_log_out_summary" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="wanderer_auto_upload_enabled"
+            android:layout="@layout/preference_checkbox"
+            android:icon="@drawable/ic_file_upload"
+            android:title="@string/pref_wanderer_auto_upload_title"
+            android:summary="@string/pref_wanderer_auto_upload_summary" />
     </PreferenceCategory>
 </PreferenceScreen>

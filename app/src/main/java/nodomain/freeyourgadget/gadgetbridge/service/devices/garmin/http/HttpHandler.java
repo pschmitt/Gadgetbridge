@@ -84,8 +84,8 @@ public class HttpHandler {
                         .build();
             }
             return null;
-        } else if (httpService.hasShowURLRequest()) {
-            return handleShowURLRequest(httpService.getShowURLRequest(), messageRequestId);
+        } else if (httpService.hasShowURLNotification()) {
+            return handleShowURLRequest(httpService.getShowURLNotification(), messageRequestId);
         }
 
         LOG.warn("Unsupported http service request {}", httpService);
@@ -212,13 +212,13 @@ public class HttpHandler {
                 .build();
     }
 
-    public GdiHttpService.HttpService handleShowURLRequest(final GdiHttpService.HttpService.ShowURLRequest showURLRequest,
+    public GdiHttpService.HttpService handleShowURLRequest(final GdiHttpService.HttpService.ShowURLNotification showURLNotification,
                                                            final int messageRequestId) {
-        LOG.warn("Got unsupported ShowUrlRequest {}: {} {} {}",
+        LOG.warn("Got unsupported ShowUrlNotification {}: {} {} {}",
                 messageRequestId,
-                showURLRequest.hasUrl() ? showURLRequest.getUrl() : null,
-                showURLRequest.hasParameters() ? showURLRequest.getParameters() : null,
-                showURLRequest.hasApp() ? showURLRequest.getApp() : null);
+                showURLNotification.hasUrl() ? showURLNotification.getUrl() : null,
+                showURLNotification.hasParameters() ? showURLNotification.getParameters() : null,
+                showURLNotification.hasApp() ? showURLNotification.getApp() : null);
         // TODO: ask the user if they want to open the web page
         return null;
     }

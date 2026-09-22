@@ -150,6 +150,7 @@ public class ActivityListingAdapter extends AbstractActivityListingAdapter<Activ
                     false,
                     false,
                     null,
+                    null,
                     position % 2 == 1,
                     selected
             );

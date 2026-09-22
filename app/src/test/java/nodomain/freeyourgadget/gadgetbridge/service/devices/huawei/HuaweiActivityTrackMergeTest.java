@@ -1,7 +1,9 @@
 package nodomain.freeyourgadget.gadgetbridge.service.devices.huawei;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -132,5 +134,23 @@ public class HuaweiActivityTrackMergeTest {
         // The null-time point is untouched; the 1000s point receives the metrics.
         assertEquals(-1f, noTime.getSpeed(), 1e-6);
         assertEquals(2, track.getAllPoints().size());
+    }
+
+    @Test
+    public void locationContainsAltitude() {
+        final ActivityTrack track = trackOf(gpsPoint(1000, 52.5, 13.4));
+        final List<ActivityPoint> details = Collections.singletonList(detailPoint(1000, 2.5f, 130, 80, 210.0));
+
+        HuaweiActivityTrackProvider.mergeDetailSamples(track, details);
+
+        // GPXExporter and Health Connect syncers read location.getAltitude()
+        // instead of ActivityPoint.getAltitude()
+        final GPSCoordinate loc = track.getAllPoints().get(0).getLocation();
+        assertNotNull(loc);
+        assertTrue(loc.hasAltitude());
+        assertEquals(210.0, loc.getAltitude(), 1e-6);
+
+        assertEquals(52.5, loc.getLatitude(), 1e-9);
+        assertEquals(13.4, loc.getLongitude(), 1e-9);
     }
 }

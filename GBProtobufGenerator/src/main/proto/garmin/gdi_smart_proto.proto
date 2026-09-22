@@ -68,7 +68,16 @@ message Service10 {
         }
         optional Locale locale = 1;
     }
+    message Message14 {
+        message Message3 {
+            optional string announcement = 1; // e.g. FITNESS/FITNESS_LAP_TIME
+            optional string json_params = 2; // e.g. {"lap":1, "time":618}
+        }
+        optional uint32 unk1 = 1;
+        optional Message3 unk3 = 3;
+    }
     optional AudioLocale from_device12 = 12;
+    optional Message14 from_device14 = 14;
 }
 
 

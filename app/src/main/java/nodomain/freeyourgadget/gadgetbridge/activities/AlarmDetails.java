@@ -267,8 +267,8 @@ public class AlarmDetails extends AbstractGBActivity {
     }
 
     private void updateAlarm() {
-        // Set alarm as used and enabled if time has changed
-        if (alarm.getUnused() && alarm.getHour() != binding.timePicker.getCurrentHour() || alarm.getMinute() != binding.timePicker.getCurrentMinute()) {
+        // Saving a previously-unused (empty) slot always marks it as used and enabled
+        if (alarm.getUnused()) {
             alarm.setUnused(false);
             alarm.setEnabled(true);
         }

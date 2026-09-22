@@ -135,7 +135,7 @@ public abstract class AbstractMoyoungDeviceCoordinator extends AbstractBLEDevice
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(GBDevice device) {
+    public Class<? extends DeviceSupport> getDeviceSupportClass(@NonNull final GBDevice device) {
         return MoyoungDeviceSupport.class;
     }
 
@@ -334,6 +334,10 @@ public abstract class AbstractMoyoungDeviceCoordinator extends AbstractBLEDevice
 
     public int getMtu() {
         return 20;
+    }
+
+    public boolean newAlarmProtocol() {
+        return false;
     }
 
     @Override

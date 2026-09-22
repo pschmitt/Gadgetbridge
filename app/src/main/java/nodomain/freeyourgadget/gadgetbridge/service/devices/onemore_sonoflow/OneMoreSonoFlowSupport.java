@@ -1,10 +1,15 @@
 package nodomain.freeyourgadget.gadgetbridge.service.devices.onemore_sonoflow;
 
+import nodomain.freeyourgadget.gadgetbridge.devices.onemoresonoflow.OneMoreSonoFlowCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.service.btbr.TransactionBuilder;
 import nodomain.freeyourgadget.gadgetbridge.service.serial.AbstractHeadphoneSerialDeviceSupportV2;
 
 public class OneMoreSonoFlowSupport extends AbstractHeadphoneSerialDeviceSupportV2<OneMoreSonoFlowProtocol> {
+    public static boolean supportsLdac(final GBDevice device) {
+        return ((OneMoreSonoFlowCoordinator) device.getDeviceCoordinator()).supportsLdac(device);
+    }
+
     @Override
     protected OneMoreSonoFlowProtocol createDeviceProtocol() {
         return new OneMoreSonoFlowProtocol(getDevice());
@@ -17,7 +22,9 @@ public class OneMoreSonoFlowSupport extends AbstractHeadphoneSerialDeviceSupport
         //  https://codeberg.org/Freeyourgadget/Gadgetbridge/pulls/4637#issuecomment-3035556
         builder.write(OneMorePacket.createGetDeviceInfoPacket());
         builder.write(OneMorePacket.createGetNoiseControlModePacket());
-        builder.write(OneMorePacket.createGetLdacModePacket());
+        if (supportsLdac(getDevice())) {
+            builder.write(OneMorePacket.createGetLdacModePacket());
+        }
         builder.write(OneMorePacket.createGetDualDeviceModePacket());
 
         builder.setDeviceState(GBDevice.State.INITIALIZED);

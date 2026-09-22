@@ -5,6 +5,7 @@ import java.nio.file.Files
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kaitai)
 }
@@ -141,8 +142,8 @@ android {
         minSdk = 23
 
         // Note: always bump BOTH versionCode and versionName!
-        versionName "0.93.0"
-        versionCode 252
+        versionName "0.94.0"
+        versionCode 253
         vectorDrawables.useSupportLibrary = true
         buildConfigField "String", "GIT_HASH_SHORT", "\"${getGitHashShort()}\""
         buildConfigField "String", "GIT_DIRTY_STATUS", "\"${getGitDirtyFlag()}\""
@@ -263,6 +264,7 @@ android {
     buildFeatures {
         aidl = true
         buildConfig = true
+        compose = true
         viewBinding = true
         // AGP 9 defaults to false, but we still use it in the androidComponents.onVariants block below
         resValues = true
@@ -322,9 +324,17 @@ dependencies {
     implementation libs.androidx.viewpager2
     implementation libs.androidx.work.runtime.ktx
     implementation libs.androidx.lifecycle.process
+    implementation libs.androidx.lifecycle.runtime.compose
+    implementation libs.androidx.lifecycle.viewmodel.compose
     implementation libs.androidx.security.crypto
     implementation libs.androidx.browser
     implementation libs.androidx.exifinterface
+
+    implementation platform(libs.androidx.compose.bom)
+    implementation libs.androidx.compose.ui
+    implementation libs.androidx.compose.ui.tooling.preview
+    debugImplementation libs.androidx.compose.ui.tooling
+    implementation libs.androidx.compose.foundation
 
     implementation libs.material
     implementation libs.flexbox
@@ -334,6 +344,7 @@ dependencies {
     implementation libs.logback.android
     implementation libs.slf4j.api
     implementation libs.mpandroidchart
+    implementation libs.vico.compose
     implementation libs.durationformatter
     implementation libs.ckchangelog
     implementation libs.solarpositioning

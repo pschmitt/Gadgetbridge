@@ -74,6 +74,12 @@
                 app:showAsAction="never" />
 
             <item
+                android:id="@+id/activity_action_upload_status"
+                android:icon="@drawable/ic_info"
+                android:title="@string/workout_upload_status_title"
+                app:showAsAction="never" />
+
+            <item
                 android:id="@+id/activity_action_share_fit"
                 android:icon="@drawable/ic_share"
                 android:title="@string/activity_detail_export_fit"

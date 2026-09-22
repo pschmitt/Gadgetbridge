@@ -425,8 +425,18 @@ public class XiaomiWeatherService extends AbstractXiaomiService {
     private void sendWeatherSpecList(@NonNull final List<WeatherSpec> weatherSpecs) {
         // FIXME: the MB8P seems to support more locations than the original app allows, which is
         //        undoubtedly also applicable to other devices
-        List<WeatherSpec> specsToSend = weatherSpecs.subList(0, Math.min(5, weatherSpecs.size()));
-        List<XiaomiProto.WeatherLocation> weatherLocations = new ArrayList<>(specsToSend.size());
+        final List<WeatherSpec> specsToSend = new ArrayList<>(5);
+        final Set<String> seenLocationKeys = new HashSet<>();
+        for (final WeatherSpec spec : weatherSpecs) {
+            if (specsToSend.size() >= 5) {
+                break;
+            }
+            if (seenLocationKeys.add(getLocationKey(spec.getLocation()))) {
+                // #6772 - avoid duplicates, otherwise we're unable to tell them apart when sending
+                specsToSend.add(spec);
+            }
+        }
+        final List<XiaomiProto.WeatherLocation> weatherLocations = new ArrayList<>(specsToSend.size());
 
         LOG.debug("Updating weather for {} location(s): {}", specsToSend.size(), extractWeatherSpecLocations(specsToSend));
 

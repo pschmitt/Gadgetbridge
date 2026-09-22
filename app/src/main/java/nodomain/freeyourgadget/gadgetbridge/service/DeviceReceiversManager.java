@@ -73,6 +73,7 @@ import nodomain.freeyourgadget.gadgetbridge.externalevents.TinyWeatherForecastGe
 import nodomain.freeyourgadget.gadgetbridge.externalevents.VolumeChangeReceiver;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.comaps.CoMapsNavigationReceiver;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.comaps.CoMapsNavigationReceiverFactory;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.comaps.CoMapsNavigationRouteReceiver;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.gps.GBLocationService;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.sleepasandroid.SleepAsAndroidReceiver;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
@@ -153,6 +154,7 @@ class DeviceReceiversManager {
 
     private OsmandEventReceiver mOsmandAidlHelper = null;
     private final List<CoMapsNavigationReceiver> mCoMapsNavigationReceivers = new ArrayList<>();
+    private final List<CoMapsNavigationRouteReceiver> mCoMapsNavigationRouteReceivers = new ArrayList<>();
     private HandlerThread mCoMapsHandlerThread = null;
 
     private SleepAsAndroidReceiver mSleepAsAndroidReceiver = null;
@@ -469,11 +471,21 @@ class DeviceReceiversManager {
             service.getContentResolver().registerContentObserver(pair.first, false, pair.second);
             mCoMapsNavigationReceivers.add(pair.second);
         }
+
+        for (Pair<Uri, CoMapsNavigationRouteReceiver> pair :
+                CoMapsNavigationReceiverFactory.createCoMapsNavigationRouteReceiversForApplication(
+                        service.getApplication(), handler)) {
+            service.getContentResolver().registerContentObserver(pair.first, false, pair.second);
+            mCoMapsNavigationRouteReceivers.add(pair.second);
+        }
     }
 
     private void disableCoMapsReceivers() {
         mCoMapsNavigationReceivers.forEach(service.getContentResolver()::unregisterContentObserver);
         mCoMapsNavigationReceivers.clear();
+
+        mCoMapsNavigationRouteReceivers.forEach(service.getContentResolver()::unregisterContentObserver);
+        mCoMapsNavigationRouteReceivers.clear();
 
         if (mCoMapsHandlerThread != null) {
             mCoMapsHandlerThread.quitSafely();

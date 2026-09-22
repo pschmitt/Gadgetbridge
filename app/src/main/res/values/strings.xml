@@ -973,6 +973,9 @@
     <string name="alarm_smart_wakeup_interval">Smart wakeup interval:</string>
     <string name="alarm_smart_wakeup_interval_default">5 minutes</string>
     <string name="alarm_snooze">Snooze</string>
+    <string name="alarm_add">Add alarm</string>
+    <string name="alarm_max_slots_reached">Maximum number of alarms reached</string>
+    <string name="alarm_show_unused">Show unused alarms</string>
     <string name="user_feedback_miband_set_alarms_failed">There was an error setting the alarms, please try again.</string>
     <string name="user_feedback_miband_set_alarms_ok">Alarms sent to device.</string>
     <string name="user_feedback_set_settings_ok">Settings sent to device.</string>
@@ -2425,6 +2428,7 @@
     <string name="devicetype_blackview_r60" translatable="false">Blackview R60</string>
     <string name="devicetype_misirun_c17" translatable="false">Misirun C17</string>
     <string name="devicetype_c20" translatable="false">C20</string>
+    <string name="devicetype_c20_pro" translatable="false">C20_Pro</string>
     <string name="devicetype_alt_vibe" translatable="false">Alt Vibe</string>
     <string name="devicetype_l70" translatable="false">L 70</string>
     <string name="devicetype_kt80" translatable="false">KT80</string>
@@ -2485,6 +2489,7 @@
     <string name="devicetype_coospo_h9z" translatable="false">Coospo H9Z</string>
     <string name="devicetype_solarflow">SolarFlow</string>
     <string name="devicetype_braun_bpw4500" translatable="false">Braun iCheck 7 BPW4500</string>
+    <string name="devicetype_ls2_4x">LS2-4X</string>
     <!-- Menus on the smart device -->
     <string name="menuitem_nothing">Nothing</string>
     <string name="menuitem_status">Status</string>
@@ -3203,6 +3208,8 @@
     <!-- activity summary groups-->
     <string name="Strokes">Strokes</string>
     <string name="swimming_stroke">Stroke</string>
+    <string name="workout_step">Step</string>
+    <string name="workout_time_in_zones">Time in zones</string>
     <string name="Jumps">Jumps</string>
     <string name="Swimming">Swimming</string>
     <string name="Distance">Distance</string>
@@ -3652,11 +3659,12 @@
     <string name="body_composition_bone_mass">Bone</string>
     <string name="body_composition_bmr">BMR</string>
     <string name="body_composition_impedance">Impedance</string>
+    <string name="body_composition_bmi_value">%1$.1f</string>
     <string name="body_composition_percent">%1$.1f %%</string>
     <string name="body_composition_kcal">%1$d kcal</string>
     <string name="body_composition_ohm">%1$d Ω</string>
     <string name="pref_title_chart_weight_body_composition">Body composition values</string>
-    <string name="pref_summary_chart_weight_body_composition">Values shown below the weight chart, when the scale provides them</string>
+    <string name="pref_summary_chart_weight_body_composition">Values shown below the weight chart. BMI only needs the weight and your height; the others need a scale that reports impedance</string>
     <string name="redmi_buds_5_pro_anc_balanced">Balanced</string>
     <string name="redmi_buds_5_pro_anc_light">Light</string>
     <string name="redmi_buds_5_pro_anc_deep">Deep</string>
@@ -3978,6 +3986,7 @@
     <string name="devicetype_jabra_evolve2_55" translatable="false">Jabra Evolve2 55</string>
     <string name="devicetype_jabra_evolve2_65" translatable="false">Jabra Evolve2 65</string>
     <string name="devicetype_onemore_sonoflow" translatable="false">1MORE SonoFlow</string>
+    <string name="devicetype_onemore_sonoflow_se" translatable="false">1MORE SonoFlow SE</string>
     <string name="devicetype_sony_wena3" translatable="false">Sony Wena 3</string>
     <string name="devicetype_withings_steel_hr" translatable="false">Withings Steel HR</string>
     <string name="pref_button_action_disabled">Disabled</string>
@@ -4574,6 +4583,7 @@
     <string name="pref_auto_reply_calls_title">Automatically answer phone calls</string>
     <string name="pref_auto_reply_calls_delay_summary">Number of seconds after which the call is automatically picked up</string>
     <string name="pref_auto_reply_calls_delay_title">Automatic Answer Delay</string>
+    <string name="devicetype_wearfit_hk_generic">Wearfit HK (Generic)</string>
     <string name="pref_speak_notifications_aloud_summary">Notifications will be read aloud through the headphones</string>
     <string name="pref_speak_notifications_aloud_title">Speak Notifications Aloud</string>
     <string name="pref_speak_notifications_focus_exclusive_title">Pause audio of other applications</string>
@@ -4948,6 +4958,8 @@
     <string name="map">Map</string>
     <string name="workout_charts">Workout Charts</string>
     <string name="charts">Charts</string>
+    <string name="workout_tab_overview">Overview</string>
+    <string name="workout_tab_details">Details</string>
     <string name="maps_settings">Maps settings</string>
     <string name="maps_download_title">Download Maps</string>
     <string name="maps_download_summary">Click here to download map files. They should be saved to the folder selected in the preference below.</string>
@@ -5466,6 +5478,29 @@
     <string name="activity_detail_upload_to_wanderer">Upload GPX to Wanderer</string>
     <string name="select_at_least_option">Please select at least %1$d option</string>
 
+    <!-- Auto-upload to online fitness trackers -->
+    <string name="pref_endurain_auto_upload_title">Auto-upload to Endurain</string>
+    <string name="pref_endurain_auto_upload_summary">Automatically upload newly synced workouts to Endurain</string>
+    <string name="pref_wanderer_auto_upload_title">Auto-upload to Wanderer</string>
+    <string name="pref_wanderer_auto_upload_summary">Automatically upload newly synced workouts with a GPS track to Wanderer</string>
+    <string name="auto_upload_failed_notification_title">Workout upload failed</string>
+    <string name="auto_upload_timed_out">Upload timed out</string>
+    <string name="auto_upload_failed_endurain">Endurain upload failed: %1$s</string>
+    <string name="auto_upload_failed_wanderer">Wanderer upload failed: %1$s</string>
+    <string name="auto_upload_endurain_remote_edited">The workout changed, but the activity on Endurain was edited there and was left untouched</string>
+    <string name="workout_upload_status_title">Upload status</string>
+    <string name="workout_upload_status_uploaded">Uploaded</string>
+    <string name="workout_upload_status_partial">Partly uploaded</string>
+    <string name="workout_upload_status_pending">Waiting for upload</string>
+    <string name="workout_upload_status_failed">Upload failed</string>
+    <string name="workout_upload_status_not_uploaded">Not uploaded</string>
+    <string name="workout_upload_status_no_track">Not uploaded, the workout has no GPS track</string>
+    <string name="workout_upload_status_disabled">Auto-upload off</string>
+    <string name="workout_upload_status_remote_id">Activity %1$s</string>
+    <string name="workout_upload_status_open">View activity</string>
+    <string name="pref_endurain_replace_on_track_change_title">Replace workouts when the track changes</string>
+    <string name="pref_endurain_replace_on_track_change_summary">Changing the track of an uploaded workout means deleting the activity and uploading it again, so it gets a new address. Activities you edited on Endurain are left untouched.</string>
+
     <!-- Workout summary section headers -->
     <string name="goals">Goals</string>
     <string name="predictions">Predictions</string>
@@ -5578,4 +5613,23 @@
     <string name="gpx_include_navigation_straight">Include \'Continue straight\' instructions</string>
     <string name="gpx_roundabout_exit">Exit %1$d</string>
     <string name="pref_title_connect_to_this_device_when_another_device_connects">Connect to this device when another device connects</string>
+
+    <!-- Strings related to Cardo Devices -->
+    <string name="title_activity_cardo_control">Cardo Control</string>
+    <string name="cardo_card_fm_radio">FM Radio</string>
+    <string name="cardo_control_enable_radio">Enable Radio</string>
+    <string name="cardo_control_fm_autotune">Auto tune stations to presets</string>
+    <string name="cardo_control_fm_confirm_autotune">Do you really want to proceed? Previously set stations will be overwritten.</string>
+    <string name="cardo_control_fm_preset_title">Tune Presets</string>
+    <string name="cardo_control_fm_preset_not_set">Empty Preset %1$d</string>
+    <string name="cardo_control_fm_frequency_title">Frequency</string>
+    <string name="cardo_control_fm_frequency_subtitle">%1$.1f MHz</string>
+    <string name="cardo_control_fm_scan_down">Scan DOWN</string>
+    <string name="cardo_control_fm_scan_up">Scan UP</string>
+    <string name="cardo_control_fm_scan_stop">Stop Scanning</string>
+    <string name="cardo_control_fm_seek_down">Seek DOWN</string>
+    <string name="cardo_control_fm_seek_up">Seek UP</string>
+    <string name="cardo_control_volume">Volume</string>
+    <string name="cardo_card_voice_prompts">Voice Prompts</string>
+    <string name="cardo_control_enable_voice_prompts">Enable Voice Prompts</string>
 </resources>

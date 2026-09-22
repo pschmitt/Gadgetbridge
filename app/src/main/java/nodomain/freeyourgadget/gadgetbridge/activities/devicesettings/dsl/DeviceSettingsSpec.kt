@@ -86,4 +86,36 @@ class DeviceSettingsSpec(val items: List<DeviceSetting>) {
 
     private fun screenContainsKey(screen: ScreenSetting, prefKey: String): Boolean =
         screen.children.any { it.key == prefKey || (it is ScreenSetting && screenContainsKey(it, prefKey)) }
+
+    /**
+     * Returns true if this spec declares [prefKey] anywhere in the tree.
+     */
+    fun containsKey(prefKey: String): Boolean = collectAllKeys().contains(prefKey)
+
+    /**
+     * Returns the key of the innermost [ScreenSetting] that (transitively) contains [prefKey],
+     * or null if [prefKey] is on the root screen or is not found in the spec. Unlike
+     * [findTopScreenKeyForPreference], this descends into nested screens and returns the
+     * closest enclosing one, so a search result can navigate directly to it.
+     */
+    fun findScreenKeyForPreference(prefKey: String): String? = findScreenKeyForPreference(prefKey, items, null)
+
+    private fun findScreenKeyForPreference(
+        prefKey: String,
+        nodes: List<DeviceSetting>,
+        enclosingScreenKey: String?
+    ): String? {
+        for (node in nodes) {
+            if (node.key == prefKey) return enclosingScreenKey
+            if (node is ScreenSetting) {
+                val inner = findScreenKeyForPreference(prefKey, node.children, node.key)
+                if (inner != null) return inner
+            } else if (node is GroupSetting) {
+                // CategorySetting (or any other non-screen group): stays within the enclosing screen.
+                val inner = findScreenKeyForPreference(prefKey, node.children, enclosingScreenKey)
+                if (inner != null) return inner
+            }
+        }
+        return null
+    }
 }

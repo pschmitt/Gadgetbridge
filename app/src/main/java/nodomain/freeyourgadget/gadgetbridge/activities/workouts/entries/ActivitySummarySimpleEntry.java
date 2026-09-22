@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutValueFormatter;
+import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries;
 
 public class ActivitySummarySimpleEntry extends ActivitySummaryEntry {
     public static final ActivitySummarySimpleEntry EMPTY = new ActivitySummarySimpleEntry("-", "string");
@@ -58,6 +59,17 @@ public class ActivitySummarySimpleEntry extends ActivitySummaryEntry {
         return unit;
     }
 
+    private static boolean isCountUnit(@NonNull final String unit) {
+        return switch (unit) {
+            case ActivitySummaryEntries.UNIT_STEPS,
+                 ActivitySummaryEntries.UNIT_STROKES,
+                 ActivitySummaryEntries.UNIT_JUMPS,
+                 ActivitySummaryEntries.UNIT_REPS,
+                 ActivitySummaryEntries.UNIT_REVS -> true;
+            default -> false;
+        };
+    }
+
     @Override
     public int getColumnSpan() {
         return 1;
@@ -71,7 +83,8 @@ public class ActivitySummarySimpleEntry extends ActivitySummaryEntry {
         final TextView valueTextView = new TextView(context);
         valueTextView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         valueTextView.setTextSize(20);
-        valueTextView.setText(workoutValueFormatter.formatValue(value, unit));
+        // Plain counts (steps, strokes...) already have their name as the label next to the value
+        valueTextView.setText(workoutValueFormatter.formatValue(value, unit, !isCountUnit(unit)));
         valueTextView.setTextColor(GBApplication.getTextColor(context));
 
         // Label

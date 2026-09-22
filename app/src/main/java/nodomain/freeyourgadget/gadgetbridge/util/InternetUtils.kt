@@ -46,6 +46,12 @@ import javax.net.ssl.SSLException
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
+/**
+ * Result of an HTTP request whose body is read as text. [statusCode] and [body] are both null
+ * when the request never reached the server.
+ */
+data class StringResponse(val statusCode: Int?, val body: String?)
+
 class InternetUtils {
 
     companion object {
@@ -83,7 +89,24 @@ class InternetUtils {
             body: String? = null,
             allowInsecure: Boolean = false,
             onError: (reason: String) -> Unit = {},
-        ): String? {
+        ): String? = doStringRequestWithStatus(
+            uri, method, requestHeaders, body, allowInsecure, onError
+        ).body
+
+        /**
+         * As [doStringRequest], but also reports the HTTP status code, which callers need when
+         * an error is carried by the status rather than by the body: a 204 with no content is a
+         * success, and a 4xx error document is still a readable body.
+         */
+        @JvmOverloads
+        fun doStringRequestWithStatus(
+            uri: Uri,
+            method: String = "GET",
+            requestHeaders: Map<String, String> = emptyMap(),
+            body: String? = null,
+            allowInsecure: Boolean = false,
+            onError: (reason: String) -> Unit = {},
+        ): StringResponse {
             val response: WebResourceResponse? = try {
                 if (GBApplication.hasDirectInternetAccess()) {
                     directRequest(uri, method, requestHeaders, body, allowInsecure)
@@ -99,15 +122,16 @@ class InternetUtils {
             } catch (e: Exception) {
                 LOG.error("Request to $uri failed: ", e)
                 onError(networkFailureReason(e))
-                return null
+                return StringResponse(null, null)
             }
             if (response == null) {
                 onError(networkFailureReason(null))
-                return null
+                return StringResponse(null, null)
             }
 
             // Convert response InputStream to String
-            return response.data.bufferedReader().use { it.readText() }
+            val text = response.data.bufferedReader().use { it.readText() }
+            return StringResponse(response.statusCode, text)
         }
 
         @JvmOverloads
@@ -195,12 +219,15 @@ class InternetUtils {
          * failure [reason] carries a human-readable, localized explanation for the user
          * (no internet / server unreachable / …); it is null on success.
          */
+        @JvmOverloads
         fun uploadBinaryFile(
             uri: Uri,
             file: File,
             requestHeaders: Map<String, String> = emptyMap(),
             method: String = "POST",
             allowInsecure: Boolean = false,
+            fileFieldName: String = "file",
+            formFields: Map<String, String> = emptyMap(),
             onComplete: (success: Boolean, statusCode: Int?, response: String?, reason: String?) -> Unit
         ) {
             var success = false
@@ -220,7 +247,8 @@ class InternetUtils {
                     }
 
                     val boundary = "----GadgetbridgeFormBoundary${System.currentTimeMillis()}"
-                    val multipartBodyBytes = buildMultipartBody(file, fileName, mimeType, boundary)
+                    val multipartBodyBytes =
+                        buildMultipartBody(file, fileName, mimeType, boundary, fileFieldName, formFields)
 
                     val headers = requestHeaders.toMutableMap()
                     headers["Content-Type"] = "multipart/form-data; boundary=$boundary"
@@ -321,16 +349,27 @@ class InternetUtils {
             file: File,
             fileName: String,
             mimeType: String,
-            boundary: String
+            boundary: String,
+            fileFieldName: String,
+            formFields: Map<String, String>
         ): ByteArray {
             val fileBytes = file.readBytes()
             val output = ByteArrayOutputStream()
 
+            for ((name, value) in formFields) {
+                val part = "--$boundary\r\n" +
+                    "Content-Disposition: form-data; name=\"$name\"\r\n" +
+                    "\r\n" +
+                    value +
+                    "\r\n"
+                output.write(part.toByteArray(Charsets.UTF_8))
+            }
+
             val header = "--$boundary\r\n" +
-                "Content-Disposition: form-data; name=\"file\"; filename=\"$fileName\"\r\n" +
+                "Content-Disposition: form-data; name=\"$fileFieldName\"; filename=\"$fileName\"\r\n" +
                 "Content-Type: $mimeType\r\n" +
                 "\r\n"
-            output.write(header.toByteArray(Charsets.US_ASCII))
+            output.write(header.toByteArray(Charsets.UTF_8))
             output.write(fileBytes)
             output.write("\r\n--$boundary--\r\n".toByteArray(Charsets.US_ASCII))
 

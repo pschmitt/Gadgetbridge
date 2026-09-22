@@ -319,7 +319,6 @@ public class Logging {
         rollingPolicy.setMaxFileSize(FileSize.valueOf(BuildConfig.DEBUG ? "100MB" : "10MB"));
         rollingPolicy.setMaxHistory(10);
         rollingPolicy.setTotalSizeCap(FileSize.valueOf(BuildConfig.DEBUG ? "200MB" : "100MB"));
-        rollingPolicy.start();
 
         fileAppender.setContext(lc);
         fileAppender.setName("FILE");
@@ -329,6 +328,10 @@ public class Logging {
         // to debug crashes, set immediateFlush to true, otherwise keep it false to improve throughput
         fileAppender.setImmediateFlush(false);
         fileAppender.setRollingPolicy(rollingPolicy);
+
+        // Only once the appender has its file: the policy dates the current period from that file's
+        // age, and without it a log left from an earlier day is taken for today's and never rolled over.
+        rollingPolicy.start();
 
         return fileAppender;
     }

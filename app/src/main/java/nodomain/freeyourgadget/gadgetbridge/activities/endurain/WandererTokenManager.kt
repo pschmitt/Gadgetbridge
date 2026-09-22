@@ -73,6 +73,18 @@ class WandererTokenManager(context: Context) {
 
     fun getAPIToken(): String? = tokenPreferences.getString("api_token", null)
 
+    /**
+     * Stores the account's Wanderer handle, the `preferred_username` half of `@user@domain`. Trail
+     * pages are namespaced by their owner's handle, so a link to one cannot be built without it.
+     */
+    fun saveHandle(handle: String) {
+        tokenPreferences.edit {
+            putString("handle", handle)
+        }
+    }
+
+    fun getHandle(): String? = tokenPreferences.getString("handle", null)
+
     fun isLoggedIn(): Boolean {
         return getAPIToken() != null && getAPIToken()?.startsWith("wanderer_key_") == true
     }

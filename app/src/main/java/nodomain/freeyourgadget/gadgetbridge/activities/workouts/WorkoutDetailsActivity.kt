@@ -6,50 +6,30 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.viewpager2.widget.ViewPager2
 import kotlinx.coroutines.launch
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity
 import nodomain.freeyourgadget.gadgetbridge.databinding.ActivityWorkoutDetailsBinding
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
-import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind
 import nodomain.freeyourgadget.gadgetbridge.util.kotlin.getParcelableCompat
 import nodomain.freeyourgadget.gadgetbridge.util.kotlin.getSerializableCompat
 
 class WorkoutDetailsActivity : AbstractGBActivity() {
     private val viewModel: WorkoutDetailsViewModel by viewModels()
     private lateinit var binding: ActivityWorkoutDetailsBinding
-    private lateinit var pagerAdapter: WorkoutViewPagerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityWorkoutDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupViewPager()
         setupViewModel()
+
+        if (savedInstanceState == null) {
+            loadWorkout()
+        }
     }
 
-    private fun setupViewPager() {
-        pagerAdapter = WorkoutViewPagerAdapter(this)
-        binding.viewPager.adapter = pagerAdapter
-        binding.viewPager.offscreenPageLimit = 1
-        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                viewModel.setCurrentPosition(position)
-
-                val summary = viewModel.workouts.value?.get(position)
-                summary?.activityKind?.let {
-                    val title = summary.name?.takeIf { name -> name.isNotBlank() }
-                        ?: ActivityKind.fromCode(it).getLabel(this@WorkoutDetailsActivity)
-                    // Action bar title
-                    supportActionBar?.title = title
-                }
-            }
-        })
-    }
-
-    private fun setupViewModel() {
+    private fun loadWorkout() {
         val bundle = intent.extras ?: return
 
         val gbDevice = bundle.getParcelableCompat<GBDevice>(GBDevice.EXTRA_DEVICE)
@@ -72,7 +52,7 @@ class WorkoutDetailsActivity : AbstractGBActivity() {
             val itemsFilter: List<Long>? = bundle.getSerializableCompat<ArrayList<Long>>("itemsFilter")
 
             lifecycleScope.launch {
-                viewModel.loadFilteredWorkouts(
+                viewModel.loadFilteredWorkout(
                     gbDevice,
                     activityFilter,
                     dateFromFilter,
@@ -84,14 +64,14 @@ class WorkoutDetailsActivity : AbstractGBActivity() {
                 )
             }
         }
+    }
 
-        viewModel.workouts.observe(this) { workouts ->
-            pagerAdapter.updateWorkouts(workouts)
-        }
-
-        viewModel.currentPosition.observe(this) { position ->
-            if (binding.viewPager.currentItem != position) {
-                binding.viewPager.setCurrentItem(position, false)
+    private fun setupViewModel() {
+        viewModel.workoutId.observe(this) { workoutId ->
+            if (supportFragmentManager.findFragmentById(binding.fragmentContainer.id) == null) {
+                supportFragmentManager.beginTransaction()
+                    .replace(binding.fragmentContainer.id, WorkoutDetailsFragment.newInstance(workoutId))
+                    .commit()
             }
         }
 
@@ -106,13 +86,13 @@ class WorkoutDetailsActivity : AbstractGBActivity() {
 
     private fun showLoading(isLoading: Boolean) {
         binding.loadingSpinner.visibility = if (isLoading) View.VISIBLE else View.GONE
-        binding.viewPager.visibility = if (isLoading) View.GONE else View.VISIBLE
+        binding.fragmentContainer.visibility = if (isLoading) View.GONE else View.VISIBLE
         binding.errorMessage.visibility = View.GONE
     }
 
     private fun showError(message: String) {
         binding.loadingSpinner.visibility = View.GONE
-        binding.viewPager.visibility = View.GONE
+        binding.fragmentContainer.visibility = View.GONE
         binding.errorMessage.visibility = View.VISIBLE
         binding.errorMessage.text = message
     }

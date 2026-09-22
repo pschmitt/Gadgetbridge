@@ -460,6 +460,9 @@ public class WorkoutSummaryParser extends XiaomiActivityParser implements Activi
             case 1:  // for Smart Band 8 Active
                 headerSize = 5;
                 break;
+            case 2: // redmi watch 3
+                headerSize = 6;
+                break;
             case 4:
                 headerSize = 7;
                 break;
@@ -504,20 +507,20 @@ public class WorkoutSummaryParser extends XiaomiActivityParser implements Activi
         builder.addByte(HR_AVG, UNIT_BPM);
         builder.addByte(HR_MAX, UNIT_BPM);
         builder.addByte(HR_MIN, UNIT_BPM);
+        builder.addUnknown(20);
+        builder.addFloat(TRAINING_EFFECT_AEROBIC, UNIT_NONE);
         if (version == 1) {
-            builder.addUnknown(33);
+            builder.addUnknown(9);
         } else {
-            builder.addUnknown(20);
-            builder.addFloat(TRAINING_EFFECT_AEROBIC, UNIT_NONE);
             builder.addUnknown(1);
             builder.addFloat(TRAINING_EFFECT_ANAEROBIC, UNIT_NONE);
             if (version >= 9) {
                 builder.addUnknown(6);
-                builder.addByte(MAXIMUM_OXYGEN_UPTAKE, UNIT_ML_KG_MIN);
-                builder.addUnknown(2);
             } else {
-                builder.addUnknown(4);
+                builder.addUnknown(1);
             }
+            builder.addByte(MAXIMUM_OXYGEN_UPTAKE, UNIT_ML_KG_MIN);
+            builder.addUnknown(2);
             builder.addShort(RECOVERY_TIME, UNIT_HOURS);
             builder.addUnknown(1);
         }

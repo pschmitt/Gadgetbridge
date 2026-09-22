@@ -60,6 +60,7 @@
             </RelativeLayout>
 
             <TextView
+                android:id="@+id/acute_load_header"
                 android:layout_marginTop="30dp"
                 android:layout_marginStart="25dp"
                 android:layout_width="match_parent"
@@ -92,6 +93,7 @@
                 android:layout_marginBottom="15dp"
                 >
                 <LinearLayout
+                    android:id="@+id/acute_load_wrapper"
                     style="@style/GridTile"
                     android:layout_marginEnd="1dp"
                     android:layout_marginTop="2dp"
@@ -105,12 +107,14 @@
                         android:textSize="20sp" />
 
                     <TextView
+                        android:id="@+id/acute_load_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/training_acute_load"
                         android:textSize="12sp" />
                 </LinearLayout>
                 <LinearLayout
+                    android:id="@+id/chronic_load_wrapper"
                     style="@style/GridTile"
                     android:layout_marginStart="1dp"
                     android:layout_marginTop="2dp"

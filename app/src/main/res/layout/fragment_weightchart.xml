@@ -95,6 +95,37 @@
         android:paddingLeft="20dp"
         android:paddingTop="12dp"
         android:paddingRight="20dp"
+        app:layout_flexBasisPercent="33.33%">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="5px"
+            android:background="@color/value_line_color" />
+
+        <TextView
+            android:id="@+id/weight_bmi_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:maxLines="1"
+            android:text="@string/stats_empty_value"
+            android:textColor="?attr/textColorPrimary"
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/body_mass_index"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="20dp"
+        android:paddingTop="12dp"
+        android:paddingRight="20dp"
         android:visibility="gone"
         app:layout_flexBasisPercent="33.33%">
 

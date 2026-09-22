@@ -3,7 +3,7 @@ package nodomain.freeyourgadget.gadgetbridge.adapter;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.StepsDailyFragment;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.steps.StepsDailyFragment;
 import nodomain.freeyourgadget.gadgetbridge.activities.charts.StepsPeriodFragment;
 
 public class StepsFragmentAdapter extends NestedFragmentAdapter {

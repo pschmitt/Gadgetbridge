@@ -163,9 +163,16 @@ public class HuaweiActivityTrackProvider implements ActivityTrackProvider {
             if (dp.getCadence() >= 0) {
                 gp.setCadence(dp.getCadence());
             }
-            if (gp.getAltitude() <= GPSCoordinate.UNKNOWN_ALTITUDE
-                    && dp.getAltitude() > GPSCoordinate.UNKNOWN_ALTITUDE) {
-                gp.setAltitude(dp.getAltitude());
+            if (dp.getAltitude() > GPSCoordinate.UNKNOWN_ALTITUDE) {
+                final GPSCoordinate loc = gp.getLocation();
+                if (loc == null) {
+                    gp.setAltitude(dp.getAltitude());
+                } else if (!loc.hasAltitude()) {
+                    gp.setLocation(new GPSCoordinate(
+                            loc.getLongitude(), loc.getLatitude(), dp.getAltitude(),
+                            loc.getHdop(), loc.getVdop(), loc.getPdop()
+                    ));
+                }
             }
         }
         if (bySecond.isEmpty()) {

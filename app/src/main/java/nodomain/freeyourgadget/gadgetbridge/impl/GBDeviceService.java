@@ -56,6 +56,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.DeviceService;
 import nodomain.freeyourgadget.gadgetbridge.model.MusicSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.MusicStateSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.NavigationInfoSpec;
+import nodomain.freeyourgadget.gadgetbridge.model.NavigationRouteSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.Reminder;
 import nodomain.freeyourgadget.gadgetbridge.model.WorldClock;
@@ -282,6 +283,13 @@ public class GBDeviceService implements DeviceService {
     @Override
     public void onSetNavigationInfo(@NonNull NavigationInfoSpec navigationInfoSpec) {
         navigationDispatcher.offer(navigationInfoSpec);
+    }
+
+    @Override
+    public void onSetNavigationRoute(@NonNull NavigationRouteSpec navigationRouteSpec) {
+        Intent intent = createIntent().setAction(ACTION_SETNAVIGATIONROUTE)
+                .putExtra(EXTRA_NAVIGATION_ROUTE_SPEC, navigationRouteSpec);
+        invokeService(intent);
     }
 
     private void forwardNavigationInfo(NavigationInfoSpec navigationInfoSpec) {

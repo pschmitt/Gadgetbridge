@@ -19,6 +19,7 @@ package nodomain.freeyourgadget.gadgetbridge.service.devices.garmin
 import nodomain.freeyourgadget.gadgetbridge.model.RecordedDataTypes
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiFileSyncService
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSmartProto.Smart
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.FileType.FILETYPE
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.deviceevents.FileDownloadedDeviceEvent
 import nodomain.freeyourgadget.gadgetbridge.util.protobuf.buildWith
 import org.slf4j.LoggerFactory
@@ -81,14 +82,7 @@ class FileSyncServiceHandler(val deviceSupport: GarminSupport) {
                 continue
             }
 
-            if (!file.type.hasName()) {
-                // may need some enhancement here for "odd" files
-                LOG.warn("New file has no type name: {}", file)
-                continue
-            }
-
-            var typeName = file.type.name;
-            conditionallyDownload(file, typeName)
+            conditionallyDownload(file, null)
         }
         return null
     }
@@ -121,21 +115,21 @@ class FileSyncServiceHandler(val deviceSupport: GarminSupport) {
         val fetchUnknownFiles = deviceSupport.devicePrefs.fetchUnknownFiles
 
         // Only the first entry for a type seems to contain the type name, so keep track of them
-        val codeMap: MutableMap<Int?, String?> = HashMap()
+        val nameMap: MutableMap<Int?, String?> = HashMap()
         for (file in fileListResponse.fileList) {
             if (!file.hasType()) {
                 LOG.warn("Ignoring listed file without type information: {}", file)
                 continue
             }
 
-            if (file.type.hasCode() && file.type.hasName()) {
-                codeMap.put(file.type.code, file.type.name)
+            if (file.type.hasNameId() && file.type.hasName()) {
+                nameMap.put(file.type.nameId, file.type.name)
             }
 
             var typeName = if (file.type.hasName()) {
                 file.type.name
-            } else if (file.type.hasCode()) {
-                codeMap[file.type.code]
+            } else if (file.type.hasNameId()) {
+                nameMap[file.type.nameId]
             } else {
                 null
             }
@@ -168,8 +162,8 @@ class FileSyncServiceHandler(val deviceSupport: GarminSupport) {
 
         val fileListRequestBuilder = GdiFileSyncService.FileListRequest.newBuilder().apply {
             // Exclusion flags? If we omit this, it sends back already synced files going back months.
-            flags1 = GdiFileSyncService.FileId.newBuilder().setId1(FLAGS_SYNCED).setId2(FLAGS_SYNCED).build()
-            flags2 = GdiFileSyncService.FileId.newBuilder().setId1(FLAGS_SYNCED).setId2(FLAGS_SYNCED).build()
+            addFlags1(GdiFileSyncService.FileId.newBuilder().setId1(FLAGS_SYNCED).setId2(FLAGS_SYNCED).build())
+            addFlags2(GdiFileSyncService.FileId.newBuilder().setId1(FLAGS_SYNCED).setId2(FLAGS_SYNCED).build())
         }
 
         val currentcursorId = cursorId
@@ -226,18 +220,32 @@ class FileSyncServiceHandler(val deviceSupport: GarminSupport) {
         return GdiFileSyncService.FileSyncService.newBuilder().buildWith {
             fileSetFlags = GdiFileSyncService.FileSetFlags.newBuilder().buildWith {
                 file = syncFile.id
-                flags = GdiFileSyncService.FileId.newBuilder().setId1(FLAGS_SYNCED).setId2(FLAGS_SYNCED).build()
+                setFlags = GdiFileSyncService.FileId.newBuilder().setId1(FLAGS_SYNCED).setId2(FLAGS_SYNCED).build()
             }
         }
     }
 
     private fun conditionallyDownload(file: GdiFileSyncService.File, rawTypeName: String?) {
+        var computedName: String? = null;
         if (rawTypeName == null || rawTypeName.length < 1) {
-            LOG.warn("Ignoring file with no type name: {}", file)
-            return
+            if (file.hasType() && file.type.hasName()) {
+                computedName = file.type.name;
+            } else if (file.hasType() && file.type.hasCode()) {
+                if (file.type.code == 3) {
+                    computedName = FILETYPE.DEVICE_XML.name
+                } else {
+                    // generate a name for fetchUnknownFiles
+                    computedName = "TYPE_" + file.type.code;
+                }
+            } else {
+                LOG.warn("Ignoring file with no type name: {}", file)
+                return
+            }
+        } else {
+            computedName = rawTypeName;
         }
 
-        val fileType = FileType.FILETYPE.findByTypeName(rawTypeName)
+        val fileType = FileType.FILETYPE.findByTypeName(computedName)
         val typeName = if (fileType != null) {
             if (fileType.typeName != null) {
                 fileType.typeName
@@ -245,7 +253,7 @@ class FileSyncServiceHandler(val deviceSupport: GarminSupport) {
                 fileType.name
             }
         } else {
-            rawTypeName
+            computedName
         }
 
         if (!deviceSupport.devicePrefs.fetchUnknownFiles) {

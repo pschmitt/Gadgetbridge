@@ -1,6 +1,11 @@
 package nodomain.freeyourgadget.gadgetbridge.test;
 
 import org.junit.After;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +15,7 @@ import nodomain.freeyourgadget.gadgetbridge.BuildConfig;
 import nodomain.freeyourgadget.gadgetbridge.Logging;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -113,5 +119,30 @@ public class LoggingTest extends TestBase {
         assertEquals(Logging.formatBytes(bytes), Logging.lazyBytes(bytes).toString());
         assertEquals(Logging.formatBytes(new byte[0]), Logging.lazyBytes(new byte[0]).toString());
         assertEquals(Logging.formatBytes(null), Logging.lazyBytes(null).toString());
+    }
+
+    /**
+     * A log left from an earlier day belongs to that day. When file logging starts it has to be
+     * rolled over, not taken for today's and appended to.
+     */
+    @Test
+    public void testLogLeftFromAnEarlierDayIsRolledOverWhenLoggingStarts() throws Exception {
+        final Logging logging = Logging.getInstance();
+        // start once to learn where the log lives, then stop so an old one can be put there
+        logging.setFileLoggingEnabled(true);
+        final File log = new File(logging.getLogPath());
+        logging.setFileLoggingEnabled(false);
+
+        Files.write(log.toPath(), "left from an earlier day\n".getBytes(StandardCharsets.UTF_8));
+        assertTrue(log.setLastModified(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(2)));
+
+        logging.setFileLoggingEnabled(true);
+        LoggerFactory.getLogger(LoggingTest.class).info("written today");
+        logging.flush();
+
+        final String active = new String(Files.readAllBytes(log.toPath()), StandardCharsets.UTF_8);
+        assertFalse("the earlier day's log was appended to instead of rolled over",
+                active.contains("left from an earlier day"));
+        assertTrue(active.contains("written today"));
     }
 }

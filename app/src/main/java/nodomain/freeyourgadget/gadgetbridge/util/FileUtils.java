@@ -97,10 +97,10 @@ public class FileUtils {
      */
     public static void copyStreamToFile(InputStream inputStream, File destFile) throws IOException {
         try (FileOutputStream fout = new FileOutputStream(destFile)) {
-            byte[] buf = new byte[4096];
-            while (inputStream.available() > 0) {
-                int bytes = inputStream.read(buf);
-                fout.write(buf, 0, bytes);
+            final byte[] buf = new byte[4096];
+            int read;
+            while ((read = inputStream.read(buf)) > 0) {
+                fout.write(buf, 0, read);
             }
         }
     }
@@ -327,6 +327,10 @@ public class FileUtils {
         return out.toByteArray();
     }
 
+    public static byte[] readAll(final InputStream in) throws IOException {
+        return readAll(in, 256 * 1024 * 1024);
+    }
+
     public static byte[] readAll(final File inputFile) throws IOException {
         try (InputStream inputStream = new FileInputStream(inputFile)) {
             return FileUtils.readAll(inputStream, inputFile.length());
@@ -519,6 +523,13 @@ public class FileUtils {
         }
         if (data.length > 13 && BLETypeConversions.toUint32(data, 8) == FitFile.Header.MAGIC) {
             return "fit";
+        }
+        if (ArrayUtils.equals(data, new byte[]{'{', '"'}, 0)) {
+            // plain JSON
+            return "json";
+        } else if (ArrayUtils.equals(data, new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF, '{', '"'}, 0)) {
+            // JSON with leading UTF-8 Byte Order Mark (BOM)
+            return "json";
         }
         return null;
     }

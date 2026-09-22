@@ -57,6 +57,52 @@ data class EndurainTokenExchangeRequest(
     val code_verifier: String
 )
 
+/**
+ * The parts of an Endurain activity that the user owns rather than the uploaded file: everything
+ * that has to be carried over by hand when an activity is re-created from a new track.
+ *
+ * [hasUserContent] reports whether the user has written anything of their own on the activity,
+ * which is the signal for refusing to destroy it.
+ */
+data class EndurainActivityDetails(
+    val name: String?,
+    val activityType: Int?,
+    val description: String?,
+    val privateNotes: String?,
+    val gearId: Int?,
+    val visibility: Int?,
+    val hideFlags: Map<String, Boolean>
+) {
+    val hasUserContent: Boolean
+        get() = !description.isNullOrBlank() || !privateNotes.isNullOrBlank() || gearId != null
+}
+
+/**
+ * Result of looking an activity up. [Gone] exists because an activity that is merely absent has
+ * to be told apart from a request that failed: the first is re-uploaded, the second retried.
+ *
+ * Endurain answers 200 with a body of `null` for an activity that does not exist, rather than
+ * 404, so the body decides: <https://codeberg.org/endurain-project/endurain/issues/911>. A 404 is
+ * read as [Gone] too, which is what the same answer looks like from a corrected server.
+ */
+sealed interface EndurainActivityLookup {
+    data class Found(val details: EndurainActivityDetails) : EndurainActivityLookup
+    object Gone : EndurainActivityLookup
+    object Failed : EndurainActivityLookup
+}
+
+/**
+ * A photo or video attached to an Endurain activity. [mediaPath] is the server-side storage
+ * path rather than a fetchable one, so a client that needs the file takes its basename and asks
+ * for /activity_media/{basename}:
+ * <https://codeberg.org/endurain-project/endurain/issues/912>.
+ */
+data class EndurainActivityMedia(
+    val id: Int,
+    val activityId: Int,
+    val mediaPath: String
+)
+
 data class EndurainIdentityProvider(
     val id: String,
     val name: String,
@@ -300,9 +346,11 @@ class EndurainApiClient(
     }
 
     /**
-     * Upload activity file (GPX)
+     * Upload an activity file. Endurain accepts FIT or GPX; Gadgetbridge currently always sends
+     * FIT (built from the workout). [callback] receives the new activity id on success, or a
+     * null id plus a human-readable [reason] on failure.
      */
-    fun uploadActivity(file: File, callback: (Int?) -> Unit) {
+    fun uploadActivity(file: File, callback: (id: Int?, reason: String?) -> Unit) {
         Thread {
             try {
                 val uri = "$baseUrl/api/v1/activities/create/upload".toUri()
@@ -313,28 +361,30 @@ class EndurainApiClient(
                     file = file,
                     requestHeaders = headers
                 ) { success, statusCode, responseText, reason ->
-                    if (success && responseText != null) {
+                    if (success && statusCode != null && statusCode in 200..299 && responseText != null) {
                         LOG.debug("Response $statusCode from Endurain: $responseText")
                         val jsonArray = JSONArray(responseText)
                         val firstObject = jsonArray.getJSONObject(0)
                         val id = firstObject.getInt("id")
-                        callback(id)
+                        callback(id, null)
                     } else {
                         LOG.error("Activity upload failed (status {}, reason {})", statusCode, reason)
-                        callback(null)
+                        callback(null, reason ?: statusCode?.let { "HTTP $it" })
                     }
                 }
             } catch (e: Exception) {
                 LOG.error("Activity upload error", e)
-                callback(null)
+                callback(null, e.localizedMessage)
             }
         }.start()
     }
 
     /**
-     * Upload activity photo
+     * Upload activity photo. [callback], when provided, fires with the id of the created media
+     * entry, or null on failure, so callers off the main thread (the auto-upload worker's photo
+     * sync) can wait for the result and remember which entry to replace later.
      */
-    fun uploadActivityPhoto(activityId: Int, file: File) {
+    fun uploadActivityPhoto(activityId: Int, file: File, callback: ((mediaId: Int?) -> Unit)? = null) {
         Thread {
             try {
                 val uri = "$baseUrl/api/v1/activities_media/upload/activity_id/$activityId".toUri()
@@ -347,34 +397,215 @@ class EndurainApiClient(
                 ) { success, statusCode, responseText, reason ->
                     if (success && responseText != null) {
                         LOG.debug("Response ($statusCode) from Endurain: $responseText")
+                        val mediaId = try {
+                            JSONObject(responseText).optInt("id").takeIf { it > 0 }
+                        } catch (e: Exception) {
+                            LOG.warn("Could not read media id from Endurain response", e)
+                            null
+                        }
+                        callback?.invoke(mediaId)
                     } else {
                         LOG.error("Activity photo upload to Endurain failed. Response ($statusCode, reason {}) received: $responseText", reason)
+                        callback?.invoke(null)
                     }
                 }
             } catch (e: Exception) {
                 LOG.error("Activity photo upload error", e)
+                callback?.invoke(null)
             }
         }.start()
     }
 
+    /** Reads back the user-owned parts of [activityId]. */
+    fun getActivityDetails(activityId: Int): EndurainActivityLookup {
+        try {
+            val uri = "$baseUrl/api/v1/activities/$activityId".toUri()
+            val response = InternetUtils.doStringRequestWithStatus(
+                uri = uri,
+                requestHeaders = buildHeaders(EndurainAuthType.AUTH_TOKEN)
+            )
+            // An activity that does not exist is reported as 200 with a body of `null`
+            // (<https://codeberg.org/endurain-project/endurain/issues/911>); 404 is what the same
+            // answer looks like once that is corrected. Both mean gone, not failed.
+            if (response.statusCode == 404) {
+                LOG.info("Endurain activity {} no longer exists", activityId)
+                return EndurainActivityLookup.Gone
+            }
+            if (response.statusCode !in 200..299 || response.body == null) {
+                LOG.error("Reading activity {} failed (status {})", activityId, response.statusCode)
+                return EndurainActivityLookup.Failed
+            }
+            if (response.body.isBlank() || response.body == "null") {
+                LOG.info("Endurain activity {} no longer exists", activityId)
+                return EndurainActivityLookup.Gone
+            }
+            val json = JSONObject(response.body)
+            val hideFlags = HIDE_FLAGS
+                .filter { json.has(it) && !json.isNull(it) }
+                .associateWith { json.getBoolean(it) }
+            return EndurainActivityLookup.Found(
+                EndurainActivityDetails(
+                    name = json.optStringOrNull("name"),
+                    activityType = json.optIntOrNull("activity_type"),
+                    description = json.optStringOrNull("description"),
+                    privateNotes = json.optStringOrNull("private_notes"),
+                    gearId = json.optIntOrNull("gear_id"),
+                    visibility = json.optIntOrNull("visibility"),
+                    hideFlags = hideFlags
+                )
+            )
+        } catch (e: Exception) {
+            LOG.error("Error reading activity {}", activityId, e)
+            return EndurainActivityLookup.Failed
+        }
+    }
+
     /**
-     * Edit uploaded activity
+     * Deletes an activity and everything derived from it. The endpoint answers 200 with a message
+     * body.
      */
-    fun editActivity(id: Int, activityKind: ActivityKind, name: String): Boolean {
+    fun deleteActivity(activityId: Int): Boolean {
+        try {
+            val uri = "$baseUrl/api/v1/activities/$activityId/delete".toUri()
+            val response = InternetUtils.doStringRequestWithStatus(
+                uri = uri,
+                method = "DELETE",
+                requestHeaders = buildHeaders(EndurainAuthType.AUTH_TOKEN)
+            )
+            if (response.statusCode !in 200..299) {
+                LOG.error("Deleting activity {} failed (status {}): {}", activityId, response.statusCode, response.body)
+                return false
+            }
+            return true
+        } catch (e: Exception) {
+            LOG.error("Error deleting activity {}", activityId, e)
+            return false
+        }
+    }
+
+    /**
+     * Restores the user-owned fields of [details] onto [activityId], for an activity that has
+     * just been re-created from a new track. [name] and [activityKind] come from the local
+     * workout and win over what [details] carried.
+     */
+    fun restoreActivityDetails(
+        activityId: Int,
+        activityKind: ActivityKind,
+        name: String?,
+        details: EndurainActivityDetails
+    ): Boolean {
         try {
             val uri = "$baseUrl/api/v1/activities/edit".toUri()
             val headers = buildHeaders(EndurainAuthType.AUTH_TOKEN)
             headers["Content-Type"] = "application/json"
 
-            var activityType = 10  // Generic workout
-            if (activityLookup.containsKey(activityKind.ordinal)) {
-                activityType = activityLookup[activityKind.ordinal]!!
+            val bodyJson = JSONObject().apply {
+                put("id", activityId)
+                put("activity_type", activityLookup[activityKind.ordinal] ?: GENERIC_ACTIVITY_TYPE)
+                if (name != null) put("name", name)
+                details.description?.let { put("description", it) }
+                details.privateNotes?.let { put("private_notes", it) }
+                details.gearId?.let { put("gear_id", it) }
+                details.visibility?.let { put("visibility", it) }
+                for ((flag, value) in details.hideFlags) {
+                    put(flag, value)
+                }
             }
+
+            val response = InternetUtils.doStringRequestWithStatus(
+                uri = uri,
+                method = "PUT",
+                requestHeaders = headers,
+                body = bodyJson.toString()
+            )
+            if (response.statusCode !in 200..299) {
+                LOG.error("Restoring activity {} failed (status {})", activityId, response.statusCode)
+                return false
+            }
+            return true
+        } catch (e: Exception) {
+            LOG.error("Error restoring activity {}", activityId, e)
+            return false
+        }
+    }
+
+    private fun JSONObject.optStringOrNull(key: String): String? =
+        if (has(key) && !isNull(key)) getString(key) else null
+
+    private fun JSONObject.optIntOrNull(key: String): Int? =
+        if (has(key) && !isNull(key)) getInt(key) else null
+
+    /**
+     * Media currently attached to [activityId], or null when the request failed. An activity
+     * with no media returns an empty list.
+     */
+    fun listActivityMedia(activityId: Int): List<EndurainActivityMedia>? {
+        try {
+            val uri = "$baseUrl/api/v1/activities_media/activity_id/$activityId".toUri()
+            val response = InternetUtils.doStringRequestWithStatus(
+                uri = uri,
+                requestHeaders = buildHeaders(EndurainAuthType.AUTH_TOKEN)
+            )
+            if (response.statusCode !in 200..299 || response.body == null) {
+                LOG.error("Listing media of activity {} failed (status {})", activityId, response.statusCode)
+                return null
+            }
+            // The endpoint answers null rather than [] when the activity has no media.
+            if (response.body.isBlank() || response.body == "null") {
+                return emptyList()
+            }
+            val array = JSONArray(response.body)
+            return (0 until array.length()).map { i ->
+                val entry = array.getJSONObject(i)
+                EndurainActivityMedia(
+                    entry.getInt("id"),
+                    entry.getInt("activity_id"),
+                    entry.getString("media_path")
+                )
+            }
+        } catch (e: Exception) {
+            LOG.error("Error listing media of activity {}", activityId, e)
+            return null
+        }
+    }
+
+    /**
+     * Deletes one media entry. The endpoint answers 204 with no body.
+     */
+    fun deleteActivityMedia(mediaId: Int): Boolean {
+        try {
+            val uri = "$baseUrl/api/v1/activities_media/$mediaId".toUri()
+            val response = InternetUtils.doStringRequestWithStatus(
+                uri = uri,
+                method = "DELETE",
+                requestHeaders = buildHeaders(EndurainAuthType.AUTH_TOKEN)
+            )
+            if (response.statusCode !in 200..299) {
+                LOG.error("Deleting media {} failed (status {}): {}", mediaId, response.statusCode, response.body)
+                return false
+            }
+            return true
+        } catch (e: Exception) {
+            LOG.error("Error deleting media {}", mediaId, e)
+            return false
+        }
+    }
+
+    /**
+     * Edit uploaded activity
+     */
+    fun editActivity(id: Int, activityKind: ActivityKind, name: String?): Boolean {
+        try {
+            val uri = "$baseUrl/api/v1/activities/edit".toUri()
+            val headers = buildHeaders(EndurainAuthType.AUTH_TOKEN)
+            headers["Content-Type"] = "application/json"
+
+            val activityType = activityLookup[activityKind.ordinal] ?: GENERIC_ACTIVITY_TYPE
 
             val bodyJson = JSONObject().apply {
                 put("id", id)
                 put("activity_type", activityType)
-                put("name", name)
+                if (name != null) put("name", name)
             }
 
             val result = InternetUtils.doStringRequest(
@@ -410,6 +641,19 @@ class EndurainApiClient(
             return null
         }
     }
+
+    /** Endurain's activity type for a workout whose kind it has no code for. */
+    private val GENERIC_ACTIVITY_TYPE = 10
+
+    /**
+     * Per-activity display toggles the user can set. Listed so they survive an activity being
+     * re-created, since the new upload would otherwise reset them to their defaults.
+     */
+    private val HIDE_FLAGS = listOf(
+        "hide_start_time", "hide_location", "hide_map", "hide_hr", "hide_power",
+        "hide_cadence", "hide_elevation", "hide_speed", "hide_pace", "hide_laps",
+        "hide_workout_sets_steps", "hide_gear"
+    )
 
     /**
      * Lookup map to convert ActivityKind to the integer Endurain expects,

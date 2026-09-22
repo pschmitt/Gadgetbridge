@@ -27,6 +27,7 @@ class MultipointPairingActivity : AbstractGBActivity() {
     private var devices = mutableListOf<MultipointDevice>()
     private var isMultipointEnabled = false
     private var isMultipointDisableSupported = false
+    private var isPairingNewDeviceSupported = false
     private var pairingNewDevice = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,6 +116,10 @@ class MultipointPairingActivity : AbstractGBActivity() {
                         EXTRA_MULTIPOINT_DISABLE_SUPPORTED,
                         false,
                     )
+                    isPairingNewDeviceSupported = intent.getBooleanExtra(
+                        EXTRA_MULTIPOINT_PAIR_SUPPORTED,
+                        false,
+                    )
                     updateUI()
                 }
 
@@ -147,7 +152,7 @@ class MultipointPairingActivity : AbstractGBActivity() {
             binding.emptyStateLayout.visibility = View.GONE
         }
 
-        binding.buttonPairNewDevice.isEnabled =
+        binding.buttonPairNewDevice.isEnabled = isPairingNewDeviceSupported &&
             gbDevice.isInitialized && isMultipointEnabled && devices.count { it.isConnected } < 2
     }
 
@@ -163,7 +168,7 @@ class MultipointPairingActivity : AbstractGBActivity() {
             }
         }
 
-        binding.buttonPairNewDevice.isEnabled =
+        binding.buttonPairNewDevice.isEnabled = isPairingNewDeviceSupported &&
             gbDevice.isInitialized && isMultipointEnabled && devices.count { it.isConnected } < 2
         binding.buttonPairNewDevice.text = if (pairingNewDevice) {
             getString(R.string.bluetooth_multipoint_pair_stop)
@@ -254,6 +259,7 @@ class MultipointPairingActivity : AbstractGBActivity() {
         const val EXTRA_DEVICE_LIST = "device_list"
         const val EXTRA_MULTIPOINT_ENABLED = "enabled"
         const val EXTRA_MULTIPOINT_DISABLE_SUPPORTED = "disable_supported"
+        const val EXTRA_MULTIPOINT_PAIR_SUPPORTED = "pair_supported"
         const val EXTRA_PAIRING_ENABLED = "enabled"
         const val EXTRA_DEVICE_ADDRESS = "device_address"
     }

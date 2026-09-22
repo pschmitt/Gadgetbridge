@@ -27,7 +27,9 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutValueFormatter
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.entries.ActivitySummaryEntry
+import nodomain.freeyourgadget.gadgetbridge.activities.workouts.entries.ActivitySummaryProgressEntry
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.entries.ActivitySummarySimpleEntry
+import nodomain.freeyourgadget.gadgetbridge.activities.workouts.entries.ActivitySummaryTableRowEntry
 
 class GridTableBuilder @JvmOverloads constructor(
     private val context: Context,
@@ -52,7 +54,8 @@ class GridTableBuilder @JvmOverloads constructor(
             cellNumber++
         }
 
-        val linearLayout = generateLinearLayout(cellNumber, columnSpan)
+        val compact = entry is ActivitySummaryTableRowEntry || entry is ActivitySummaryProgressEntry
+        val linearLayout = generateLinearLayout(cellNumber, columnSpan, compact)
         entry.populate(key, linearLayout, workoutValueFormatter)
         gridLayout.addView(linearLayout)
         columnSpans.add(columnSpan)
@@ -87,7 +90,7 @@ class GridTableBuilder @JvmOverloads constructor(
         return gridLayout
     }
 
-    private fun generateLinearLayout(i: Int, columnSize: Int): LinearLayout {
+    private fun generateLinearLayout(i: Int, columnSize: Int, compact: Boolean = false): LinearLayout {
         return LinearLayout(context).apply {
             val layoutParams = GridLayout.LayoutParams(
                 GridLayout.spec(GridLayout.UNDEFINED, GridLayout.FILL, 1f),
@@ -97,11 +100,15 @@ class GridTableBuilder @JvmOverloads constructor(
             this.layoutParams = layoutParams
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
-            setPadding(dpToPx(15), dpToPx(15), dpToPx(15), dpToPx(15))
+            // Table rows (laps, intervals, sets) and zone progress bars pack many rows on
+            // screen, so give them less room than a regular key/value summary cell.
+            val verticalPadding = if (compact) 8 else 15
+            setPadding(dpToPx(15), dpToPx(verticalPadding), dpToPx(15), dpToPx(verticalPadding))
             setBackgroundColor(GBApplication.getWindowBackgroundColor(context))
 
-            val marginLeft = if (i % 2 == 0) 0 else 1
-            val marginRight = if (i % 2 == 0) 1 else 0
+            // A full-width (2-column-span) cell has no adjacent column, so it gets no side border.
+            val marginLeft = if (columnSize == 2 || i % 2 == 0) 0 else 1
+            val marginRight = if (columnSize == 2) 0 else if (i % 2 == 0) 1 else 0
             val marginTop = 2
             val marginBottom = 0 // will be changed to 2 for the last row
 

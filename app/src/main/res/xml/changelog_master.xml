@@ -1,6 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <!-- For contributors: do not modify this file - the project maintainers will update it as needed -->
+    <release version="0.94.0" versioncode="253">
+      <change>Initial support for Bose NC 700</change>
+      <change>Initial support for Beurer BM69</change>
+      <change>Initial support for Colmi i31 (FitCloud)</change>
+      <change>Initial support for Redmi Watch 6</change>
+      <change>Initial support for Garmin Edge 1050, Forerunner 230, Vívoactive 3 Music</change>
+      <change>Initial support for GRV FC1, Swiss Peak (GloryFit)</change>
+      <change>Initial support for Huawei Watch GT 7</change>
+      <change>Initial support for Jabra Evole 65, Evolve2 55 / Evolve2 65</change>
+      <change>Initial support for more MoYoung / Da Fit devices: Alt Vibe, C20_Pro, Garett Eva, MT55</change>
+      <change>Initial support for QN-Scale (Chipsea CS20 family)</change>
+      <change>Initial support for Roidmi F8 Storm vacuum cleaner</change>
+      <change>Initial support for Shokz OpenRun Pro 2</change>
+      <change>Initial support for Xiaomi Watch 5</change>
+      <change>Experimental support for Huawei Watch GT 7 Pro</change>
+      <change>Experimental support for Zeblaze Beyond 3 Pro</change>
+      <change>Experimental support for 59 new Garmin devices</change>
+      <change>1MORE SonoFlow: Add quick settings</change>
+      <change>Accessibility: Label image controls for screen readers</change>
+      <change>Activity list: Fix occasional crash</change>
+      <change>Add a device setting to connect when another device connects</change>
+      <change>Allow notifications from other users</change>
+      <change>Amazfit GTS2 / GTR2: Fix title and sender on some notifications</change>
+      <change>Amazfit Helio Band: Vibrate on notifications and calls</change>
+      <change>Anker Soundcore Sport X20: Add multipoint pairing</change>
+      <change>BLE Intent API: Allow multiple target packages</change>
+      <change>BLE Intent API: Prevent abortion of device init</change>
+      <change>Bose: Add quick settings</change>
+      <change>Charts: Add body composition estimation for scales with impedance measurement</change>
+      <change>Charts: Add optimal training load baseline</change>
+      <change>Charts: Add VO2 Max 6-month and year views</change>
+      <change>Charts: Display HR on blood pressure charts</change>
+      <change>Charts: Fix crash when exiting live activity</change>
+      <change>Charts: Fix temperature unit not respecting settings</change>
+      <change>CMF Watch 2+: Fixed watchface upload</change>
+      <change>Colmi/Yawell rings: Ignore heart rate samples in the future</change>
+      <change>Dashboard: Add per-widget configuration</change>
+      <change>Dashboard: Add SpO2 widget</change>
+      <change>Dashboard: Add weight and BMI widgets</change>
+      <change>Dashboard: Show empty state when no sleep score is available</change>
+      <change>Debug: Add Internet Helper</change>
+      <change>Discovery Activity: Improve list refresh timing</change>
+      <change>Endurain: Map some missing activity types</change>
+      <change>Fix 12-hour midnight display on time preferences</change>
+      <change>Fix crash on some Android 13 ROMs</change>
+      <change>Fix crash when unable to decrypt shared preferences for wanderer/endurain</change>
+      <change>Garmin Vivoactive 6: Enable new sync protocol by default</change>
+      <change>Garmin: Add charts for race time prediction, training readiness, solar charging</change>
+      <change>Garmin: Add new oauth token urls</change>
+      <change>Garmin: Add support for watch-initiated sync</change>
+      <change>Garmin: Add time sync device setting</change>
+      <change>Garmin: Allow upload of gpx with navigation instructions</change>
+      <change>Garmin: Allow waypoint upload on all devices</change>
+      <change>Garmin: Do not send stale GPS location to watch</change>
+      <change>Garmin: Enable MLR by default</change>
+      <change>Garmin: Fix COBS decoder wedging on truncated frames</change>
+      <change>Garmin: Fix crash on some older devices</change>
+      <change>Garmin: Fix dismiss of old notifications</change>
+      <change>Garmin: Fix gpx routes freezing some watches</change>
+      <change>Garmin: Fix occasional crash on reconnection</change>
+      <change>Garmin: Fix processing of synced ZIP files</change>
+      <change>Garmin: Fix realtime settings crash in some pages</change>
+      <change>Garmin: Fix some crashes on disconnection</change>
+      <change>Garmin: Fix stuck connection when a frame is dropped</change>
+      <change>Garmin: Make activity sync progress unit explicit</change>
+      <change>Garmin: Send phone info to watch</change>
+      <change>GloryFit: Add weather</change>
+      <change>GloryFit: Fix crash on health settings screen</change>
+      <change>GPX export: Give tracks a real name</change>
+      <change>Huawei: Fix battery charging status on some watches</change>
+      <change>Improve reconnection to some devices when MTU was already negotiated</change>
+      <change>iTECH Active 3: Fix HR fragment crash</change>
+      <change>Maps: Display map files in selected folder</change>
+      <change>Mi Body Composition Scale 2: Do not persist implausible weight samples</change>
+      <change>Mi Scales: Refresh the dashboard after a measurement</change>
+      <change>MoYoung: Add manual SpO2 measurement from device card</change>
+      <change>MoYoung: Add more workout types and parse max speed</change>
+      <change>Moyoung: Fix battery percentage on some devices</change>
+      <change>Nothing Ear (a): Fix bluetooth name</change>
+      <change>Nothing Ear: Add support for quick settings tiles</change>
+      <change>Optionally order disconnected devices by their most recent connection instead of by name</change>
+      <change>Pebble: Add support for SimpleWeather watchface</change>
+      <change>Pebble: Initial support for new weather v4</change>
+      <change>Rate limit the serialization of incoming CoMaps navigation messages</change>
+      <change>Sony Headphones: Fix reconnection</change>
+      <change>UNA Watch: Connection improvements</change>
+      <change>UNA Watch: Faster workout and health sync</change>
+      <change>UNA Watch: Import workouts as soon as they are saved on the watch</change>
+      <change>UNA Watch: Per-minute heart rate and honest daily totals</change>
+      <change>UNA Watch: Phone notifications</change>
+      <change>WeatherSpec: Add atmospheric pressure, cloud cover and dew point forecasts</change>
+      <change>Workouts: Compute distance from GPS tracks and speed if not reported by the device</change>
+      <change>Workouts: Fix chart interpolation on large gaps</change>
+      <change>Workouts: Fix some missing units localization</change>
+      <change>Workouts: Propagate custom label to charts/maps titles</change>
+      <change>Xiaomi-protobuf: Fix crash on resting heart rate query</change>
+      <change>Xiaomi-protobuf: Fix crash when dismissing some notifications</change>
+      <change>Xiaomi-protobuf: Fix notification "open on phone"</change>
+      <change>Xiaomi-protobuf: Fix SpO2 all-day mode on some devices</change>
+      <change>Xiaomi-protobuf: Improve workout and activity parsing</change>
+      <change>Zepp OS: Add some missing display items and shortcut cards</change>
+      <change>Zepp OS: Fix download of long voice notes</change>
+      <change>Zepp OS: Fix setting unknown languages</change>
+      <change>Zepp OS: Improve weather support</change>
+    </release>
     <release version="0.93.0" versioncode="252">
       <change>Initial support for AK75 Pro, AK86, AK102 (TopStep / FitCloud)</change>
       <change>Initial support for DM58 (GloryFit Pro)</change>

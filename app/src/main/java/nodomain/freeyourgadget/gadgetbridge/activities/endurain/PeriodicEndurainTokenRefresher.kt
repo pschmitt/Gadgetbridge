@@ -20,44 +20,58 @@ import android.content.Context
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
 object PeriodicEndurainTokenRefresher {
     private val LOG: Logger = LoggerFactory.getLogger(PeriodicEndurainTokenRefresher::class.java)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     const val TAG_CREATED_AT = "createdAt-"
     const val WORK_TAG = "EndurainTokenRefreshWorker"
 
     fun scheduleNextExecution(context: Context) {
-        try {
-            val tokenManager = EndurainTokenManager(context)
-            val workManager = WorkManager.getInstance(context)
-            workManager.cancelAllWorkByTag(WORK_TAG)
+        scope.launch {
+            try {
+                val tokenManager = EndurainTokenManager(context)
+                val workManager = WorkManager.getInstance(context)
+                workManager.cancelAllWorkByTag(WORK_TAG)
 
-            if (!tokenManager.isLoggedIn()) {
-                LOG.info("Not scheduling {}, no valid refresh token available", this::class.java.simpleName)
-                return
-            }
+                if (!tokenManager.isLoggedIn()) {
+                    LOG.info(
+                        "Not scheduling {}, no valid refresh token available",
+                        this::class.java.simpleName
+                    )
+                    return@launch
+                }
 
-            // Runs every 3 days
-            val periodicWork = PeriodicWorkRequestBuilder<EndurainTokenRefreshWorker>(
-                3, TimeUnit.DAYS
-            )
-                .addTag(WORK_TAG)
-                .addTag("$TAG_CREATED_AT${System.currentTimeMillis()}")
-                .build()
+                // Runs every 3 days
+                val periodicWork = PeriodicWorkRequestBuilder<EndurainTokenRefreshWorker>(
+                    3, TimeUnit.DAYS
+                )
+                    .addTag(WORK_TAG)
+                    .addTag("$TAG_CREATED_AT${System.currentTimeMillis()}")
+                    .build()
 
-            WorkManager.getInstance(context).apply {
-                enqueueUniquePeriodicWork(
-                    WORK_TAG,
-                    ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
-                    periodicWork
+                WorkManager.getInstance(context).apply {
+                    enqueueUniquePeriodicWork(
+                        WORK_TAG,
+                        ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+                        periodicWork
+                    )
+                }
+            } catch (e: Exception) {
+                LOG.error(
+                    "Failed to schedule next execution for {}",
+                    this::class.java.simpleName,
+                    e
                 )
             }
-        } catch (e: Exception) {
-            LOG.error("Failed to schedule next execution for {}", this::class.java.simpleName, e)
         }
     }
 }

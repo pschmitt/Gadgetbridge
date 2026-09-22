@@ -71,25 +71,35 @@ class WandererSetupBottomSheet : BottomSheetDialogFragment() {
             // dead server / missing internet / wrong key is reported now instead of silently at the
             // first upload.
             saveButton.isEnabled = false
-            WandererApiClient(serverName, WandererTokenManager(requireContext())).checkServerReachable(apiToken) { reachable, reason ->
-                activity?.runOnUiThread {
-                    saveButton.isEnabled = true
-                    if (!reachable) {
+            val apiClient = WandererApiClient(serverName, WandererTokenManager(requireContext()))
+            apiClient.checkServerReachable(apiToken) { reachable, reason ->
+                if (!reachable) {
+                    activity?.runOnUiThread {
+                        saveButton.isEnabled = true
                         GB.toast(
                             reason ?: InternetUtils.connectFailureReason(requireContext(), serverName),
                             Toast.LENGTH_LONG,
                             GB.ERROR
                         )
-                        return@runOnUiThread
                     }
-                    LOG.info("Saving Wanderer server ({}) and API token", serverName)
-                    prefs.edit { putString("wanderer_server", serverName) }
-                    WandererTokenManager(requireContext()).saveToken(apiToken)
-                    parentFragmentManager.setFragmentResult(
-                        "wanderer_login_result",
-                        Bundle().apply { putBoolean("success", true) }
-                    )
-                    dismiss()
+                    return@checkServerReachable
+                }
+                // The handle only names the account, so setup carries on without it and the
+                // workout upload status falls back to showing the trail id on its own.
+                apiClient.fetchUserHandle(apiToken) { handle ->
+                    activity?.runOnUiThread {
+                        saveButton.isEnabled = true
+                        LOG.info("Saving Wanderer server ({}) and API token", serverName)
+                        prefs.edit { putString("wanderer_server", serverName) }
+                        val tokenManager = WandererTokenManager(requireContext())
+                        tokenManager.saveToken(apiToken)
+                        handle?.let { tokenManager.saveHandle(it) }
+                        parentFragmentManager.setFragmentResult(
+                            "wanderer_login_result",
+                            Bundle().apply { putBoolean("success", true) }
+                        )
+                        dismiss()
+                    }
                 }
             }
         }

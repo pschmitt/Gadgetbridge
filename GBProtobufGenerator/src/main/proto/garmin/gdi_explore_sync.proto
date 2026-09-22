@@ -115,10 +115,15 @@ message VersionStamp {
 }
 
 message StartSyncRequest {
+  message Message5 {
+    optional uint32 unk1 = 1;
+    optional uint32 unk2 = 2;
+  }
   optional SyncType sync_type = 1;
   optional int32 protocol_version = 2;
   optional bytes app_uuid = 3;
   optional uint32 sync_capabilities = 4;
+  repeated Message5 unk5 = 5;
   optional uint32 actual_capabilities = 6;
 }
 

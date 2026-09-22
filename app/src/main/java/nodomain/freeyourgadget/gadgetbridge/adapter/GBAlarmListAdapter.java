@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -85,15 +86,22 @@ public class GBAlarmListAdapter extends RecyclerView.Adapter<GBAlarmListAdapter.
         holder.alarmDaySaturday.setChecked(alarm.getRepetition(Alarm.ALARM_SAT));
         holder.alarmDaySunday.setChecked(alarm.getRepetition(Alarm.ALARM_SUN));
         holder.container.setAlpha(alarm.getUnused() ? 0.5f : 1.0f);
+        holder.delete.setVisibility(alarm.getUnused() ? View.INVISIBLE : View.VISIBLE);
         holder.isEnabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                final boolean wasUnused = alarm.getUnused();
                 if (isChecked) {
                     alarm.setUnused(false);
-                    holder.container.setAlpha(1.0f);
                 }
                 alarm.setEnabled(isChecked);
                 updateInDB(alarm);
+                if (wasUnused != alarm.getUnused()) {
+                    // Slot usage changed: let the activity re-filter/re-sort the list if needed
+                    ((ConfigureAlarms) mContext).updateAlarmsFromDB();
+                } else {
+                    holder.container.setAlpha(alarm.getUnused() ? 0.5f : 1.0f);
+                }
             }
         });
 
@@ -103,14 +111,16 @@ public class GBAlarmListAdapter extends RecyclerView.Adapter<GBAlarmListAdapter.
                 ((ConfigureAlarms) mContext).configureAlarm(alarm);
             }
         });
-        holder.container.setOnLongClickListener(new View.OnLongClickListener() {
+        holder.delete.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
-                alarm.setUnused(!alarm.getUnused());
-                holder.container.setAlpha(alarm.getUnused() ? 0.5f : 1.0f);
-                holder.isEnabled.setChecked(false); // This falls through to the onCheckChanged function
+            public void onClick(View v) {
+                alarm.setUnused(true);
+                alarm.setEnabled(false);
                 updateInDB(alarm);
-                return true;
+                // Let the activity re-filter/re-sort the list - the row may disappear
+                // entirely, or turn into a dimmed empty slot, depending on the current
+                // "show unused alarms" setting.
+                ((ConfigureAlarms) mContext).updateAlarmsFromDB();
             }
         });
 
@@ -134,6 +144,7 @@ public class GBAlarmListAdapter extends RecyclerView.Adapter<GBAlarmListAdapter.
 
         TextView alarmTime;
         MaterialSwitch isEnabled;
+        ImageButton delete;
         TextView isSmartWakeup;
 
         CheckedTextView alarmDayMonday;
@@ -151,6 +162,7 @@ public class GBAlarmListAdapter extends RecyclerView.Adapter<GBAlarmListAdapter.
 
             alarmTime = view.findViewById(R.id.alarm_item_time);
             isEnabled = view.findViewById(R.id.alarm_item_toggle);
+            delete = view.findViewById(R.id.alarm_item_delete);
             isSmartWakeup = view.findViewById(R.id.alarm_smart_wakeup);
 
             alarmDayMonday = view.findViewById(R.id.alarm_item_monday);

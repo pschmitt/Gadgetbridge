@@ -16,10 +16,10 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.bose
 
+import android.content.Context
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.SettingsRenderHost
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsScreen
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.DeviceSettingsSpec
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.ListEntry
@@ -221,8 +221,8 @@ abstract class AbstractBoseCoordinator : AbstractBLClassicDeviceCoordinator() {
             summary = R.string.prefs_media_transport_controls_summary,
             icon = R.drawable.ic_play,
         ) {
-            fun newHandler(key: String): (SettingsRenderHost) -> Boolean = { handler ->
-                handler.notifyPreferenceChanged(key)
+            fun newHandler(key: String): (Context, GBDevice?) -> Boolean = { _, device ->
+                GBApplication.deviceService(device).onSendConfiguration(key)
                 true
             }
 

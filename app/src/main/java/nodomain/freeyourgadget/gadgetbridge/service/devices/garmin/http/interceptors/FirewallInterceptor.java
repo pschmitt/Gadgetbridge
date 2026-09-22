@@ -119,7 +119,7 @@ public class FirewallInterceptor implements HttpInterceptor {
             });
 
             try (ParcelFileDescriptor.AutoCloseOutputStream out = new ParcelFileDescriptor.AutoCloseOutputStream(pipeWrite)) {
-                out.write(request.getBody());
+                out.write(request.getBodyToSend());
             }
         } catch (final Exception e) {
             LOG.error("Failed to send request to InternetHelper", e);

@@ -7,6 +7,8 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import nodomain.freeyourgadget.gadgetbridge.R
 
 class MultipointDeviceAdapter(
@@ -47,15 +49,15 @@ class MultipointDeviceAdapter(
             device.address
         }
 
-        val (icon, buttonText, action) = if (device.isConnected) {
+        val (colorFilter, buttonText, action) = if (device.isConnected) {
             Triple(
-                R.drawable.ic_bluetooth_connected,
+                null,
                 context.getString(R.string.controlcenter_disconnect),
                 Action.DISCONNECT
             )
         } else {
             Triple(
-                R.drawable.ic_bluetooth_disabled,
+                ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0f) }),
                 context.getString(R.string.connect),
                 Action.CONNECT
             )
@@ -64,7 +66,7 @@ class MultipointDeviceAdapter(
         val allowConnect = allowAction && devices.count { it.isConnected } < 2
         val allowDisconnect = allowAction
 
-        holder.deviceIcon.setImageResource(icon)
+        holder.deviceIcon.colorFilter = colorFilter
         holder.connectionButton.text = buttonText
         holder.connectionButton.isEnabled = when (action) {
             Action.CONNECT -> allowConnect

@@ -26,6 +26,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.Contact;
 import nodomain.freeyourgadget.gadgetbridge.model.MusicSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.MusicStateSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.NavigationInfoSpec;
+import nodomain.freeyourgadget.gadgetbridge.model.NavigationRouteSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationType;
 import nodomain.freeyourgadget.gadgetbridge.model.Reminder;
@@ -187,6 +188,12 @@ public class DeviceActionHandler {
                 }
                 navigationInfoSpec.setCompletionPercent(intentCopy.getIntExtra(EXTRA_NAVIGATION_COMPLETION_PERCENT, 0));
                 deviceSupport.onSetNavigationInfo(navigationInfoSpec);
+                break;
+            case ACTION_SETNAVIGATIONROUTE:
+                final NavigationRouteSpec navigationRouteSpec = intentCopy.getParcelableExtra(EXTRA_NAVIGATION_ROUTE_SPEC);
+                if (navigationRouteSpec != null) {
+                    deviceSupport.onSetNavigationRoute(navigationRouteSpec);
+                }
                 break;
             case ACTION_REQUEST_APPINFO:
                 deviceSupport.onAppInfoReq();

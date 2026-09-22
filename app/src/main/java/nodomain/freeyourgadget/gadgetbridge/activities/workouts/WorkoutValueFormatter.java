@@ -129,8 +129,8 @@ public class WorkoutValueFormatter {
         this.activityKind = activityKind;
     }
 
-    public void toggleRawData() {
-        this.show_raw_data = !show_raw_data;
+    public void setRawData(final boolean showRawData) {
+        this.show_raw_data = showRawData;
     }
 
     public String formatValue(final Object rawValue, String unit, boolean showUnit) {

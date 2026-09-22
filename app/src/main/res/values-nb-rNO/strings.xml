@@ -4204,4 +4204,9 @@
     <string name="nothing_equalizer_enhance_vocals">Forbedre vokal</string>
     <string name="nothing_equalizer_classical">Klassisk</string>
     <string name="nothing_equalizer_custom">Egendefinert</string>
+    <string name="knots">kn</string>
+    <string name="unit_inch">tom</string>
+    <string name="unit_ampere">A</string>
+    <string name="unit_ampere_hour">Ah</string>
+    <string name="unit_kilojoule">kJ</string>
 </resources>

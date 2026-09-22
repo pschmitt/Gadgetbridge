@@ -1890,7 +1890,7 @@
     <string name="pref_title_notification_media_ignores_application_list">רשימת יישומונים להתעלמות בהתראות מדיה</string>
     <string name="pref_summary_notification_media_ignores_application_list">לעבד את בקשות המדיה לפני רשימת היישומונים. אם העדפה זו לא מסומנת, יש לאפשר יישומוני מדיה ברשימת היישומונים כדי שפקדי המדיה יעבדו על המכשיר.</string>
     <string name="debugactivity_confirm_remove_device_preferences_title">להסיר את העדפות המכשיר\?</string>
-    <string name="debugactivity_confirm_remove_device_preferences">פעולה זו תאפס את העדפות המכשיר לכל המכשירים המקושרים. להמשיך?</string>
+    <string name="debugactivity_confirm_remove_device_preferences">פעולה זו תאפס את העדפות המכשיר הזה. להמשיך?</string>
     <string name="fw_upgrade_notice_amazfit_band7">פעולה זו תתקין את הקושחה %s על ה־Amazfit Band 7 שלך.
 \n
 \nהצמיד שלך יופעל מחדש לאחר התקנת קובץ ה־‎.zip.
@@ -2844,8 +2844,8 @@
     <string name="first_start_permissions_title">הרשאות</string>
     <string name="remote_control">שלט רחוק</string>
     <string name="pref_workout_send_gps_timeout_title">שליחת תום זמן נווטן/GPS</string>
-    <string name="range_percentage">%1$d%% - %2$d%%</string>
-    <string name="range_degrees">%1$dº - %2$dº</string>
+    <string name="range_percentage">%1$d%% – %2$d%%</string>
+    <string name="range_degrees">%1$dº – %2$dº</string>
     <string name="huawei_voice_boost">הגברת קול</string>
     <string name="banglejs_notification_missed_call_source">שיחה נכנסת</string>
     <string name="banglejs_notification_missed_call_title">שיחה שלא נענתה</string>
@@ -2890,7 +2890,7 @@
     <string name="pref_summary_wheel_diameter">קוטר הגלגל באינצ׳ים. בדרך כלל 29, 27.5 או 26.</string>
     <string name="pref_title_wheel_diameter">קוטר הגלגל</string>
     <string name="device_name_bicycle_sensor">חיישן אופניים</string>
-    <string name="range_percentage_float">%1$.1f%% - %2$.1f%%</string>
+    <string name="range_percentage_float">%1$.1f%% – %2$.1f%%</string>
     <string name="pref_title_stable_connection">חיבור יציב</string>
     <string name="about_build_details_copied_to_clipboard">פרטי הבנייה הועתקו ללוח הגזירים</string>
     <string name="pref_watch_face">פני השעון</string>
@@ -2904,4 +2904,35 @@
         <item quantity="other">%d ימים</item>
     </plurals>
     <string name="music_delete_multiple_confirm_description">למחוק %1$d שירים?</string>
+    <string name="bluetooth_multipoint_forget_message">להסיר את %1$s מההתקנים המצומדים? יש לצמד אותו שוב כדי להתחבר מחדש.</string>
+    <string name="bluetooth_paired_devices">התקנים מצומדים</string>
+    <string name="connect">חיבור</string>
+    <string name="pref_new_sync_protocol_title">פרוטוקול סנכרון חדש</string>
+    <string name="pref_new_sync_protocol_summary">יש להפעיל את זה אם חלק מהמידע לא התקבל. ניסיוני ועלול להיות לא יציב.</string>
+    <string name="auto_export_last_execution">ההפעלה האחרונה</string>
+    <string name="auto_export_next_execution">ההפעלה הבאה</string>
+    <string name="work_info_status_running">רץ</string>
+    <string name="work_info_status_enqueued">בתור</string>
+    <string name="work_info_status_succeeded">הצליח</string>
+    <string name="work_info_status_failed">נכשל</string>
+    <string name="work_info_status_blocked">חסום</string>
+    <string name="work_info_status_cancelled">בוטל</string>
+    <string name="work_info_running_percentage">%1$s (%2$d%%)</string>
+    <string name="datetime_in_the_future">%1$s (ב־%2$s)</string>
+    <string name="datetime_in_the_past">%1$s (לפני %2$s)</string>
+    <string name="rotate_screen">סיבוב המסך</string>
+    <string name="filter_charts">סינון תרשימים</string>
+    <string name="recovery_heart_rate">דופק התאוששות</string>
+    <string name="huawei_send_gps_and_time_title">שליחת GPS ושעה למכשיר</string>
+    <string name="phone_gps_not_available">ה־GPS של הטלפון לא זמין</string>
+    <string name="appmanager_app_store">חנות יישומונים</string>
+    <string name="title_activity_file_installer">מתקין קבצים</string>
+    <string name="title_activity_gps_track_installer">מתקין עקבות GPS</string>
+    <string name="refresh">ריענון</string>
+    <string name="pref_header_sync">סנכרון</string>
+    <string name="controlcenter_get_spo2_measurement">קבלת מדידת חמצן בדם</string>
+    <string name="pref_header_dashboard">לוח בקרה</string>
+    <string name="sound_and_vibration">צליל + רטט</string>
+    <string name="pref_title_general_prefs_key_sort_by_last_connected_ts">מיון לפי תאריך החיבור האחרון</string>
+    <string name="pref_title_block_screenshot">חסימת צילומי מסך</string>
 </resources>

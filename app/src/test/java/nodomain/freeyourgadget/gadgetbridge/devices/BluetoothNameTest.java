@@ -20,6 +20,8 @@ public class BluetoothNameTest extends TestBase {
             put("AAWireless-xUkL1YH0", DeviceType.AAWIRELESS);
             put("AAWireless-12345abc", DeviceType.AAWIRELESS);
             put("AndroidAuto-AAW12345abc", DeviceType.AAWIRELESS);
+            put("1MORE SonoFlow", DeviceType.ONEMORE_SONOFLOW); // #6803
+            put("1MORE SonoFlow SE", DeviceType.ONEMORE_SONOFLOW_SE); // #6803
             put("Active 2 NFC (Round)", DeviceType.AMAZFITACTIVE2NFC);
             put("Amazfit Band 7", DeviceType.AMAZFITBAND7); // #2945
             put("Amazfit GTR 3 Pro", DeviceType.AMAZFITGTR3PRO); // #2442
@@ -241,8 +243,10 @@ public class BluetoothNameTest extends TestBase {
             put("M6-4711", DeviceType.FITPRO);
             put("M4-4711", DeviceType.FITPRO);
             put("YBW-05", DeviceType.FITPRO); // #6069
+            put("SERIES 11", DeviceType.FITPRO); // #6479
             put("C20", DeviceType.C20); // #4070
             put("C 20", DeviceType.C20); // #5495
+            put("C20_Pro", DeviceType.C20PRO); // #6763
             put("OV-Touch2.6_LE", DeviceType.OVTOUCH26); // #5628
             put("BPW4500", DeviceType.BRAUN_BPW4500); // #5886
             put("MATSON Monitor", DeviceType.BM2_BATTERY_MONITOR); // #6212
@@ -268,6 +272,7 @@ public class BluetoothNameTest extends TestBase {
             put("Bose QC 35 II", DeviceType.BOSE_QC35);
             put("Bose NC 700 Headphones", DeviceType.BOSE_NC700);
             put("LE-Bose NC 700 Headphones", DeviceType.BOSE_NC700);
+            put("UCS LS2", DeviceType.CARDO_LS24X);
         }};
 
         for (Map.Entry<String, DeviceType> e : bluetoothNameToExpectedType.entrySet()) {

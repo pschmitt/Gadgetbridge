@@ -87,6 +87,7 @@ object ActivitySummaryGroup {
                     ActivitySummaryEntries.ASCENT_METERS,
                     ActivitySummaryEntries.VITALITY_GAIN,
                     ActivitySummaryEntries.WORKOUT_LOAD,
+                    ActivitySummaryEntries.SWOLF_AVG,
                 )
             )
 

@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities.dashboard;
 
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -25,14 +26,16 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
+import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -43,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -51,6 +55,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
@@ -66,14 +73,22 @@ public class DashboardCalendarActivity extends AbstractGBActivity {
     private static final Logger LOG = LoggerFactory.getLogger(DashboardCalendarActivity.class);
     public static String EXTRA_TIMESTAMP = "dashboard_calendar_chosen_day";
     private final ConcurrentHashMap<Calendar, TextView> dayCells = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Integer, Integer> dayColors = new ConcurrentHashMap<>();
+    private final ExecutorService calendarExecutor = Executors.newSingleThreadExecutor();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    /**
+     * Bumped on every draw() so a background fill from a month the user has since navigated
+     * away from can detect it and stop applying updates.
+     */
+    private final AtomicInteger loadGeneration = new AtomicInteger(0);
+    private ValueAnimator goalsLineAnimator;
+    private float goalsLineDisplayedWidth = 0f;
 
-    @ColorInt private int color_unknown = Color.argb(50, 128, 128, 128);
-    @ColorInt private int color_0_25 = Color.argb(128, 255, 0, 0); // Red
-    @ColorInt private int color_25_50 = Color.argb(128, 255, 128, 0); // Orange
-    @ColorInt private int color_50_75 = Color.argb(128, 255, 255, 0); // Yellow
-    @ColorInt private int color_75_100 = Color.argb(128, 0, 128, 0); // Dark green
-    @ColorInt private int color_100 = Color.argb(128, 0, 255, 0); // Green
+    @ColorInt private final int color_unknown = Color.argb(50, 128, 128, 128);
+    @ColorInt private final int color_0_25 = Color.argb(128, 255, 0, 0); // Red
+    @ColorInt private final int color_25_50 = Color.argb(128, 255, 128, 0); // Orange
+    @ColorInt private final int color_50_75 = Color.argb(128, 255, 255, 0); // Yellow
+    @ColorInt private final int color_75_100 = Color.argb(128, 0, 128, 0); // Dark green
+    @ColorInt private final int color_100 = Color.argb(128, 0, 255, 0); // Green
 
     private boolean showAllDevices;
     private Set<String> showDeviceList;
@@ -124,20 +139,29 @@ public class DashboardCalendarActivity extends AbstractGBActivity {
         draw();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Invalidate any in-flight background work and drop queued UI updates
+        loadGeneration.incrementAndGet();
+        calendarExecutor.shutdownNow();
+        if (goalsLineAnimator != null) {
+            goalsLineAnimator.cancel();
+        }
+    }
+
     private void displayColorsAsync() {
-        calendarGrid.post(new Runnable() {
-            @Override
-            public void run() {
-                FillDataAsyncTask myAsyncTask = new FillDataAsyncTask();
-                myAsyncTask.execute();
-            }
-        });
+        final int generation = loadGeneration.incrementAndGet();
+        final List<Map.Entry<Calendar, TextView>> entries = new ArrayList<>(dayCells.entrySet());
+        // Sort by day so cells are populated in order
+        entries.sort(Map.Entry.comparingByKey());
+        LOG.debug("Calendar: queueing fill of {} days (gen={})", entries.size(), generation);
+        calendarExecutor.execute(new CalendarFillTask(generation, entries));
     }
 
     private void draw() {
         // Remove previous calendar days
         dayCells.clear();
-        dayColors.clear();
         calendarGrid.removeAllViews();
         // Update month display
         SimpleDateFormat monthFormat = new SimpleDateFormat("LLLL yyyy", Locale.getDefault());
@@ -241,19 +265,51 @@ public class DashboardCalendarActivity extends AbstractGBActivity {
         return goalFactor;
     }
 
-    private class FillDataAsyncTask extends AsyncTask<Void, Void, Void> {
-        int amount_0_25 = 0;
-        int amount_25_50 = 0;
-        int amount_50_75 = 0;
-        int amount_75_100 = 0;
-        int amount_100 = 0;
+    /**
+     * Computes each visible day's goal color on a background thread and applies it to its
+     * cell as soon as it is known, so the month fills in progressively instead of popping in
+     * all at once. Aborts early (and discards any UI updates already posted) if a newer
+     * run has started in the meantime, e.g. because the user navigated to a different month.
+     */
+    private class CalendarFillTask implements Runnable {
+        private final int generation;
+        private final List<Map.Entry<Calendar, TextView>> entries;
+
+        CalendarFillTask(final int generation, final List<Map.Entry<Calendar, TextView>> entries) {
+            this.generation = generation;
+            this.entries = entries;
+        }
 
         @Override
-        protected Void doInBackground(Void... params) {
-            for (Calendar day : dayCells.keySet()) {
+        public void run() {
+            final long startTime = System.currentTimeMillis();
+            int amount_0_25 = 0;
+            int amount_25_50 = 0;
+            int amount_50_75 = 0;
+            int amount_75_100 = 0;
+            int amount_100 = 0;
+
+            // Clear the previous month's legend and progress bar right away, instead of
+            // leaving them stale while the new month loads.
+            mainHandler.post(() -> {
+                if (loadGeneration.get() == generation) {
+                    fillLegend(0, 0, 0, 0, 0);
+                    resetGoalsLine();
+                }
+            });
+
+            int processed = 0;
+            for (final Map.Entry<Calendar, TextView> entry : entries) {
+                if (loadGeneration.get() != generation) {
+                    LOG.debug("Calendar fill aborted after {}/{} days, {}ms (gen={} superseded)",
+                            processed, entries.size(), System.currentTimeMillis() - startTime, generation);
+                    return;
+                }
+                final Calendar day = entry.getKey();
+                final TextView text = entry.getValue();
                 // Determine day color by the amount of the steps goal reached
                 final float goalFactor = getStepsGoalFactorForDay(showAllDevices, showDeviceList, day);
-                @ColorInt int dayColor;
+                @ColorInt final int dayColor;
                 if (goalFactor >= 1) {
                     dayColor = color_100;
                     amount_100++;
@@ -272,122 +328,174 @@ public class DashboardCalendarActivity extends AbstractGBActivity {
                 } else {
                     dayColor = color_unknown;
                 }
-                dayColors.put(day.get(Calendar.DAY_OF_MONTH), dayColor);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void unused) {
-            super.onPostExecute(unused);
-            for (Map.Entry<Calendar, TextView> entry : dayCells.entrySet()) {
-                Calendar day = entry.getKey();
-                TextView text = entry.getValue();
-                @ColorInt int dayColor;
-                try {
-                    dayColor = dayColors.get(day.get(Calendar.DAY_OF_MONTH));
-                } catch (NullPointerException e) {
-                    continue;
-                }
-                final long timestamp = day.getTimeInMillis();
-                // Draw colored circle
-                GradientDrawable backgroundDrawable = new GradientDrawable();
-                backgroundDrawable.setShape(GradientDrawable.OVAL);
-                backgroundDrawable.setColor(dayColor);
-                if (DateTimeUtils.isSameDay(day, currentDay)) {
-                    GradientDrawable borderDrawable = new GradientDrawable();
-                    borderDrawable.setShape(GradientDrawable.OVAL);
-                    borderDrawable.setColor(Color.TRANSPARENT);
-                    borderDrawable.setStroke(5, GBApplication.getTextColor(getApplicationContext()));
-                    LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{backgroundDrawable, borderDrawable});
-                    text.setBackground(layerDrawable);
-                } else {
-                    text.setBackground(backgroundDrawable);
-                }
-                text.setOnClickListener(v -> {
-                    Intent resultIntent = new Intent();
-                    resultIntent.putExtra(EXTRA_TIMESTAMP, timestamp);
-                    setResult(RESULT_OK, resultIntent);
-                    finish();
+                processed++;
+                // Capture the running totals so the legend grows one day at a time, in step
+                // with the cells being colored in.
+                // The progress bar itself is only animated once at the end (see below)
+                final int runningAmount_0_25 = amount_0_25;
+                final int runningAmount_25_50 = amount_25_50;
+                final int runningAmount_50_75 = amount_50_75;
+                final int runningAmount_75_100 = amount_75_100;
+                final int runningAmount_100 = amount_100;
+                mainHandler.post(() -> {
+                    if (loadGeneration.get() != generation) {
+                        return;
+                    }
+                    applyDayColor(day, text, dayColor);
+                    fillLegend(runningAmount_0_25, runningAmount_25_50, runningAmount_50_75, runningAmount_75_100, runningAmount_100);
                 });
             }
 
-            // Draw visual representation of this month's day goals
-            drawMonthGoalsLine();
+            final int finalAmount_0_25 = amount_0_25;
+            final int finalAmount_25_50 = amount_25_50;
+            final int finalAmount_50_75 = amount_50_75;
+            final int finalAmount_75_100 = amount_75_100;
+            final int finalAmount_100 = amount_100;
+            mainHandler.post(() -> {
+                if (loadGeneration.get() == generation) {
+                    drawMonthGoalsLine(finalAmount_0_25, finalAmount_25_50, finalAmount_50_75, finalAmount_75_100, finalAmount_100);
+                }
+            });
+            LOG.debug("Calendar filled {} days in {}ms (gen={})", entries.size(), System.currentTimeMillis() - startTime, generation);
+        }
+    }
 
-            // Fill legend
-            Resources res = getResources();
-            SpannableString line_100 = new SpannableString("■ 100%: " + res.getQuantityString(R.plurals.amount_of_days, amount_100, amount_100));
-            line_100.setSpan(new ForegroundColorSpan(color_100), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            SpannableString line_75_100 = new SpannableString("■ 75-100%: " + res.getQuantityString(R.plurals.amount_of_days, amount_75_100, amount_75_100));
-            line_75_100.setSpan(new ForegroundColorSpan(color_75_100), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            SpannableString line_50_75 = new SpannableString("■ 50-75%: " + res.getQuantityString(R.plurals.amount_of_days, amount_50_75, amount_50_75));
-            line_50_75.setSpan(new ForegroundColorSpan(color_50_75), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            SpannableString line_25_50 = new SpannableString("■ 25-50%: " + res.getQuantityString(R.plurals.amount_of_days, amount_25_50, amount_25_50));
-            line_25_50.setSpan(new ForegroundColorSpan(color_25_50), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            SpannableString line_0_25 = new SpannableString("■ 0-25%: " + res.getQuantityString(R.plurals.amount_of_days, amount_0_25, amount_0_25));
-            line_0_25.setSpan(new ForegroundColorSpan(color_0_25), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            SpannableStringBuilder builder = new SpannableStringBuilder();
-            monthGoalsText.setText(builder.append(line_100).append("\n").append(line_75_100).append("\n").append(line_50_75).append("\n").append(line_25_50).append("\n").append(line_0_25));
+    private void applyDayColor(final Calendar day, final TextView text, @ColorInt final int dayColor) {
+        final long timestamp = day.getTimeInMillis();
+        // Draw colored circle
+        GradientDrawable backgroundDrawable = new GradientDrawable();
+        backgroundDrawable.setShape(GradientDrawable.OVAL);
+        backgroundDrawable.setColor(dayColor);
+        if (DateTimeUtils.isSameDay(day, currentDay)) {
+            GradientDrawable borderDrawable = new GradientDrawable();
+            borderDrawable.setShape(GradientDrawable.OVAL);
+            borderDrawable.setColor(Color.TRANSPARENT);
+            borderDrawable.setStroke(5, GBApplication.getTextColor(getApplicationContext()));
+            LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{backgroundDrawable, borderDrawable});
+            text.setBackground(layerDrawable);
+        } else {
+            text.setBackground(backgroundDrawable);
+        }
+        text.setOnClickListener(v -> {
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra(EXTRA_TIMESTAMP, timestamp);
+            setResult(RESULT_OK, resultIntent);
+            finish();
+        });
+
+        // Pop the cell in now that its data has loaded
+        text.setScaleX(0.4f);
+        text.setScaleY(0.4f);
+        text.setAlpha(0f);
+        text.animate()
+                .scaleX(1f)
+                .scaleY(1f)
+                .alpha(1f)
+                .setDuration(200)
+                .setInterpolator(new OvershootInterpolator())
+                .start();
+    }
+
+    private void fillLegend(final int amount_0_25, final int amount_25_50, final int amount_50_75, final int amount_75_100, final int amount_100) {
+        Resources res = getResources();
+        SpannableString line_100 = new SpannableString("■ 100%: " + res.getQuantityString(R.plurals.amount_of_days, amount_100, amount_100));
+        line_100.setSpan(new ForegroundColorSpan(color_100), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        SpannableString line_75_100 = new SpannableString("■ 75-100%: " + res.getQuantityString(R.plurals.amount_of_days, amount_75_100, amount_75_100));
+        line_75_100.setSpan(new ForegroundColorSpan(color_75_100), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        SpannableString line_50_75 = new SpannableString("■ 50-75%: " + res.getQuantityString(R.plurals.amount_of_days, amount_50_75, amount_50_75));
+        line_50_75.setSpan(new ForegroundColorSpan(color_50_75), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        SpannableString line_25_50 = new SpannableString("■ 25-50%: " + res.getQuantityString(R.plurals.amount_of_days, amount_25_50, amount_25_50));
+        line_25_50.setSpan(new ForegroundColorSpan(color_25_50), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        SpannableString line_0_25 = new SpannableString("■ 0-25%: " + res.getQuantityString(R.plurals.amount_of_days, amount_0_25, amount_0_25));
+        line_0_25.setSpan(new ForegroundColorSpan(color_0_25), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        monthGoalsText.setText(builder.append(line_100).append("\n").append(line_75_100).append("\n").append(line_50_75).append("\n").append(line_25_50).append("\n").append(line_0_25));
+    }
+
+    /**
+     * Clear the progress bar instantly«to its empty state, with no animation.
+     */
+    private void resetGoalsLine() {
+        if (goalsLineAnimator != null) {
+            goalsLineAnimator.cancel();
+        }
+        goalsLineDisplayedWidth = 0f;
+        renderGoalsLine(0f, 0, 0, 0, 0, 0, 0);
+    }
+
+    private void drawMonthGoalsLine(final int amount_0_25, final int amount_25_50, final int amount_50_75, final int amount_75_100, final int amount_100) {
+        int monthMaxDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+        final int amountOfDays = amount_0_25 + amount_25_50 + amount_50_75 + amount_75_100 + amount_100;
+        int height = 40;
+        int totalDrawWidth = 700 - height / 2;
+        final float targetDrawWidth = totalDrawWidth * ((float) amountOfDays / monthMaxDays);
+
+        // Animate from whatever is currently on screen to the final width, once the whole month has been computed
+        if (goalsLineAnimator != null) {
+            goalsLineAnimator.cancel();
+        }
+        goalsLineAnimator = ValueAnimator.ofFloat(goalsLineDisplayedWidth, targetDrawWidth);
+        goalsLineAnimator.setDuration(200);
+        goalsLineAnimator.addUpdateListener(animation -> {
+            goalsLineDisplayedWidth = (float) animation.getAnimatedValue();
+            renderGoalsLine(goalsLineDisplayedWidth, amountOfDays, amount_0_25, amount_25_50, amount_50_75, amount_75_100, amount_100);
+        });
+        goalsLineAnimator.start();
+    }
+
+    private void renderGoalsLine(final float drawWidth, final int amountOfDays, final int amount_0_25, final int amount_25_50, final int amount_50_75, final int amount_75_100, final int amount_100) {
+        int width = 700;
+        int height = 40;
+        int totalDrawWidth = width - height / 2;
+
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeWidth(height);
+        paint.setColor(color_unknown);
+        canvas.drawLine(height / 2, height / 2, totalDrawWidth, height / 2, paint);
+
+        // 0-25%
+        if (amount_0_25 > 0) {
+            paint.setColor(color_0_25);
+            canvas.drawLine(height / 2, height / 2, drawWidth, height / 2, paint);
         }
 
-        private void drawMonthGoalsLine() {
-            int monthMaxDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-            int amountOfDays = amount_0_25 + amount_25_50 + amount_50_75 + amount_75_100 + amount_100;
-            int width = 700;
-            int height = 40;
-            int totalDrawWidth = width - height / 2;
-            float drawWidth = totalDrawWidth * ((float) amountOfDays / monthMaxDays);
-
-            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            Paint paint = new Paint();
-            paint.setAntiAlias(true);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeCap(Paint.Cap.ROUND);
-            paint.setStrokeWidth(height);
-            paint.setColor(color_unknown);
-            canvas.drawLine(height / 2, height / 2, totalDrawWidth, height / 2, paint);
-
-            // 0-25%
-            if (amount_0_25 > 0) {
-                paint.setColor(color_0_25);
-                canvas.drawLine(height / 2, height / 2, drawWidth, height / 2, paint);
-            }
-
-            // 25-50%
-            if (amount_25_50 > 0) {
-                paint.setColor(color_25_50);
-                float barDays = amount_25_50 + amount_50_75 + amount_75_100 + amount_100;
-                float barFraction = barDays / amountOfDays;
-                canvas.drawLine(height / 2, height / 2, drawWidth * barFraction, height / 2, paint);
-            }
-
-            // 50-75%
-            if (amount_50_75 > 0) {
-                paint.setColor(color_50_75);
-                float barDays = amount_50_75 + amount_75_100 + amount_100;
-                float barFraction = barDays / amountOfDays;
-                canvas.drawLine(height / 2, height / 2, drawWidth * barFraction, height / 2, paint);
-            }
-
-            // 75-100%
-            if (amount_75_100 > 0) {
-                paint.setColor(color_75_100);
-                float barDays = amount_75_100 + amount_100;
-                float barFraction = barDays / amountOfDays;
-                canvas.drawLine(height / 2, height / 2, drawWidth * barFraction, height / 2, paint);
-            }
-
-            // 100%
-            if (amount_100 > 0) {
-                paint.setColor(color_100);
-                float barDays = amount_100;
-                float barFraction = barDays / amountOfDays;
-                canvas.drawLine(height / 2, height / 2, drawWidth * barFraction, height / 2, paint);
-            }
-
-            monthGoalsChart.setImageBitmap(bitmap);
+        // 25-50%
+        if (amount_25_50 > 0) {
+            paint.setColor(color_25_50);
+            float barDays = amount_25_50 + amount_50_75 + amount_75_100 + amount_100;
+            float barFraction = barDays / amountOfDays;
+            canvas.drawLine(height / 2, height / 2, drawWidth * barFraction, height / 2, paint);
         }
+
+        // 50-75%
+        if (amount_50_75 > 0) {
+            paint.setColor(color_50_75);
+            float barDays = amount_50_75 + amount_75_100 + amount_100;
+            float barFraction = barDays / amountOfDays;
+            canvas.drawLine(height / 2, height / 2, drawWidth * barFraction, height / 2, paint);
+        }
+
+        // 75-100%
+        if (amount_75_100 > 0) {
+            paint.setColor(color_75_100);
+            float barDays = amount_75_100 + amount_100;
+            float barFraction = barDays / amountOfDays;
+            canvas.drawLine(height / 2, height / 2, drawWidth * barFraction, height / 2, paint);
+        }
+
+        // 100%
+        if (amount_100 > 0) {
+            paint.setColor(color_100);
+            float barDays = amount_100;
+            float barFraction = barDays / amountOfDays;
+            canvas.drawLine(height / 2, height / 2, drawWidth * barFraction, height / 2, paint);
+        }
+
+        monthGoalsChart.setImageBitmap(bitmap);
     }
 }

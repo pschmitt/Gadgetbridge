@@ -249,10 +249,13 @@ public class RecordData {
             // some older Garmin devices encoded e.g.
             // [distance] and [enhanced_speed] as float instead of double
             // [cadence] as float instead of integer
-            if(clazz.equals(Double.class)){
+            if (clazz.equals(Double.class)) {
                 return clazz.cast(number.doubleValue());
             }
-            if(clazz.equals(Integer.class)){
+            if (clazz.equals(Float.class)) {
+                return clazz.cast(number.floatValue());
+            }
+            if (clazz.equals(Integer.class)) {
                 return clazz.cast(number.intValue());
             }
 

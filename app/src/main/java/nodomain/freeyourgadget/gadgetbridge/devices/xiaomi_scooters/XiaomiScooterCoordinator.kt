@@ -214,8 +214,8 @@ abstract class XiaomiScooterCoordinator : AbstractBLEDeviceCoordinator() {
                 icon = R.drawable.ic_refresh,
                 dependency = DeviceSettingsPreferenceConst.PREF_XIAOMI_SCOOTER_TIRE_PRESSURE_ENABLED,
                 confirmationMessage = R.string.xiaomi_scooter_tire_pressure_reset_confirmation,
-                onClick = { handler ->
-                    handler.notifyPreferenceChanged(DeviceSettingsPreferenceConst.PREF_XIAOMI_SCOOTER_TIRE_PRESSURE_RESET)
+                onClick = { _, device ->
+                    GBApplication.deviceService(device).onSendConfiguration(DeviceSettingsPreferenceConst.PREF_XIAOMI_SCOOTER_TIRE_PRESSURE_RESET)
                     true
                 },
             )

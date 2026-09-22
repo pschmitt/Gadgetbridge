@@ -74,6 +74,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.SleepScoreSample;
 import nodomain.freeyourgadget.gadgetbridge.model.Spo2Sample;
 import nodomain.freeyourgadget.gadgetbridge.model.StressSample;
 import nodomain.freeyourgadget.gadgetbridge.model.TemperatureSample;
+import nodomain.freeyourgadget.gadgetbridge.model.TrainingLoadStatus;
 import nodomain.freeyourgadget.gadgetbridge.model.Vo2MaxSample;
 import nodomain.freeyourgadget.gadgetbridge.model.WeightSample;
 import nodomain.freeyourgadget.gadgetbridge.model.WorkoutLoadSample;
@@ -466,6 +467,17 @@ public interface DeviceCoordinator {
     @Deprecated
     @Nullable
     TimeSampleProvider<? extends GenericTrainingLoadChronicSample> getTrainingChronicLoadSampleProvider(@NonNull final GBDevice device, @NonNull final DaoSession session);
+
+
+    /**
+     * The latest training-load status the device itself reported at or before {@code untilTs} (in
+     * milliseconds). {@code null} means the device reports no status of its own, and the Load chart
+     * derives one from the acute and chronic load instead.
+     */
+    @Nullable
+    default TrainingLoadStatus getTrainingLoadStatus(@NonNull final GBDevice device, @NonNull final DaoSession session, final long untilTs) {
+        return null;
+    }
 
 
     /**

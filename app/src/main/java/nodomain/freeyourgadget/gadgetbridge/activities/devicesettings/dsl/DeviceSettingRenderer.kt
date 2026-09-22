@@ -37,6 +37,7 @@ import nodomain.freeyourgadget.gadgetbridge.util.Prefs
 import nodomain.freeyourgadget.gadgetbridge.util.preferences.GBSimpleSummaryProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import kotlin.math.roundToInt
 
 /**
  * Handle returned by [DeviceSettingRenderer.render]. Call [run] to refresh visibility and dynamic
@@ -55,9 +56,9 @@ class DeviceSettingsRefreshHandle(
 /**
  * Converts a list of [DeviceSetting] nodes into androidx [Preference] objects and adds them to
  * a parent [PreferenceGroup]. Returns a [DeviceSettingsRefreshHandle] that re-evaluates all
- * [DeviceSetting.visibleWhen] predicates and repopulates all dynamic [ListSetting.entriesProvider]
- * when invoked. Call [DeviceSettingsRefreshHandle.cleanup] when the fragment stops to unregister
- * any SharedPreferences listeners.
+ * [DeviceSetting.visibleWhen] and screen [ScreenSetting.enabled] predicates, and repopulates all dynamic
+ * [ListSetting.entriesProvider] when invoked. Call [DeviceSettingsRefreshHandle.cleanup] when the
+ * fragment stops to unregister any SharedPreferences listeners.
  *
  * [CategorySetting] nodes are automatically hidden when all of their member preferences (those
  * between this category and the next one or an [XmlScreenSetting]) are invisible.
@@ -72,6 +73,7 @@ object DeviceSettingRenderer {
         handler: SettingsRenderHost,
     ): DeviceSettingsRefreshHandle {
         val visibilityPairs = mutableListOf<Pair<Preference, (Prefs) -> Boolean>>()
+        val enabledPairs = mutableListOf<Pair<Preference, (Prefs) -> Boolean>>()
         val dynamicEntryPairs = mutableListOf<Pair<ListPreference, (Prefs) -> List<ListEntry>>>()
         val dynamicMultiEntryPairs = mutableListOf<Pair<MultiSelectListPreference, (Prefs) -> List<ListEntry>>>()
         val categoryMemberPairs = mutableListOf<Pair<PreferenceCategory, MutableList<Preference>>>()
@@ -85,6 +87,7 @@ object DeviceSettingRenderer {
             val livePrefs = Prefs(sp)
             val context = handler.context
             visibilityPairs.forEach { (pref, predicate) -> pref.isVisible = predicate(livePrefs) }
+            enabledPairs.forEach { (pref, predicate) -> pref.isEnabled = predicate(livePrefs) }
             dynamicEntryPairs.forEach { (pref, provider) ->
                 applyEntries(pref, provider(livePrefs), context)
             }
@@ -108,6 +111,7 @@ object DeviceSettingRenderer {
             prefs,
             handler,
             visibilityPairs,
+            enabledPairs,
             dynamicEntryPairs,
             dynamicMultiEntryPairs,
             categoryMemberPairs,
@@ -119,6 +123,7 @@ object DeviceSettingRenderer {
 
         // Initial visibility passes - individual predicates first, then category membership
         visibilityPairs.forEach { (pref, predicate) -> pref.isVisible = predicate(prefs) }
+        enabledPairs.forEach { (pref, predicate) -> pref.isEnabled = predicate(prefs) }
         categoryMemberPairs.forEach { (cat, members) ->
             cat.isVisible = members.isNotEmpty() && members.any { it.isVisible }
         }
@@ -167,6 +172,7 @@ object DeviceSettingRenderer {
         prefs: Prefs,
         handler: SettingsRenderHost,
         visibilityPairs: MutableList<Pair<Preference, (Prefs) -> Boolean>>,
+        enabledPairs: MutableList<Pair<Preference, (Prefs) -> Boolean>>,
         dynamicEntryPairs: MutableList<Pair<ListPreference, (Prefs) -> List<ListEntry>>>,
         dynamicMultiEntryPairs: MutableList<Pair<MultiSelectListPreference, (Prefs) -> List<ListEntry>>>,
         categoryMemberPairs: MutableList<Pair<PreferenceCategory, MutableList<Preference>>>,
@@ -195,6 +201,7 @@ object DeviceSettingRenderer {
                         prefs,
                         handler,
                         visibilityPairs,
+                        enabledPairs,
                         dynamicEntryPairs,
                         dynamicMultiEntryPairs,
                         categoryMemberPairs,
@@ -219,6 +226,10 @@ object DeviceSettingRenderer {
                     screen.setTitle(setting.title)
                     if (setting.summary != 0) screen.setSummary(setting.summary)
                     if (setting.icon != 0) screen.setIcon(setting.icon)
+                    if (setting.enabled != null) {
+                        val enabled = setting.enabled
+                        enabledPairs.add(screen to enabled)
+                    }
                     // Must be added to parent before rendering children so that dependencies can be resolved
                     parent.addPreference(screen)
                     renderItems(
@@ -227,6 +238,7 @@ object DeviceSettingRenderer {
                         prefs,
                         handler,
                         visibilityPairs,
+                        enabledPairs,
                         dynamicEntryPairs,
                         dynamicMultiEntryPairs,
                         categoryMemberPairs,
@@ -340,7 +352,14 @@ object DeviceSettingRenderer {
                 }
 
                 is SeekBarSetting -> {
-                    SeekBarPreference(context).apply {
+                    object: SeekBarPreference(context){
+                        override fun onSetInitialValue(defaultValue: Any?) {
+                            super.onSetInitialValue(defaultValue)
+                            if (setting.valueFormat != 0) {
+                                summary = context.getString(setting.valueFormat, value * setting.scale)
+                            }
+                        }
+                    }.apply {
                         key = setting.key
                         setTitle(setting.title)
                         if (setting.summary != 0) setSummary(setting.summary)
@@ -349,10 +368,47 @@ object DeviceSettingRenderer {
                         min = setting.min
                         setDefaultValue(setting.defaultValue)
                         showSeekBarValue = setting.showValue
-                        setOnPreferenceChangeListener { _, _ ->
+                        seekBarIncrement = setting.step
+
+                        setOnPreferenceChangeListener { pref, newValue ->
+                            val raw = newValue as Int
+                            val step = setting.step
+                            val snapped = if (step > 1) {
+                                setting.min + ((raw - setting.min).toDouble() / step).roundToInt() * step
+                            } else {
+                                raw
+                            }
+
+                            if (setting.valueFormat != 0) {
+                                summary = context.getString(setting.valueFormat, snapped * setting.scale)
+                            }
+
                             handler.notifyPreferenceChanged(setting.key)
                             postRefresh()
-                            true
+
+                            if (snapped != raw) {
+                                (pref as SeekBarPreference).value = snapped
+                                false
+                            } else {
+                                true
+                            }
+                        }
+
+                        if (setting.onSharedPreferenceChanged != null) {
+                            val listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPrefs, changedKey ->
+                                if (changedKey == setting.key) {
+                                    val newValue = sharedPrefs.getInt(changedKey, setting.defaultValue)
+                                    mainHandler.post {
+                                        value = newValue
+                                        if (setting.valueFormat != 0) {
+                                            summary = context.getString(setting.valueFormat, newValue * setting.scale)
+                                        }
+                                        setting.onSharedPreferenceChanged.invoke(newValue)
+                                    }
+                                }
+                            }
+                            spListeners.add(listener)
+                            sp.registerOnSharedPreferenceChangeListener(listener)
                         }
                     }
                 }
@@ -416,7 +472,7 @@ object DeviceSettingRenderer {
                                     .setTitle(preference.title)
                                     .setMessage(setting.confirmationMessage)
                                     .setPositiveButton(R.string.ok) { _, _ ->
-                                        setting.onClick?.invoke(handler)
+                                        setting.onClick?.invoke(handler.context, handler.device)
                                     }
                                     .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
                                     .show()
@@ -424,7 +480,7 @@ object DeviceSettingRenderer {
                             }
                         } else {
                             setOnPreferenceClickListener {
-                                setting.onClick?.invoke(handler) ?: false
+                                setting.onClick?.invoke(handler.context, handler.device) ?: false
                             }
                         }
                     }

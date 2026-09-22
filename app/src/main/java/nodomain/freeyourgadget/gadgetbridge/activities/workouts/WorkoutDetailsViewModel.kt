@@ -14,11 +14,8 @@ import org.slf4j.LoggerFactory
 import java.util.Date
 
 class WorkoutDetailsViewModel : ViewModel() {
-    private val _workouts = MutableLiveData<List<BaseActivitySummary>>()
-    val workouts: LiveData<List<BaseActivitySummary>> = _workouts
-
-    private val _currentPosition = MutableLiveData<Int>()
-    val currentPosition: LiveData<Int> = _currentPosition
+    private val _workoutId = MutableLiveData<Long>()
+    val workoutId: LiveData<Long> = _workoutId
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
@@ -39,8 +36,7 @@ class WorkoutDetailsViewModel : ViewModel() {
             }
 
             if (workout != null) {
-                _workouts.value = listOf(workout)
-                _currentPosition.value = 0
+                _workoutId.value = workoutId
             } else {
                 _error.value = "Workout not found"
             }
@@ -53,9 +49,9 @@ class WorkoutDetailsViewModel : ViewModel() {
     }
 
     /**
-     * Load filtered workouts for paging
+     * Resolves a single workout out of a filtered set, by position.
      */
-    suspend fun loadFilteredWorkouts(
+    suspend fun loadFilteredWorkout(
         gbDevice: GBDevice?,
         activityKindFilter: Int,
         dateFromFilter: Long,
@@ -63,7 +59,7 @@ class WorkoutDetailsViewModel : ViewModel() {
         nameContainsFilter: String?,
         deviceFilter: Long,
         itemsFilter: List<Long>?,
-        initialPosition: Int
+        position: Int
     ) {
         _isLoading.value = true
         _error.value = null
@@ -81,19 +77,17 @@ class WorkoutDetailsViewModel : ViewModel() {
                 )
             }
 
-            _workouts.value = workouts
+            val validPosition = if (position in workouts.indices) position else 0
+            val workout = workouts.getOrNull(validPosition)
 
-            // Set initial position, but ensure it's valid
-            val validPosition = if (initialPosition > 0 && initialPosition < workouts.size) {
-                initialPosition
+            if (workout?.id != null) {
+                _workoutId.value = workout.id
             } else {
-                0
+                _error.value = "Workout not found"
             }
-            _currentPosition.value = validPosition
-
         } catch (e: Exception) {
-            LOG.error("Error loading filtered workouts", e)
-            _error.value = "Failed to load workouts: ${e.message}"
+            LOG.error("Error loading filtered workout", e)
+            _error.value = "Failed to load workout: ${e.message}"
         } finally {
             _isLoading.value = false
         }
@@ -146,10 +140,6 @@ class WorkoutDetailsViewModel : ViewModel() {
 
             queryBuilder.list()
         }
-    }
-
-    fun setCurrentPosition(position: Int) {
-        _currentPosition.value = position
     }
 
     companion object {

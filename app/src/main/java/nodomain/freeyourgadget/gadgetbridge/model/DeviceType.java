@@ -41,6 +41,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.binary_sensor.coordinator.Bi
 import nodomain.freeyourgadget.gadgetbridge.devices.bm2.Bm2Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.bm6.Bm6Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.braun.BraunBPW4500DeviceCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.cardo.Ls24xDeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.casio.ecbs100.CasioECBS100DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.casio.gb6900.CasioGB6900DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.casio.gbd200.CasioGBD200DeviceCoordinator;
@@ -282,6 +283,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.gree.GreeAcCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.hama.fit6900.HamaFit6900DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.huawei.huaweiwatchgt7.HuaweiWatchGT7Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.huawei.huaweiwatchgt7.HuaweiWatchGT7ProCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.moyoung.C20ProCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.moyoung.GarettEvaCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.haylou.HaylouS35AncCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.hplus.EXRIZUK8Coordinator;
@@ -490,6 +492,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.nothing.EarStickCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.nut.NutCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.ollee.OlleeDeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.onemoresonoflow.OneMoreSonoFlowCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.onemoresonoflow.OneMoreSonoFlowSECoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.onetouch.OneTouchCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.oppo.OppoEncoAir2Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.oppo.OppoEncoAirCoordinator;
@@ -569,6 +572,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.vesc.VescCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.vibratissimo.VibratissimoCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.victron.VictronSmartShuntCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.waspos.WaspOSCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.wearfit.WearFitCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.withingssteelhr.WithingsSteelHRDeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.xiaomi.watches.MiBand10Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.xiaomi.watches.MiBand10ProCoordinator;
@@ -1057,6 +1061,7 @@ public enum DeviceType {
     JABRA_EVOLVE2_55(JabraEvolve255Coordinator.class),
     JABRA_EVOLVE2_65(JabraEvolve265Coordinator.class),
     ONEMORE_SONOFLOW(OneMoreSonoFlowCoordinator.class),
+    ONEMORE_SONOFLOW_SE(OneMoreSonoFlowSECoordinator.class),
     HONORBAND3(HonorBand3Coordinator.class),
     HONORBAND4(HonorBand4Coordinator.class),
     HONORBAND5(HonorBand5Coordinator.class),
@@ -1148,6 +1153,7 @@ public enum DeviceType {
     SONY_WENA_3(SonyWena3Coordinator.class),
     FEMOMETER_VINCA2(FemometerVinca2DeviceCoordinator.class),
     PIXOO(PixooCoordinator.class),
+    WEARFIT_HK8_PRO(WearFitCoordinator.class),
     HAMA_FIT6900(HamaFit6900DeviceCoordinator.class),
     XPLORA_XMOVE(XploraXmoveDeviceCoordinator.class),
     YAWELL_R05(YawellR05Coordinator.class),
@@ -1173,6 +1179,7 @@ public enum DeviceType {
     BLACKVIEW_R60(BlackviewR60Coordinator.class),
     MISIRUN_C17(MisirunC17Coordinator.class),
     C20(C20Coordinator.class),
+    C20PRO(C20ProCoordinator.class),
     L70(L70Coordinator.class),
     HC96(HC96Coordinator.class),
     KT80(KT80Coordinator.class),
@@ -1223,6 +1230,7 @@ public enum DeviceType {
     UNA_WATCH(UnaDeviceCoordinator.class),
     ZEBLAZE_BEYOND_3_PRO(Beyond3ProCoordinator.class),
     QN_SCALE(QnScaleCoordinator.class),
+    CARDO_LS24X(Ls24xDeviceCoordinator.class),
     TEST(TestDeviceCoordinator.class);
 
     private DeviceCoordinator coordinator;

@@ -83,8 +83,10 @@ class WidgetDataScope(
     }
 
     suspend fun sleepMinutesTotal(): Long = db { db ->
-        devices.filter { it.deviceCoordinator.supportsSleepMeasurement(it) }
-            .sumOf { dailyTotals(db, it).sleep }
+        val sleepValues = devices.filter { it.deviceCoordinator.supportsSleepMeasurement(it) }
+            .map { dailyTotals(db, it).sleep }
+            .filter { it > 0 }
+        if (sleepValues.isEmpty()) 0L else sleepValues.average().roundToInt().toLong()
     }
 
     fun sleepGoalFactor(sleepMinutesTotal: Long): Float {

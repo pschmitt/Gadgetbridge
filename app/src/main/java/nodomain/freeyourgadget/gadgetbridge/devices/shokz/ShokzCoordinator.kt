@@ -31,6 +31,12 @@ abstract class ShokzCoordinator : AbstractBLClassicDeviceCoordinator() {
         return false
     }
 
+    override fun addBatteryPollingSettings(): Boolean {
+        // The device only reports battery level once, when we request it right after connecting -
+        // there is no notification for battery changes, so we need to poll periodically.
+        return true
+    }
+
     override fun getDefaultIconResource(): Int {
         // TODO dedicated icon
         return R.drawable.ic_device_headphones

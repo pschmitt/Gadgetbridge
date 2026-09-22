@@ -95,8 +95,8 @@ public class PBWReader {
             STM32CRC stm32crc = new STM32CRC();
             try (InputStream fin = uriHelper.openInputStream()) {
                 byte[] buf = new byte[2000];
-                while (fin.available() > 0) {
-                    int count = fin.read(buf);
+                int count;
+                while ((count = fin.read(buf)) > 0) {
                     stm32crc.addData(buf, count);
                 }
             }

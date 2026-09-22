@@ -197,12 +197,14 @@ class WorkoutGpsFragment : Fragment() {
     private fun showLoading(isLoading: Boolean) {
         binding.loadingSpinner.visibility = if (isLoading) View.VISIBLE else View.GONE
         binding.mapView.visibility = if (isLoading) View.INVISIBLE else View.VISIBLE
+        binding.gpsTrackLabel.visibility = if (isLoading) View.GONE else View.VISIBLE
         binding.errorMessage.visibility = View.GONE
     }
 
     private fun showError(message: String) {
         binding.loadingSpinner.visibility = View.GONE
         binding.mapView.visibility = View.INVISIBLE
+        binding.gpsTrackLabel.visibility = View.GONE
         binding.errorMessage.visibility = View.VISIBLE
         binding.errorMessage.text = message
     }

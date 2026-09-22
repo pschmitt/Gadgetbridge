@@ -1,5 +1,7 @@
 package nodomain.freeyourgadget.gadgetbridge.service.devices.shokz
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -8,6 +10,7 @@ import android.content.IntentFilter
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
+import androidx.annotation.RequiresPermission
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.Language
@@ -44,6 +47,12 @@ class ShokzSupport : AbstractHeadphoneBTBRDeviceSupport(LOG, MAX_MTU) {
         get() = gbDevice.deviceCoordinator as? ShokzCoordinator
 
     private var lastMultipointDevices: List<MultipointDevice> = emptyList()
+
+    // The device only reports its battery level once, right after we request it on connect - there
+    // is no notification for battery changes. Keep polling periodically so the UI doesn't get stuck
+    // showing a stale level.
+    private val batteryPollHandler = Handler(Looper.getMainLooper())
+    private val batteryPollRunnable = Runnable { queueCommand(ShokzCommand.BATTERY_GET) }
 
     init {
         addSupportedService(UUID_SERVICE_SHOKZ)
@@ -96,6 +105,7 @@ class ShokzSupport : AbstractHeadphoneBTBRDeviceSupport(LOG, MAX_MTU) {
     override fun dispose() {
         synchronized(ConnectionMonitor) {
             timeoutHandler.removeCallbacksAndMessages(null)
+            batteryPollHandler.removeCallbacksAndMessages(null)
             LocalBroadcastManager.getInstance(context).unregisterReceiver(multipointBroadcastReceiver)
             super.dispose()
         }
@@ -192,6 +202,9 @@ class ShokzSupport : AbstractHeadphoneBTBRDeviceSupport(LOG, MAX_MTU) {
             DeviceSettingsPreferenceConst.PREF_MEDIA_PLAYBACK_MODE -> setMediaPlaybackMode()
             DeviceSettingsPreferenceConst.PREF_SHOKZ_CONTROLS_LONG_PRESS_MULTI_FUNCTION,
             DeviceSettingsPreferenceConst.PREF_SHOKZ_CONTROLS_SIMULTANEOUS_VOLUME_UP_DOWN -> setControls()
+
+            DeviceSettingsPreferenceConst.PREF_BATTERY_POLLING_ENABLE,
+            DeviceSettingsPreferenceConst.PREF_BATTERY_POLLING_INTERVAL -> rearmBatteryPollTimer()
 
             else -> super.onSendConfiguration(config)
         }
@@ -439,6 +452,8 @@ class ShokzSupport : AbstractHeadphoneBTBRDeviceSupport(LOG, MAX_MTU) {
                 val batteryInfoEvent = GBDeviceEventBatteryInfo()
                 batteryInfoEvent.level = batteryPercentage
                 evaluateGBDeviceEvent(batteryInfoEvent)
+
+                rearmBatteryPollTimer()
             }
 
             ShokzCommand.EQUALIZER_RET, ShokzCommand.EQUALIZER_ACK -> {
@@ -745,6 +760,16 @@ class ShokzSupport : AbstractHeadphoneBTBRDeviceSupport(LOG, MAX_MTU) {
         }
     }
 
+    private fun rearmBatteryPollTimer() {
+        batteryPollHandler.removeCallbacks(batteryPollRunnable)
+        if (devicePrefs.getBatteryPollingEnabled()) {
+            batteryPollHandler.postDelayed(
+                batteryPollRunnable,
+                devicePrefs.getBatteryPollingIntervalMinutes() * 60 * 1000L
+            )
+        }
+    }
+
     private fun onCommandTimeout() {
         if (timeoutRetries++ < 3) {
             LOG.warn("Timed out waiting for response, retrying attempt {}", timeoutRetries)
@@ -805,6 +830,7 @@ class ShokzSupport : AbstractHeadphoneBTBRDeviceSupport(LOG, MAX_MTU) {
     }
 
     private val multipointBroadcastReceiver = object : BroadcastReceiver() {
+        @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         override fun onReceive(context: Context?, intent: Intent?) {
             val device = intent?.getParcelableCompat<GBDevice>(GBDevice.EXTRA_DEVICE)
             if (device?.address != gbDevice.address) {
@@ -825,7 +851,8 @@ class ShokzSupport : AbstractHeadphoneBTBRDeviceSupport(LOG, MAX_MTU) {
                     // that same name alongside each device's real address, our own address is
                     // found by matching the local adapter's name against that list - confirmed
                     // against a real capture of the official Shokz app doing the same thing.
-                    val localName = getBluetoothAdapter()?.name
+                    @SuppressLint("MissingPermission") // if we got here, we definitely got bluetooth permission
+                    val localName = bluetoothAdapter?.name
                     val macAddress = lastMultipointDevices.find { it.name == localName }?.address
                     if (macAddress == null) {
                         LOG.warn("Could not determine own address (local name={}) to disable multipoint, aborting", localName)

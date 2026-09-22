@@ -18,6 +18,7 @@
         <item name="drawerArrowStyle">@style/GadgetbridgeTheme.DrawerButtonStyle</item>
         <item name="toolbarNavigationButtonStyle">@style/GadgetbridgeTheme.NavigationButtonStyle</item>
         <item name="actionOverflowButtonStyle">@style/GadgetbridgeTheme.OverflowMenuButton</item>
+        <item name="actionOverflowMenuStyle">@style/GadgetbridgeTheme.OverflowMenuStyle</item>
         <item name="actionModeStyle">@style/GadgetbridgeTheme.ActionMode</item>
         <item name="actionModeCloseButtonStyle">@style/GadgetbridgeTheme.ActionModeCloseButton</item>
         <item name="preferenceTheme">@style/AppPreferenceThemeOverlay</item>
@@ -67,6 +68,7 @@
         <item name="drawerArrowStyle">@style/GadgetbridgeTheme.DrawerButtonStyle</item>
         <item name="toolbarNavigationButtonStyle">@style/GadgetbridgeTheme.NavigationButtonStyle</item>
         <item name="actionOverflowButtonStyle">@style/GadgetbridgeTheme.OverflowMenuButton</item>
+        <item name="actionOverflowMenuStyle">@style/GadgetbridgeTheme.OverflowMenuStyle</item>
         <item name="preferenceTheme">@style/AppPreferenceThemeOverlay</item>
 
         <item name="drawer_header_color">?attr/colorPrimaryDark</item>
@@ -216,10 +218,7 @@
     <style name="GadgetbridgeTheme.ActionBarTitleStyle" parent="TextAppearance.Material3.ActionBar.Title">
         <item name="android:textColor">@color/primarytext_dark</item>
     </style>
-    <style name="GadgetbridgeTheme.OverflowMenuStyle" parent="Widget.Material3.PopupMenu.Overflow">
-        <item name="android:popupBackground">?attr/colorSecondaryContainer</item>
-        <item name="android:textColorPrimary">?attr/colorOnSecondaryContainer</item>
-    </style>
+    <style name="GadgetbridgeTheme.OverflowMenuStyle" parent="Widget.Material3.PopupMenu.Overflow" />
 
     <!-- splash screen -->
     <style name="SplashTheme" parent="GadgetbridgeTheme.NoActionBar">

@@ -500,6 +500,7 @@ public class BleNamesResolver {
         mServices.put("0000185d-0000-1000-8000-00805f9b34fb", "Cookware");
         mServices.put("0000185e-0000-1000-8000-00805f9b34fb", "Voice Assistant");
         mServices.put("0000185f-0000-1000-8000-00805f9b34fb", "Generic Voice Assistant");
+        mServices.put("00001860-0000-1000-8000-00805f9b34fb", "Tire Pressure Monitoring System");
 
         // source: https://bitbucket.org/bluetooth-SIG/public/src/main/assigned_numbers/uuids/service_class.yaml
         mServices.put("00001000-0000-1000-8000-00805f9b34fb", "ServiceDiscoveryServerServiceClassID");
@@ -1113,7 +1114,14 @@ public class BleNamesResolver {
         mCharacteristics.put("00002c37-0000-1000-8000-00805f9b34fb", "Voice Assistant Supported Languages");
         mCharacteristics.put("00002c38-0000-1000-8000-00805f9b34fb", "Voice Assistant Supported Features");
         mCharacteristics.put("00002c39-0000-1000-8000-00805f9b34fb", "HID SCI Mode");
-        mCharacteristics.put("00002c3A-0000-1000-8000-00805f9b34fb", "HID SCI Information");
+        mCharacteristics.put("00002c3a-0000-1000-8000-00805f9b34fb", "HID SCI Information");
+        mCharacteristics.put("00002c3b-0000-1000-8000-00805f9b34fb", "Tire Pressure");
+        mCharacteristics.put("00002c3c-0000-1000-8000-00805f9b34fb", "Tire Temperature");
+        mCharacteristics.put("00002c3d-0000-1000-8000-00805f9b34fb", "Tire Acceleration");
+        mCharacteristics.put("00002c3e-0000-1000-8000-00805f9b34fb", "TPMS Properties");
+        mCharacteristics.put("00002c3f-0000-1000-8000-00805f9b34fb", "TPMS Duty Cycle");
+        mCharacteristics.put("00002c40-0000-1000-8000-00805f9b34fb", "TPMS Position");
+        mCharacteristics.put("00002c41-0000-1000-8000-00805f9b34fb", "TPMS Signing Key");
 
         mCharacteristics.put("14702856-620a-3973-7c78-9cfff0876abd", "(Propr: HPLUS Control)");
         mCharacteristics.put("14702853-620a-3973-7c78-9cfff0876abd", "(Propr: HPLUS Measurements)");

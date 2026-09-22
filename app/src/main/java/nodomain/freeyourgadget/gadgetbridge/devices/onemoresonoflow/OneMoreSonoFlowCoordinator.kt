@@ -15,10 +15,12 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.onemore_sonoflow.One
 import nodomain.freeyourgadget.gadgetbridge.service.devices.onemore_sonoflow.OneMoreSonoFlowSupport
 import java.util.regex.Pattern
 
-class OneMoreSonoFlowCoordinator : AbstractBLClassicDeviceCoordinator() {
+open class OneMoreSonoFlowCoordinator : AbstractBLClassicDeviceCoordinator() {
     protected override fun getSupportedDeviceName(): Pattern? {
-        return Pattern.compile("1MORE SonoFlow")
+        return Pattern.compile("1MORE SonoFlow", Pattern.LITERAL)
     }
+
+    open fun supportsLdac(device: GBDevice): Boolean = true
 
     override fun getManufacturer(): String {
         return "1MORE"
@@ -56,13 +58,15 @@ class OneMoreSonoFlowCoordinator : AbstractBLClassicDeviceCoordinator() {
                 icon = R.drawable.ic_surround,
                 defaultValue = OneMoreNoiseControlMode.OFF,
             )
-            switchSetting(
-                key = DeviceSettingsPreferenceConst.PREF_SOUNDCORE_LDAC_MODE,
-                title = R.string.soundcore_ldac_mode_title,
-                summary = R.string.soundcore_ldac_mode_summary,
-                icon = R.drawable.ic_music_note,
-                defaultValue = false,
-            )
+            if (supportsLdac(device)) {
+                switchSetting(
+                    key = DeviceSettingsPreferenceConst.PREF_SOUNDCORE_LDAC_MODE,
+                    title = R.string.soundcore_ldac_mode_title,
+                    summary = R.string.soundcore_ldac_mode_summary,
+                    icon = R.drawable.ic_music_note,
+                    defaultValue = false,
+                )
+            }
         }
         screen(
             key = DeviceSpecificSettingsScreen.CONNECTION.key,

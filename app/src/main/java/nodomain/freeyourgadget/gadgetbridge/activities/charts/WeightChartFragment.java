@@ -77,6 +77,7 @@ public class WeightChartFragment extends AbstractChartFragment<WeightChartFragme
     private static final String PREF_BODY_COMPOSITION_VALUES = "chart_weight_body_composition";
 
     private TextView textWeightTarget;
+    private TextView textBmi;
     private TextView textBodyFat;
     private TextView textBodyWater;
     private TextView textMuscleMass;
@@ -121,7 +122,39 @@ public class WeightChartFragment extends AbstractChartFragment<WeightChartFragme
         List<? extends WeightSample> samples = provider.getAllSamples(tsStart, tsEnd);
         WeightSample latestSample = provider.getLatestSample();
         BodyCompositionCalculator.BodyComposition composition = estimateComposition(db.getDaoSession(), latestSample);
-        return createChartsData(samples, latestSample, composition);
+        Float bmi = estimateBmi(db.getDaoSession(), latestSample);
+        return createChartsData(samples, latestSample, composition, bmi);
+    }
+
+    /**
+     * Body mass index of a measurement, from its weight and the height recorded at the time of
+     * the measurement. Needs no impedance, so it is available for any scale.
+     *
+     * @return the BMI, or null without a sample or a usable height
+     */
+    @Nullable
+    static Float estimateBmi(final DaoSession session, @Nullable final WeightSample sample) {
+        if (sample == null) {
+            return null;
+        }
+        final int heightCm = heightCmAt(session, sample.getTimestamp());
+        if (heightCm <= 0) {
+            return null;
+        }
+        final float heightM = heightCm / 100f;
+        return sample.getWeightKg() / (heightM * heightM);
+    }
+
+    /**
+     * The user's height at the given time: the attributes recorded back then, or the current
+     * profile when there is no usable record.
+     */
+    static int heightCmAt(final DaoSession session, final long timestampMillis) {
+        final User user = DBHelper.getUser(session);
+        final UserAttributes attributes = DBHelper.getUserAttributesAt(user, timestampMillis);
+        return attributes != null && attributes.getHeightCM() > 0
+                ? attributes.getHeightCM()
+                : new ActivityUser().getHeightCm();
     }
 
     /**
@@ -138,11 +171,7 @@ public class WeightChartFragment extends AbstractChartFragment<WeightChartFragme
             return null;
         }
         final ActivityUser prefsUser = new ActivityUser();
-        final User user = DBHelper.getUser(session);
-        final UserAttributes attributes = DBHelper.getUserAttributesAt(user, sample.getTimestamp());
-        final int heightCm = attributes != null && attributes.getHeightCM() > 0
-                ? attributes.getHeightCM()
-                : prefsUser.getHeightCm();
+        final int heightCm = heightCmAt(session, sample.getTimestamp());
         final int age = prefsUser.getAgeAt(Instant.ofEpochMilli(sample.getTimestamp()).atZone(ZoneId.systemDefault()).toLocalDate());
         return BodyCompositionCalculator.compute(prefsUser.getGender(), age, heightCm, sample.getWeightKg(), sample.getImpedanceOhm());
     }
@@ -168,15 +197,19 @@ public class WeightChartFragment extends AbstractChartFragment<WeightChartFragme
             textWeightLatest.setText(formatWeight(weightFromKg(latestSample.getWeightKg())));
 
         textWeightTarget.setText(formatWeight(weightFromKg(weightTargetKg)));
-        updateBodyComposition(latestSample, chartsData.getComposition());
+        updateBodyComposition(latestSample, chartsData.getComposition(), chartsData.getBmi());
     }
 
     private void updateBodyComposition(@Nullable final WeightSample sample,
-                                       @Nullable final BodyCompositionCalculator.BodyComposition composition) {
+                                       @Nullable final BodyCompositionCalculator.BodyComposition composition,
+                                       @Nullable final Float bmi) {
         final Set<String> enabled = GBApplication.getPrefs().getStringSet(
                 PREF_BODY_COMPOSITION_VALUES,
                 new HashSet<>(Arrays.asList(getResources().getStringArray(R.array.pref_chart_weight_body_composition_default)))
         );
+        // BMI only needs the weight and the height, so it does not depend on the impedance below.
+        final boolean showBmi = bmi != null && enabled.contains("bmi");
+        showTile(textBmi, showBmi, showBmi ? getString(R.string.body_composition_bmi_value, bmi) : getString(R.string.stats_empty_value));
         // Without an impedance there is nothing to derive; the values are hidden individually so
         // the remaining ones close ranks in the grid.
         final boolean hasImpedance = sample != null && sample.getImpedanceOhm() != null;
@@ -225,6 +258,7 @@ public class WeightChartFragment extends AbstractChartFragment<WeightChartFragme
         textTimeSpan = rootView.findViewById(R.id.weight_time_span_text);
         textWeightLatest = rootView.findViewById(R.id.weight_latest_text);
         textWeightTarget = rootView.findViewById(R.id.weight_target_text);
+        textBmi = rootView.findViewById(R.id.weight_bmi_text);
         textBodyFat = rootView.findViewById(R.id.weight_body_fat_text);
         textBodyWater = rootView.findViewById(R.id.weight_body_water_text);
         textMuscleMass = rootView.findViewById(R.id.weight_muscle_mass_text);
@@ -258,7 +292,8 @@ public class WeightChartFragment extends AbstractChartFragment<WeightChartFragme
     }
 
     private WeightChartsData createChartsData(List<? extends WeightSample> samples, WeightSample latestSample,
-                                              @Nullable BodyCompositionCalculator.BodyComposition composition) {
+                                              @Nullable BodyCompositionCalculator.BodyComposition composition,
+                                              @Nullable Float bmi) {
         List<Entry> entries = new ArrayList<>();
         TimestampTranslation tsTranslation = new TimestampTranslation();
 
@@ -285,7 +320,7 @@ public class WeightChartFragment extends AbstractChartFragment<WeightChartFragme
             }
         });
 
-        return new WeightChartsData(new LineData(dataSet), tsTranslation, latestSample, composition);
+        return new WeightChartsData(new LineData(dataSet), tsTranslation, latestSample, composition, bmi);
     }
 
     private float weightFromKg(float weight) {
@@ -299,12 +334,19 @@ public class WeightChartFragment extends AbstractChartFragment<WeightChartFragme
     protected static class WeightChartsData extends DefaultChartsData<LineData> {
         private final WeightSample latestSample;
         private final BodyCompositionCalculator.BodyComposition composition;
+        private final Float bmi;
 
         public WeightChartsData(LineData lineData, TimestampTranslation tsTranslation, WeightSample latestSample,
-                                @Nullable BodyCompositionCalculator.BodyComposition composition) {
+                                @Nullable BodyCompositionCalculator.BodyComposition composition, @Nullable Float bmi) {
             super(lineData, new DateFormatter(tsTranslation));
             this.latestSample = latestSample;
             this.composition = composition;
+            this.bmi = bmi;
+        }
+
+        @Nullable
+        private Float getBmi() {
+            return bmi;
         }
 
         private WeightSample getLatestSample() {

@@ -117,6 +117,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.WeatherSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.WorldClock;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.AbstractBTLESingleDeviceSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.BLETypeConversions;
+import nodomain.freeyourgadget.gadgetbridge.service.btle.GattCharacteristic;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.GattService;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.TransactionBuilder;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.profiles.IntentListener;
@@ -175,9 +176,6 @@ public class MoyoungDeviceSupport extends AbstractBTLESingleDeviceSupport {
             String s = intent.getAction();
             if (Objects.equals(s, DeviceInfoProfile.ACTION_DEVICE_INFO)) {
                 handleDeviceInfo(intent.getParcelableExtra(DeviceInfoProfile.EXTRA_DEVICE_INFO));
-            }
-            if (Objects.equals(s, BatteryInfoProfile.ACTION_BATTERY_INFO)) {
-                handleBatteryInfo(intent.getParcelableExtra(BatteryInfoProfile.EXTRA_BATTERY_INFO));
             }
             if (Objects.equals(s, HeartRateProfile.ACTION_HEART_RATE)) {
                 handleRealtimeHeartRate(intent.getParcelableExtra(HeartRateProfile.EXTRA_HEART_RATE));
@@ -250,6 +248,10 @@ public class MoyoungDeviceSupport extends AbstractBTLESingleDeviceSupport {
     @Override
     public boolean onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value) {
         UUID charUuid = characteristic.getUuid();
+        if (charUuid.equals(GattCharacteristic.UUID_CHARACTERISTIC_BATTERY_LEVEL)) {
+            handleBatteryLevel(value);
+            return true;
+        }
         if (charUuid.equals(MoyoungConstants.UUID_CHARACTERISTIC_STEPS)) {
             LOG.info("Update step count: {}", Logging.formatBytes(value));
             handleStepsHistory(0, value, true);
@@ -628,17 +630,29 @@ public class MoyoungDeviceSupport extends AbstractBTLESingleDeviceSupport {
         handleGBDeviceEvent(versionCmd);
     }
 
-    private void handleBatteryInfo(BatteryInfo info) {
-        LOG.debug("Battery info: {}", info);
-        int level = info.getPercentCharged();
-        // Some Moyoung watches add 100 to the reported level while charging
-        // (i.e. values > 100). Detect charging and recover the real level.
+    @Override
+    public boolean onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value, int status) {
+        if (status == BluetoothGatt.GATT_SUCCESS && characteristic.getUuid().equals(GattCharacteristic.UUID_CHARACTERISTIC_BATTERY_LEVEL)) {
+            handleBatteryLevel(value);
+            return true;
+        }
+        return super.onCharacteristicRead(gatt, characteristic, value, status);
+    }
+
+    /**
+     * Some Moyoung watches add 100 to the reported battery level while charging (values > 100).
+     * The generic battery profile clamps the value to 100 before handing it on, which hides the
+     * charging state, so the raw byte is decoded here instead.
+     */
+    private void handleBatteryLevel(final byte[] value) {
+        int level = BLETypeConversions.toUnsigned(value, 0);
         if (level > 100) {
             level -= 100;
             batteryCmd.state = BatteryState.BATTERY_CHARGING;
         } else {
             batteryCmd.state = BatteryState.BATTERY_NORMAL;
         }
+        LOG.debug("Battery level: {} ({})", level, batteryCmd.state);
         batteryCmd.level = (short) level;
         handleGBDeviceEvent(batteryCmd);
     }
@@ -949,7 +963,10 @@ public class MoyoungDeviceSupport extends AbstractBTLESingleDeviceSupport {
                 }
                 buffer.put(repetition);
                 // Older packet type
-                sendPacket(builder, MoyoungPacketOut.buildPacket(getMtu(), MoyoungConstants.CMD_SET_ALARM_CLOCK, buffer.array()));
+                if (!coordinator.newAlarmProtocol()) {
+                    // #6763 - some devices only support the new alarm protocol, and will reset all alarms on the watch otherwise
+                    sendPacket(builder, MoyoungPacketOut.buildPacket(getMtu(), MoyoungConstants.CMD_SET_ALARM_CLOCK, buffer.array()));
+                }
                 // Newer packet type
                 ByteBuffer bufferNewProtocol = ByteBuffer.allocate(10);
                 bufferNewProtocol.order(ByteOrder.LITTLE_ENDIAN);

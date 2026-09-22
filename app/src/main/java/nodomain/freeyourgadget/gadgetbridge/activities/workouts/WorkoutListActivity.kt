@@ -55,6 +55,7 @@ class WorkoutListActivity : AbstractListActivity<BaseActivitySummary>() {
     private var gbDevice: GBDevice? = null
     private var selectedItems: BitSet? = null
     private lateinit var swipeLayout: SwipeRefreshLayout
+    private var summariesAdapter: WorkoutSummariesAdapter? = null
     private var actionMode: ActionMode? = null
 
     private val activityDetailLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -209,6 +210,7 @@ class WorkoutListActivity : AbstractListActivity<BaseActivitySummary>() {
         }
 
         setItemAdapter(workoutSummariesAdapter)
+        summariesAdapter = workoutSummariesAdapter
 
         // The dashboard row gets a notifyItemChanged on every silent
         // refresh during sync; the default ChangeAnimator cross-fades
@@ -233,6 +235,8 @@ class WorkoutListActivity : AbstractListActivity<BaseActivitySummary>() {
 
     private fun setupViewModel() {
         viewModel.summaries.observe(this) { summaries ->
+            // Set before the items, so the first bind of every row already has its indicator.
+            summariesAdapter?.uploadStatuses = viewModel.uploadStatuses.value.orEmpty()
             itemAdapter?.setItems(summaries, true)
             activityKindMap = fillKindMap()
         }

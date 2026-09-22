@@ -2,40 +2,57 @@
 
 <!-- For contributors: do not modify this file - the project maintainers will update it as needed -->
 
-#### Next version (WIP)
+#### 0.94.0
 
 * Initial support for Bose NC 700
+* Initial support for Beurer BM69
+* Initial support for Colmi i31 (FitCloud)
 * Initial support for Redmi Watch 6
 * Initial support for Garmin Edge 1050, Forerunner 230, Vívoactive 3 Music
 * Initial support for GRV FC1, Swiss Peak (GloryFit)
+* Initial support for Huawei Watch GT 7
 * Initial support for Jabra Evole 65, Evolve2 55 / Evolve2 65
-* Initial support for Alt Vibe, MT55 (MoYoung / Da Fit)
+* Initial support for more MoYoung / Da Fit devices: Alt Vibe, C20_Pro, Garett Eva, MT55
+* Initial support for QN-Scale (Chipsea CS20 family)
+* Initial support for Roidmi F8 Storm vacuum cleaner
+* Initial support for Shokz OpenRun Pro 2
 * Initial support for Xiaomi Watch 5
+* Experimental support for Huawei Watch GT 7 Pro
 * Experimental support for Zeblaze Beyond 3 Pro
 * Experimental support for 59 new Garmin devices
 * 1MORE SonoFlow: Add quick settings
 * Accessibility: Label image controls for screen readers
 * Activity list: Fix occasional crash
+* Add a device setting to connect when another device connects
 * Allow notifications from other users
 * Amazfit GTS2 / GTR2: Fix title and sender on some notifications
+* Amazfit Helio Band: Vibrate on notifications and calls
 * Anker Soundcore Sport X20: Add multipoint pairing
 * BLE Intent API: Allow multiple target packages
 * BLE Intent API: Prevent abortion of device init
 * Bose: Add quick settings
+* Charts: Add body composition estimation for scales with impedance measurement
 * Charts: Add optimal training load baseline
 * Charts: Add VO2 Max 6-month and year views
 * Charts: Display HR on blood pressure charts
 * Charts: Fix crash when exiting live activity
+* Charts: Fix temperature unit not respecting settings
 * CMF Watch 2+: Fixed watchface upload
 * Colmi/Yawell rings: Ignore heart rate samples in the future
+* Dashboard: Add per-widget configuration
+* Dashboard: Add SpO2 widget
+* Dashboard: Add weight and BMI widgets
+* Dashboard: Show empty state when no sleep score is available
 * Debug: Add Internet Helper
 * Discovery Activity: Improve list refresh timing
 * Endurain: Map some missing activity types
+* Fix 12-hour midnight display on time preferences
 * Fix crash on some Android 13 ROMs
 * Fix crash when unable to decrypt shared preferences for wanderer/endurain
 * Garmin Vivoactive 6: Enable new sync protocol by default
-* Garmin: Add charts for race time prediction
+* Garmin: Add charts for race time prediction, training readiness, solar charging
 * Garmin: Add new oauth token urls
+* Garmin: Add support for watch-initiated sync
 * Garmin: Add time sync device setting
 * Garmin: Allow upload of gpx with navigation instructions
 * Garmin: Allow waypoint upload on all devices
@@ -44,7 +61,9 @@
 * Garmin: Fix COBS decoder wedging on truncated frames
 * Garmin: Fix crash on some older devices
 * Garmin: Fix dismiss of old notifications
+* Garmin: Fix gpx routes freezing some watches
 * Garmin: Fix occasional crash on reconnection
+* Garmin: Fix processing of synced ZIP files
 * Garmin: Fix realtime settings crash in some pages
 * Garmin: Fix some crashes on disconnection
 * Garmin: Fix stuck connection when a frame is dropped
@@ -54,12 +73,18 @@
 * GloryFit: Fix crash on health settings screen
 * GPX export: Give tracks a real name
 * Huawei: Fix battery charging status on some watches
+* Improve reconnection to some devices when MTU was already negotiated
+* iTECH Active 3: Fix HR fragment crash
 * Maps: Display map files in selected folder
 * Mi Body Composition Scale 2: Do not persist implausible weight samples
+* Mi Scales: Refresh the dashboard after a measurement
+* MoYoung: Add manual SpO2 measurement from device card
 * MoYoung: Add more workout types and parse max speed
 * Moyoung: Fix battery percentage on some devices
 * Nothing Ear (a): Fix bluetooth name
+* Nothing Ear: Add support for quick settings tiles
 * Optionally order disconnected devices by their most recent connection instead of by name
+* Pebble: Add support for SimpleWeather watchface
 * Pebble: Initial support for new weather v4
 * Rate limit the serialization of incoming CoMaps navigation messages
 * Sony Headphones: Fix reconnection
@@ -69,10 +94,14 @@
 * UNA Watch: Per-minute heart rate and honest daily totals
 * UNA Watch: Phone notifications
 * WeatherSpec: Add atmospheric pressure, cloud cover and dew point forecasts
+* Workouts: Compute distance from GPS tracks and speed if not reported by the device
+* Workouts: Fix chart interpolation on large gaps
 * Workouts: Fix some missing units localization
+* Workouts: Propagate custom label to charts/maps titles
 * Xiaomi-protobuf: Fix crash on resting heart rate query
 * Xiaomi-protobuf: Fix crash when dismissing some notifications
 * Xiaomi-protobuf: Fix notification "open on phone"
+* Xiaomi-protobuf: Fix SpO2 all-day mode on some devices
 * Xiaomi-protobuf: Improve workout and activity parsing
 * Zepp OS: Add some missing display items and shortcut cards
 * Zepp OS: Fix download of long voice notes

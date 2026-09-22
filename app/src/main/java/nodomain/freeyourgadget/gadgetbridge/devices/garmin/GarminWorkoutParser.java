@@ -80,6 +80,7 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitUserMetrics;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitUserProfile;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitWorkout;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitWorkoutStep;
 import nodomain.freeyourgadget.gadgetbridge.util.FileUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
 
@@ -116,6 +117,7 @@ public class GarminWorkoutParser implements ActivitySummaryParser {
     private final List<FitDiveGas> diveGases = new ArrayList<>();
     private final List<FitSet> sets = new ArrayList<>();
     private final List<FitLap> laps = new ArrayList<>();
+    private final List<FitWorkoutStep> workoutSteps = new ArrayList<>();
     private final Map<Integer, FitDeviceInfo> deviceInfos = new TreeMap<>();
     @Nullable
     private FitDeviceStatus deviceStatusStart = null;
@@ -232,6 +234,7 @@ public class GarminWorkoutParser implements ActivitySummaryParser {
         diveTanks.clear();
         sets.clear();
         laps.clear();
+        workoutSteps.clear();
         deviceInfos.clear();
         deviceStatusStart = null;
         deviceStatusEnd = null;
@@ -287,6 +290,9 @@ public class GarminWorkoutParser implements ActivitySummaryParser {
         } else if (record instanceof FitLap fitLap) {
             LOG.trace("Lap: {}", fitLap);
             laps.add(fitLap);
+        } else if (record instanceof FitWorkoutStep fitWorkoutStep) {
+            LOG.trace("Workout step: {}", fitWorkoutStep);
+            workoutSteps.add(fitWorkoutStep);
         } else if (record instanceof FitUserProfile fitUserProfile) {
             LOG.trace("User Profile: {}", fitUserProfile);
             if (userProfile != null) {
@@ -550,7 +556,9 @@ public class GarminWorkoutParser implements ActivitySummaryParser {
             speedAvg = session.getAvgSpeed();
         }
         if (speedAvg != null) {
-            if (ActivityKind.isPaceActivity(activityKind)) {
+            if (ActivityKind.isSwimActivity(activityKind)) {
+                summaryData.add(PACE_AVG_SECONDS_KM, 100.0 / speedAvg.doubleValue(), UNIT_SECONDS_PER_100_METERS);
+            } else if (ActivityKind.isPaceActivity(activityKind)) {
                 summaryData.add(PACE_AVG_SECONDS_KM, 1000.0 / speedAvg.doubleValue(), UNIT_SECONDS_PER_KM);
             } else if (ActivityKind.isDiving(activityKind)) {
                 // Hide speed for diving activities
@@ -564,7 +572,9 @@ public class GarminWorkoutParser implements ActivitySummaryParser {
             speedMax = session.getMaxSpeed();
         }
         if (speedMax != null) {
-            if (ActivityKind.isPaceActivity(activityKind)) {
+            if (ActivityKind.isSwimActivity(activityKind)) {
+                summaryData.add(PACE_MAX, 100.0 / speedMax.doubleValue(), UNIT_SECONDS_PER_100_METERS);
+            } else if (ActivityKind.isPaceActivity(activityKind)) {
                 summaryData.add(PACE_MAX, 1000.0 / speedMax.doubleValue(), UNIT_SECONDS_PER_KM);
             } else if (ActivityKind.isDiving(activityKind)) {
                 // Hide speed for diving activities
@@ -1143,9 +1153,17 @@ public class GarminWorkoutParser implements ActivitySummaryParser {
             }
             tableBuilder.addToSummaryData(summaryData);
         } else if (anyValidLaps && diveLaps.isEmpty()) {
+            final Map<Integer, FitWorkoutStep> workoutStepsByIndex = new TreeMap<>();
+            for (final FitWorkoutStep step : workoutSteps) {
+                if (step.getMessageIndex() != null && step.getWktStepName() != null) {
+                    workoutStepsByIndex.put(step.getMessageIndex(), step);
+                }
+            }
+            final boolean hasWorkoutSteps = !workoutStepsByIndex.isEmpty();
+
             // Unfortunately our tables do not yet scroll horizontally, so can't always add all possible columns
             final List<String> header = new ArrayList<>();
-            header.add("#");
+            header.add(hasWorkoutSteps ? "workout_step" : "#");
             if (anySwimmingLaps) {
                 header.add("swimming_stroke");
                 header.add("Distance");
@@ -1184,7 +1202,13 @@ public class GarminWorkoutParser implements ActivitySummaryParser {
                     speedUnit = UNIT_NONE;
                 }
 
-                row.add(new ActivitySummaryValue(i, UNIT_NONE));
+                if (hasWorkoutSteps) {
+                    final FitWorkoutStep step = lap.getWktStepIndex() != null
+                            ? workoutStepsByIndex.get(lap.getWktStepIndex()) : null;
+                    row.add(new ActivitySummaryValue(step != null ? step.getWktStepName() : String.valueOf(i), UNIT_NONE));
+                } else {
+                    row.add(new ActivitySummaryValue(i, UNIT_NONE));
+                }
                 if (anySwimmingLaps) {
                     row.add(new ActivitySummaryValue(lap.getSwimStyle() != null ? context.getString(lap.getSwimStyle().label) : null, UNIT_NONE));
                     row.add(new ActivitySummaryValue(lap.getTotalDistance(), UNIT_METERS));
