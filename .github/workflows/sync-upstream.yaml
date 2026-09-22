@@ -50,7 +50,6 @@ jobs:
         run: |
           commit_count=$(git rev-list --count master..upstream/master)
           {
-            echo "body<<GB_SYNC_EOF"
             echo "Automated sync of new commits from the upstream Codeberg repository (https://codeberg.org/Freeyourgadget/Gadgetbridge). Review and merge to bring them into master."
             echo ""
             echo "## New commits ($commit_count)"
@@ -60,9 +59,7 @@ jobs:
               echo ""
               echo "_...and $((commit_count - 100)) more, truncated._"
             fi
-            echo ""
-            echo "GB_SYNC_EOF"
-          } >> "$GITHUB_OUTPUT"
+          } > "$RUNNER_TEMP/sync-body.md"
 
       - name: Ensure a single open sync PR
         if: steps.check.outputs.has_new == 'true'
@@ -75,8 +72,8 @@ jobs:
               --base master \
               --head sync-upstream \
               --title "Sync with upstream (Freeyourgadget/Gadgetbridge)" \
-              --body "${{ steps.summary.outputs.body }}"
+              --body-file "$RUNNER_TEMP/sync-body.md"
           else
-            gh pr edit "$existing" --body "${{ steps.summary.outputs.body }}"
+            gh pr edit "$existing" --body-file "$RUNNER_TEMP/sync-body.md"
             echo "PR #$existing already open; branch push above already updated it, body refreshed with latest commit summary."
           fi
