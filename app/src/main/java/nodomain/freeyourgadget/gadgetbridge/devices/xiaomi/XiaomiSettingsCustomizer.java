@@ -52,6 +52,7 @@ import nodomain.freeyourgadget.gadgetbridge.activities.xiaomi.XiaomiVibrationPat
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventWorkoutState;
 import nodomain.freeyourgadget.gadgetbridge.devices.huami.HuamiConst;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.XiaomiPreferences;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.activity.XiaomiActivityFileFetcher;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.activity.XiaomiActivityFileId;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.activity.XiaomiActivityParser;
@@ -89,6 +90,22 @@ public class XiaomiSettingsCustomizer implements DeviceSpecificSettingsCustomize
 
         setActionSummaryProvider(handler.findPreference("events_forwarding_workoutstart_action_selections"));
         setActionSummaryProvider(handler.findPreference("events_forwarding_workoutstop_action_selections"));
+
+        // The fall asleep/wake up/non-wear categories require the watch to have reported
+        // BasicDeviceState, unlike the workout categories on the same screen - hide them
+        // individually instead of gating the whole "Device actions" screen on that flag.
+        if (!prefs.getBoolean(XiaomiPreferences.FEAT_DEVICE_ACTIONS, false)) {
+            for (final String key : new String[]{
+                    "events_forwarding_category_fellsleep",
+                    "events_forwarding_category_wokeup",
+                    "events_forwarding_category_startnonwear",
+            }) {
+                final Preference category = handler.findPreference(key);
+                if (category != null) {
+                    category.setVisible(false);
+                }
+            }
+        }
 
         final Preference testWorkoutStartPref = handler.findPreference("events_forwarding_workoutstart_test");
         if (testWorkoutStartPref != null) {
