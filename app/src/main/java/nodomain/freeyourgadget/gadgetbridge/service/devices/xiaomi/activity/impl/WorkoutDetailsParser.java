@@ -52,6 +52,9 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
         public Integer spo2;
         public Integer cadence;
         public Integer speedRaw;
+        /** Speed in m/s, for layouts whose speed unit is confirmed. Takes precedence over
+         *  {@link #speedRaw}. */
+        public Float speedMps;
         /** True on the first record of each interval/segment, for layouts whose phase
          *  semantics are confirmed (currently rowing v4 only). Drives
          *  {@link ActivityTrack} segment boundaries → one FIT lap per interval. */
@@ -113,7 +116,9 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
                                      final WorkoutDetailRecord r) {
         if (r.hr > 0) builder.setHeartRate(r.hr);
         if (r.cadence != null && r.cadence > 0) builder.setCadence(r.cadence);
-        if (version == 6 && r.speedRaw != null && r.speedRaw > 0) {
+        if (r.speedMps != null) {
+            builder.setSpeed(r.speedMps);
+        } else if (version == 6 && r.speedRaw != null && r.speedRaw > 0) {
             final float speedMps = 256000f / r.speedRaw;
             if (speedMps > 0f && speedMps < 20f) {
                 builder.setSpeed(speedMps);
@@ -165,7 +170,9 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
                                             final WorkoutDetailRecord r) {
         if (r.hr > 0) p.setHeartRate(r.hr);
         if (r.cadence != null && r.cadence > 0) p.setCadence(r.cadence);
-        if (version == 6 && r.speedRaw != null && r.speedRaw > 0) {
+        if (r.speedMps != null) {
+            p.setSpeed(r.speedMps);
+        } else if (version == 6 && r.speedRaw != null && r.speedRaw > 0) {
             final float speedMps = 256000f / r.speedRaw;
             if (speedMps > 0f && speedMps < 20f) p.setSpeed(speedMps);
         } else if (version == 5 && r.speedRaw != null && r.speedRaw > 0) {
@@ -184,9 +191,8 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
      * once at WARN with the full fileId + signature. This is the single point where an
      * unsupported or format-drifted DETAILS layout silently strips HR / cadence from the
      * GPX / FIT export — without this line the only symptom is "the exported file has no HR".
-     * Known gaps that trip this guard today: OUTDOOR_CYCLING v3 (sig DF CF FB), INDOOR_CYCLING
-     * v6 (DF BB BB BF), ELLIPTICAL v3 (FF FF F7 06). Grep {@code "DETAILS produced no samples"}
-     * to find devices whose per-record stream still needs a layout.
+     * Grep {@code "DETAILS produced no samples"} to find devices whose per-record stream still
+     * needs a layout.
      */
     @Nullable
     public static List<WorkoutDetailRecord> parseBytes(final XiaomiActivityFileId fileId, final byte[] bytes) {
@@ -394,6 +400,27 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
                     tsPosition = 2;
                     nrPosition = 0;
                     layoutCode = 205; // synthetic: treadmill-v5 record shape
+                } else if (bytes.length >= 11
+                        && bytes[8] == (byte) 0xDF && bytes[9] == (byte) 0xCF && bytes[10] == (byte) 0xFB) {
+                    // SPORTS_OUTDOOR_CYCLING v5 (Smart Band 10 Pro): same records as v3, with
+                    // 6 more bytes of segment header.
+                    //   23-byte segment header:
+                    //     offset 0-3:   4 pad
+                    //     offset 4-7:   int32 nr        — record count for this segment
+                    //     offset 8-11:  int32 ts        — segment start, unix seconds
+                    //     offset 12:    byte  phase     — only 0x7f observed
+                    //     offset 13-16: int32 distance  — meters
+                    //     offset 17-20: int32 duration  — seconds
+                    //     offset 21-22: int16 avg speed — 0.1 km/h
+                    //   Validated against the paired summary: the records tile the file exactly,
+                    //   their distances sum to DISTANCE_METERS, and HR min/avg/max and top speed
+                    //   match the summary.
+                    expectedSignature = new byte[]{(byte) 0xDF, (byte) 0xCF, (byte) 0xFB};
+                    segmentHeaderSize = 23;
+                    recordSize = 7;
+                    tsPosition = 8;
+                    nrPosition = 4;
+                    layoutCode = 113; // synthetic: outdoor-cycling record shape
                 } else {
                     LOG.warn("Unknown v5 DETAILS signature: {}",
                             GB.hexdump(bytes, 8, Math.min(5, bytes.length - 8)));
@@ -652,12 +679,23 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
                         buf.get();                       // reserved (1 byte)
                         break;
                     case 113:
-                        // SPORTS_OUTDOOR_CYCLING v3: 7-byte record. HR at byte 1.
-                        buf.get();                       // reserved (1 byte)
+                        // SPORTS_OUTDOOR_CYCLING v3 and v5: 7-byte record.
+                        //   byte 0:    reserved
+                        //   byte 1:    HR (uint8 bpm)
+                        //   byte 2:    reserved
+                        //   byte 3:    distance covered in this second (uint8 m)
+                        //   bytes 4-5: speed (uint16 LE, 0.1 km/h)
+                        //   byte 6:    reserved
+                    {
+                        buf.get();
                         r.hr = buf.get() & 0xFF;
-                        buf.getInt();                    // reserved (4 bytes)
-                        buf.get();                       // reserved (1 byte)
+                        buf.get();
+                        buf.get();
+                        final int speedTenthsKmh = buf.getShort() & 0xFFFF;
+                        r.speedMps = speedTenthsKmh / 36f;
+                        buf.get();
                         break;
+                    }
                     case 116:
                         // SPORTS_INDOOR_CYCLING v6: 9-byte record. HR at byte 1.
                         buf.get();                       // reserved (1 byte)

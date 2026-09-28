@@ -19,7 +19,7 @@
     <item
         android:id="@+id/activity_action_export"
         android:icon="@drawable/ic_share"
-        android:title="@string/share"
+        android:title="@string/workout_export_title"
         app:iconTint="?attr/actionmenu_icon_color"
         app:showAsAction="ifRoom" />
 

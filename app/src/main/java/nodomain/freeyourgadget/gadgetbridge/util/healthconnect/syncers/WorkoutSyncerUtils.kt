@@ -147,7 +147,7 @@ internal object WorkoutSyncerUtils {
             ActivityKind.MOTOR_SPORT, ActivityKind.OVERLANDING, ActivityKind.STOP_WATCH, ActivityKind.TRACK_ME, ActivityKind.TROLLING_MOTOR,
             ActivityKind.UNKNOWN, ActivityKind.NOT_MEASURED, ActivityKind.NOT_WORN -> ExerciseSessionRecord.EXERCISE_TYPE_OTHER_WORKOUT
 
-            ActivityKind.LIGHT_SLEEP, ActivityKind.DEEP_SLEEP, ActivityKind.REM_SLEEP, ActivityKind.AWAKE_SLEEP, ActivityKind.SLEEP_ANY -> ExerciseSessionRecord.EXERCISE_TYPE_OTHER_WORKOUT
+            else -> ExerciseSessionRecord.EXERCISE_TYPE_OTHER_WORKOUT
         }
     }
 }

@@ -64,7 +64,9 @@ public class GBAutoFetchReceiver extends BroadcastReceiver {
                 final long lastSync = devicePrefs.getLong(PREF_AUTO_FETCH_LAST_TIME, 0);
 
                 final long timeSinceLast = now - lastSync;
-                if (timeSinceLast < fetchIntervalMillis) {
+                if (timeSinceLast < 0) {
+                    LOG.warn("Last auto-fetch from {} is {}ms in the future, fetching anyway", device, -timeSinceLast);
+                } else if (timeSinceLast < fetchIntervalMillis) {
                     // #4165 - prevent multiple syncs in very quick succession
                     LOG.warn("Not auto-fetching from {}, last fetch was {}ms ago", device, timeSinceLast);
                     continue;

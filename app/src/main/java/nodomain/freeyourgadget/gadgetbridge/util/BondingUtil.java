@@ -328,7 +328,8 @@ public class BondingUtil {
                     if (deviceToPair.getBondState() != BluetoothDevice.BOND_BONDED) {
                         BondingUtil.bluetoothBond(bondingInterface, bondingInterface.getCurrentTarget().getDevice());
                     } else {
-                        bondingInterface.onBondingComplete(true);
+                        // When it is already bonded, no bond state broadcast will arrive
+                        handleDeviceBonded(bondingInterface, bondingInterface.getCurrentTarget());
                     }
                 } else {
                     LOG.debug("handleActivityResult unexpected device {}", deviceToPair);
@@ -348,7 +349,7 @@ public class BondingUtil {
         final int type = device.getType();
         final DeviceFilter<?> deviceFilter;
 
-        if (type == BluetoothDevice.DEVICE_TYPE_LE || type == BluetoothDevice.DEVICE_TYPE_DUAL) {
+        if (useLeDeviceFilter(bondingInterface, type)) {
             LOG.debug("companionDeviceManagerBond {} type {} - treat as LE",
                     macAddress, type);
             ScanFilter scan = new ScanFilter.Builder()
@@ -389,6 +390,29 @@ public class BondingUtil {
         manager.associate(pairingRequest,
                 getCompanionDeviceManagerCallback(bondingInterface),
                 null);
+    }
+
+    /**
+     * The BT device type only says what the hardware is capable of, so it can be reported as DUAL
+     * but the device still only communicates via CLASSIC. We would then wait for a BLE advertisement
+     * that is never sent. Instead we ask the coordinator first. It knows which connection type we will use.
+     */
+    private static boolean useLeDeviceFilter(final BondingInterface bondingInterface, final int type) {
+        final GBDeviceCandidate deviceCandidate = bondingInterface.getCurrentTarget();
+        if (deviceCandidate != null) {
+            final DeviceCoordinator coordinator = DeviceHelper.getInstance().resolveCoordinator(deviceCandidate);
+            if (coordinator != null) {
+                switch (coordinator.getConnectionType()) {
+                    case BLE:
+                        return true;
+                    case BT_CLASSIC:
+                        return false;
+                    default:
+                        break;
+                }
+            }
+        }
+        return type == BluetoothDevice.DEVICE_TYPE_LE || type == BluetoothDevice.DEVICE_TYPE_DUAL;
     }
 
     /**

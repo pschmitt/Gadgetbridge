@@ -69,12 +69,14 @@ import nodomain.freeyourgadget.gadgetbridge.capabilities.password.PasswordCapabi
 import nodomain.freeyourgadget.gadgetbridge.capabilities.widgets.WidgetManager;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
+import nodomain.freeyourgadget.gadgetbridge.database.repository.WorkoutTemplateRepository;
 import nodomain.freeyourgadget.gadgetbridge.entities.AlarmDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.BatteryCurrentSampleDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.BatteryLevelDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.BatteryPowerSampleDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.BatteryTemperatureSampleDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.BatteryVoltageSampleDao;
+import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary;
 import nodomain.freeyourgadget.gadgetbridge.entities.CyclingSample;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.Device;
@@ -227,6 +229,7 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
     public final void deleteDevice(final GBDevice gbDevice, boolean deleteFiles) throws GBException {
         LOG.info("Will try to delete device: {}", gbDevice.getName());
         if (gbDevice.isConnected() || gbDevice.isConnecting()) {
+            prepareDeviceForDeletion(gbDevice);
             GBApplication.deviceService(gbDevice).disconnect();
         }
         Prefs prefs = getPrefs();
@@ -256,6 +259,7 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
                 deleteBy(session.getHealthConnectSyncStateDao(), HealthConnectSyncStateDao.Properties.DeviceId, device.getId());
                 deleteBy(session.getHealthConnectSleepSessionDao(), HealthConnectSleepSessionDao.Properties.DeviceId, device.getId());
                 deleteBy(session.getInternetFirewallRuleDao(), InternetFirewallRuleDao.Properties.DeviceId, device.getId());
+                WorkoutTemplateRepository.INSTANCE.deleteByDevice(session, device.getId());
                 session.getDeviceDao().delete(device);
             } else {
                 LOG.info("device to delete not found in db: {}", gbDevice);
@@ -267,6 +271,12 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
         if (deleteFiles) {
             deleteDeviceFiles(gbDevice);
         }
+    }
+
+    /**
+     * Hook for devices that need to send a final command while still connected.
+     */
+    protected void prepareDeviceForDeletion(@NonNull final GBDevice gbDevice) throws GBException {
     }
 
     protected void deleteBy(final AbstractDao<?, ?> dao, final Property property, final Object value) {
@@ -482,6 +492,18 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
     public ActivityTrackProvider getActivityTrackProvider(@NonNull final GBDevice device, @NonNull final Context context) {
         // By default, most devices write a gpx file when there's an activity track
         return new GpxActivityTrackProvider();
+    }
+
+    @Nullable
+    @Override
+    public File getWorkoutRawDetailsFile(@NonNull final GBDevice device, @NonNull final BaseActivitySummary summary) {
+        return FileUtils.tryFixPath(summary.getRawDetailsPath());
+    }
+
+    @Nullable
+    @Override
+    public File getWorkoutRawGpsFile(@NonNull final GBDevice device, @NonNull final BaseActivitySummary summary) {
+        return null;
     }
 
     public boolean isHealthWearable(BluetoothDevice device) {

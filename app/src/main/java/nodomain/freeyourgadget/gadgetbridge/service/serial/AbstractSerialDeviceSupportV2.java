@@ -22,6 +22,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.ParcelUuid;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.Alarm;
 import nodomain.freeyourgadget.gadgetbridge.model.CalendarEventSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.CallSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.CannedMessagesSpec;
+import nodomain.freeyourgadget.gadgetbridge.model.FindDeviceTarget;
 import nodomain.freeyourgadget.gadgetbridge.model.MusicSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.MusicStateSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationSpec;
@@ -222,6 +224,12 @@ public abstract class AbstractSerialDeviceSupportV2<T extends GBDeviceProtocol> 
     @Override
     public void onFindDevice(final boolean start) {
         byte[] bytes = mDeviceProtocol.encodeFindDevice(start);
+        sendToDevice(bytes);
+    }
+
+    @Override
+    public void onFindDevice(final boolean start, @NonNull final FindDeviceTarget target) {
+        byte[] bytes = mDeviceProtocol.encodeFindDevice(start, target);
         sendToDevice(bytes);
     }
 

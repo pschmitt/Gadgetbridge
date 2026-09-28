@@ -3,10 +3,11 @@ package nodomain.freeyourgadget.gadgetbridge.activities.charts.steps
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample
+import nodomain.freeyourgadget.gadgetbridge.test.TestBase
 import org.junit.Assert
 import org.junit.Test
 
-class StepsDailyChartDataTest {
+class StepsDailyChartDataTest : TestBase() {
     private val startTs = 1_000_000
 
     @Test
@@ -34,7 +35,10 @@ class StepsDailyChartDataTest {
 
     @Test
     fun `totals prioritize reported distance over the step-length estimate`() {
-        val samples = listOf(sample(startTs, steps = 100, distanceCm = 8_000))
+        val samples = listOf(
+            sample(startTs, steps = 100, distanceCm = 8_000),
+            sample(startTs + 60, steps = 0, distanceCm = 0),
+        )
 
         val totals = StepsDailyChartData.buildDailyTotals(samples)
 

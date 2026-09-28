@@ -39,6 +39,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.workout.Workout
+import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind
 import nodomain.freeyourgadget.gadgetbridge.util.FileUtils
 import nodomain.freeyourgadget.gadgetbridge.util.GB
 import org.slf4j.LoggerFactory
@@ -62,6 +63,28 @@ class WorkoutEditor(private val context: Context, resultCaller: ActivityResultCa
         ) { uri: Uri? -> onHeaderPhotoPicked(uri) }
     private var pendingHeaderPhotoWorkout: Workout? = null
     private var pendingHeaderPhotoCallback: Callback? = null
+
+
+    fun editWorkoutType(workout: Workout, callback: Callback) {
+        val builder = MaterialAlertDialogBuilder(context)
+        val kinds = ActivityKind.entries.filterNot { ActivityKind.isSleep(it) }.sortedBy { it.label }
+        val labels = kinds.map { it.getLabel(context) }
+
+        builder.setTitle(R.string.activity_summary_edit_type_title)
+        val kindListing = ArrayAdapter(context, android.R.layout.simple_list_item_1, labels)
+
+        builder.setSingleChoiceItems(kindListing, 0) { dialog: DialogInterface?, which: Int ->
+            val selectedKind = kinds[which]
+            workout.summary.setOverrideActivityKind(false)
+            workout.summary.setActivityKind(selectedKind.code)
+            workout.summary.setOverrideActivityKind(true)
+            workout.summary.update()
+            callback.onWorkoutUpdated()
+            dialog!!.dismiss()
+        }
+        val dialog = builder.create()
+        dialog.show()
+    }
 
     fun editWorkoutName(workout: Workout, callback: Callback) {
         val input = EditText(context).apply {

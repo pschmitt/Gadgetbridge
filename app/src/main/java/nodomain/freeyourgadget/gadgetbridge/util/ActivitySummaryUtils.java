@@ -1,5 +1,7 @@
 package nodomain.freeyourgadget.gadgetbridge.util;
 
+import android.content.Context;
+
 import androidx.annotation.Nullable;
 
 import org.slf4j.Logger;
@@ -7,11 +9,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary;
 import nodomain.freeyourgadget.gadgetbridge.export.ActivityTrackExporter;
 import nodomain.freeyourgadget.gadgetbridge.export.GPXExporter;
+import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrack;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrackProvider;
 import nodomain.freeyourgadget.gadgetbridge.model.GpxActivityTrackProvider;
@@ -21,6 +25,17 @@ public final class ActivitySummaryUtils {
 
     private ActivitySummaryUtils() {
         // utility class
+    }
+
+    /**
+     * File name without extension for an exported workout: {@code <iso start>-<kind>}, so that a
+     * folder of exports sorts chronologically. Shared by the automatic FIT export, the FIT built
+     * for sharing and uploading, and the workout list export, which must agree on it.
+     */
+    public static String getExportBaseName(final Context context, final BaseActivitySummary summary) {
+        final String kindLabel = ActivityKind.fromCode(summary.getActivityKind()).getLabel(context).toLowerCase(Locale.ROOT);
+        final String isoDate = DateTimeUtils.formatIso8601(summary.getStartTime());
+        return FileUtils.makeValidFileName(isoDate + "-" + kindLabel);
     }
 
     @Nullable
@@ -74,7 +89,13 @@ public final class ActivitySummaryUtils {
         final File gpxFile = new File(rawCacheDir, gpxFileName);
 
         final GPXExporter gpxExporter = new GPXExporter();
-        gpxExporter.performExport(activityTrack, gpxFile, summary);
+        try {
+            gpxExporter.performExport(activityTrack, gpxFile, summary);
+        } catch (final IOException | ActivityTrackExporter.GPXTrackEmptyException e) {
+            //noinspection ResultOfMethodCallIgnored
+            gpxFile.delete();
+            throw e;
+        }
 
         return gpxFile;
     }

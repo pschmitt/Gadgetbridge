@@ -18,13 +18,10 @@ package nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit;
 
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.baseTypes.BaseType;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.fieldDefinitions.FieldDefinitionAlarm;
-import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.fieldDefinitions.FieldDefinitionArray;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.fieldDefinitions.FieldDefinitionBoolean;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.fieldDefinitions.FieldDefinitionCoordinate;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.fieldDefinitions.FieldDefinitionDayOfWeek;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.fieldDefinitions.FieldDefinitionFileType;
-import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.fieldDefinitions.FieldDefinitionHrTimeInZone;
-import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.fieldDefinitions.FieldDefinitionHrZoneHighBoundary;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.fieldDefinitions.FieldDefinitionTemperature;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.fieldDefinitions.FieldDefinitionTimestamp;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.fieldDefinitions.FieldDefinitions;
@@ -36,12 +33,9 @@ public class FieldDefinitionFactory {
         }
         return switch (field) {
             case ALARM -> new FieldDefinitionAlarm(localNumber, size, baseType, name, scale, offset);
-            case ARRAY -> new FieldDefinitionArray(localNumber, size, baseType, name, scale, offset);
             case BOOLEAN -> new FieldDefinitionBoolean(localNumber, size, baseType, name, scale, offset);
             case DAY_OF_WEEK -> new FieldDefinitionDayOfWeek(localNumber, size, baseType, name, scale, offset);
             case FILE_TYPE -> new FieldDefinitionFileType(localNumber, size, baseType, name);
-            case HR_TIME_IN_ZONE -> new FieldDefinitionHrTimeInZone(localNumber, size, baseType, name);
-            case HR_ZONE_HIGH_BOUNDARY -> new FieldDefinitionHrZoneHighBoundary(localNumber, size, baseType, name);
             case TEMPERATURE -> new FieldDefinitionTemperature(localNumber, size, baseType, name, scale, offset);
             case TIMESTAMP -> new FieldDefinitionTimestamp(localNumber, size, baseType, name);
             case COORDINATE -> new FieldDefinitionCoordinate(localNumber, size, baseType, name, scale, offset);

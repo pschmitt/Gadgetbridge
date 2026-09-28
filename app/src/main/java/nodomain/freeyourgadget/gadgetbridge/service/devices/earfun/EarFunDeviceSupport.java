@@ -26,4 +26,11 @@ public class EarFunDeviceSupport extends AbstractHeadphoneSerialDeviceSupportV2<
         builder.write(mDeviceProtocol.encodeSettingsReq());
         return builder;
     }
+
+    @Override
+    public void onReadConfiguration(final String config) {
+        TransactionBuilder builder = createTransactionBuilder("read sound settings");
+        builder.write(mDeviceProtocol.encodeSoundSettingsReq());
+        builder.queue();
+    }
 }

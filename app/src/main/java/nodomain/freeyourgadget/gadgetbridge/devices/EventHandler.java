@@ -36,6 +36,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.CalendarEventSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.CallSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.CannedMessagesSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.Contact;
+import nodomain.freeyourgadget.gadgetbridge.model.FindDeviceTarget;
 import nodomain.freeyourgadget.gadgetbridge.model.MusicSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.MusicStateSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.NavigationInfoSpec;
@@ -65,6 +66,13 @@ public interface EventHandler {
     void onSetWorldClocks(ArrayList<? extends WorldClock> clocks);
 
     void onSetContacts(ArrayList<? extends Contact> contacts);
+
+    /**
+     * Sends the workout template with the given id to the device.
+     *
+     * @param templateId the id of the WorkoutTemplate row
+     */
+    void onSyncWorkoutTemplate(long templateId);
 
     void onSetCallState(CallSpec callSpec);
 
@@ -118,6 +126,15 @@ public interface EventHandler {
     void onEnableRealtimeHeartRateMeasurement(boolean enable);
 
     void onFindDevice(boolean start);
+
+    /**
+     * Starts or stops the "find device" function on a specific target of the device.
+     * Only devices that support {@link DeviceCoordinator#supportsFindDevicePerEarbud}
+     * must implement this method.
+     */
+    default void onFindDevice(final boolean start, @NonNull final FindDeviceTarget target) {
+        onFindDevice(start);
+    }
 
     void onFindPhone(boolean start);
 

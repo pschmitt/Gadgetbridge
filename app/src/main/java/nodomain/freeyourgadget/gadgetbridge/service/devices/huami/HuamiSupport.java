@@ -69,7 +69,6 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.sql.Timestamp;
 import java.nio.ByteOrder;
 import java.nio.ByteBuffer;
 
@@ -4191,9 +4190,7 @@ public abstract class HuamiSupport extends AbstractBTLESingleDeviceSupport
     }
 
     protected void setSleepAsAndroidAlarm(long alarmTimestamp) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(new Timestamp(alarmTimestamp).getTime());
-        Alarm alarm = AlarmUtils.createSingleShot(SleepAsAndroidSender.getAlarmSlot(), false, false, calendar);
+        Alarm alarm = SleepAsAndroidSender.createAlarm(SleepAsAndroidSender.getAlarmSlot(), alarmTimestamp, Calendar.getInstance());
         ArrayList<Alarm> alarms = new ArrayList<>(1);
         alarms.add(alarm);
         GBApplication.deviceService(gbDevice).onSetAlarms(alarms);

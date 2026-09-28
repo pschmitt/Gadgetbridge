@@ -35,7 +35,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsHandler
 import nodomain.freeyourgadget.gadgetbridge.activities.install.FileInstallerActivity
 import nodomain.freeyourgadget.gadgetbridge.databinding.ActivitySendWaypointBinding
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
@@ -378,25 +377,24 @@ class GarminSendWaypointActivity : AbstractGBActivity() {
         const val EXTRA_NO_LOCATION_SHARED: String = "extra_no_location_shared"
 
         fun handlePreferenceClick(
-            handler: DeviceSpecificSettingsHandler
+            context: Context,
+            device: GBDevice?,
         ): Boolean {
-            val device = handler.getDevice()
-            if(!device.state.equalsOrHigherThan(GBDevice.State.INITIALIZED)){
+            if (device == null || !device.state.equalsOrHigherThan(GBDevice.State.INITIALIZED)) {
                 GB.toast(
-                    handler.getContext(),
+                    context,
                     R.string.device_not_connected,
                     Toast.LENGTH_LONG,
                     GB.ERROR
                 )
-             return false
+                return false
             }
 
-            val intent = Intent(handler.context, GarminSendWaypointActivity::class.java)
-            intent.putExtra(GBDevice.EXTRA_DEVICE, handler.getDevice())
+            val intent = Intent(context, GarminSendWaypointActivity::class.java)
+            intent.putExtra(GBDevice.EXTRA_DEVICE, device)
             intent.putExtra(EXTRA_NO_LOCATION_SHARED, true)
-            handler.getContext().startActivity(intent)
+            context.startActivity(intent)
             return true
         }
     }
 }
-

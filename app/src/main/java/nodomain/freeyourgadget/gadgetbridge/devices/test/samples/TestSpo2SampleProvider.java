@@ -31,13 +31,13 @@ public class TestSpo2SampleProvider extends AbstractTestSampleProvider<Spo2Sampl
     public List<Spo2Sample> getAllSamples(final long timestampFrom, final long timestampTo) {
         final List<Spo2Sample> samples = new ArrayList<>();
 
-        int spo2 = TestDeviceRand.randInt(timestampFrom, 85, 99);
+        int spo2 = TestDeviceRand.randInt(timestampFrom, 92, 99);
 
         for (long ts = timestampFrom; ts < timestampTo; ts += 15 * 60 * 1000L) {
             if (TestDeviceRand.randBool(ts, 0.3f)) {
                 samples.add(new TestSpo2Sample(ts, spo2));
             }
-            spo2 += TestDeviceRand.randInt(ts, 85 - spo2, 99 - spo2);
+            spo2 = clamp(spo2 + TestDeviceRand.randInt(ts, -1, 1), 90, 99);
         }
 
         return samples;

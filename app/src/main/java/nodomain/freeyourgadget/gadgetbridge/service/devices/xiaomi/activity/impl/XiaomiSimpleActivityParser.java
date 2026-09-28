@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.IntPredicate;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.entries.ActivitySummaryProgressEntry;
@@ -261,6 +262,19 @@ public class XiaomiSimpleActivityParser {
         public Builder addUnknown(final int sizeBytes) {
             dataEntries.add(new XiaomiSimpleDataEntry(null, null, buf -> {
                 buf.get(new byte[sizeBytes]);
+                return null;
+            }));
+            return this;
+        }
+
+        /** Skips {@code sizeBytes} only when the byte read just before this entry matches
+         *  {@code present}, for blocks the watch writes only in some workouts. */
+        public Builder addUnknownIfPreviousByte(final int sizeBytes, final IntPredicate present) {
+            dataEntries.add(new XiaomiSimpleDataEntry(null, null, buf -> {
+                final int previous = buf.get(buf.position() - 1) & 0xff;
+                if (present.test(previous)) {
+                    buf.get(new byte[sizeBytes]);
+                }
                 return null;
             }));
             return this;

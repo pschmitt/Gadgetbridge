@@ -136,6 +136,15 @@
 
     <color name="map_track_default" type="color">#fc5203</color>
 
+    <color name="workout_step_color_warmup" type="color">#FFB74D</color>
+    <color name="workout_step_color_active" type="color">#EF5350</color>
+    <color name="workout_step_color_main" type="color">#E53935</color>
+    <color name="workout_step_color_recover" type="color">#9575CD</color>
+    <color name="workout_step_color_rest" type="color">#67A463</color>
+    <color name="workout_step_color_cooldown" type="color">#64B5F6</color>
+    <color name="workout_step_color_other" type="color">#7B7F87</color>
+    <color name="workout_step_color_group" type="color">#B0BEC5</color>
+
     <color name="transparent">#00000000</color>
 
     <drawable name="selected">@color/accent</drawable>

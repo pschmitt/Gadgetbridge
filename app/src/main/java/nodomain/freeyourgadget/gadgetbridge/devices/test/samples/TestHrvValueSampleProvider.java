@@ -34,8 +34,12 @@ public class TestHrvValueSampleProvider extends AbstractTestSampleProvider<HrvVa
         int hrv = TestDeviceRand.randInt(timestampFrom, 50, 95);
 
         for (long ts = timestampFrom; ts < timestampTo; ts += 5 * 60 * 1000L) {
-            samples.add(new TestHrvValueSample(ts, hrv));
-            hrv += TestDeviceRand.randInt(ts, (10 - hrv) / 10, (90 - hrv) / 10);
+            hrv = clamp(hrv + TestDeviceRand.randInt(ts, -3, 3), 30, 110);
+
+            final int hour = hourOfDay(ts);
+            if (hour < 7 || hour >= 23) {
+                samples.add(new TestHrvValueSample(ts, hrv));
+            }
         }
 
         return samples;
@@ -46,8 +50,8 @@ public class TestHrvValueSampleProvider extends AbstractTestSampleProvider<HrvVa
     public HrvValueSample getLatestSample() {
         final long ts = System.currentTimeMillis();
         return new TestHrvValueSample(
-                ts - TestDeviceRand.randLong(ts, 10 * 1000L, 2 * 60 * 60 * 1000L),
-                TestDeviceRand.randInt(ts, 50, 95)
+            ts - TestDeviceRand.randLong(ts, 10 * 1000L, 2 * 60 * 60 * 1000L),
+            TestDeviceRand.randInt(ts, 50, 95)
         );
     }
 
@@ -55,8 +59,8 @@ public class TestHrvValueSampleProvider extends AbstractTestSampleProvider<HrvVa
     @Override
     public HrvValueSample getFirstSample() {
         return new TestHrvValueSample(
-                TestDeviceRand.BASE_TIMESTAMP,
-                TestDeviceRand.randInt(TestDeviceRand.BASE_TIMESTAMP, 50, 95)
+            TestDeviceRand.BASE_TIMESTAMP,
+            TestDeviceRand.randInt(TestDeviceRand.BASE_TIMESTAMP, 50, 95)
         );
     }
 

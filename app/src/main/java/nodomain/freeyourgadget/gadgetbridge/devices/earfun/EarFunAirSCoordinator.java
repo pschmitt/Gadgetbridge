@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettings;
@@ -18,6 +17,8 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.earfun.airs.EarFunAi
 import nodomain.freeyourgadget.gadgetbridge.service.devices.earfun.airs.EarFunAirSSettingsCustomizer;
 
 public class EarFunAirSCoordinator extends AbstractEarFunCoordinator {
+    private static final byte[] PRODUCT_ID = new byte[] { 0x4c, 0x45 };
+
     @Override
     public int getDeviceNameResource() {
         return R.string.devicetype_earfun_air_s;
@@ -29,26 +30,7 @@ public class EarFunAirSCoordinator extends AbstractEarFunCoordinator {
             return true;
         }
 
-        // can't only check with name, because the device name can be changed
-        // via the device settings, so we use some of the UUIDs available on the device
-        // and the mac address prefix to hopefully detect this model reliably
-        String[] uuids = {
-                "00001101-0000-1000-8000-00805f9b34fb",
-                "0000111e-0000-1000-8000-00805f9b34fb",
-                "0000110b-0000-1000-8000-00805f9b34fb",
-                "0000110e-0000-1000-8000-00805f9b34fb",
-                "0000eb04-d102-11e1-9b23-00025b00a5a5",
-                "0000eb06-d102-11e1-9b23-00025b00a5a5",
-                "0000eb07-d102-11e1-9b23-00025b00a5a5",
-                "0000eb05-d102-11e1-9b23-00025b00a5a5"};
-
-        boolean allServicesSupported = Arrays.stream(uuids)
-                .map(UUID::fromString)
-                .map(candidate::supportsService).allMatch(b -> b);
-
-        boolean macAddressMatches = candidate.getMacAddress().toUpperCase().startsWith("A8:99:DC");
-
-        return allServicesSupported && macAddressMatches;
+        return Arrays.equals(getProductId(candidate), PRODUCT_ID);
     }
 
     @NonNull

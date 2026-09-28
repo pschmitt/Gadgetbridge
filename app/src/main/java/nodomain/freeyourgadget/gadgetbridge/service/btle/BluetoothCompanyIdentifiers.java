@@ -13,4 +13,7 @@ public final class BluetoothCompanyIdentifiers {
 
     /// Core Devices LLC
     public static final int CORE_DEVICES_LLC = 0x0EEA;
+
+    /// Sony Corporation
+    public static final int SONY_CORPORATION = 0x012D;
 }

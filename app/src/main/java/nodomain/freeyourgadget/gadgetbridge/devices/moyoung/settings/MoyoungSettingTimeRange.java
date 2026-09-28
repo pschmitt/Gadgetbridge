@@ -71,6 +71,6 @@ public class MoyoungSettingTimeRange extends MoyoungSetting<MoyoungSettingTimeRa
         buffer.order(ByteOrder.LITTLE_ENDIAN);
         short start = buffer.getShort();
         short end = buffer.getShort();
-        return new TimeRange((byte) (start / 60), (byte) (start % 60), (byte) (end / 60), (byte) (start % 60));
+        return new TimeRange((byte) (start / 60), (byte) (start % 60), (byte) (end / 60), (byte) (end % 60));
     }
 }

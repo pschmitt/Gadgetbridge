@@ -20,6 +20,7 @@ package nodomain.freeyourgadget.gadgetbridge.service.serial;
 import android.location.Location;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.Alarm;
 import nodomain.freeyourgadget.gadgetbridge.model.CalendarEventSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.CannedMessagesSpec;
+import nodomain.freeyourgadget.gadgetbridge.model.FindDeviceTarget;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.Reminder;
 import nodomain.freeyourgadget.gadgetbridge.model.WorldClock;
@@ -129,6 +131,11 @@ public abstract class GBDeviceProtocol {
     @Nullable
     public byte[] encodeFindDevice(boolean start) {
         return null;
+    }
+
+    @Nullable
+    public byte[] encodeFindDevice(final boolean start, @NonNull final FindDeviceTarget target) {
+        return encodeFindDevice(start);
     }
 
     @Nullable

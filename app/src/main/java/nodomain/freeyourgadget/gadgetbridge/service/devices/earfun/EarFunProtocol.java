@@ -174,6 +174,10 @@ public class EarFunProtocol extends GBDeviceProtocol {
         return EarFunPacketEncoder.encodeCommonSettingsReq();
     }
 
+    public byte[] encodeSoundSettingsReq() {
+        return EarFunPacketEncoder.encodeSoundSettingsReq();
+    }
+
     @Override
     public byte[] encodeFirmwareVersionReq() {
         return EarFunPacketEncoder.encodeFirmwareVersionReq();

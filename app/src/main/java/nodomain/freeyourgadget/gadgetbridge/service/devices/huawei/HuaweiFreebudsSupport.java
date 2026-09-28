@@ -21,6 +21,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +36,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.huawei.HuaweiFreebudsCoordin
 import nodomain.freeyourgadget.gadgetbridge.devices.huawei.HuaweiHeadphonesCapabilities;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.CallSpec;
+import nodomain.freeyourgadget.gadgetbridge.model.FindDeviceTarget;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationSpec;
 import nodomain.freeyourgadget.gadgetbridge.service.HeadphoneHelper;
 import nodomain.freeyourgadget.gadgetbridge.service.btbr.TransactionBuilder;
@@ -84,12 +87,6 @@ public class HuaweiFreebudsSupport extends HuaweiBRSupport implements HeadphoneH
             if (coordinator.supports(this.gbDevice, HuaweiHeadphonesCapabilities.ExtraMediaVolume)) {
                 new GetExtraMediaVolumeRequest(super.getSupportProvider()).doPerform();
             }
-            if (coordinator.supports(this.gbDevice, HuaweiHeadphonesCapabilities.FindHeadphones)) {
-                GBApplication.getDeviceSpecificSharedPrefs(this.gbDevice.getAddress()).edit()
-                        .putString(DeviceSettingsPreferenceConst.PREF_HUAWEI_FREEBUDS_FIND_HEADPHONES, "0")
-                        .apply();
-            }
-
         } catch (IOException e) {
             GB.toast(this.getContext(), "Final initialization of Huawei device failed", Toast.LENGTH_SHORT, GB.ERROR, e);
             LOG.error("Final initialization of Huawei device failed", e);
@@ -151,6 +148,21 @@ public class HuaweiFreebudsSupport extends HuaweiBRSupport implements HeadphoneH
     }
 
     @Override
+    public void onFindDevice(final boolean start) {
+        onFindDevice(start, FindDeviceTarget.ALL);
+    }
+
+    @Override
+    public void onFindDevice(final boolean start, @NonNull final FindDeviceTarget target) {
+        try {
+            new SetFindHeadphonesRequest(getSupportProvider(), start, target).doPerform();
+        } catch (final IOException e) {
+            GB.toast(getContext(), "Failed to send find headphones request", Toast.LENGTH_SHORT, GB.ERROR, e);
+            LOG.error("Failed to send find headphones request", e);
+        }
+    }
+
+    @Override
     public void onSendConfiguration(String config) {
         if (headphoneHelper.onSendConfiguration(config))
             return;
@@ -177,9 +189,6 @@ public class HuaweiFreebudsSupport extends HuaweiBRSupport implements HeadphoneH
                     break;
                 case DeviceSettingsPreferenceConst.PREF_HUAWEI_FREEBUDS_EXTRA_MEDIA_VOLUME:
                     new SetExtraMediaVolumeRequest(getSupportProvider()).doPerform();
-                    break;
-                case DeviceSettingsPreferenceConst.PREF_HUAWEI_FREEBUDS_FIND_HEADPHONES:
-                    new SetFindHeadphonesRequest(getSupportProvider()).doPerform();
                     break;
                 case DeviceSettingsPreferenceConst.PREF_HEADPHONES_LOW_LATENCY:
                     new SetLowLatencyRequest(getSupportProvider()).doPerform();

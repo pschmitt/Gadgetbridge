@@ -21,7 +21,7 @@ public class EarFunPacketTest {
         assertEquals(EarFunPacket.DEFAULT_VERSION, encoded[1]);
         assertEquals(0x00, encoded[2]);
         assertEquals(payload.length, encoded[3]);
-        assertEquals(EarFunPacket.DEFAULT_VENDOR_ID, ByteBuffer.wrap(encoded, 4, 2).getShort());
+        assertEquals(EarFunPacket.VENDOR_ID_V1_V2, ByteBuffer.wrap(encoded, 4, 2).getShort());
         assertEquals(command.commandId, ByteBuffer.wrap(encoded, 6, 2).getShort());
         byte[] decodedPayload = Arrays.copyOfRange(encoded, 8, encoded.length);
         assertArrayEquals(payload, decodedPayload);
@@ -35,15 +35,15 @@ public class EarFunPacketTest {
                 .put(EarFunPacket.DEFAULT_VERSION)
                 .put((byte) 0x00)
                 .put((byte) payload.length)
-                .putShort(EarFunPacket.DEFAULT_VENDOR_ID)
-                .putShort(EarFunPacket.Command.REQUEST_CONFIGURATION.commandId)
+                .putShort(EarFunPacket.VENDOR_ID_V3)
+                .putShort(EarFunPacket.Command.BASIC_GET_SUPPORTED_FEATURES.commandId)
                 .put(payload);
         buffer.flip();
 
         EarFunPacket packet = EarFunPacket.decode(buffer);
 
         assertNotNull(packet);
-        assertEquals(EarFunPacket.Command.REQUEST_CONFIGURATION, packet.getCommand());
+        assertEquals(EarFunPacket.Command.BASIC_GET_SUPPORTED_FEATURES, packet.getCommand());
         assertArrayEquals(payload, packet.getPayload());
     }
 
@@ -63,7 +63,7 @@ public class EarFunPacketTest {
         EarFunPacket.Command command = EarFunPacket.Command.getCommandById((short) 0x0001);
 
         assertNotNull(command);
-        assertEquals(EarFunPacket.Command.REQUEST_CONFIGURATION, command);
+        assertEquals(EarFunPacket.Command.BASIC_GET_SUPPORTED_FEATURES, command);
     }
 
     @Test

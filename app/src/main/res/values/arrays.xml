@@ -295,6 +295,20 @@
         <item>13</item>
     </string-array>
 
+    <string-array name="fit_settings_bool_labels">
+        <item>@string/off</item>
+        <item>@string/on</item>
+        <item>@string/not_set</item>
+        <item>unchanged</item>
+    </string-array>
+
+    <string-array name="fit_settings_bool_values">
+        <item>0</item>
+        <item>1</item>
+        <item>-1</item>
+        <item>-2</item>
+    </string-array>
+
     <string-array name="wifi_channels_5_ghz">
         <item>32</item>
         <item>36</item>
@@ -2442,7 +2456,6 @@
         <item>@string/p_menuitem_settings</item>
     </string-array>
 
-
     <string-array name="pref_trex_pro_display_items">
         <item>@string/menuitem_status</item>
         <item>@string/menuitem_pai</item>
@@ -2770,7 +2783,6 @@
         <item>@string/p_message_privacy_mode_complete</item>
         <item>@string/p_message_privacy_mode_bodyonly</item>
     </string-array>
-
 
     <string-array name="pref_language_all">
         <item name="auto">@string/automatic</item>
@@ -3566,7 +3578,6 @@
         <item>@string/p_bloodpressure</item>
     </string-array>
 
-
     <string-array name="pref_amazfitneo_sounds">
         <item>@string/prefs_operating_sounds</item>
         <item>@string/pref_title_notifications_call</item>
@@ -3703,7 +3714,6 @@
         <item>@string/prefs_active_noise_cancelling_level_high</item>
     </string-array>
 
-
     <string-array name="galaxy_pro_touch_options_left">
         <item>@string/pref_switch_noise_control</item>
         <item>@string/pref_title_touch_voice_assistant</item>
@@ -3825,320 +3835,6 @@
         <item>0</item>
         <item>1</item>
         <item>2</item>
-    </string-array>
-
-    <string-array name="redmi_buds_3_pro_equalizer_presets_names">
-        <item>@string/redmi_buds_5_pro_equalizer_preset_standard</item>
-        <item>@string/redmi_buds_5_pro_equalizer_preset_treble</item>
-        <item>@string/redmi_buds_5_pro_equalizer_preset_bass</item>
-        <item>@string/redmi_buds_5_pro_equalizer_preset_voice</item>
-    </string-array>
-
-    <string-array name="redmi_buds_3_pro_equalizer_presets_values">
-        <item>0</item>
-        <item>6</item>
-        <item>5</item>
-        <item>1</item>
-    </string-array>
-
-    <string-array name="redmi_buds_3_pro_noise_cancelling_strength_names">
-        <item>@string/redmi_buds_5_pro_anc_balanced</item>
-        <item>@string/redmi_buds_5_pro_anc_light</item>
-        <item>@string/redmi_buds_5_pro_anc_deep</item>
-        <item>@string/pref_adaptive_noise_cancelling_title</item>
-    </string-array>
-
-    <string-array name="redmi_buds_3_pro_noise_cancelling_strength_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
-
-    <string-array name="redmi_buds_3_pro_transparency_strength_names">
-        <item>@string/redmi_buds_5_pro_transparency_regular</item>
-        <item>@string/redmi_buds_5_pro_transparency_voice</item>
-    </string-array>
-
-    <string-array name="redmi_buds_3_pro_transparency_strength_values">
-        <item>0</item>
-        <item>1</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_ambient_sound_control_names">
-        <item>@string/sony_ambient_sound_off</item>
-        <item>@string/sony_ambient_sound_noise_cancelling</item>
-        <item>@string/prefs_active_noise_cancelling_transparency</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_ambient_sound_control_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_noise_cancelling_strength_names">
-        <item>@string/redmi_buds_5_pro_anc_balanced</item>
-        <item>@string/redmi_buds_5_pro_anc_light</item>
-        <item>@string/redmi_buds_5_pro_anc_deep</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_noise_cancelling_strength_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_transparency_strength_names">
-        <item>@string/redmi_buds_5_pro_transparency_regular</item>
-        <item>@string/redmi_buds_5_pro_transparency_voice</item>
-        <item>@string/redmi_buds_5_pro_transparency_ambient</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_transparency_strength_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_single_button_function_names">
-        <item>@string/none</item>
-        <item>@string/pref_media_playpause</item>
-        <item>@string/pref_media_previous</item>
-        <item>@string/pref_media_next</item>
-        <item>@string/pref_media_volumeup</item>
-        <item>@string/pref_media_volumedown</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_single_button_function_values">
-        <item>8</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_button_function_names">
-        <item>@string/pref_media_playpause</item>
-        <item>@string/pref_media_previous</item>
-        <item>@string/pref_media_next</item>
-        <item>@string/pref_media_volumeup</item>
-        <item>@string/pref_media_volumedown</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_button_function_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_long_button_mode_names">
-        <item>@string/pref_title_touch_voice_assistant</item>
-        <item>@string/pref_header_sony_ambient_sound_control</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_long_button_mode_values">
-        <item>0</item>
-        <item>6</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_long_button_settings_names">
-        <item>@string/redmi_buds_5_pro_combo_anc_off</item>
-        <item>@string/redmi_buds_5_pro_combo_transparency_off</item>
-        <item>@string/redmi_buds_5_pro_combo_anc_transparency</item>
-        <item>@string/redmi_buds_5_pro_combo_all</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_long_button_settings_values">
-        <item>3</item>
-        <item>5</item>
-        <item>6</item>
-        <item>7</item>
-    </string-array>
-
-    <!--    <string-array name="redmi_buds_5_pro_surround_sound_mode_names">-->
-    <!--        <item>Standard</item>-->
-    <!--        <item>Music</item>-->
-    <!--        <item>Video</item>-->
-    <!--    </string-array>-->
-
-    <!--    <string-array name="redmi_buds_5_pro_surround_sound_mode_values">-->
-    <!--        <item>1</item>-->
-    <!--        <item>2</item>-->
-    <!--        <item>3</item>-->
-    <!--    </string-array>-->
-
-    <string-array name="redmi_buds_5_pro_equalizer_presets_names">
-        <item>@string/redmi_buds_5_pro_equalizer_preset_standard</item>
-        <item>@string/redmi_buds_5_pro_equalizer_preset_treble</item>
-        <item>@string/redmi_buds_5_pro_equalizer_preset_bass</item>
-        <item>@string/redmi_buds_5_pro_equalizer_preset_voice</item>
-        <item>@string/redmi_buds_5_pro_equalizer_preset_custom</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_equalizer_presets_values">
-        <item>0</item>
-        <item>6</item>
-        <item>5</item>
-        <item>1</item>
-        <item>10</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_equalizer_offsets_names">
-        <item>@string/redmi_buds_5_pro_equalizer_neg6</item>
-        <item>@string/redmi_buds_5_pro_equalizer_neg5</item>
-        <item>@string/redmi_buds_5_pro_equalizer_neg4</item>
-        <item>@string/redmi_buds_5_pro_equalizer_neg3</item>
-        <item>@string/redmi_buds_5_pro_equalizer_neg2</item>
-        <item>@string/redmi_buds_5_pro_equalizer_neg1</item>
-        <item>@string/redmi_buds_5_pro_equalizer_zero</item>
-        <item>@string/redmi_buds_5_pro_equalizer_1</item>
-        <item>@string/redmi_buds_5_pro_equalizer_2</item>
-        <item>@string/redmi_buds_5_pro_equalizer_3</item>
-        <item>@string/redmi_buds_5_pro_equalizer_4</item>
-        <item>@string/redmi_buds_5_pro_equalizer_5</item>
-        <item>@string/redmi_buds_5_pro_equalizer_6</item>
-    </string-array>
-
-    <string-array name="redmi_buds_5_pro_equalizer_offsets_values">
-        <item>134</item>
-        <item>133</item>
-        <item>132</item>
-        <item>131</item>
-        <item>130</item>
-        <item>129</item>
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-        <item>6</item>
-    </string-array>
-
-    <string-array name="redmi_buds_6_active_single_button_function_names">
-        <item>@string/none</item>
-        <item>@string/pref_media_playpause</item>
-        <item>@string/pref_media_previous</item>
-        <item>@string/pref_media_next</item>
-        <item>@string/pref_media_volumeup</item>
-        <item>@string/pref_media_volumedown</item>
-    </string-array>
-
-    <string-array name="redmi_buds_6_active_single_button_function_values">
-        <item>8</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-    </string-array>
-
-    <string-array name="redmi_buds_6_active_button_function_names">
-        <item>@string/pref_media_playpause</item>
-        <item>@string/pref_media_previous</item>
-        <item>@string/pref_media_next</item>
-        <item>@string/pref_media_volumeup</item>
-        <item>@string/pref_media_volumedown</item>
-    </string-array>
-
-    <string-array name="redmi_buds_6_active_button_function_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-    </string-array>
-
-    <string-array name="redmi_buds_6_active_long_button_mode_names">
-        <item>@string/none</item>
-        <item>@string/pref_title_touch_voice_assistant</item>
-    </string-array>
-
-    <string-array name="redmi_buds_6_active_long_button_mode_values">
-        <item>8</item>
-        <item>0</item>
-    </string-array>
-
-    <string-array name="redmi_buds_6_active_equalizer_presets_names">
-        <item>@string/redmi_buds_5_pro_anc_balanced</item>
-        <item>@string/redmi_buds_5_pro_equalizer_preset_treble</item>
-        <item>@string/redmi_buds_5_pro_equalizer_preset_bass</item>
-        <item>@string/redmi_buds_5_pro_equalizer_preset_voice</item>
-        <item>@string/redmi_buds_6_active_equalizer_preset_volume</item>
-    </string-array>
-
-    <string-array name="redmi_buds_6_active_equalizer_presets_values">
-        <item>0</item>
-        <item>6</item>
-        <item>5</item>
-        <item>1</item>
-        <item>7</item>
-    </string-array>
-
-    <string-array name="redmi_buds_8_active_single_button_function_names">
-        <item>@string/none</item>
-        <item>@string/pref_media_playpause</item>
-        <item>@string/pref_media_previous</item>
-        <item>@string/pref_media_next</item>
-        <item>@string/pref_media_volumeup</item>
-        <item>@string/pref_media_volumedown</item>
-    </string-array>
-
-    <string-array name="redmi_buds_8_active_single_button_function_values">
-        <item>8</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-    </string-array>
-
-    <string-array name="redmi_buds_8_active_button_function_names">
-        <item>@string/pref_media_playpause</item>
-        <item>@string/pref_media_previous</item>
-        <item>@string/pref_media_next</item>
-        <item>@string/pref_media_volumeup</item>
-        <item>@string/pref_media_volumedown</item>
-    </string-array>
-
-    <string-array name="redmi_buds_8_active_button_function_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-    </string-array>
-
-    <string-array name="redmi_buds_8_active_long_button_mode_names">
-        <item>@string/none</item>
-        <item>@string/pref_title_touch_voice_assistant</item>
-    </string-array>
-
-    <string-array name="redmi_buds_8_active_long_button_mode_values">
-        <item>8</item>
-        <item>0</item>
-    </string-array>
-
-    <string-array name="redmi_buds_8_active_equalizer_presets_names">
-        <item>@string/redmi_buds_5_pro_anc_balanced</item>
-        <item>@string/redmi_buds_5_pro_equalizer_preset_treble</item>
-        <item>@string/redmi_buds_5_pro_equalizer_preset_bass</item>
-        <item>@string/redmi_buds_5_pro_equalizer_preset_voice</item>
-        <item>@string/redmi_buds_6_active_equalizer_preset_volume</item>
-        <item>@string/redmi_buds_5_pro_equalizer_preset_custom</item>
-    </string-array>
-
-    <string-array name="redmi_buds_8_active_equalizer_presets_values">
-        <item>21</item>
-        <item>6</item>
-        <item>5</item>
-        <item>1</item>
-        <item>7</item>
-        <item>10</item>
     </string-array>
 
     <string-array name="earfun_ambient_sound_control_names">
@@ -4376,34 +4072,6 @@
         <item>nc_as</item>
         <item>nc_off</item>
         <item>as_off</item>
-    </string-array>
-
-    <string-array name="oppo_touch_tap_names">
-        <!-- superset of values, unsupported are hidden by the coordinator -->
-        <item>@string/sony_button_mode_off</item>
-        <item>@string/moondrop_touch_action_play_pause</item>
-        <item>@string/pref_media_previous</item>
-        <item>@string/pref_media_next</item>
-        <item>@string/pref_media_volumeup</item>
-        <item>@string/pref_media_volumedown</item>
-        <item>@string/pref_title_touch_voice_assistant</item>
-        <item>@string/pref_title_touch_voice_assistant</item>
-        <item>@string/prefs_game_mode</item>
-        <item>@string/moondrop_touch_action_anc_mode</item>
-    </string-array>
-
-    <string-array name="oppo_touch_tap_values">
-        <!-- superset of values, unsupported are hidden by the coordinator -->
-        <item>off</item>
-        <item>play_pause</item>
-        <item>previous</item>
-        <item>next</item>
-        <item>volume_up</item>
-        <item>volume_down</item>
-        <item>voice_assistant</item>
-        <item>voice_assistant_realme</item>
-        <item>game_mode</item>
-        <item>noise_control</item>
     </string-array>
 
     <string-array name="soundbrenner_time_sig_entries">
@@ -5307,18 +4975,6 @@
         <item>force_disabled</item>
     </string-array>
 
-    <string-array name="huawei_find_headphones_names">
-        <item>@string/off</item>
-        <item>@string/left_earbud</item>
-        <item>@string/right_earbud</item>
-    </string-array>
-
-    <string-array name="huawei_find_headphones_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-    </string-array>
-
     <string-array name="huawei_adaptive_volume_names">
         <item>@string/off</item>
         <item>@string/low</item>
@@ -5359,7 +5015,6 @@
         <item>dynamic</item>
     </string-array>
 
-
     <string-array name="prefs_huawei_heart_rate_high_alert_names">
         <item name="0">@string/off</item>
         <item name="100">@string/heartrate_bpm_100</item>
@@ -5379,7 +5034,6 @@
         <item>140</item>
         <item>150</item>
     </string-array>
-
 
     <string-array name="prefs_huawei_heart_rate_low_alert_names">
         <item name="0">@string/off</item>

@@ -20,59 +20,52 @@ import java.lang.Iterable;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 
-public enum AncConfigValue {
-    OFF(0x01, "0"),
-    TRANSPARENCY(0x02, "2"),
-    ON(0x08, "1");
+import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.LabeledEntry;
+
+public enum AncConfigValue implements LabeledEntry {
+    OFF(0x01, R.string.off),
+    TRANSPARENCY(0x02, R.string.prefs_active_noise_cancelling_transparency),
+    ON(0x08, R.string.prefs_active_noise_cancelling),
     ;
 
     private final int code;
-    private final String prefId;
+    private final int label;
 
-    AncConfigValue(final int code, final String prefId) {
+    AncConfigValue(final int code, @StringRes final int label) {
         this.code = code;
-        this.prefId = prefId;
+        this.label = label;
+    }
+
+    @Override
+    @StringRes
+    public int getLabel() {
+        return label;
     }
 
     public int getCode() {
         return code;
     }
 
+    public String getPrefId() {
+        return this.name().toLowerCase();
+    }
+
     @Nullable
     public static AncConfigValue fromCode(final int code) {
         for (final AncConfigValue param : AncConfigValue.values()) {
-            if (param.code == code) {
+            if (param.getCode() == code) {
                 return param;
             }
         }
 
         return null;
-    }
-
-    public String getPrefId() {
-        return prefId;
-    }
-
-    @Nullable
-    public static AncConfigValue fromPrefId(final String prefId) {
-        for (final AncConfigValue param : AncConfigValue.values()) {
-            if (prefId.equals(param.prefId)) {
-                return param;
-            }
-        }
-
-        return null;
-    }
-
-    public static int toMask(Iterable<AncConfigValue> modes) {
-        int mask = 0;
-        for (AncConfigValue mode : modes) {
-            mask |= mode.getCode();
-        }
-        return mask;
     }
 
     public static EnumSet<AncConfigValue> fromMask(int mask) {
@@ -86,22 +79,41 @@ public enum AncConfigValue {
         return modes;
     }
 
-    public static Set<String> toPrefIds(Iterable<AncConfigValue> modes) {
-        Set<String> prefIds = new HashSet<>();
-        for (AncConfigValue mode : modes) {
-            prefIds.add(mode.getPrefId());
-        }
-        return prefIds;
-    }
-
-    public static EnumSet<AncConfigValue> fromPrefIds(Iterable<String> prefIds) {
-        EnumSet<AncConfigValue> modes = EnumSet.noneOf(AncConfigValue.class);
-        for (String prefId : prefIds) {
-            AncConfigValue mode = fromPrefId(prefId);
-            if (mode != null) {
-                modes.add(mode);
+    @Nullable
+    public static AncConfigValue fromPrefId(final String value) {
+        for (final AncConfigValue param : AncConfigValue.values()) {
+            if (param.name().equalsIgnoreCase(value)) {
+                return param;
             }
         }
-        return modes;
+
+        return null;
+    }
+
+    public static EnumSet<AncConfigValue> fromPrefIds(@NonNull Set<String> values) {
+        EnumSet<AncConfigValue> result = EnumSet.noneOf(AncConfigValue.class);
+        for (String value : values) {
+            AncConfigValue mode = fromPrefId(value);
+            if (mode != null) {
+                result.add(mode);
+            }
+        }
+        return result;
+    }
+
+
+    public static Set<String> toPrefIds(final EnumSet<AncConfigValue> values) {
+        return values.stream()
+                .map(e -> e.name().toLowerCase())
+                .collect(Collectors.toSet());
+
+    }
+
+    public static int toMask(Iterable<AncConfigValue> modes) {
+        int mask = 0;
+        for (AncConfigValue mode : modes) {
+            mask |= mode.getCode();
+        }
+        return mask;
     }
 }

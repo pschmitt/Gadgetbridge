@@ -38,18 +38,19 @@ public class TestTemperatureSampleProvider extends AbstractTestSampleProvider<Te
     public List<TemperatureSample> getAllSamples(final long timestampFrom, final long timestampTo) {
         final List<TemperatureSample> samples = new ArrayList<>();
 
-        float temp = TestDeviceRand.randInt(timestampFrom, 33, 40);
+        float temp = TestDeviceRand.randFloat(timestampFrom, 36f, 37.5f);
 
         final boolean continuous = device.getDeviceCoordinator().supportsContinuousTemperature(device);
 
         final long temperatureTimeStep = continuous ? 15 * 60 * 1000L : 120 * 60 * 1000L;
-        final float temperatureValueStep = continuous ? 0.2f : 1f;
+        final float temperatureValueStep = continuous ? 0.1f : 0.4f;
 
         for (long ts = timestampFrom; ts < timestampTo; ts += temperatureTimeStep) {
+            temp = clamp(temp + TestDeviceRand.randFloat(ts, -temperatureValueStep, temperatureValueStep), 35.5f, 38.5f);
+
             if (TestDeviceRand.randBool(ts, 0.3f)) {
                 samples.add(new TestTemperatureSample(ts, temp));
             }
-            temp += (TestDeviceRand.randInt(ts, 33 - Math.round(temp), 40 - Math.round(temp)) * temperatureValueStep);
         }
 
         return samples;
@@ -58,16 +59,19 @@ public class TestTemperatureSampleProvider extends AbstractTestSampleProvider<Te
     @Nullable
     @Override
     public TemperatureSample getLatestSample() {
-        // TODO
-        return null;
+        final long ts = System.currentTimeMillis();
+        return new TestTemperatureSample(
+            ts - TestDeviceRand.randLong(ts, 10 * 1000L, 2 * 60 * 60 * 1000L),
+            TestDeviceRand.randFloat(ts, 36f, 37.5f)
+        );
     }
 
     @Nullable
     @Override
     public TemperatureSample getFirstSample() {
         return new TestTemperatureSample(
-                TestDeviceRand.BASE_TIMESTAMP,
-                TestDeviceRand.randFloat(TestDeviceRand.BASE_TIMESTAMP, 36f, 38f)
+            TestDeviceRand.BASE_TIMESTAMP,
+            TestDeviceRand.randFloat(TestDeviceRand.BASE_TIMESTAMP, 36f, 38f)
         );
     }
 

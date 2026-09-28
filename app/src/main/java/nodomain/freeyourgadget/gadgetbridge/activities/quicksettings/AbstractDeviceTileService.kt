@@ -131,7 +131,7 @@ abstract class AbstractDeviceTileService : TileService() {
                 tile.icon = Icon.createWithResource(this, descriptor.icon)
                 when (descriptor.type) {
                     QuickSettingType.TOGGLE -> {
-                        val value = QuickSettings.currentBool(address, key)
+                        val value = QuickSettings.currentBool(descriptor)
                         tile.state = if (value) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                             tile.subtitle = device.aliasOrName
@@ -146,11 +146,13 @@ abstract class AbstractDeviceTileService : TileService() {
                         }
                     }
                 }
-                if (!device.isInitialized) {
+                if (descriptor.connectedOnly && !device.isInitialized) {
                     tile.state = Tile.STATE_UNAVAILABLE
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         tile.subtitle = getString(R.string.qs_tile_not_connected, device.aliasOrName)
                     }
+                } else if (!descriptor.visible) {
+                    tile.state = Tile.STATE_UNAVAILABLE
                 }
             }
         }

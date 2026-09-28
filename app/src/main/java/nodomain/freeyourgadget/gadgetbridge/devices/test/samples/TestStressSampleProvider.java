@@ -34,10 +34,15 @@ public class TestStressSampleProvider extends AbstractTestSampleProvider<StressS
         int stress = TestDeviceRand.randInt(timestampFrom, 10, 90);
 
         for (long ts = timestampFrom; ts < timestampTo; ts += 15 * 60 * 1000L) {
+            final int hour = hourOfDay(ts);
+            final int target = hour < 7 || hour >= 22
+                ? TestDeviceRand.randInt(ts, 5, 25)
+                : TestDeviceRand.randInt(ts, 25, 80);
+            stress = clamp(stress + (target - stress) / 3, 1, 99);
+
             if (TestDeviceRand.randBool(ts, 0.3f)) {
                 samples.add(new TestStressSample(ts, stress));
             }
-            stress += TestDeviceRand.randInt(ts, (10 - stress) / 10, (90 - stress) / 10);
         }
 
         return samples;
@@ -48,8 +53,8 @@ public class TestStressSampleProvider extends AbstractTestSampleProvider<StressS
     public StressSample getLatestSample() {
         final long ts = System.currentTimeMillis();
         return new TestStressSample(
-                ts - TestDeviceRand.randLong(ts, 10 * 1000L, 2 * 60 * 60 * 1000L),
-                TestDeviceRand.randInt(ts, 10, 90)
+            ts - TestDeviceRand.randLong(ts, 10 * 1000L, 2 * 60 * 60 * 1000L),
+            TestDeviceRand.randInt(ts, 10, 90)
         );
     }
 
@@ -57,8 +62,8 @@ public class TestStressSampleProvider extends AbstractTestSampleProvider<StressS
     @Override
     public StressSample getFirstSample() {
         return new TestStressSample(
-                TestDeviceRand.BASE_TIMESTAMP,
-                TestDeviceRand.randInt(TestDeviceRand.BASE_TIMESTAMP, 10, 90)
+            TestDeviceRand.BASE_TIMESTAMP,
+            TestDeviceRand.randInt(TestDeviceRand.BASE_TIMESTAMP, 10, 90)
         );
     }
 

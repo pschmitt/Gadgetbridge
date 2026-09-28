@@ -17,7 +17,9 @@
 package nodomain.freeyourgadget.gadgetbridge.devices.huawei;
 
 import nodomain.freeyourgadget.gadgetbridge.model.heartratezones.HeartRateZones;
+import nodomain.freeyourgadget.gadgetbridge.util.gson.GsonSerialized;
 
+@GsonSerialized
 public class HuaweiHeartRateZones extends HeartRateZones {
 
     public HuaweiHeartRateZones(CalculationMethod method, int HRThreshold) {

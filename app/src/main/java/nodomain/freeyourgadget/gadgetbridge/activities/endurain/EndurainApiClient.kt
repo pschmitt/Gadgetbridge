@@ -97,12 +97,14 @@ sealed interface EndurainActivityLookup {
  * for /activity_media/{basename}:
  * <https://codeberg.org/endurain-project/endurain/issues/912>.
  */
+@GsonSerialized
 data class EndurainActivityMedia(
     val id: Int,
     val activityId: Int,
     val mediaPath: String
 )
 
+@GsonSerialized
 data class EndurainIdentityProvider(
     val id: String,
     val name: String,

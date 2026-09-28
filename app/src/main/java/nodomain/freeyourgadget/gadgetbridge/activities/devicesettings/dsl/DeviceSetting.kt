@@ -19,13 +19,13 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl
 
 import android.content.Context
+import android.net.Uri
 import android.text.InputType
 import android.widget.EditText
 import androidx.annotation.ArrayRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsScreen
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.SettingsRenderHost
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs
 
@@ -62,6 +62,11 @@ data class ScreenSetting(
     @StringRes val title: Int,
     @StringRes val summary: Int = 0,
     @DrawableRes val icon: Int = 0,
+    /**
+     * Legacy XML screens, appended after [children] when this screen is opened. Should only be used
+     * by screens whose key is one of [DeviceSpecificSettingsScreen].
+     */
+    val xmlSubScreens: List<Int> = emptyList(),
     override val visibleWhen: ((Prefs) -> Boolean)? = null,
     val enabled: ((Prefs) -> Boolean)? = null,
     override val connectedOnly: Boolean = true,
@@ -81,6 +86,7 @@ data class SwitchSetting(
     @StringRes val summaryOff: Int = 0,
     @DrawableRes val icon: Int = 0,
     val defaultValue: Boolean = false,
+    val enabled: Boolean = true,
     val dependency: String? = null,
     /** Mirrors androidx's `app:disableDependentsState` */
     val disableDependentsState: Boolean = false,
@@ -138,6 +144,10 @@ data class SeekBarSetting(
 data class CategorySetting(
     override val key: String,
     @StringRes val title: Int,
+    /** Plain title, for a header built at runtime. Overrides [title] when set. */
+    val titleText: String? = null,
+    @DrawableRes val icon: Int = 0,
+    val iconSpaceReserved: Boolean = true,
     override val children: List<DeviceSetting> = emptyList(),
     override val visibleWhen: ((Prefs) -> Boolean)? = null,
     override val connectedOnly: Boolean = false,
@@ -176,22 +186,38 @@ data class TextSetting(
 data class InfoSetting(
     override val key: String,
     @StringRes val title: Int,
+    /** Plain title, for a row built at runtime. Overrides [title] when set. */
+    val titleText: String? = null,
+    @StringRes val summary: Int = 0,
     @DrawableRes val icon: Int = 0,
+    val iconSpaceReserved: Boolean = true,
     val defaultValue: String = "",
+    /**
+     * Computes the summary. Overrides [summary]. Re-evaluated on every refresh,
+     * so it can show a derived value.
+     */
+    val summaryProvider: ((Context, Prefs) -> CharSequence?)? = null,
     val dependency: String? = null,
     override val visibleWhen: ((Prefs) -> Boolean)? = null,
     override val connectedOnly: Boolean = true,
 ) : DeviceSetting()
 
 /**
- * A non-persistent action preference. [onClick] receives the [SettingsRenderHost] so
- * it can launch activities or invoke device-specific operations.
+ * A non-persistent action preference. [onClick] receives the current context and device, so it can
+ * launch activities or invoke device-specific operations.
  */
 data class ActionSetting(
     override val key: String,
     @StringRes val title: Int = 0,
+    /** Plain title, for a row built at runtime. Overrides [title] when set. */
+    val titleText: String? = null,
     @StringRes val summary: Int = 0,
     @DrawableRes val icon: Int = 0,
+    /**
+     * Computes the summary. Overrides [summary]. Re-evaluated on every refresh,
+     * so it can show a derived value.
+     */
+    val summaryProvider: ((Context, Prefs) -> CharSequence?)? = null,
     val dependency: String? = null,
     val enabled: Boolean = true,
     /** When non-zero, tapping this action shows a confirmation dialog with this message before [onClick] runs. */
@@ -216,6 +242,73 @@ data class MultiSelectSetting(
     val dependency: String? = null,
     override val visibleWhen: ((Prefs) -> Boolean)? = null,
     override val connectedOnly: Boolean = true,
+) : DeviceSetting()
+
+/**
+ * An ordered multi-select list setting, equivalent to DragSortListPreference. The stored value
+ * is the selected entry values in the chosen order, comma separated.
+ */
+data class SortableListSetting(
+    override val key: String,
+    @StringRes val title: Int,
+    @StringRes val summary: Int = 0,
+    @DrawableRes val icon: Int = 0,
+    val entries: List<ListEntry>,
+    val defaultValue: List<String> = emptyList(),
+    val dependency: String? = null,
+    override val visibleWhen: ((Prefs) -> Boolean)? = null,
+    override val connectedOnly: Boolean = true,
+) : DeviceSetting()
+
+/**
+ * A date setting, backed by a custom DialogPreference (e.g. XDatePreference) that persists the
+ * value as a "yyyy-MM-dd" string.
+ */
+data class DateSetting(
+    override val key: String,
+    @StringRes val title: Int,
+    @StringRes val summary: Int = 0,
+    @DrawableRes val icon: Int = 0,
+    val defaultValue: String = "",
+    val minDate: Long = 0L,
+    val maxDate: Long = Long.MAX_VALUE,
+    val dependency: String? = null,
+    override val visibleWhen: ((Prefs) -> Boolean)? = null,
+    override val connectedOnly: Boolean = true,
+    val onSharedPreferenceChanged: ((String) -> Unit)? = null,
+) : DeviceSetting()
+
+/**
+ * A preference that opens the system document picker, allowing several files to be selected.
+ * The picked files are passed to [onPicked]. Nothing is stored under [key].
+ */
+data class FilePickerSetting(
+    override val key: String,
+    @StringRes val title: Int,
+    @StringRes val summary: Int = 0,
+    @DrawableRes val icon: Int = 0,
+    /** MIME types the picker accepts. */
+    val mimeTypes: List<String> = listOf("*/*"),
+    val dependency: String? = null,
+    override val visibleWhen: ((Prefs) -> Boolean)? = null,
+    override val connectedOnly: Boolean = true,
+    val onPicked: (Context, GBDevice?, List<Uri>) -> Unit,
+) : DeviceSetting()
+
+/**
+ * A preference that opens the system folder picker and stores the picked tree URI under [key].
+ * The summary shows the stored URI.
+ */
+data class FolderPickerSetting(
+    override val key: String,
+    @StringRes val title: Int,
+    @DrawableRes val icon: Int = 0,
+    /** Takes a persistable read permission on the picked tree. */
+    val persistUriPermission: Boolean = true,
+    val dependency: String? = null,
+    override val visibleWhen: ((Prefs) -> Boolean)? = null,
+    override val connectedOnly: Boolean = true,
+    val onPicked: ((Context, GBDevice?, Uri) -> Unit)? = null,
 ) : DeviceSetting()
 
 /**

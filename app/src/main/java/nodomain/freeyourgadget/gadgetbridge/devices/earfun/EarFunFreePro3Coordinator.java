@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettings;
@@ -34,6 +33,8 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.earfun.freepro3.EarF
 import nodomain.freeyourgadget.gadgetbridge.service.devices.earfun.freepro3.EarFunFreePro3SettingsCustomizer;
 
 public class EarFunFreePro3Coordinator extends AbstractEarFunCoordinator {
+    private static final byte[] PRODUCT_ID = new byte[] { 0x45, 0x34 };
+
     @Override
     public int getDeviceNameResource() {
         return R.string.devicetype_earfun_free_pro_3;
@@ -45,31 +46,7 @@ public class EarFunFreePro3Coordinator extends AbstractEarFunCoordinator {
             return true;
         }
 
-        // fallback: check UUIDs and MAC prefix to detect even if device name was changed
-        // Free Pro 3 has 9 UUIDs: 5 standard audio + 4 vendor (EB04-EB07)
-        // Same MAC prefix (70:5A:6F) as Air Pro 4, so we must distinguish by UUID set
-        String[] uuids = {
-                "00001101-0000-1000-8000-00805f9b34fb",
-                "0000111e-0000-1000-8000-00805f9b34fb",
-                "0000110b-0000-1000-8000-00805f9b34fb",
-                "0000110c-0000-1000-8000-00805f9b34fb",
-                "0000110e-0000-1000-8000-00805f9b34fb",
-                "0000eb04-d102-11e1-9b23-00025b00a5a5",
-                "0000eb06-d102-11e1-9b23-00025b00a5a5",
-                "0000eb07-d102-11e1-9b23-00025b00a5a5",
-                "0000eb05-d102-11e1-9b23-00025b00a5a5"};
-
-        boolean allServicesSupported = Arrays.stream(uuids)
-                .map(UUID::fromString)
-                .map(candidate::supportsService).allMatch(b -> b);
-
-        // Must NOT have Air Pro 4 extras (df21fe2c, 180f battery, 180a device info)
-        boolean hasAirPro4Extras = candidate.supportsService(
-                UUID.fromString("df21fe2c-2515-4fdb-8886-f12c4d67927c"));
-
-        boolean macAddressMatches = candidate.getMacAddress().toUpperCase().startsWith("70:5A:6F");
-
-        return allServicesSupported && !hasAirPro4Extras && macAddressMatches;
+        return Arrays.equals(getProductId(candidate), PRODUCT_ID);
     }
 
     @NonNull

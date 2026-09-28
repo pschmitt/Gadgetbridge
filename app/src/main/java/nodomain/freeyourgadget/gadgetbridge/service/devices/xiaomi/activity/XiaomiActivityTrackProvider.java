@@ -135,6 +135,43 @@ public class XiaomiActivityTrackProvider implements ActivityTrackProvider {
         }
     }
 
+    /**
+     * The registered raw file of the given type for the workout, or null when there is no
+     * registry row or the file is missing on disk.
+     */
+    @Nullable
+    public static File getRawFile(@NonNull final GBDevice device,
+                                  @NonNull final BaseActivitySummary summary,
+                                  @NonNull final XiaomiActivityFileId.DetailType detailType) {
+        final long ts = summary.getStartTime() != null
+                ? summary.getStartTime().getTime() / 1000L
+                : 0L;
+        if (ts <= 0) {
+            return null;
+        }
+        try (DBHandler dbh = GBApplication.acquireDbReadOnly()) {
+            final DaoSession session = dbh.getDaoSession();
+            final Device dbDevice = DBHelper.findDevice(device, session);
+            if (dbDevice == null) {
+                return null;
+            }
+            final List<XiaomiActivityFile> files = session.getXiaomiActivityFileDao().queryBuilder()
+                    .where(XiaomiActivityFileDao.Properties.DeviceId.eq(dbDevice.getId()),
+                            XiaomiActivityFileDao.Properties.Timestamp.eq(ts),
+                            XiaomiActivityFileDao.Properties.DetailType.eq(detailType.getCode()))
+                    .list();
+            for (final XiaomiActivityFile f : files) {
+                final File file = FileUtils.tryFixPath(f.getFilePath());
+                if (file != null) {
+                    return file;
+                }
+            }
+        } catch (final Exception e) {
+            LOG.error("Failed {} raw file lookup for ts={}", detailType, ts, e);
+        }
+        return null;
+    }
+
     public static boolean hasAnyNonNullIslandLocation(final ActivityTrack track) {
         for (final ActivityPoint p : track.getAllPoints()) {
             if (hasNonNullIslandLocation(p)) {

@@ -16,6 +16,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities.licenses;
 
+import nodomain.freeyourgadget.gadgetbridge.util.gson.GsonSerialized;
+
+@GsonSerialized
 public class License {
     private final String name;
     private final String owner;

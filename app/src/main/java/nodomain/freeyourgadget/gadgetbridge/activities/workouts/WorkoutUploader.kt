@@ -30,7 +30,7 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryData
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries
-import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils
+import nodomain.freeyourgadget.gadgetbridge.util.ActivitySummaryUtils
 import nodomain.freeyourgadget.gadgetbridge.util.FileUtils
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -85,10 +85,7 @@ object WorkoutUploader {
                 null
             }
         }
-        val kindLabel = ActivityKind.fromCode(summary.activityKind).getLabel(context).lowercase()
-        val fileName = FileUtils.makeValidFileName(
-            "Workout-${kindLabel}-${DateTimeUtils.formatIso8601(summary.startTime)}.fit"
-        )
+        val fileName = ActivitySummaryUtils.getExportBaseName(context, summary) + ".fit"
         val cacheSubDir = File(context.cacheDir, "raw")
         cacheSubDir.mkdirs()
         val outFile = File(cacheSubDir, fileName)

@@ -176,7 +176,11 @@ ${property.javaDocSetter}
     ${property.codeBeforeSetter}
 </#if>
     public void set${property.propertyName?cap_first}(<#if !primitiveJavaTypes?seq_contains(property.javaTypeInEntity)>${(property.notNull)?string("@NonNull ", "@Nullable ")}</#if>${property.javaTypeInEntity} ${property.propertyName}) {
+<#if property.codeInSetter ??>
+        ${property.codeInSetter}
+<#else>
         this.${property.propertyName} = ${property.propertyName};
+</#if>
     }
 
 </#list>

@@ -21,6 +21,7 @@ package nodomain.freeyourgadget.gadgetbridge.util;
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -54,6 +55,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
@@ -323,6 +326,41 @@ public class AndroidUtils {
         intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         try {
             context.startActivity(Intent.createChooser(intent, "Share file"));
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(context, R.string.activity_error_share_failed, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /**
+     * Shares several files in one {@link Intent#ACTION_SEND_MULTIPLE}, or a single file through
+     * {@link #shareFile}. The files must lie under a path exposed in {@code shared_paths.xml}.
+     */
+    public static void shareFiles(final Context context, final List<File> files, final String type) throws IOException {
+        if (files.size() == 1) {
+            shareFile(context, files.get(0), type);
+            return;
+        }
+
+        final String authority = context.getApplicationContext().getPackageName() + ".screenshot_provider";
+        final ArrayList<Uri> uris = new ArrayList<>(files.size());
+        for (final File file : files) {
+            uris.add(FileProvider.getUriForFile(context, authority, file));
+        }
+        if (uris.isEmpty()) {
+            return;
+        }
+
+        final Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+        intent.setType(type);
+        intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+        final ClipData clipData = ClipData.newRawUri(null, uris.get(0));
+        for (int i = 1; i < uris.size(); i++) {
+            clipData.addItem(new ClipData.Item(uris.get(i)));
+        }
+        intent.setClipData(clipData);
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        try {
+            context.startActivity(Intent.createChooser(intent, "Share files"));
         } catch (ActivityNotFoundException e) {
             Toast.makeText(context, R.string.activity_error_share_failed, Toast.LENGTH_LONG).show();
         }

@@ -10,13 +10,10 @@ import nodomain.freeyourgadget.gadgetbridge.R
 
 enum class WorkoutTab(@StringRes val labelRes: Int) {
     OVERVIEW(R.string.workout_tab_overview),
-    CHARTS(R.string.charts),
     LAPS(R.string.laps),
+    CHARTS(R.string.charts),
     DETAILS(R.string.workout_tab_details),
 }
-
-private val BASE_TABS = listOf(WorkoutTab.OVERVIEW, WorkoutTab.CHARTS, WorkoutTab.DETAILS)
-private val TABS_WITH_LAPS = listOf(WorkoutTab.OVERVIEW, WorkoutTab.LAPS, WorkoutTab.CHARTS, WorkoutTab.DETAILS)
 
 class WorkoutTabsPagerAdapter(
     fm: FragmentManager,
@@ -24,18 +21,19 @@ class WorkoutTabsPagerAdapter(
     private val workoutId: Long,
 ) : FragmentStateAdapter(fm, lifecycle) {
 
-    // Laps tab starts hidden; it's only added once the loaded workout is confirmed to have
-    // laps/intervals (cardio-type workouts) data. Strength-training sets are shown inline on
-    // Overview instead of getting their own tab.
-    private var tabs: List<WorkoutTab> = BASE_TABS
+    // Optional tabs start hidden; they are only added once the loaded workout is confirmed
+    // to have the data they show.
+    private var tabs: List<WorkoutTab> = tabsFor(hasCharts = false, hasLaps = false)
 
     // Tracked so the host can look up whichever tab fragment is currently visible (e.g. to
     // screenshot it), without relying on FragmentStateAdapter's internal fragment tag naming.
     private val fragmentsByItemId = mutableMapOf<Long, Fragment>()
 
-    /** Shows or hides the Laps tab. Safe to call repeatedly; a no-op if unchanged. */
-    fun setLapsTab(show: Boolean) {
-        val newTabs = if (show) TABS_WITH_LAPS else BASE_TABS
+    /**
+     * Shows or hides the optional Charts and Laps tabs. Safe to call repeatedly; a no-op if unchanged.
+     */
+    fun setOptionalTabs(hasCharts: Boolean, hasLaps: Boolean) {
+        val newTabs = tabsFor(hasCharts, hasLaps)
         if (newTabs != tabs) {
             val removedTabs = tabs - newTabs.toSet()
             tabs = newTabs
@@ -72,4 +70,14 @@ class WorkoutTabsPagerAdapter(
 
     /** The fragment currently shown at [position], if it has been created yet. */
     fun fragmentAt(position: Int): Fragment? = fragmentsByItemId[getItemId(position)]
+
+    private fun tabsFor(hasCharts: Boolean, hasLaps: Boolean): List<WorkoutTab> {
+        return WorkoutTab.entries.filter {
+            when (it) {
+                WorkoutTab.CHARTS -> hasCharts
+                WorkoutTab.LAPS -> hasLaps
+                else -> true
+            }
+        }
+    }
 }

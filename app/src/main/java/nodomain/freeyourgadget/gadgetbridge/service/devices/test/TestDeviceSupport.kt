@@ -22,15 +22,19 @@ import android.os.Handler
 import android.os.Looper
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.capabilities.loyaltycards.LoyaltyCard
+import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventBatteryInfo
 import nodomain.freeyourgadget.gadgetbridge.devices.test.TestDeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.devices.test.TestFeature
+import nodomain.freeyourgadget.gadgetbridge.devices.test.TestDeviceRand
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
+import nodomain.freeyourgadget.gadgetbridge.model.BatteryState
 import nodomain.freeyourgadget.gadgetbridge.service.AbstractBluetoothDeviceSupport
 import nodomain.freeyourgadget.gadgetbridge.util.GB
 import nodomain.freeyourgadget.gadgetbridge.util.notifications.GBProgressNotification
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.ArrayList
+import java.util.GregorianCalendar
 
 open class TestDeviceSupport : AbstractBluetoothDeviceSupport() {
     private lateinit var progressNotification: GBProgressNotification
@@ -64,7 +68,8 @@ open class TestDeviceSupport : AbstractBluetoothDeviceSupport() {
                 device.setExtraInfo("fm_frequency", null)
             }
 
-            // TODO battery percentages
+            sendBatteryLevels()
+
             // TODO hr measurements
             // TODO app list
             // TODO screenshots
@@ -73,6 +78,23 @@ open class TestDeviceSupport : AbstractBluetoothDeviceSupport() {
         }, 1000)
 
         return true
+    }
+
+    private fun sendBatteryLevels() {
+        val now = System.currentTimeMillis()
+
+        for (batteryIndex in 0 until coordinator.getBatteryCount(device)) {
+            val batteryInfo = GBDeviceEventBatteryInfo()
+            batteryInfo.batteryIndex = batteryIndex
+            batteryInfo.level = TestDeviceRand.randInt(now + batteryIndex, 5, 100)
+            batteryInfo.state = if (batteryInfo.level > 15) BatteryState.BATTERY_NORMAL else BatteryState.BATTERY_LOW
+            batteryInfo.numCharges = TestDeviceRand.randInt(now + batteryIndex, 10, 500)
+            batteryInfo.voltage = TestDeviceRand.randFloat(now + batteryIndex, 3.5f, 4.2f)
+            batteryInfo.lastChargeTime = GregorianCalendar().apply {
+                timeInMillis = now - TestDeviceRand.randLong(now, 6 * 60 * 60 * 1000L, 5 * 24 * 60 * 60 * 1000L)
+            }
+            evaluateGBDeviceEvent(batteryInfo)
+        }
     }
 
     override fun dispose() {

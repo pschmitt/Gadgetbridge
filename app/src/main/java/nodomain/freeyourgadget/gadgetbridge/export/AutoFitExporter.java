@@ -31,17 +31,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.Set;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
-import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryData;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrack;
-import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
-import nodomain.freeyourgadget.gadgetbridge.util.FileUtils;
+import nodomain.freeyourgadget.gadgetbridge.util.ActivitySummaryUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
 
 public class AutoFitExporter {
@@ -85,10 +82,7 @@ public class AutoFitExporter {
             return;
         }
 
-        final String kindLabel = context.getString(
-                ActivityKind.fromCode(summary.getActivityKind()).getLabel()).toLowerCase(Locale.ROOT);
-        final String isoDate = DateTimeUtils.formatIso8601(summary.getStartTime());
-        final String fileName = FileUtils.makeValidFileName(isoDate + "-" + kindLabel + ".fit");
+        final String fileName = ActivitySummaryUtils.getExportBaseName(context, summary) + ".fit";
 
         final ActivitySummaryData summaryData;
         final String summaryJson = summary.getSummaryData();

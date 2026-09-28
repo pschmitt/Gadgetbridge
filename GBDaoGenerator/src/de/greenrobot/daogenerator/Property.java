@@ -125,6 +125,11 @@ public class Property {
             return this;
         }
 
+        public PropertyBuilder codeInSetter(String code) {
+            property.codeInSetter = code;
+            return this;
+        }
+
         public PropertyBuilder codeBeforeGetterAndSetter(String code) {
             property.codeBeforeGetter = code;
             property.codeBeforeSetter = code;
@@ -178,6 +183,7 @@ public class Property {
     private String codeBeforeField;
     private String codeBeforeGetter;
     private String codeBeforeSetter;
+    private String codeInSetter;
 
     private String javaDocField;
     private String javaDocGetter;
@@ -291,6 +297,10 @@ public class Property {
 
     public String getCodeBeforeSetter() {
         return codeBeforeSetter;
+    }
+
+    public String getCodeInSetter() {
+        return codeInSetter;
     }
 
     public String getJavaDocField() {

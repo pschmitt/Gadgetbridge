@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -15,9 +16,11 @@ import java.util.concurrent.TimeUnit;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
 import nodomain.freeyourgadget.gadgetbridge.devices.SleepAsAndroidFeature;
+import nodomain.freeyourgadget.gadgetbridge.entities.Alarm;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.sleepasandroid.SleepAsAndroidAction;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.RecordedDataTypes;
+import nodomain.freeyourgadget.gadgetbridge.util.AlarmUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
 
 public class SleepAsAndroidSender {
@@ -721,5 +724,55 @@ public class SleepAsAndroidSender {
             return Integer.parseInt(slotString);
         }
         return 0;
+    }
+
+    /**
+     * Build the watch alarm for an UPDATE_ALARM timestamp.
+     * <p>
+     * A one-shot alarm keeps only hour and minute, so the watch would ring at the next occurrence
+     * of that time, which is the wrong day once the next Sleep as Android alarm is more than a day
+     * away (e.g. after "skip next alarm"). The alarm therefore repeats on the target's weekday
+     * only: under a week ahead, its first ring is the target itself, and Sleep as Android sends a
+     * new UPDATE_ALARM once that alarm is done. A target in the past or a week or more ahead
+     * cannot be expressed that way and leaves the slot disabled.
+     *
+     * @param slot      the watch alarm slot
+     * @param timestamp the UPDATE_ALARM TIMESTAMP extra, in milliseconds since the epoch
+     * @param now       the current time, in the zone the watch alarm is expressed in
+     */
+    public static Alarm createAlarm(final int slot, final long timestamp, final Calendar now) {
+        final Calendar target = (Calendar) now.clone();
+        target.setTimeInMillis(timestamp);
+
+        // The watch counts days on the wall clock, so a week is 7 calendar days, not 7 x 24 h.
+        final Calendar weekAhead = (Calendar) now.clone();
+        weekAhead.add(Calendar.DAY_OF_MONTH, 7);
+
+        final Alarm alarm = AlarmUtils.createSingleShot(slot, false, false, target);
+        if (target.after(now) && target.before(weekAhead)) {
+            alarm.setRepetition(weekdayMask(target.get(Calendar.DAY_OF_WEEK)));
+        } else {
+            alarm.setEnabled(false);
+        }
+        return alarm;
+    }
+
+    private static int weekdayMask(final int dayOfWeek) {
+        switch (dayOfWeek) {
+            case Calendar.MONDAY:
+                return Alarm.ALARM_MON;
+            case Calendar.TUESDAY:
+                return Alarm.ALARM_TUE;
+            case Calendar.WEDNESDAY:
+                return Alarm.ALARM_WED;
+            case Calendar.THURSDAY:
+                return Alarm.ALARM_THU;
+            case Calendar.FRIDAY:
+                return Alarm.ALARM_FRI;
+            case Calendar.SATURDAY:
+                return Alarm.ALARM_SAT;
+            default:
+                return Alarm.ALARM_SUN;
+        }
     }
 }

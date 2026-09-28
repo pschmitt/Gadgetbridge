@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.UUID;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
@@ -36,6 +37,8 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 
 class DatalogSessionHealthSteps extends DatalogSessionPebbleHealth {
+    private static final Set<Integer> knownVersions=
+        Set.of(5, 6, 7, 12, 13, 14);
 
     private static final Logger LOG = LoggerFactory.getLogger(DatalogSessionHealthSteps.class);
 
@@ -46,7 +49,7 @@ class DatalogSessionHealthSteps extends DatalogSessionPebbleHealth {
 
     @Override
     public GBDeviceEvent[] handleMessage(ByteBuffer datalogMessage, int length) {
-        LOG.info("DATALOG " + taginfo + GB.hexdump(datalogMessage.array(), datalogMessage.position(), length));
+        LOG.info("DATALOG {}{}", taginfo, GB.hexdump(datalogMessage.array(), datalogMessage.position(), length));
 
         if (!isPebbleHealthEnabled()) {
             return null;
@@ -54,7 +57,7 @@ class DatalogSessionHealthSteps extends DatalogSessionPebbleHealth {
 
         int timestamp;
         byte recordLength, recordNum;
-        short recordVersion; //probably
+        int recordVersion;
         int beginOfPacketPosition, beginOfRecordPosition;
 
         int initialPosition = datalogMessage.position();
@@ -69,7 +72,7 @@ class DatalogSessionHealthSteps extends DatalogSessionPebbleHealth {
 
             recordVersion = datalogMessage.getShort();
 
-            if ((recordVersion != 5) && (recordVersion != 6) && (recordVersion != 7) && (recordVersion != 12) && (recordVersion != 13))
+            if (!knownVersions.contains(recordVersion))
                 return null; //we don't know how to deal with the data TODO: this is not ideal because we will get the same message again and again since we NACK it
 
             timestamp = datalogMessage.getInt();
@@ -123,36 +126,57 @@ class DatalogSessionHealthSteps extends DatalogSessionPebbleHealth {
     }
 
     private class StepsRecord {
-        byte[] knownVersions = {5, 6, 7, 12, 13};
-        short version;
+        int version;
         int timestamp;
         int steps;
         int orientation;
         int intensity;
         int light_intensity;
+        int flags;
+        int resting_calories;
+        int active_calories;
+        int distance_cm;
         int heart_rate;
+        int heart_rate_total_weight;
+        int heart_rate_zone;
+        int spo_percent;
+        int spo_quality;
 
         byte[] rawData;
 
-        StepsRecord(int timestamp, short version, byte[] rawData) {
+        StepsRecord(int timestamp, int version, byte[] rawData) {
             this.timestamp = timestamp;
             this.rawData = rawData;
             ByteBuffer record = ByteBuffer.wrap(rawData);
             record.order(ByteOrder.LITTLE_ENDIAN);
 
             this.version = version;
-            //TODO: check supported versions?
 
             this.steps = record.get() & 0xff;
             this.orientation = record.get() & 0xff;
             this.intensity = record.getShort() & 0xffff;
             this.light_intensity = record.get() & 0xff;
+
+            if (version >= 5) {
+                this.flags = record.get() & 0xff;
+            }
+            if (version >= 6) {
+                this.resting_calories = record.getShort() & 0xffff;
+                this.active_calories = record.getShort() & 0xffff;
+                this.distance_cm = record.getShort() & 0xffff;
+            }
             if (version >= 7) {
-                // skip 7 bytes
-                record.getInt();
-                record.getShort();
-                record.get();
                 this.heart_rate = record.get() & 0xff;
+            }
+            if (version >=12) {
+                this.heart_rate_total_weight = record.getShort() & 0xffff;
+            }
+            if (version >=13) {
+                this.heart_rate_zone = record.get() & 0xff;
+            }
+            if (version >=14) {
+                this.spo_percent = record.get() & 0xff;
+                this.spo_quality = record.get() & 0xff;
             }
         }
 

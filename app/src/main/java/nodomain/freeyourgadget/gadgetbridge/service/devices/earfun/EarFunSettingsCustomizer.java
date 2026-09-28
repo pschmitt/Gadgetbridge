@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsUtils;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsCustomizer;
@@ -59,6 +60,12 @@ public class EarFunSettingsCustomizer implements DeviceSpecificSettingsCustomize
 
     @Override
     public void customizeSettings(DeviceSpecificSettingsHandler handler, Prefs prefs, String rootKey) {
+        if (rootKey == null) {
+            // The device doesn't send notifications when the audio mode changes,
+            // so refresh configuration manually when settings are opened.
+            GBApplication.deviceService(device).onReadConfiguration(null);
+        }
+
         DeviceSettingsUtils.addConfirmablePreferenceHandlerFor(handler, PREF_EARFUN_DEVICE_NAME, R.string.earfun_change_device_name_confirm_message);
         handler.addPreferenceHandlerFor(PREF_EARFUN_AMBIENT_SOUND_CONTROL);
         handler.addPreferenceHandlerFor(PREF_EARFUN_TRANSPARENCY_MODE);

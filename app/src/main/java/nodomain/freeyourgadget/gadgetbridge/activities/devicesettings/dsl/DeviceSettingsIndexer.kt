@@ -1,6 +1,7 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl
 
 import android.content.Context
+import androidx.annotation.StringRes
 import com.bytehamster.lib.preferencesearch.SearchConfiguration
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs
 
@@ -39,7 +40,7 @@ object DeviceSettingsIndexer {
             }
             when (item) {
                 is ScreenSetting -> {
-                    indexSingle(context, searchConfiguration, item.key, item.title, item.summary, breadcrumbs, null)
+                    indexSingle(context, searchConfiguration, item.key, title(context, item.title), item.summary, breadcrumbs, null)
                     indexItems(
                         context,
                         searchConfiguration,
@@ -55,37 +56,59 @@ object DeviceSettingsIndexer {
                         searchConfiguration,
                         item.children,
                         prefs,
-                        breadcrumbs + context.getString(item.title)
+                        breadcrumbs + (item.titleText ?: context.getString(item.title))
                     )
 
                 is SwitchSetting ->
-                    indexSingle(context, searchConfiguration, item.key, item.title, item.summary, breadcrumbs, null)
+                    indexSingle(context, searchConfiguration, item.key, title(context, item.title), item.summary, breadcrumbs, null)
 
                 is ListSetting ->
                     indexSingle(
-                        context, searchConfiguration, item.key, item.title, item.summary, breadcrumbs,
+                        context, searchConfiguration, item.key, title(context, item.title), item.summary, breadcrumbs,
                         entriesLabel(QuickSettings.resolveEntries(context, item, prefs), context)
                     )
 
                 is MultiSelectSetting ->
                     indexSingle(
-                        context, searchConfiguration, item.key, item.title, item.summary, breadcrumbs,
+                        context, searchConfiguration, item.key, title(context, item.title), item.summary, breadcrumbs,
                         entriesLabel(resolveMultiSelectEntries(item, prefs), context)
                     )
 
+                is SortableListSetting ->
+                    indexSingle(
+                        context, searchConfiguration, item.key, title(context, item.title), item.summary, breadcrumbs,
+                        entriesLabel(item.entries, context)
+                    )
+
                 is SeekBarSetting ->
-                    indexSingle(context, searchConfiguration, item.key, item.title, item.summary, breadcrumbs, null)
+                    indexSingle(context, searchConfiguration, item.key, title(context, item.title), item.summary, breadcrumbs, null)
 
                 is TextSetting ->
-                    indexSingle(context, searchConfiguration, item.key, item.title, item.summary, breadcrumbs, null)
+                    indexSingle(context, searchConfiguration, item.key, title(context, item.title), item.summary, breadcrumbs, null)
 
                 is InfoSetting ->
-                    indexSingle(context, searchConfiguration, item.key, item.title, 0, breadcrumbs, null)
+                    indexSingle(
+                        context, searchConfiguration, item.key, item.titleText ?: title(context, item.title),
+                        item.summary, breadcrumbs, null
+                    )
 
                 is ActionSetting ->
-                    if (item.title != 0) {
-                        indexSingle(context, searchConfiguration, item.key, item.title, item.summary, breadcrumbs, null)
-                    }
+                    indexSingle(
+                        context, searchConfiguration, item.key, item.titleText ?: title(context, item.title),
+                        item.summary, breadcrumbs, null
+                    )
+
+                is DateSetting ->
+                    indexSingle(context, searchConfiguration, item.key, title(context, item.title), 0, breadcrumbs, null)
+
+                is FilePickerSetting ->
+                    indexSingle(
+                        context, searchConfiguration, item.key, title(context, item.title),
+                        item.summary, breadcrumbs, null
+                    )
+
+                is FolderPickerSetting ->
+                    indexSingle(context, searchConfiguration, item.key, title(context, item.title), 0, breadcrumbs, null)
 
                 // Indexed from its own XML resource instead, see DeviceSpecificSettingsFragment.
                 is XmlScreenSetting -> {}
@@ -104,21 +127,24 @@ object DeviceSettingsIndexer {
             }
         }
 
+    private fun title(context: Context, @StringRes titleRes: Int): String? =
+        if (titleRes != 0) context.getString(titleRes) else null
+
     private fun indexSingle(
         context: Context,
         searchConfiguration: SearchConfiguration,
         key: String,
-        titleRes: Int,
+        title: String?,
         summaryRes: Int,
         breadcrumbs: List<String>,
         entries: String?,
     ) {
-        if (titleRes == 0) {
+        if (title == null) {
             return
         }
         val preferenceItem = searchConfiguration.indexItem()
             .withKey(key)
-            .withTitle(context.getString(titleRes))
+            .withTitle(title)
         if (summaryRes != 0) {
             preferenceItem.withSummary(context.getString(summaryRes))
         }

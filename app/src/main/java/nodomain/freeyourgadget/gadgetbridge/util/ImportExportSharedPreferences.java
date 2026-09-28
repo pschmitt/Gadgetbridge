@@ -42,7 +42,8 @@ import nodomain.freeyourgadget.gadgetbridge.devices.garmin.GarminPreferences;
 import nodomain.freeyourgadget.gadgetbridge.devices.huami.HuamiConst;
 import nodomain.freeyourgadget.gadgetbridge.devices.test.TestDeviceConst;
 
-@Deprecated // use JsonBackupPreferences
+/// @deprecated use {@link nodomain.freeyourgadget.gadgetbridge.util.backup.JsonBackupPreferences}
+@Deprecated
 public class ImportExportSharedPreferences {
     private static final Logger LOG = LoggerFactory.getLogger(ImportExportSharedPreferences.class);
 

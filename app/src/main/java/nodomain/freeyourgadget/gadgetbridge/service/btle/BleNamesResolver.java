@@ -608,6 +608,7 @@ public class BleNamesResolver {
         mServices.put("6e40fff0-b5a3-f393-e0a9-e50e24dcca9e", "(Propr: NUS - Nordic UART Service)");
         mServices.put("de5bf728-d711-4e47-af26-65e3012a5dc7", "(Propr: Yawell Serial)");
         mServices.put("0000ae00-0000-1000-8000-00805f9b34fb", "(Propr: Sinilink-APP)");
+        mServices.put("0000ff10-0000-1000-8000-00805f9b34fb", "(Propr: 8BitDo)");
         mServices.put("65970000-4bda-4c1e-af4b-551c4cf74769", "(Propr: Victron)");
 
         // source https://bitbucket.org/bluetooth-SIG/public/src/main/assigned_numbers/uuids/characteristic_uuids.yaml
@@ -1214,6 +1215,7 @@ public class BleNamesResolver {
         mCharacteristics.put("de5bf72a-d711-4e47-af26-65e3012a5dc7", "(Propr: Yawell Write)");
         mCharacteristics.put("0000ae04-0000-1000-8000-00805f9b34fb", "(Propr: Sinilink-APP RX)");
         mCharacteristics.put("0000ae10-0000-1000-8000-00805f9b34fb", "(Propr: Sinilink-APP TX)");
+        mCharacteristics.put("0000ff13-0000-1000-8000-00805f9b34fb", "(Propr: 8BitDo Controller)");
         mCharacteristics.put("6597ffff-4bda-4c1e-af4b-551c4cf74769", "(Propr: Victron Keep-alive)");
         mCharacteristics.put("6597eeff-4bda-4c1e-af4b-551c4cf74769", "(Propr: Victron Consumed Ah)");
         mCharacteristics.put("6597ed8e-4bda-4c1e-af4b-551c4cf74769", "(Propr: Victron Power)");

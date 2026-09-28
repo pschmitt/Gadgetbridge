@@ -13,6 +13,9 @@ public class GarminPreferences {
     public static final String PREF_GARMIN_AGPS_FILENAME = "garmin_agps_filename_%s";
     public static final String PREF_GARMIN_REALTIME_SETTINGS = "garmin_realtime_settings";
     public static final String PREF_GARMIN_SEND_WAYPOINT = "garmin_send_waypoint";
+    public static final String PREF_GARMIN_MLR = "garmin_mlr";
+    public static final String PREF_GARMIN_EXPLORE_SYNC = "garmin_exploresync";
+    public static final String PREF_GARMIN_LEGACY_SYNC_FLUSH = "garmin_legacy_sync_flush";
 
     public static String agpsStatus(final String url) {
         return String.format(GarminPreferences.PREF_GARMIN_AGPS_STATUS, CheckSums.md5(url));

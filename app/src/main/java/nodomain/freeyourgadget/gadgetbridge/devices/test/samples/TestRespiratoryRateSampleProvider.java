@@ -65,7 +65,11 @@ public class TestRespiratoryRateSampleProvider extends AbstractTestSampleProvide
 
         @Override
         public float getRespiratoryRate() {
-            return TestDeviceRand.randFloat(timestamp, 10, 15);
+            final int hour = hourOfDay(timestamp);
+            if (hour < 7 || hour >= 23) {
+                return TestDeviceRand.randFloat(timestamp, 11, 15);
+            }
+            return TestDeviceRand.randFloat(timestamp, 13, 20);
         }
     }
 }

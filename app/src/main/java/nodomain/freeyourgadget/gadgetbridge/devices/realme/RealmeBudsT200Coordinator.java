@@ -29,6 +29,7 @@ import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.devices.oppo.OppoHeadphonesCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.BatteryConfig;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.oppo.OppoUuid;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.oppo.commands.TouchConfigSide;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.oppo.commands.TouchConfigType;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.oppo.commands.TouchConfigValue;
@@ -63,8 +64,8 @@ public class RealmeBudsT200Coordinator extends OppoHeadphonesCoordinator {
     }
 
     @Override
-    public boolean supportsFindDevice(@NonNull GBDevice device) {
-        return true;
+    public OppoUuid ctrlUuid(@NonNull GBDevice device) {
+        return OppoUuid.STANDARD_SPP;
     }
 
     @Override
@@ -84,6 +85,11 @@ public class RealmeBudsT200Coordinator extends OppoHeadphonesCoordinator {
 
     @Override
     public boolean supportsAnc(@NonNull GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsFindPhone(@NonNull GBDevice device) {
         return true;
     }
 

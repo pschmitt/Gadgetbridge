@@ -103,6 +103,16 @@ public abstract class HuaweiFreebudsCoordinator extends HuaweiBRCoordinator {
     }
 
     @Override
+    public boolean supportsFindDevice(@NonNull final GBDevice device) {
+        return supports(device, HuaweiHeadphonesCapabilities.FindHeadphones);
+    }
+
+    @Override
+    public boolean supportsFindDevicePerEarbud(@NonNull final GBDevice device) {
+        return supports(device, HuaweiHeadphonesCapabilities.FindHeadphones);
+    }
+
+    @Override
     public DeviceSpecificSettings getDeviceSpecificSettings(GBDevice device) {
         DeviceSpecificSettings deviceSpecificSettings = new DeviceSpecificSettings();
         if (supports(device, HuaweiHeadphonesCapabilities.InEarDetection)) {
@@ -127,9 +137,6 @@ public abstract class HuaweiFreebudsCoordinator extends HuaweiBRCoordinator {
         }
         if (supports(device, HuaweiHeadphonesCapabilities.ExtraMediaVolume)) {
             deviceSpecificSettings.addRootScreen(R.xml.devicesettings_huawei_headphones_extra_media_volume);
-        }
-        if (supports(device, HuaweiHeadphonesCapabilities.FindHeadphones)) {
-            deviceSpecificSettings.addRootScreen(R.xml.devicesettings_huawei_headphones_find_headphones);
         }
         if (supports(device, HuaweiHeadphonesCapabilities.LowLatency)) {
             deviceSpecificSettings.addRootScreen(R.xml.devicesettings_headphones_low_latency);

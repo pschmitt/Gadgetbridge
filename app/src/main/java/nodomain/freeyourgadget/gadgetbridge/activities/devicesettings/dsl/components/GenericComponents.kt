@@ -20,11 +20,14 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst
+import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsScreen
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.DeviceSettingsScope
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.LabeledEntry
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.Language
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.ListEntry
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.ListSetting
+import nodomain.freeyourgadget.gadgetbridge.externalevents.gps.GBLocationService
+import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.MultiSelectSetting
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs
 
 /**
@@ -71,3 +74,112 @@ inline fun <reified T> DeviceSettingsScope.enumList(
         )
     )
 }
+
+inline fun <reified T> DeviceSettingsScope.multiEnumList(
+    key: String,
+    @StringRes title: Int,
+    @DrawableRes icon: Int = 0,
+    defaultValue: Set<T>,
+    dependency: String? = null,
+    connectedOnly: Boolean = true,
+    noinline filter: ((T) -> Boolean)? = null,
+    noinline visibleWhen: ((Prefs) -> Boolean)? = null,
+) where T : Enum<T>, T : LabeledEntry {
+    val all = enumValues<T>()
+    val entries = (if (filter != null) all.filter(filter) else all.toList())
+        .map { e -> ListEntry.Res(e.name.lowercase(), e.label) }
+    items.add(
+        MultiSelectSetting(
+            key = key,
+            title = title,
+            icon = icon,
+            entries = entries,
+            defaultValue = defaultValue.map { it.name.lowercase() }.toSet(),
+            dependency = dependency,
+            connectedOnly = connectedOnly,
+            visibleWhen = visibleWhen,
+        )
+    )
+}
+
+/**
+ * A [nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.ScreenSetting] for one
+ * of the standard [DeviceSpecificSettingsScreen] entries.
+ */
+fun DeviceSettingsScope.screen(
+    screen: DeviceSpecificSettingsScreen,
+    @DrawableRes icon: Int,
+    xmlSubScreens: List<Int> = emptyList(),
+    connectedOnly: Boolean = false,
+    visibleWhen: ((Prefs) -> Boolean)? = null,
+    block: DeviceSettingsScope.() -> Unit,
+) {
+    screen(
+        key = screen.key,
+        title = screen.title,
+        icon = icon,
+        xmlSubScreens = xmlSubScreens,
+        connectedOnly = connectedOnly,
+        visibleWhen = visibleWhen,
+        block = block,
+    )
+}
+
+/**
+ * The switch that controls whether app notifications are sent to the device.
+ */
+fun DeviceSettingsScope.sendAppNotifications() {
+    switchSetting(
+        key = DeviceSettingsPreferenceConst.PREF_SEND_APP_NOTIFICATIONS,
+        title = R.string.pref_title_send_app_notifications,
+        summary = R.string.pref_summary_send_app_notifications,
+        icon = R.drawable.ic_notifications,
+        defaultValue = true,
+        connectedOnly = false,
+    )
+}
+
+/**
+ * The switch that controls whether the device clock is kept in sync with the phone.
+ */
+fun DeviceSettingsScope.timeSync() {
+    switchSetting(
+        key = DeviceSettingsPreferenceConst.PREF_TIME_SYNC,
+        title = R.string.pref_time_sync,
+        icon = R.drawable.ic_update,
+        defaultValue = true,
+        connectedOnly = false,
+    )
+}
+
+/**
+ * The switch that allows a higher MTU.
+ */
+fun DeviceSettingsScope.highMtu() {
+    switchSetting(
+        key = DeviceSettingsPreferenceConst.PREF_ALLOW_HIGH_MTU,
+        title = R.string.pref_title_allow_high_mtu,
+        summary = R.string.pref_summary_allow_high_mtu,
+        icon = R.drawable.ic_mtu,
+        defaultValue = true,
+        connectedOnly = false,
+    )
+}
+
+/**
+ * The switch to allow sending the phone's GPS location to the device during a workout. The switch is
+ * disabled when the phone has no usable GPS.
+ */
+fun DeviceSettingsScope.workoutSendGpsToBand() {
+    val gpsAvailable = GBLocationService.isGpsSupportedAndEnabled()
+    switchSetting(
+        key = DeviceSettingsPreferenceConst.PREF_WORKOUT_SEND_GPS_TO_BAND,
+        title = R.string.pref_workout_send_gps_title,
+        summary = if (gpsAvailable) R.string.pref_workout_send_gps_summary else R.string.phone_gps_not_available,
+        icon = R.drawable.ic_gps_location,
+        defaultValue = false,
+        enabled = gpsAvailable,
+        connectedOnly = false,
+    )
+}
+

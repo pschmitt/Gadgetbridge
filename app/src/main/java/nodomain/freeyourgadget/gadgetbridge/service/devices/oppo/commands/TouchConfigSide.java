@@ -17,17 +17,27 @@
 package nodomain.freeyourgadget.gadgetbridge.service.devices.oppo.commands;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+
+import nodomain.freeyourgadget.gadgetbridge.R;
 
 public enum TouchConfigSide {
-    LEFT(0x01),
-    RIGHT(0x02),
-    BOTH(0x04),
+    LEFT(0x01, R.string.left_earbud),
+    RIGHT(0x02, R.string.right_earbud),
+    BOTH(0x04, R.string.moondrop_touch_earbud_both),
     ;
 
     private final int code;
+    private final int label;
 
-    TouchConfigSide(final int code) {
+    TouchConfigSide(final int code, @StringRes final int label) {
         this.code = code;
+        this.label = label;
+    }
+
+    @StringRes
+    public int getLabel() {
+        return label;
     }
 
     public int getCode() {

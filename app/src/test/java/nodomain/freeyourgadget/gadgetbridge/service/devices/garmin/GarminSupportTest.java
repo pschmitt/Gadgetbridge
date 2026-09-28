@@ -42,12 +42,22 @@ import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEvent;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.deviceevents.IncomingFitDefinitionDeviceEvent;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.FieldDefinition;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.FitFile;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.FitLocalMessageBuilder;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.NativeFITMessage;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.NativeFITMessages;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.RecordData;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.RecordDefinition;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.RecordHeader;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.baseTypes.BaseType;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.exception.FitParseException;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitCapabilities;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitDeviceSettings;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitFileId;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitHsaBodyBatteryData;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitNavigationAlert;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitSport;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitUserProfile;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitWeather;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.messages.FitDataMessage;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.messages.FitDefinitionMessage;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.messages.GFDIMessage;
@@ -403,6 +413,72 @@ public class GarminSupportTest extends TestBase {
         String actual = fitFile.toString().replace("}, Fit", "},\nFit").replace("}, RecordData{", "},\nRecordData{");
         Assert.assertEquals(expected, actual);
         getAllFitFieldValues(fitFile);
+    }
+
+    // Encode -> Decode some FIT arrays
+    @Test
+    public void TestFitArrays() throws FitParseException, IOException {
+        final FitLocalMessageBuilder messages = new FitLocalMessageBuilder();
+
+        var fileId = new FitFileId.Builder()
+            .setType(FileType.FILETYPE.DEBUG)
+            .setManufacturer(1)
+            .setProduct(2)
+            .setSerialNumber(3L)
+            .setTimeCreated(GarminTimeUtils.GARMIN_TIME_EPOCH + 4L)
+            .setProductName("GB-TestFitArrays")
+            .build(messages.getNextAvailableLocalMessageType());
+        messages.addRecordData(fileId);
+
+        var devBuilder = new FitDeviceSettings.Builder();
+        // UINT32
+        devBuilder.setTimeOffset(new Long[]{0xFFFFFFFEL, 0xFFFFFFFFL, 1L, 0L});
+        // SINT8
+        devBuilder.setTimeZoneOffset(new Integer[]{0x7E, 0x7F, -1, 0});
+        // UINT16
+        devBuilder.setAlarmsTime(new Integer[]{0xFFFE, 0xFFFF, 1, 0});
+        // ENUM
+        devBuilder.setAlarmsMode(new Integer[]{0xFE, 0xFF, 1, 0});
+        // UINT32Z
+        devBuilder.setAlarmsRepeat(new Long[]{0xFFFFFFFFL, 0L, 2L, 1L});
+        var dev = devBuilder.build(messages.getNextAvailableLocalMessageType());
+        messages.addRecordData(dev);
+
+        var userBuilder = new FitUserProfile.Builder();
+        // BYTE
+        userBuilder.setGlobalId(new Integer[]{0x7F, 0xFF, 1, 0});
+        var user = userBuilder.build(messages.getNextAvailableLocalMessageType());
+        messages.addRecordData(user);
+
+        var sportBuilder = new FitSport.Builder();
+        // UINT8
+        sportBuilder.setColor(new Integer[]{0xFE, 0xFF, 1, 0});
+        var sport = sportBuilder.build(messages.getNextAvailableLocalMessageType());
+        messages.addRecordData(sport);
+
+        var navBuilder = new FitNavigationAlert.Builder();
+        // FLOAT32
+        navBuilder.setDistance(new Float[]{1.5f, Float.intBitsToFloat(0xFFFFFFFF), -1.5f, 0.0f});
+        // SINT32
+        navBuilder.setTime(new Long[]{0x7FFFFFFEl, 0x7FFFFFFFL, -1L, 0L});
+        var nav = navBuilder.build(messages.getNextAvailableLocalMessageType());
+        messages.addRecordData(nav);
+
+        var hsaBuilder = new FitHsaBodyBatteryData.Builder();
+        // SINT16
+        hsaBuilder.setUncharged(new Integer[]{0x7FFE, 0x7FFF, -1, 0});
+        var hsa = hsaBuilder.build(messages.getNextAvailableLocalMessageType());
+        messages.addRecordData(hsa);
+
+        final FitFile genFit = new FitFile(messages.getRecordDataList());
+        byte[] genBytes = genFit.getOutgoingMessage();
+
+        FitFile readFit = FitFile.parseIncoming(genBytes);
+
+        String actual = genFit.toString().replace("}, Fit", "},\nFit").replace("}, RecordData{", "},\nRecordData{");
+
+        String expectedText = readTextResource("/TestFitArrays.txt");
+        Assert.assertEquals(expectedText, actual);
     }
 
     // try to retrieve the value of each message's fields

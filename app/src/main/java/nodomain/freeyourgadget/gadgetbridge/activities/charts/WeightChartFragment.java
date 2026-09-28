@@ -36,8 +36,6 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -49,17 +47,14 @@ import java.util.List;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
-import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider;
-import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
-import nodomain.freeyourgadget.gadgetbridge.entities.User;
-import nodomain.freeyourgadget.gadgetbridge.entities.UserAttributes;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser;
 import nodomain.freeyourgadget.gadgetbridge.model.WeightSample;
 import nodomain.freeyourgadget.gadgetbridge.model.WeightUnit;
 import nodomain.freeyourgadget.gadgetbridge.util.BodyCompositionCalculator;
+import nodomain.freeyourgadget.gadgetbridge.util.BodyCompositionEstimates;
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
 
@@ -121,59 +116,9 @@ public class WeightChartFragment extends AbstractChartFragment<WeightChartFragme
         TimeSampleProvider<? extends WeightSample> provider = coordinator.getWeightSampleProvider(device, db.getDaoSession());
         List<? extends WeightSample> samples = provider.getAllSamples(tsStart, tsEnd);
         WeightSample latestSample = provider.getLatestSample();
-        BodyCompositionCalculator.BodyComposition composition = estimateComposition(db.getDaoSession(), latestSample);
-        Float bmi = estimateBmi(db.getDaoSession(), latestSample);
+        BodyCompositionCalculator.BodyComposition composition = BodyCompositionEstimates.composition(db.getDaoSession(), latestSample);
+        Float bmi = BodyCompositionEstimates.bmi(db.getDaoSession(), latestSample);
         return createChartsData(samples, latestSample, composition, bmi);
-    }
-
-    /**
-     * Body mass index of a measurement, from its weight and the height recorded at the time of
-     * the measurement. Needs no impedance, so it is available for any scale.
-     *
-     * @return the BMI, or null without a sample or a usable height
-     */
-    @Nullable
-    static Float estimateBmi(final DaoSession session, @Nullable final WeightSample sample) {
-        if (sample == null) {
-            return null;
-        }
-        final int heightCm = heightCmAt(session, sample.getTimestamp());
-        if (heightCm <= 0) {
-            return null;
-        }
-        final float heightM = heightCm / 100f;
-        return sample.getWeightKg() / (heightM * heightM);
-    }
-
-    /**
-     * The user's height at the given time: the attributes recorded back then, or the current
-     * profile when there is no usable record.
-     */
-    static int heightCmAt(final DaoSession session, final long timestampMillis) {
-        final User user = DBHelper.getUser(session);
-        final UserAttributes attributes = DBHelper.getUserAttributesAt(user, timestampMillis);
-        return attributes != null && attributes.getHeightCM() > 0
-                ? attributes.getHeightCM()
-                : new ActivityUser().getHeightCm();
-    }
-
-    /**
-     * Estimates the body composition of a measurement from its raw impedance and the user profile
-     * as it was at the time of the measurement (height and age change over the years, so an old
-     * measurement is evaluated against the attributes recorded back then). Nothing is persisted;
-     * the estimate is recomputed whenever it is shown.
-     *
-     * @return the estimate, or null when the sample carries no usable impedance
-     */
-    @Nullable
-    static BodyCompositionCalculator.BodyComposition estimateComposition(final DaoSession session, @Nullable final WeightSample sample) {
-        if (sample == null || sample.getImpedanceOhm() == null) {
-            return null;
-        }
-        final ActivityUser prefsUser = new ActivityUser();
-        final int heightCm = heightCmAt(session, sample.getTimestamp());
-        final int age = prefsUser.getAgeAt(Instant.ofEpochMilli(sample.getTimestamp()).atZone(ZoneId.systemDefault()).toLocalDate());
-        return BodyCompositionCalculator.compute(prefsUser.getGender(), age, heightCm, sample.getWeightKg(), sample.getImpedanceOhm());
     }
 
     @Override

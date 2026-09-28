@@ -29,6 +29,8 @@ import java.util.Objects;
 
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.FitFile;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.Event;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.EventType;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.exception.FitParseException;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitLap;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitLength;
@@ -78,12 +80,12 @@ public class FitActivityTrackProvider implements ActivityTrackProvider {
                 .filter(record -> record instanceof FitLap)
                 .map(record -> (FitLap) record)
                 .filter(lap -> {
-                    Integer event = lap.getEvent();
-                    if (event != null && event != 9) {
+                    Event event = lap.getEvent();
+                    if (event != null && event != Event.LAP) {
                         return false;
                     }
-                    Integer eventType = lap.getEventType();
-                    return (eventType == null || eventType == 1);
+                    EventType eventType = lap.getEventType();
+                    return (eventType == null || eventType == EventType.STOP);
                 })
                 .map(FitLap::getStartTime)
                 .filter(Objects::nonNull)

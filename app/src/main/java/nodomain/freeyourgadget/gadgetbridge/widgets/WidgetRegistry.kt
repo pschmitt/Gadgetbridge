@@ -23,6 +23,10 @@ import nodomain.freeyourgadget.gadgetbridge.widgets.impl.Vo2MaxAnyWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.Vo2MaxCyclingWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.Vo2MaxRunningWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.BmiWidget
+import nodomain.freeyourgadget.gadgetbridge.widgets.impl.BasalMetabolicRateWidget
+import nodomain.freeyourgadget.gadgetbridge.widgets.impl.BodyFatWidget
+import nodomain.freeyourgadget.gadgetbridge.widgets.impl.BodyWaterWidget
+import nodomain.freeyourgadget.gadgetbridge.widgets.impl.MuscleMassWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.WeightWidget
 
 /**
@@ -33,15 +37,19 @@ import nodomain.freeyourgadget.gadgetbridge.widgets.impl.WeightWidget
 object WidgetRegistry {
     private val common: List<GBWidget<*>> = listOf(
         ActiveTimeWidget,
+        BasalMetabolicRateWidget,
         BloodPressureWidget,
         BmiWidget,
         BodyEnergyWidget,
+        BodyFatWidget,
+        BodyWaterWidget,
         CaloriesActiveWidget,
         CaloriesSegmentedWidget,
         DistanceWidget,
         GoalsWidget,
         HeartRateWidget,
         HrvWidget,
+        MuscleMassWidget,
         PaiWidget,
         SleepScoreWidget,
         SleepWidget,

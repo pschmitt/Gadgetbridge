@@ -18,6 +18,7 @@ package nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.text.InputType
 import androidx.annotation.ArrayRes
 import androidx.annotation.DrawableRes
@@ -46,6 +47,7 @@ class DeviceSettingsScope {
         @StringRes title: Int,
         @StringRes summary: Int = 0,
         @DrawableRes icon: Int = 0,
+        xmlSubScreens: List<Int> = emptyList(),
         connectedOnly: Boolean = false,
         visibleWhen: ((Prefs) -> Boolean)? = null,
         enabled: ((Prefs) -> Boolean)? = null,
@@ -57,6 +59,7 @@ class DeviceSettingsScope {
                 title = title,
                 summary = summary,
                 icon = icon,
+                xmlSubScreens = xmlSubScreens,
                 connectedOnly = connectedOnly,
                 visibleWhen = visibleWhen,
                 enabled = enabled,
@@ -73,6 +76,7 @@ class DeviceSettingsScope {
         @StringRes summaryOff: Int = 0,
         @DrawableRes icon: Int = 0,
         defaultValue: Boolean = false,
+        enabled: Boolean = true,
         dependency: String? = null,
         disableDependentsState: Boolean = false,
         @StringRes confirmationMessage: Int = 0,
@@ -88,6 +92,7 @@ class DeviceSettingsScope {
                 summaryOff = summaryOff,
                 icon = icon,
                 defaultValue = defaultValue,
+                enabled = enabled,
                 dependency = dependency,
                 disableDependentsState = disableDependentsState,
                 confirmationMessage = confirmationMessage,
@@ -205,6 +210,32 @@ class DeviceSettingsScope {
         )
     }
 
+    fun sortableList(
+        key: String,
+        @StringRes title: Int,
+        @StringRes summary: Int = 0,
+        @DrawableRes icon: Int = 0,
+        entries: List<ListEntry>,
+        defaultValue: List<String> = emptyList(),
+        dependency: String? = null,
+        connectedOnly: Boolean = true,
+        visibleWhen: ((Prefs) -> Boolean)? = null,
+    ) {
+        items.add(
+            SortableListSetting(
+                key = key,
+                title = title,
+                summary = summary,
+                icon = icon,
+                entries = entries,
+                defaultValue = defaultValue,
+                dependency = dependency,
+                connectedOnly = connectedOnly,
+                visibleWhen = visibleWhen,
+            )
+        )
+    }
+
     fun seekbar(
         key: String,
         @StringRes title: Int,
@@ -245,7 +276,10 @@ class DeviceSettingsScope {
 
     fun category(
         key: String,
-        @StringRes title: Int,
+        @StringRes title: Int = 0,
+        titleText: String? = null,
+        @DrawableRes icon: Int = 0,
+        iconSpaceReserved: Boolean = true,
         connectedOnly: Boolean = false,
         visibleWhen: ((Prefs) -> Boolean)? = null,
         block: DeviceSettingsScope.() -> Unit = {},
@@ -254,6 +288,9 @@ class DeviceSettingsScope {
             CategorySetting(
                 key = key,
                 title = title,
+                titleText = titleText,
+                icon = icon,
+                iconSpaceReserved = iconSpaceReserved,
                 children = DeviceSettingsScope().apply(block).build(),
                 connectedOnly = connectedOnly,
                 visibleWhen = visibleWhen,
@@ -304,9 +341,13 @@ class DeviceSettingsScope {
      */
     fun info(
         key: String,
-        @StringRes title: Int,
+        @StringRes title: Int = 0,
+        titleText: String? = null,
+        @StringRes summary: Int = 0,
         @DrawableRes icon: Int = 0,
+        iconSpaceReserved: Boolean = true,
         defaultValue: String = "",
+        summaryProvider: ((Context, Prefs) -> CharSequence?)? = null,
         dependency: String? = null,
         connectedOnly: Boolean = true,
         visibleWhen: ((Prefs) -> Boolean)? = null,
@@ -315,8 +356,12 @@ class DeviceSettingsScope {
             InfoSetting(
                 key = key,
                 title = title,
+                titleText = titleText,
+                summary = summary,
                 icon = icon,
+                iconSpaceReserved = iconSpaceReserved,
                 defaultValue = defaultValue,
+                summaryProvider = summaryProvider,
                 dependency = dependency,
                 connectedOnly = connectedOnly,
                 visibleWhen = visibleWhen,
@@ -327,8 +372,10 @@ class DeviceSettingsScope {
     fun action(
         key: String,
         @StringRes title: Int = 0,
+        titleText: String? = null,
         @StringRes summary: Int = 0,
         @DrawableRes icon: Int = 0,
+        summaryProvider: ((Context, Prefs) -> CharSequence?)? = null,
         dependency: String? = null,
         enabled: Boolean = true,
         @StringRes confirmationMessage: Int = 0,
@@ -340,14 +387,46 @@ class DeviceSettingsScope {
             ActionSetting(
                 key = key,
                 title = title,
+                titleText = titleText,
                 summary = summary,
                 icon = icon,
+                summaryProvider = summaryProvider,
                 dependency = dependency,
                 enabled = enabled,
                 confirmationMessage = confirmationMessage,
                 connectedOnly = connectedOnly,
                 visibleWhen = visibleWhen,
                 onClick = onClick,
+            )
+        )
+    }
+
+    fun date(
+        key: String,
+        @StringRes title: Int,
+        @StringRes summary: Int = 0,
+        @DrawableRes icon: Int = 0,
+        defaultValue: String = "",
+        minDate: Long = 0L,
+        maxDate: Long = Long.MAX_VALUE,
+        dependency: String? = null,
+        connectedOnly: Boolean = true,
+        visibleWhen: ((Prefs) -> Boolean)? = null,
+        onSharedPreferenceChanged: ((String) -> Unit)? = null,
+    ) {
+        items.add(
+            DateSetting(
+                key = key,
+                title = title,
+                summary = summary,
+                icon = icon,
+                defaultValue = defaultValue,
+                minDate = minDate,
+                maxDate = maxDate,
+                dependency = dependency,
+                connectedOnly = connectedOnly,
+                visibleWhen = visibleWhen,
+                onSharedPreferenceChanged = onSharedPreferenceChanged,
             )
         )
     }
@@ -374,6 +453,56 @@ class DeviceSettingsScope {
             context.startActivity(intent)
             true
         }
+    }
+
+    fun filePicker(
+        key: String,
+        @StringRes title: Int,
+        @StringRes summary: Int = 0,
+        @DrawableRes icon: Int = 0,
+        mimeTypes: List<String> = listOf("*/*"),
+        dependency: String? = null,
+        connectedOnly: Boolean = true,
+        visibleWhen: ((Prefs) -> Boolean)? = null,
+        onPicked: (Context, GBDevice?, List<Uri>) -> Unit,
+    ) {
+        items.add(
+            FilePickerSetting(
+                key = key,
+                title = title,
+                summary = summary,
+                icon = icon,
+                mimeTypes = mimeTypes,
+                dependency = dependency,
+                connectedOnly = connectedOnly,
+                visibleWhen = visibleWhen,
+                onPicked = onPicked,
+            )
+        )
+    }
+
+    fun folderPicker(
+        key: String,
+        @StringRes title: Int,
+        @DrawableRes icon: Int = 0,
+        persistUriPermission: Boolean = true,
+        dependency: String? = null,
+        connectedOnly: Boolean = true,
+        visibleWhen: ((Prefs) -> Boolean)? = null,
+        onPicked: ((Context, GBDevice?, Uri) -> Unit)? = null,
+    ) {
+        items.add(
+            FolderPickerSetting(
+                key = key,
+                title = title,
+                icon = icon,
+                persistUriPermission = persistUriPermission,
+                dependency = dependency,
+                connectedOnly = connectedOnly,
+                visibleWhen = visibleWhen,
+                onPicked = onPicked,
+            )
+        )
     }
 
     fun xmlScreen(

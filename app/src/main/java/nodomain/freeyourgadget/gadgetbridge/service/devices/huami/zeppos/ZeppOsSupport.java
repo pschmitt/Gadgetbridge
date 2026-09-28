@@ -38,7 +38,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -140,7 +139,7 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.service
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.services.ZeppOsWifiService;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.services.ZeppOsWorkoutService;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.services.ZeppOsWorldClocksService;
-import nodomain.freeyourgadget.gadgetbridge.util.AlarmUtils;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.workouts.ZeppOsWorkoutTemplateUploader;
 import nodomain.freeyourgadget.gadgetbridge.util.FileUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
@@ -463,6 +462,11 @@ public class ZeppOsSupport extends AbstractBluetoothDeviceSupport
     }
 
     @Override
+    public void onSyncWorkoutTemplate(final long templateId) {
+        ZeppOsWorkoutTemplateUploader.INSTANCE.upload(getContext(), fileTransferService, templateId);
+    }
+
+    @Override
     public void onDeleteNotification(final int id) {
         notificationService.deleteNotification(id);
     }
@@ -771,7 +775,6 @@ public class ZeppOsSupport extends AbstractBluetoothDeviceSupport
             case SleepAsAndroidAction.UPDATE_ALARM:
                 long alarmTimestamp = extras.getLong("TIMESTAMP");
 
-                // Sets the alarm at a giver hour and minute
                 // Snoozing from the app will create a new alarm in the future
                 setSleepAsAndroidAlarm(alarmTimestamp);
                 break;
@@ -841,10 +844,7 @@ public class ZeppOsSupport extends AbstractBluetoothDeviceSupport
     }
 
     private void setSleepAsAndroidAlarm(long alarmTimestamp) {
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(new Timestamp(alarmTimestamp).getTime());
-        Alarm alarm = AlarmUtils.createSingleShot(SleepAsAndroidSender.getAlarmSlot(), false, false, calendar);
+        Alarm alarm = SleepAsAndroidSender.createAlarm(SleepAsAndroidSender.getAlarmSlot(), alarmTimestamp, Calendar.getInstance());
         ArrayList<Alarm> alarms = new ArrayList<>(1);
         alarms.add(alarm);
 

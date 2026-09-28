@@ -9,6 +9,7 @@
         android:title="@string/pref_title_debug" />
 
     <SwitchPreferenceCompat
+        android:icon="@drawable/ic_refresh"
         android:defaultValue="false"
         android:key="huawei_reparse_workout_data"
         android:layout="@layout/preference_checkbox"
@@ -16,6 +17,7 @@
         android:summary="This will only do something after certain updates" />
 
     <SwitchPreferenceCompat
+        android:icon="@drawable/ic_file_save"
         android:defaultValue="false"
         android:key="pref_huawei_save_raw_files"
         android:layout="@layout/preference_checkbox"
@@ -31,7 +33,7 @@
             android:summary="@string/pref_force_options_summary"/>
 
         <SwitchPreferenceCompat
-            android:icon="@drawable/ic_access_time"
+            android:icon="@drawable/ic_alarm_smart_wake"
             android:defaultValue="false"
             android:key="pref_force_enable_smart_alarm"
             android:layout="@layout/preference_checkbox"

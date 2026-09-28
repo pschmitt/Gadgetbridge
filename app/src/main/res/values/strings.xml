@@ -1504,6 +1504,7 @@
     <string name="activity_db_management_empty_db_warning">Warning! By pushing this button you will wipe your database and start from scratch.</string>
     <string name="persisting_samples_failed">Error saving samples: %1$s</string>
     <string name="cancel">Cancel</string>
+    <string name="clear_current_selection">Clear</string>
     <string name="delete">Delete</string>
     <string name="delete_device_and_retain_files">Keep Files</string>
     <string name="ok">OK</string>
@@ -1733,6 +1734,7 @@
     <string name="activity_type_handcycling">Handcycling</string>
     <string name="activity_type_e_bike">E-Bike</string>
     <string name="activity_type_e_scooter">E-Scooter</string>
+    <string name="activity_type_custom">Custom</string>
     <string name="activity_type_bike_commute">Bike Commute</string>
     <string name="activity_type_handcycling_indoor">Handcycling Indoor</string>
     <string name="activity_type_transition">Transition</string>
@@ -1894,6 +1896,7 @@
     <string name="activity_summaries">Sport Activities</string>
     <string name="activity_summary_detail">Sport Activity Detail</string>
     <string name="activity_summary_edit_name_title">Edit label</string>
+    <string name="activity_summary_edit_type_title">Edit type</string>
     <string name="activity_summary_detail_select_gpx_track">Select GPX track</string>
     <string name="activity_summary_detail_clear_gpx_track">Clear GPX track</string>
     <string name="activity_summary_detail_editing_gpx_track">Editing linked GPX track</string>
@@ -2263,6 +2266,8 @@
     <string name="devicetype_mismartscale" translatable="false">Mi Smart Scale 2</string>
     <string name="devicetype_micompositionscale" translatable="false">Mi Body Composition Scale 2</string>
     <string name="devicetype_qnscale" translatable="false">QN-Scale (Chipsea CS20)</string>
+    <string name="devicetype_xiaomi_hipee_p1" translatable="false">Xiaomi Hipee Smart Posture Corrector P1</string>
+    <string name="devicetype_onebyone_scale" translatable="false">1byone Health Scale</string>
     <string name="devicetype_itag" translatable="false">iTag</string>
     <string name="devicetype_idasen" translatable="false">IKEA Idasen Desk</string>
     <string name="devicetype_bfh16" translatable="false">BFH-16</string>
@@ -2308,6 +2313,7 @@
     <string name="devicetype_sony_wi_sp600n" translatable="false">Sony WI-SP600N</string>
     <string name="devicetype_sony_linkbuds" translatable="false">Sony LinkBuds</string>
     <string name="devicetype_sony_linkbuds_s" translatable="false">Sony LinkBuds S</string>
+    <string name="devicetype_sony_reon_pocket_pro" translatable="false">Sony Reon Pocket Pro</string>
     <string name="devicetype_soundbrenner_core" translatable="false">Soundbrenner Core</string>
     <string name="devicetype_soundcore_liberty3_pro" translatable="false">Soundcore Liberty 3 Pro</string>
     <string name="devicetype_soundcore_liberty4_nc" translatable="false">Soundcore Liberty 4 NC</string>
@@ -2318,6 +2324,7 @@
     <string name="devicetype_soundcore_aerofit2" translatable="false">Soundcore AeroFit 2</string>
     <string name="devicetype_soundcore_sport_x20" translatable="false">Soundcore Sport X20</string>
     <string name="devicetype_haylou_s35_anc" translatable="false">Haylou S35 ANC</string>
+    <string name="devicetype_sennheiser_momentum_in_ear_wireless" translatable="false">Sennheiser MOMENTUM In-Ear Wireless</string>
     <string name="devicetype_pixel_buds_a_series" translatable="false">Pixel Buds A-Series</string>
     <string name="devicetype_moondrop_space_travel" translatable="false">Moondrop Space Travel</string>
     <string name="devicetype_moondrop_space_travel_2" translatable="false">Moondrop Space Travel 2</string>
@@ -2389,6 +2396,7 @@
     <string name="devicetype_redmi_buds_5_pro" translatable="false">Redmi Buds 5 Pro</string>
     <string name="devicetype_redmi_buds_6_active" translatable="false">Redmi Buds 6 Active</string>
     <string name="devicetype_redmi_buds_6" translatable="false">Redmi Buds 6</string>
+    <string name="devicetype_redmi_buds_6_lite" translatable="false">Redmi Buds 6 Lite</string>
     <string name="devicetype_redmi_buds_6_pro" translatable="false">Redmi Buds 6 Pro</string>
     <string name="devicetype_redmi_buds_8_active" translatable="false">Redmi Buds 8 Active</string>
     <string name="devicetype_redmi_smart_band_2" translatable="false">Redmi Smart Band 2</string>
@@ -2425,6 +2433,7 @@
     <string name="devicetype_itech_active_3" translatable="false">iTECH Active 3</string>
     <string name="devicetype_zl02d" translatable="false">ZL02D</string>
     <string name="devicetype_colmi_p80" translatable="false">Colmi P80</string>
+    <string name="devicetype_colmi_p81" translatable="false">Colmi P81</string>
     <string name="devicetype_blackview_r60" translatable="false">Blackview R60</string>
     <string name="devicetype_misirun_c17" translatable="false">Misirun C17</string>
     <string name="devicetype_c20" translatable="false">C20</string>
@@ -2514,6 +2523,7 @@
     <string name="metric_garmin_met_max_vo2">MET Max VO₂</string>
     <string name="metric_garmin_running_lactate_threshold_power">Running Lactate Threshold Power</string>
     <string name="metric_garmin_training_readiness">Training Readiness</string>
+    <string name="metric_garmin_dive_readiness">Dive Readiness</string>
     <string name="p_trainingreadiness" translatable="false">trainingreadiness</string>
     <string name="training_readiness_zone_prime">Prime</string>
     <string name="training_readiness_zone_prime_desc">Best possible</string>
@@ -3232,6 +3242,7 @@
     <string name="activity_detail_inspect_file">Inspect file</string>
     <string name="activity_detail_share_raw_summary">Share Raw Summary</string>
     <string name="activity_detail_share_raw_details">Share Raw Details</string>
+    <string name="activity_detail_share_raw_gps">Share Raw GPS</string>
     <string name="activity_detail_share_json_details">Share JSON Details</string>
     <string name="gps_track">GPS track</string>
     <string name="dev_tools">Dev Tools</string>
@@ -3276,6 +3287,19 @@
     <string name="sports_activity_quick_filter_select">Time period</string>
     <string name="sports_activity_confirm_delete_title">Delete %d activities</string>
     <string name="sports_activity_confirm_delete_description">Are you sure you want to delete %d activities?</string>
+    <string name="workout_export_title">Export workouts</string>
+    <string name="workout_export_fit">FIT files</string>
+    <string name="workout_export_gpx">GPX tracks (workouts with GPS)</string>
+    <string name="workout_export_raw">Raw device files</string>
+    <string name="workout_export_share_as">Share as</string>
+    <string name="workout_export_separate_files">Separate files</string>
+    <string name="workout_export_one_zip">One zip file</string>
+    <string name="workout_export_preparing">Preparing export…</string>
+    <string name="workout_export_nothing">Nothing to export for the selected workouts</string>
+    <plurals name="workout_export_skipped">
+        <item quantity="one">%d file could not be exported, see the log</item>
+        <item quantity="other">%d files could not be exported, see the log</item>
+    </plurals>
     <string name="activity_summaries_all_devices">All devices</string>
     <string name="activity_filter_from_placeholder">distant past</string>
     <string name="activity_filter_to_placeholder">today</string>
@@ -3287,8 +3311,10 @@
     <string name="swim_style_butterfly">Butterfly</string>
     <string name="swim_style_drill">Drill</string>
     <string name="swim_style_mixed">Mixed</string>
+    <string name="exercise_category_banded_exercises">Banded exercises</string>
     <string name="exercise_category_bench_press">Bench press</string>
     <string name="exercise_category_calf_raise">Calf raise</string>
+    <string name="exercise_category_cardio_sensors">Cardio sensors</string>
     <string name="exercise_category_carry">Carry</string>
     <string name="exercise_category_chop">Chop</string>
     <string name="exercise_category_core">Core</string>
@@ -3298,16 +3324,25 @@
     <string name="exercise_category_hip_stability">Hip stability</string>
     <string name="exercise_category_hip_swing">Hip swing</string>
     <string name="exercise_category_hyperextension">Hyperextension</string>
+    <string name="exercise_category_indoor_row">Indoor row</string>
+    <string name="exercise_category_ladder">Ladder</string>
     <string name="exercise_category_lateral_raise">Lateral raise</string>
     <string name="exercise_category_leg_curl">Leg curl</string>
     <string name="exercise_category_leg_raise">Leg raise</string>
     <string name="exercise_category_lunge">Lunge</string>
+    <string name="exercise_category_move">Move</string>
     <string name="exercise_category_olympic_lift">Olympic lift</string>
     <string name="exercise_category_plyo">Plyo</string>
+    <string name="exercise_category_pose">Pose</string>
+    <string name="exercise_category_sandbag">Sandbag</string>
     <string name="exercise_category_shoulder_press">Shoulder press</string>
     <string name="exercise_category_shoulder_stability">Shoulder stability</string>
     <string name="exercise_category_shrug">Shrug</string>
+    <string name="exercise_category_sled">Sled</string>
+    <string name="exercise_category_sledge_hammer">Sledgehammer</string>
     <string name="exercise_category_squat">Squat</string>
+    <string name="exercise_category_suspension">Suspension</string>
+    <string name="exercise_category_tire">Tire</string>
     <string name="exercise_category_total_body">Total body</string>
     <string name="exercise_category_triceps_extension">Triceps extension</string>
 
@@ -3595,6 +3630,7 @@
     <string name="battery_case">Battery case</string>
     <string name="left_earbud">Left earbud</string>
     <string name="right_earbud">Right earbud</string>
+    <string name="both_earbuds">Both earbuds</string>
     <string name="audio_codec">Audio Codec</string>
     <string name="pref_title_touch_voice_assistant">Voice Assistant</string>
     <string name="pref_title_touch_anc">Active Noise Cancelling</string>
@@ -3758,6 +3794,37 @@
     <string name="sony_equalizer_preset_manual">Manual</string>
     <string name="sony_equalizer_preset_custom_1">Custom 1</string>
     <string name="sony_equalizer_preset_custom_2">Custom 2</string>
+    <string name="sony_reon_pocket_toggle_auto_cooling">Toggle auto-cooling mode</string>
+    <string name="sony_reon_pocket_toggle_heat_cold">Toggle heat/cold mode</string>
+    <string name="sony_reon_pocket_mode_heat">Heat</string>
+    <string name="sony_reon_pocket_mode_cold">Cold</string>
+    <string name="sony_reon_pocket_mode_auto">Auto</string>
+    <string name="sony_reon_pocket_auto_start_stop_title">Auto Start/Stop</string>
+    <string name="sony_reon_pocket_auto_start_stop_summary">Automatically start and stop cooling when the device is worn</string>
+    <string name="sony_reon_pocket_intensity_title">Intensity</string>
+    <string name="sony_reon_pocket_intensity_summary">Cooling/heating intensity in smart mode</string>
+    <string name="sony_reon_pocket_manual_power_title">Manual power</string>
+    <string name="sony_reon_pocket_manual_power_summary">Manual cooling/heating power (0 = stop)</string>
+    <string name="sony_reon_pocket_cycle_power">Power level</string>
+    <string name="sony_reon_pocket_pairing_required">Put device in pairing mode (hold SMART button for 15 seconds) and reconnect.</string>
+    <string name="sony_reon_pocket_tag_title">Reon Tag</string>
+    <string name="sony_reon_pocket_tag_address_title">Tag address</string>
+    <string name="sony_reon_pocket_tag_serial_title">Tag serial</string>
+    <string name="sony_reon_pocket_tag_address_summary">No tag registered</string>
+    <string name="sony_reon_pocket_tag_register_title">Register tag</string>
+    <string name="sony_reon_pocket_tag_register_summary">Scan for a nearby Reon Tag (RNPT-1) and register it</string>
+    <string name="sony_reon_pocket_tag_scanning">Scanning for Reon Tag…</string>
+    <string name="sony_reon_pocket_tag_scan_failed">Tag scan failed</string>
+    <string name="sony_reon_pocket_tag_not_found">No Reon Tag found nearby</string>
+    <string name="sony_reon_pocket_tag_registered">Reon Tag registered: %1$s</string>
+    <string name="sony_reon_pocket_tag_unregister_title">Unregister tag</string>
+    <string name="sony_reon_pocket_tag_unregister_summary">Remove the currently registered tag</string>
+    <string name="sony_reon_pocket_tag_unregister_confirmation">Unregister the Reon Tag?</string>
+    <string name="sony_reon_pocket_panel_temperature_title">Surface temperature</string>
+    <string name="sony_reon_pocket_heat_dissipation_title">Exhaust temperature</string>
+    <string name="sony_reon_pocket_tag_temperature_title">Tag temperature</string>
+    <string name="sony_reon_pocket_tag_humidity_title">Tag humidity</string>
+    <string name="sony_reon_pocket_tag_battery_title">Tag battery</string>
     <string name="pref_header_sony_equalizer_bands">Bands</string>
     <string name="pref_header_sony_equalizer_preset_custom_1">Custom Preset 1</string>
     <string name="pref_header_sony_equalizer_preset_custom_2">Custom Preset 2</string>
@@ -4204,6 +4271,30 @@
     <string name="xiaomi_scooter_tire_pressure_reset_title">Reset reminder</string>
     <string name="xiaomi_scooter_tire_pressure_reset_summary">Click this button to restart the tire pressure maintenance timer.</string>
     <string name="xiaomi_scooter_tire_pressure_reset_confirmation">Reset the tire pressure maintenance reminder?</string>
+    <string name="mi_hipee_p1_history">Raw posture history</string>
+    <string name="mi_hipee_p1_position">Position</string>
+    <string name="mi_hipee_p1_history_forward">Forward (humpback)</string>
+    <string name="mi_hipee_p1_history_leftward">Leftward</string>
+    <string name="mi_hipee_p1_history_rightward">Rightward</string>
+    <string name="mi_hipee_p1_history_hour_details">Forward: %1$d, leftward: %2$d, rightward: %3$d</string>
+    <string name="mi_hipee_p1_history_total_corrections">Total corrections</string>
+    <string name="mi_hipee_p1_history_marker_forward">Forward (humpback): %1$d</string>
+    <string name="mi_hipee_p1_history_marker_leftward">Leftward: %1$d</string>
+    <string name="mi_hipee_p1_history_marker_rightward">Rightward: %1$d</string>
+    <string name="mi_hipee_p1_history_marker_no_corrections">No corrections</string>
+    <string name="mi_hipee_p1_set_standard_posture">Set standard posture</string>
+    <string name="mi_hipee_p1_view_live_posture">View live posture</string>
+    <string name="mi_hipee_p1_reminder_angle">Reminder angle</string>
+    <string name="mi_hipee_p1_long_vibration">Long vibration</string>
+    <string name="mi_hipee_p1_exercise_reminder_angle">Exercise reminder angle</string>
+    <string name="mi_hipee_p1_sedentary_reminder">Sedentary reminder</string>
+    <string name="mi_hipee_p1_delay_reminder">Delay reminder</string>
+    <string name="mi_hipee_p1_double_reminder">Double reminder</string>
+    <string name="mi_hipee_p1_double_reminder_interval">Double reminder interval</string>
+    <string name="mi_hipee_p1_pairing_confirmation">Press the device button to confirm pairing</string>
+    <string name="mi_hipee_p1_set_standard_posture_instruction">Set in correct posture and remain still</string>
+    <string name="mi_hipee_p1_standard_posture_set">Standard posture set</string>
+    <string name="mi_hipee_p1_standard_posture_rejected">Standard posture rejected (code 0x%1$02x)</string>
     <string name="pref_roidmi_f8_battery_temperature_title">Battery temperature</string>
     <string name="pref_roidmi_f8_standard_gear_title">Standard gear</string>
     <string name="pref_roidmi_f8_standard_gear_summary">Default power when starting to clean</string>
@@ -4646,6 +4737,7 @@
     <string name="battery_polling_failed_start">Failed to start the battery polling</string>
 
     <string name="none">None</string>
+    <string name="no_delay">No delay</string>
     <string name="garmin_agps_url_i">AGPS %1$d URL</string>
     <string name="no_folder_selected">No folder selected</string>
     <string name="folder_is_empty">Folder is empty</string>
@@ -5118,7 +5210,30 @@
     <string name="devicetype_victron_smartshunt" translatable="false">Victron SmartShunt</string>
     <string name="devicetype_dji_osmo_action_4" translatable="false">DJI Osmo Action 4</string>
     <string name="devicetype_sinilink" translatable="false">Sinilink</string>
+    <string name="devicetype_eightbitdo_micro" translatable="false">8BitDo Micro</string>
     <string name="devicetype_onetouch" translatable="false">OneTouch Glucose Meter</string>
+    <string name="eightbitdo_keyboard_mapping">Key mapping</string>
+    <string name="eightbitdo_keymap_reset_title">Reset to defaults</string>
+    <string name="eightbitdo_keymap_reset_confirmation">Reset the key mapping of all buttons to the factory defaults?</string>
+    <string name="eightbitdo_disable_sleep">Disable sleep</string>
+    <string name="eightbitdo_realtime_buttons_title">Log pressed buttons</string>
+    <string name="eightbitdo_realtime_buttons_summary">Enable the realtime button stream (writes pressed buttons to logs)</string>
+    <string name="eightbitdo_button_a" translatable="false">A</string>
+    <string name="eightbitdo_button_b" translatable="false">B</string>
+    <string name="eightbitdo_button_x" translatable="false">X</string>
+    <string name="eightbitdo_button_y" translatable="false">Y</string>
+    <string name="eightbitdo_button_l1" translatable="false">L1</string>
+    <string name="eightbitdo_button_r1" translatable="false">R1</string>
+    <string name="eightbitdo_button_l2" translatable="false">L2</string>
+    <string name="eightbitdo_button_r2" translatable="false">R2</string>
+    <string name="eightbitdo_button_minus">Minus (Select)</string>
+    <string name="eightbitdo_button_plus">Plus (Start)</string>
+    <string name="eightbitdo_button_star">Star</string>
+    <string name="eightbitdo_button_heart">Heart (Home)</string>
+    <string name="eightbitdo_button_up">Up</string>
+    <string name="eightbitdo_button_down">Down</string>
+    <string name="eightbitdo_button_left">Left</string>
+    <string name="eightbitdo_button_right">Right</string>
     <string name="equalizer_preset_standard">Standard</string>
     <string name="media_playback_mode">Playback mode</string>
     <string name="media_playback_mode_normal">Normal</string>
@@ -5167,6 +5282,8 @@
     <string name="huawei_send_gps_and_time_title">Send GPS and Time to device</string>
     <string name="huawei_send_gps_and_time_summary">Send GPS and Time to device for weather and search stars optimization. Location should be set in the settings</string>
     <string name="garmin_mlr_protocol">Multi-Link Reliable Protocol</string>
+    <string name="garmin_legacy_sync_flush_title" translatable="false">Legacy flush on sync</string>
+    <string name="garmin_legacy_sync_flush_summary" translatable="false">Use the legacy sync protocol to flush data before sync. Disable this if your watch freezes when syncing. Might result in delayed data.</string>
     <string name="feature_exploresync_title">ExploreSync Protocol</string>
     <string name="feature_exploresync_summary">Sync activity GPS tracks using the ExploreSync protocol. Should only be used if the device does not provide FIT files.</string>
     <string name="feature_experimental_unstable">Experimental, might be unstable</string>
@@ -5631,4 +5748,184 @@
     <string name="cardo_control_volume">Volume</string>
     <string name="cardo_card_voice_prompts">Voice Prompts</string>
     <string name="cardo_control_enable_voice_prompts">Enable Voice Prompts</string>
+
+    <string name="sennheiser_momentum_led_title">Status light</string>
+    <string name="sennheiser_momentum_led_summary">Let the light on the neckband show its status</string>
+    <string name="sennheiser_momentum_voice_prompts_title">Voice prompts</string>
+    <string name="sennheiser_momentum_voice_prompts_summary">Announce power, pairing, connection and battery in the earphones</string>
+    <string name="sennheiser_momentum_voice_answer_title">Answer calls by voice</string>
+    <string name="sennheiser_momentum_voice_answer_summary">Accept or reject an incoming call by saying yes or no</string>
+    <string name="sennheiser_momentum_swap_volume_buttons_title">Swap volume buttons</string>
+    <string name="sennheiser_momentum_swap_volume_buttons_summary">Reverse the direction of the volume + and - buttons</string>
+
+    <string name="devicetype_f8" translatable="false">F8</string>
+    <string name="f8_prefs_users">Users</string>
+    <string name="f8_prefs_active_user_title">Active User</string>
+
+    <string name="devicetype_ugreen_hitune_max_5c" translatable="false">UGREEN HiTune Max 5c</string>
+    <string name="ugreen_anc_mode_medium">Medium</string>
+    <string name="ugreen_equalizer_treble">Treble</string>
+    <string name="ugreen_game_mode_summary">Reduce audio latency for gaming and video</string>
+    <string name="ugreen_spatial_audio_summary">Enable immersive spatial sound effect</string>
+    <string name="ugreen_high_quality">Hi-Res Audio Decoding</string>
+    <string name="ugreen_high_quality_summary">Enable high-resolution audio decoding (LDAC)</string>
+
+    <string name="pref_workout_templates_title">Workout templates</string>
+    <string name="pref_workout_templates_summary">Create and manage structured workouts</string>
+    <string name="workout_template_add">Add workout template</string>
+    <string name="workout_template_list_empty">No workout templates</string>
+    <string name="workout_template_step_invalid">This step has a problem</string>
+    <string name="workout_template_delete_confirm">Delete \"%1$s\"? This cannot be undone.</string>
+    <string name="workout_template_copy_name">%1$s (copy)</string>
+    <string name="workout_template_no_sports_supported">This device does not support any workout sport.</string>
+    <string name="workout_template_name_hint">Name</string>
+    <string name="workout_template_pool_length_custom_hint">Custom pool length</string>
+    <string name="workout_template_transitions_between_multisport_legs">Add transitions between legs</string>
+    <string name="workout_template_add_step">Add step</string>
+    <string name="workout_template_add_repeat">Add repeat group</string>
+    <string name="workout_template_add_step_inside">Add step to group</string>
+    <string name="workout_template_multisport_leg_add">Add leg</string>
+    <string name="workout_template_multisport_leg_delete">Delete leg</string>
+    <string name="workout_template_edit_step">Edit step</string>
+    <string name="workout_template_delete_step">Delete step</string>
+    <string name="workout_template_repeat_title">Repeat ×%1$d</string>
+    <string name="workout_template_multisport_leg_title">Leg</string>
+    <string name="workout_template_validation_title">Can\'t save this workout</string>
+    <string name="workout_template_validation_snackbar">This workout has errors - fix the highlighted step to save it.</string>
+    <string name="workout_template_discard_title">Discard changes?</string>
+    <string name="workout_template_discard_message">This workout template has unsaved changes. If you leave now, they will be lost.</string>
+    <string name="workout_template_discard">Discard</string>
+    <string name="workout_template_keep_editing">Keep editing</string>
+    <string name="workout_template_save_failed">Could not save this workout template.</string>
+    <string name="workout_template_unsupported">Not supported by this device</string>
+
+    <plurals name="workout_template_step_count">
+        <item quantity="one">%d step</item>
+        <item quantity="other">%d steps</item>
+    </plurals>
+
+    <string name="workout_sync_status_not_synced">Not synced</string>
+    <string name="workout_sync_status_synced">Synced</string>
+    <string name="workout_sync_status_out_of_date">Out of date</string>
+    <string name="workout_sync_status_in_progress">Sending…</string>
+    <string name="workout_sync_status_failed">Sync failed</string>
+    <string name="workout_template_sync">Send to device</string>
+    <string name="workout_template_sync_started">Sending \"%1$s\" to the device</string>
+    <string name="workout_template_sync_failed_transfer">File transfer failed</string>
+
+    <string name="workout_step_type_warmup">Warm up</string>
+    <string name="workout_step_type_recover">Recover</string>
+    <string name="workout_step_type_rest">Rest</string>
+    <string name="workout_step_type_cooldown">Cool down</string>
+    <string name="workout_step_type_main">Main</string>
+    <string name="workout_step_type_swim">Swim</string>
+
+    <string name="workout_duration_hr_above">Heart rate above</string>
+    <string name="workout_duration_hr_below">Heart rate below</string>
+    <string name="workout_duration_power_above">Power above</string>
+    <string name="workout_duration_power_below">Power below</string>
+    <string name="workout_duration_button_press">Button press</string>
+    <string name="workout_duration_swimming_send_off_time">Send-off time</string>
+    <string name="workout_duration_swimming_css_send_off_time">CSS send-off time</string>
+
+    <string name="workout_target_none">No target</string>
+    <string name="workout_target_hr_zone">Heart rate zone</string>
+    <string name="workout_target_hr_range">Heart rate range</string>
+    <string name="workout_target_bike_power_zone">Power zone</string>
+    <string name="workout_target_bike_power_range">Power range</string>
+    <string name="workout_target_power_ftp_range">% of FTP range</string>
+    <string name="workout_target_stroke_rate">Stroke rate</string>
+    <string name="workout_target_effort">Effort</string>
+    <string name="workout_target_css_offset">CSS offset</string>
+
+    <string name="workout_hr_zone_1">Zone 1 - Warm-up</string>
+    <string name="workout_hr_zone_2">Zone 2 - Easy</string>
+    <string name="workout_hr_zone_3">Zone 3 - Aerobic</string>
+    <string name="workout_hr_zone_4">Zone 4 - Anaerobic</string>
+    <string name="workout_hr_zone_5">Zone 5 - Maximum</string>
+
+    <string name="workout_power_zone_1">Zone 1</string>
+    <string name="workout_power_zone_2">Zone 2</string>
+    <string name="workout_power_zone_3">Zone 3</string>
+    <string name="workout_power_zone_4">Zone 4</string>
+    <string name="workout_power_zone_5">Zone 5</string>
+    <string name="workout_power_zone_6">Zone 6</string>
+    <string name="workout_power_zone_7">Zone 7</string>
+
+    <string name="workout_weight_body_weight">Body weight</string>
+    <string name="workout_weight_percent_1rm">% of 1RM</string>
+    <string name="workout_weight_rm">Rep max (RM)</string>
+
+    <string name="workout_swim_stroke_choice">Choice</string>
+    <string name="workout_swim_stroke_individual_medley">Individual medley</string>
+    <string name="workout_swim_stroke_im_by_round">IM by round</string>
+    <string name="workout_swim_stroke_reverse_im_order">Reverse IM order</string>
+
+    <string name="workout_swim_drill_kick">Kick</string>
+    <string name="workout_swim_drill_pull">Pull</string>
+
+    <string name="workout_equipment_fins">Fins</string>
+    <string name="workout_equipment_kickboard">Kickboard</string>
+    <string name="workout_equipment_paddles">Paddles</string>
+    <string name="workout_equipment_pull_buoy">Pull buoy</string>
+    <string name="workout_equipment_snorkel">Snorkel</string>
+
+    <string name="workout_effort_ascending">Ascending</string>
+    <string name="workout_effort_descending">Descending</string>
+    <string name="workout_effort_recovery">Recovery</string>
+    <string name="workout_effort_hard">Hard</string>
+    <string name="workout_effort_very_hard">Very hard</string>
+    <string name="workout_effort_all_out">All out</string>
+
+    <string name="workout_pool_length_unspecified">Unspecified</string>
+    <string name="workout_pool_length_25m">25 m</string>
+    <string name="workout_pool_length_25yd">25 yd</string>
+    <string name="workout_pool_length_50m">50 m</string>
+    <string name="workout_pool_length_33_1_3m">33 1/3 m</string>
+    <string name="workout_pool_length_33_1_3yd">33 1/3 yd</string>
+
+    <string name="workout_field_step_type">Step type</string>
+    <string name="workout_field_secondary_target">Secondary target</string>
+    <string name="workout_field_action_name">Action name</string>
+    <string name="workout_field_yoga_pose">Pose</string>
+    <string name="workout_field_pilates_move">Move</string>
+    <string name="workout_field_equipment">Equipment</string>
+    <string name="workout_field_unit">Unit</string>
+    <string name="workout_field_minimum">Min</string>
+    <string name="workout_field_maximum">Max</string>
+
+    <string name="workout_unit_suffix_watt">W</string>
+    <string name="workout_unit_suffix_steps_per_minute">per min</string>
+    <string name="workout_unit_suffix_seconds">s</string>
+    <string name="workout_unit_suffix_per_100m">per 100m</string>
+    <string name="workout_unit_suffix_per_km">per km</string>
+
+    <string name="workout_error_sport_not_supported">This device does not support this sport.</string>
+    <string name="workout_error_name_required">Enter a name.</string>
+    <string name="workout_error_name_too_long">The name is too long.</string>
+    <string name="workout_error_note_too_long">The note is too long.</string>
+    <string name="workout_error_no_steps">Add at least one step.</string>
+    <string name="workout_error_too_many_steps">Too many steps for this device.</string>
+    <string name="workout_error_repeat_not_supported">This device does not support repeat groups.</string>
+    <string name="workout_error_repeat_count_out_of_range">A repeat count is out of range.</string>
+    <string name="workout_error_empty_group">A group has no steps.</string>
+    <string name="workout_error_nested_repeat_not_supported">A repeat group cannot contain another repeat group.</string>
+    <string name="workout_error_leg_not_supported">This device does not support this sport as a multisport leg.</string>
+    <string name="workout_error_step_type_not_supported">A step type is not supported by this device.</string>
+    <string name="workout_error_duration_not_supported">A duration type is not supported by this device.</string>
+    <string name="workout_error_target_not_supported">A target is not supported by this device.</string>
+    <string name="workout_error_secondary_target_not_supported">A secondary target is not supported by this device.</string>
+    <string name="workout_error_secondary_target_conflict">The primary and secondary targets are in conflict.</string>
+    <string name="workout_error_min_above_max">Min must not be above max.</string>
+    <string name="workout_error_value_out_of_range">Value is out of range.</string>
+    <string name="workout_error_exercise_not_supported">An exercise is not supported by this device.</string>
+
+    <string name="workout_exercise_picker_title">Choose an exercise</string>
+    <string name="workout_exercise_picker_search_hint">Search exercises</string>
+    <string name="workout_exercise_picker_empty">No exercises match</string>
+    <string name="workout_exercise_picker_filter_title">Filter exercises</string>
+    <plurals name="workout_exercise_picker_filter_count">
+        <item quantity="one">%d exercise</item>
+        <item quantity="other">%d exercises</item>
+    </plurals>
 </resources>

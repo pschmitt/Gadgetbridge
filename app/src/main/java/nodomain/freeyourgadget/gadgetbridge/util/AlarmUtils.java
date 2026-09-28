@@ -56,7 +56,7 @@ public class AlarmUtils {
      * @param calendar
      * @return
      */
-    public static nodomain.freeyourgadget.gadgetbridge.model.Alarm createSingleShot(int index, boolean smartWakeup, boolean snooze, Calendar calendar) {
+    public static Alarm createSingleShot(int index, boolean smartWakeup, boolean snooze, Calendar calendar) {
         // TODO: add interval setting?
         return new Alarm(-1, -1, index, true, smartWakeup, null, snooze, Alarm.ALARM_ONCE, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false, GBApplication.getContext().getString(R.string.quick_alarm), GBApplication.getContext().getString(R.string.quick_alarm_description), 0, true);
     }

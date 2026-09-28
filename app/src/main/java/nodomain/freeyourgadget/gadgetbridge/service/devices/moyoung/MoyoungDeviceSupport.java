@@ -2205,8 +2205,8 @@ public class MoyoungDeviceSupport extends AbstractBTLESingleDeviceSupport {
             // Weather forecast packet
             ByteBuffer packetWeatherForecast = ByteBuffer.allocate(8 * 3);
             packetWeatherForecast.put(weatherToday.conditionId);
-            packetWeatherForecast.put(weatherToday.currentTemp);
-            packetWeatherForecast.put(weatherToday.currentTemp);
+            packetWeatherForecast.put(weatherToday.maxTemp);
+            packetWeatherForecast.put(weatherToday.minTemp);
             for (int i = 0; i < 7; i++) {
                 MoyoungWeatherForecast forecast;
                 if (weatherSpec.getForecasts().size() > i)

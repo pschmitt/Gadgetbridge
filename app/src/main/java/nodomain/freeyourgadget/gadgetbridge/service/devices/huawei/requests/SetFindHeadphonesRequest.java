@@ -17,32 +17,47 @@
 
 package nodomain.freeyourgadget.gadgetbridge.service.devices.huawei.requests;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import nodomain.freeyourgadget.gadgetbridge.GBApplication;
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
 import nodomain.freeyourgadget.gadgetbridge.devices.huawei.HuaweiPacket;
 import nodomain.freeyourgadget.gadgetbridge.devices.huawei.packets.Earphones;
+import nodomain.freeyourgadget.gadgetbridge.model.FindDeviceTarget;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huawei.HuaweiSupportProvider;
 
+/**
+ * Starts or stops the sound on the left earbud, the right earbud, or both.
+ */
 public class SetFindHeadphonesRequest extends Request {
-    public SetFindHeadphonesRequest(HuaweiSupportProvider supportProvider) {
+    private static final byte SIDE_LEFT = 0x00;
+    private static final byte SIDE_RIGHT = 0x01;
+
+    private final boolean start;
+    private final FindDeviceTarget target;
+
+    public SetFindHeadphonesRequest(final HuaweiSupportProvider supportProvider,
+                                    final boolean start,
+                                    @NonNull final FindDeviceTarget target) {
         super(supportProvider);
         this.serviceId = Earphones.id;
         this.commandId = Earphones.FindHeadphones.id;
+        this.start = start;
+        this.target = target;
     }
 
     @Override
     protected List<byte[]> createRequest() throws RequestCreationException {
+        final boolean left = start && (target == FindDeviceTarget.ALL || target == FindDeviceTarget.LEFT);
+        final boolean right = start && (target == FindDeviceTarget.ALL || target == FindDeviceTarget.RIGHT);
+
         try {
-            int mode = Integer.parseInt(GBApplication.getDeviceSpecificSharedPrefs(getDevice().getAddress())
-                    .getString(DeviceSettingsPreferenceConst.PREF_HUAWEI_FREEBUDS_FIND_HEADPHONES, "0"));
-            List<byte[]> requests = new ArrayList<>();
-            requests.addAll(new Earphones.FindHeadphones.Request(paramsProvider, (byte) 0x00, (mode & 0x01) == 0).serialize());
-            requests.addAll(new Earphones.FindHeadphones.Request(paramsProvider, (byte) 0x01, (mode & 0x02) == 0).serialize());
+            final List<byte[]> requests = new ArrayList<>();
+            requests.addAll(new Earphones.FindHeadphones.Request(paramsProvider, SIDE_LEFT, !left).serialize());
+            requests.addAll(new Earphones.FindHeadphones.Request(paramsProvider, SIDE_RIGHT, !right).serialize());
             return requests;
-        } catch (HuaweiPacket.CryptoException e) {
+        } catch (final HuaweiPacket.CryptoException e) {
             throw new RequestCreationException(e);
         }
     }

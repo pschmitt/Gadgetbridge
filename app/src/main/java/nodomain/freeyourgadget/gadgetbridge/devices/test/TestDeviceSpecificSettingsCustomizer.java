@@ -19,7 +19,6 @@ package nodomain.freeyourgadget.gadgetbridge.devices.test;
 import android.os.Parcel;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.preference.MultiSelectListPreference;
 import androidx.preference.Preference;
 
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
@@ -35,6 +33,7 @@ import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpec
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsHandler;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
+import nodomain.freeyourgadget.gadgetbridge.devices.test.activity.TestActivitySummaryParser;
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.Device;
@@ -70,40 +69,59 @@ public class TestDeviceSpecificSettingsCustomizer implements DeviceSpecificSetti
 
         final Preference addTestActivities = handler.findPreference("pref_developer_add_test_activities");
         if (addTestActivities != null) {
-            addTestActivities.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(@NonNull final Preference preference) {
-                    try (DBHandler dbHandler = GBApplication.acquireDB()) {
-                        final DaoSession session = dbHandler.getDaoSession();
-                        final Device device = DBHelper.getDevice(handler.getDevice(), session);
-                        final User user = DBHelper.getUser(session);
+            addTestActivities.setOnPreferenceClickListener(preference -> {
+                try (DBHandler dbHandler = GBApplication.acquireDB()) {
+                    final DaoSession session = dbHandler.getDaoSession();
+                    final Device device = DBHelper.getDevice(handler.getDevice(), session);
+                    final User user = DBHelper.getUser(session);
 
-                        //final QueryBuilder<?> qb = session.getBaseActivitySummaryDao().queryBuilder();
-                        //qb.where(BaseActivitySummaryDao.Properties.DeviceId.eq(device.getId())).buildDelete().executeDeleteWithoutDetachingEntities();
+                    //final QueryBuilder<?> qb = session.getBaseActivitySummaryDao().queryBuilder();
+                    //qb.where(BaseActivitySummaryDao.Properties.DeviceId.eq(device.getId())).buildDelete().executeDeleteWithoutDetachingEntities();
 
-                        final List<BaseActivitySummary> summaries = new ArrayList<>();
+                    final List<BaseActivitySummary> summaries = new ArrayList<>();
 
-                        for (final ActivityKind activityKind : ActivityKind.values()) {
-                            final BaseActivitySummary summary = new BaseActivitySummary();
-                            summary.setStartTime(new Date(System.currentTimeMillis() - new Random().nextInt(31 * 24 * 60 * 60) * 1000L));
-                            summary.setEndTime(new Date(summary.getStartTime().getTime() + new Random().nextInt(60 * 60 * 2) * 1000L));
-                            summary.setDevice(device);
-                            summary.setUser(user);
-                            summary.setActivityKind(activityKind.getCode());
-                            // TODO data
-                            summaries.add(summary);
+                    final TestActivitySummaryParser parser = new TestActivitySummaryParser();
+                    long startTime = System.currentTimeMillis();
+
+                    for (final ActivityKind activityKind : ActivityKind.values()) {
+                        if (!isRecordedActivity(activityKind)) {
+                            continue;
                         }
 
-                        session.getBaseActivitySummaryDao().insertOrReplaceInTx(summaries);
-                    } catch (final Exception e) {
-                        GB.toast(handler.getContext(), "Error saving activity summary", Toast.LENGTH_LONG, GB.ERROR, e);
-                        return false;
+                        startTime -= TestDeviceRand.randLong(startTime, 4 * 60 * 60 * 1000L, 12 * 60 * 60 * 1000L);
+                        final long duration = TestDeviceRand.randLong(startTime, 15 * 60 * 1000L, 2 * 60 * 60 * 1000L);
+
+                        final BaseActivitySummary summary = new BaseActivitySummary();
+                        summary.setStartTime(new Date(startTime));
+                        summary.setEndTime(new Date(startTime + duration));
+                        summary.setDevice(device);
+                        summary.setUser(user);
+                        summary.setActivityKind(activityKind.getCode());
+                        summary.setName(activityKind.name());
+                        parser.parseBinaryData(summary, false);
+                        summaries.add(summary);
                     }
 
-                    return true;
+                    session.getBaseActivitySummaryDao().insertOrReplaceInTx(summaries);
+                } catch (final Exception e) {
+                    GB.toast(handler.getContext(), "Error saving activity summary", Toast.LENGTH_LONG, GB.ERROR, e);
+                    return false;
                 }
+
+                return true;
             });
         }
+    }
+
+    /**
+     * Whether a device records an activity of this kind. Sleep and the states of the wearer are
+     * not recorded activities.
+     */
+    private static boolean isRecordedActivity(final ActivityKind activityKind) {
+        return switch (activityKind) {
+            case NOT_MEASURED, UNKNOWN, ACTIVITY, NOT_WORN, TRANSITION, VIVOMOVE_HR_TRANSITION -> false;
+            default -> !ActivityKind.isSleep(activityKind);
+        };
     }
 
     @Override

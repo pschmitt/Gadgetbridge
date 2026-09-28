@@ -289,6 +289,11 @@ public class ZeppOsBtleSupport extends AbstractBTLESingleDeviceSupport implement
     }
 
     @Override
+    public void onSyncWorkoutTemplate(final long templateId) {
+        zeppOsSupport.onSyncWorkoutTemplate(templateId);
+    }
+
+    @Override
     public void onDeleteNotification(final int id) {
         zeppOsSupport.onDeleteNotification(id);
     }

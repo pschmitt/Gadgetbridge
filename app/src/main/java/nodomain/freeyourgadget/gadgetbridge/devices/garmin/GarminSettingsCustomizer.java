@@ -18,68 +18,45 @@ package nodomain.freeyourgadget.gadgetbridge.devices.garmin;
 
 import static nodomain.freeyourgadget.gadgetbridge.util.GB.toast;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.documentfile.provider.DocumentFile;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsCustomizer;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsHandler;
-import nodomain.freeyourgadget.gadgetbridge.devices.garmin.actions.GarminSendWaypointActivity;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
+import nodomain.freeyourgadget.gadgetbridge.model.DeviceService;
 import nodomain.freeyourgadget.gadgetbridge.service.AbstractDeviceSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.FileType;
-import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.agps.GarminAgpsStatus;
-import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.FitAsyncProcessor;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.FitFile;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.FitLocalMessageBuilder;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.RecordData;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.FitDevice;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitDeviceSettings;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitFileId;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitUserProfile;
-import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
-import nodomain.freeyourgadget.gadgetbridge.util.FileUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
-import nodomain.freeyourgadget.gadgetbridge.util.notifications.GBProgressNotification;
 import nodomain.freeyourgadget.gadgetbridge.util.preferences.DevicePrefs;
 
 public class GarminSettingsCustomizer implements DeviceSpecificSettingsCustomizer {
     private static final Logger LOG = LoggerFactory.getLogger(GarminSettingsCustomizer.class);
-
-    private final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
     @Override
     public void onPreferenceChange(final Preference preference, final DeviceSpecificSettingsHandler handler) {
@@ -87,200 +64,11 @@ public class GarminSettingsCustomizer implements DeviceSpecificSettingsCustomize
 
     @Override
     public void customizeSettings(final DeviceSpecificSettingsHandler handler, final Prefs prefs, final String rootKey) {
-        final Preference realtimeSettings = handler.findPreference(GarminPreferences.PREF_GARMIN_REALTIME_SETTINGS);
-        if (realtimeSettings != null) {
-            realtimeSettings.setOnPreferenceClickListener(preference -> {
-                final Intent intent = new Intent(handler.getContext(), GarminRealtimeSettingsActivity.class);
-                intent.putExtra(GBDevice.EXTRA_DEVICE, handler.getDevice());
-                handler.getContext().startActivity(intent);
-                return true;
-            });
-        }
-
-        final Preference reprocessActivityPref = handler.findPreference("reprocess_activity_files");
-        if (reprocessActivityPref != null) {
-            reprocessActivityPref.setOnPreferenceClickListener(preference -> {
-                parseAllFitFilesFromStorage(handler.getContext(), handler.getDevice());
-                return true;
-            });
-        }
-
-        final Preference prefImportActivityFiles = handler.findPreference("import_activity_files");
-        if (prefImportActivityFiles != null) {
-            final ActivityResultLauncher<String[]> activityFileChooser = handler.registerForActivityResult(
-                    new ActivityResultContracts.OpenMultipleDocuments(),
-                    localUris -> {
-                        LOG.info("Files to import: {}", localUris);
-                        if (localUris != null) {
-                            final List<File> filesToProcess = new ArrayList<>(localUris.size());
-
-                            final Context context = handler.getContext();
-                            for (final Uri uri : localUris) {
-                                final File file;
-                                try {
-                                    file = File.createTempFile("activity-files-import", ".bin", context.getCacheDir());
-                                    file.deleteOnExit();
-                                    FileUtils.copyURItoFile(context, uri, file);
-                                    filesToProcess.add(file);
-                                } catch (final IOException e) {
-                                    LOG.error("Failed to create temp file for activity file", e);
-                                }
-                            }
-
-                            if (filesToProcess.isEmpty()) {
-                                return;
-                            }
-
-                            final FitAsyncProcessor fitAsyncProcessor = new FitAsyncProcessor(context, handler.getDevice());
-                            final long[] lastNotificationUpdateTs = new long[]{System.currentTimeMillis()};
-                            fitAsyncProcessor.process(filesToProcess, false, new FitAsyncProcessor.Callback() {
-                                @Override
-                                public void onProgress(final int i) {
-                                    final long now = System.currentTimeMillis();
-                                    if (now - lastNotificationUpdateTs[0] > 1500L) {
-                                        lastNotificationUpdateTs[0] = now;
-                                        GB.updateTransferNotification(
-                                                "Parsing fit files", "File " + i + " of " + filesToProcess.size(),
-                                                true,
-                                                (i * 100) / filesToProcess.size(), context
-                                        );
-                                    }
-                                }
-
-                                @Override
-                                public void onFinish() {
-                                    GB.updateTransferNotification("", "", false, 100, context);
-                                    GB.toast("Parsed " + filesToProcess.size() + " files", Toast.LENGTH_SHORT, GB.INFO);
-                                    handler.getDevice().sendDeviceUpdateIntent(context);
-                                }
-                            });
-                        }
-                    }
-            );
-            prefImportActivityFiles.setOnPreferenceClickListener(preference -> {
-                activityFileChooser.launch(new String[]{"*/*"});
-                return true;
-            });
-        }
-
-        final PreferenceCategory prefAgpsHeader = handler.findPreference(DeviceSettingsPreferenceConst.PREF_HEADER_AGPS);
-        if (prefAgpsHeader != null) {
-            final List<String> urls = prefs.getList(GarminPreferences.PREF_AGPS_KNOWN_URLS, Collections.emptyList(), "\n");
-            if (urls.isEmpty()) {
-                return;
-            }
-
-            final String currentFolder = prefs.getString(GarminPreferences.PREF_GARMIN_AGPS_FOLDER, "");
-
-            final Preference prefFolder = Objects.requireNonNull(handler.findPreference(GarminPreferences.PREF_GARMIN_AGPS_FOLDER));
-            final ActivityResultLauncher<Uri> agpsFolderChooser = handler.registerForActivityResult(
-                    new ActivityResultContracts.OpenDocumentTree(),
-                    localUri -> {
-                        LOG.info("Garmin agps folder: {}", localUri);
-                        if (localUri != null) {
-                            handler.getContext().getContentResolver().takePersistableUriPermission(localUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                            prefs.getPreferences().edit()
-                                    .putString(GarminPreferences.PREF_GARMIN_AGPS_FOLDER, localUri.toString())
-                                    .apply();
-                            prefFolder.setSummary(localUri.toString());
-
-                            for (final String url : urls) {
-                                updateAgpsStatus(handler, prefs, url);
-                            }
-                        }
-                    }
-            );
-            prefFolder.setOnPreferenceClickListener(preference -> {
-                agpsFolderChooser.launch(null);
-                return true;
-            });
-            prefFolder.setSummary(currentFolder);
-            prefAgpsHeader.addPreference(prefFolder);
-
-            int i = 0;
-            for (final String url : urls) {
-                i++;
-
-                final Preference prefHeader = new PreferenceCategory(handler.getContext());
-                prefHeader.setKey("pref_agps_url_header_" + i);
-                prefHeader.setIconSpaceReserved(false);
-                prefHeader.setTitle(handler.getContext().getString(R.string.garmin_agps_url_i, i));
-                prefAgpsHeader.addPreference(prefHeader);
-
-                final Preference prefUrl = new Preference(handler.getContext());
-                prefUrl.setOnPreferenceClickListener(preference -> {
-                    final ClipboardManager clipboard = (ClipboardManager) handler.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                    final ClipData clip = ClipData.newPlainText(handler.getContext().getString(R.string.url), url);
-                    clipboard.setPrimaryClip(clip);
-                    toast(handler.getContext(), handler.getContext().getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT, GB.INFO);
-                    return true;
-                });
-                prefUrl.setKey("pref_garmin_agps_url_" + i);
-                prefUrl.setIcon(R.drawable.ic_link);
-                prefUrl.setTitle(R.string.url);
-                prefUrl.setSummary(url);
-                prefAgpsHeader.addPreference(prefUrl);
-
-                final Preference prefLocalFile = new Preference(handler.getContext());
-                prefLocalFile.setOnPreferenceClickListener(preference -> {
-                    selectAgpsFile(handler, prefs, url, prefLocalFile);
-                    return true;
-                });
-                prefLocalFile.setKey(GarminPreferences.agpsFilename(url));
-                prefLocalFile.setIcon(R.drawable.ic_file_open);
-                prefLocalFile.setTitle(R.string.garmin_agps_local_file);
-                prefLocalFile.setSummary(prefs.getString(GarminPreferences.agpsFilename(url), ""));
-                prefAgpsHeader.addPreference(prefLocalFile);
-
-                final Preference prefStatus = new Preference(handler.getContext());
-                prefStatus.setKey(GarminPreferences.agpsStatus(url));
-                prefStatus.setIcon(R.drawable.ic_health);
-                prefStatus.setTitle(R.string.status);
-                prefAgpsHeader.addPreference(prefStatus);
-                updateAgpsStatus(handler, prefs, url);
-
-                final Preference prefUpdateTime = new Preference(handler.getContext());
-                prefUpdateTime.setKey(GarminPreferences.agpsUpdateTime(url));
-                prefUpdateTime.setIcon(R.drawable.ic_calendar_today);
-                prefUpdateTime.setTitle(R.string.pref_agps_update_time);
-                final long ts = prefs.getLong(GarminPreferences.agpsUpdateTime(url), 0L);
-                if (ts > 0) {
-                    prefUpdateTime.setSummary(String.format("%s (%s)",
-                            SDF.format(new Date(ts)),
-                            DateTimeUtils.formatDurationHoursMinutes(System.currentTimeMillis() - ts, TimeUnit.MILLISECONDS)
-                    ));
-                } else {
-                    prefUpdateTime.setSummary(handler.getContext().getString(R.string.unknown));
-                }
-                prefAgpsHeader.addPreference(prefUpdateTime);
-            }
-        }
-
         final PreferenceCategory blacklistedDomains = handler.findPreference("pref_category_internet_firewall_blacklisted_domains");
         if (blacklistedDomains != null) {
-            final Preference url1 = new Preference(handler.getContext());
-            url1.setKey("pref_blacklisted_url_garmin_com");
-            url1.setPersistent(false);
-            url1.setSelectable(false);
-            url1.setIcon(R.drawable.ic_block);
-            url1.setSummary("garmin.com");
-            blacklistedDomains.addPreference(url1);
-
-            final Preference url2 = new Preference(handler.getContext());
-            url2.setKey("pref_blacklisted_url_dciwx_com");
-            url2.setPersistent(false);
-            url2.setSelectable(false);
-            url2.setIcon(R.drawable.ic_block);
-            url2.setSummary("dciwx.com");
-            blacklistedDomains.addPreference(url2);
-
-            final Preference url3 = new Preference(handler.getContext());
-            url3.setKey("pref_blacklisted_url_garmin_cn");
-            url3.setPersistent(false);
-            url3.setSelectable(false);
-            url3.setIcon(R.drawable.ic_block);
-            url3.setSummary("garmin.cn");
-            blacklistedDomains.addPreference(url3);
+            addBlockedDomain(handler, blacklistedDomains, "pref_blacklisted_url_garmin_com", "garmin.com");
+            addBlockedDomain(handler, blacklistedDomains, "pref_blacklisted_url_dciwx_com", "dciwx.com");
+            addBlockedDomain(handler, blacklistedDomains, "pref_blacklisted_url_garmin_cn", "garmin.cn");
         }
 
         final Preference prefSleepSend = handler.findPreference("garmin_experimental_sleep_send");
@@ -288,17 +76,77 @@ public class GarminSettingsCustomizer implements DeviceSpecificSettingsCustomize
             prefSleepSend.setOnPreferenceClickListener(dummy -> sendSleep(handler));
         }
 
-        final Preference prefSendWaypoint = handler.findPreference(GarminPreferences.PREF_GARMIN_SEND_WAYPOINT);
-        if (prefSendWaypoint != null) {
-            prefSendWaypoint.setOnPreferenceClickListener(dummy ->
-                    GarminSendWaypointActivity.Companion.handlePreferenceClick(handler));
+        final Preference prefConnection = handler.findPreference("garmin_experimental_connection_send");
+        if (prefConnection != null) {
+            prefConnection.setOnPreferenceClickListener(dummy -> sendConnection(handler));
         }
+    }
+
+    private boolean sendConnection(DeviceSpecificSettingsHandler handler) {
+        final GBDevice device = handler.getDevice();
+        if (!device.isInitialized()) {
+            LOG.warn("ConnectionTest device: {}", device.getState());
+            toast(handler.getContext(), R.string.device_not_connected, Toast.LENGTH_LONG, GB.ERROR);
+            return false;
+        }
+
+        final FitLocalMessageBuilder messages = new FitLocalMessageBuilder();
+        final long now = System.currentTimeMillis() / 1000L;
+
+        final FitFileId.Builder fileId = new FitFileId.Builder();
+        fileId.setType(FileType.FILETYPE.SETTINGS);
+        fileId.setManufacturer(FitDevice.M1_P65534.manufacturer);
+        fileId.setProduct(FitDevice.M1_P65534.product);
+        fileId.setSerialNumber(1L);
+        fileId.setTimeCreated(now);
+        fileId.setNumber(0);
+        messages.addRecordData(fileId.build(messages.getNextAvailableLocalMessageType()));
+
+        final DevicePrefs prefs = GBApplication.getDevicePrefs(device);
+        final int wifi = prefs.getInt("garmin_experimental_connection_Wifi", -2);
+        final int wifiAutoUpload = prefs.getInt("garmin_experimental_connection_WifiAutoUpload", -2);
+
+        final FitDeviceSettings.Builder settings = new FitDeviceSettings.Builder();
+        if (wifi != -2) {
+            settings.setWifiEnabled(wifi == -1 ? null : wifi);
+        }
+        if (wifiAutoUpload != -2) {
+            settings.setWifiAutoUploadEnabled(wifiAutoUpload == -1 ? null : wifiAutoUpload);
+        }
+        messages.addRecordData(settings.build(messages.getNextAvailableLocalMessageType()));
+
+        final FitFile fitFile = new FitFile(messages.getRecordDataList());
+        final byte[] fitBytes = fitFile.getOutgoingMessage();
+
+        final Uri uri = Uri.parse("fake://SendConnection");
+        final Bundle options = new Bundle();
+        options.putByteArray(AbstractDeviceSupport.BUNDLE_EXTRA_INSTALL_BYTES, fitBytes);
+        options.putString(AbstractDeviceSupport.BUNDLE_EXTRA_INSTALL_TASK_NAME, "configure SendConnection");
+
+        final DeviceService deviceService = GBApplication.deviceService(device);
+        LOG.info("send SendConnection to device: Wifi={} WifiAutoUpload={}",
+            wifi, wifiAutoUpload);
+        deviceService.onInstallApp(uri, options);
+        return true;
+    }
+
+    private void addBlockedDomain(final DeviceSpecificSettingsHandler handler,
+                                  final PreferenceCategory category,
+                                  final String key,
+                                  final String domain) {
+        final Preference preference = new Preference(handler.getContext());
+        preference.setKey(key);
+        preference.setPersistent(false);
+        preference.setSelectable(false);
+        preference.setIcon(R.drawable.ic_block);
+        preference.setSummary(domain);
+        category.addPreference(preference);
     }
 
     private boolean sendSleep(DeviceSpecificSettingsHandler handler) {
         final GBDevice device = handler.getDevice();
-        if (device == null || !device.isInitialized()) {
-            LOG.warn("SleepTest device: {}", (device == null) ? "null" : device.getState());
+        if (!device.isInitialized()) {
+            LOG.warn("SleepTest device: {}", device.getState());
             toast(handler.getContext(), R.string.device_not_connected, Toast.LENGTH_LONG, GB.ERROR);
             return false;
         }
@@ -344,85 +192,6 @@ public class GarminSettingsCustomizer implements DeviceSpecificSettingsCustomize
         return true;
     }
 
-    private void selectAgpsFile(final DeviceSpecificSettingsHandler handler, final Prefs prefs, final String url, final Preference prefLocalFile) {
-        final String currentFolder = prefs.getString(GarminPreferences.PREF_GARMIN_AGPS_FOLDER, "");
-
-        final String folderUri = prefs.getString(GarminPreferences.PREF_GARMIN_AGPS_FOLDER, "");
-        if (folderUri.isEmpty()) {
-            GB.toast(handler.getContext().getString(R.string.no_folder_selected), Toast.LENGTH_SHORT, GB.INFO);
-            return;
-        }
-
-        final DocumentFile folder = DocumentFile.fromTreeUri(handler.getContext(), Uri.parse(currentFolder));
-        if (folder == null || folder.listFiles().length == 0) {
-            GB.toast(handler.getContext().getString(R.string.folder_is_empty), Toast.LENGTH_SHORT, GB.INFO);
-            return;
-        }
-
-        final DocumentFile[] documentFiles = folder.listFiles();
-        final String[] files = new String[documentFiles.length + 1];
-        files[0] = handler.getContext().getString(R.string.none);
-        final String selectedFile = prefs.getString(GarminPreferences.agpsFilename(url), "");
-        int checkedItem = 0;
-        for (int j = 0; j < documentFiles.length; j++) {
-            files[j + 1] = documentFiles[j].getName();
-            if (selectedFile.equals(files[j + 1])) {
-                checkedItem = j + 1;
-            }
-        }
-
-        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(handler.getContext());
-        builder.setTitle(R.string.garmin_agps_local_file);
-
-        final AtomicInteger selectedIdx = new AtomicInteger(0);
-        builder.setSingleChoiceItems(files, checkedItem, (dialog, which) -> selectedIdx.set(which));
-        builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-            final String selectedFilename = selectedIdx.get() > 0 ? files[selectedIdx.get()] : null;
-            prefs.getPreferences().edit()
-                    .putString(GarminPreferences.agpsFilename(url), selectedFilename)
-                    .apply();
-            prefLocalFile.setSummary(selectedFilename);
-            updateAgpsStatus(handler, prefs, url);
-        });
-        builder.setNegativeButton(android.R.string.cancel, null);
-        builder.create().show();
-    }
-
-    private void updateAgpsStatus(final DeviceSpecificSettingsHandler handler, final Prefs prefs, final String url) {
-        final Preference prefStatus = handler.findPreference(GarminPreferences.agpsStatus(url));
-        if (prefStatus == null) {
-            return;
-        }
-
-        final String filename = prefs.getString(GarminPreferences.agpsFilename(url), "");
-        if (filename.isEmpty()) {
-            prefStatus.setSummary("");
-            return;
-        }
-        final String folderUri = prefs.getString(GarminPreferences.PREF_GARMIN_AGPS_FOLDER, "");
-        if (folderUri.isEmpty()) {
-            prefStatus.setSummary("");
-            return;
-        }
-        final DocumentFile folder = DocumentFile.fromTreeUri(handler.getContext(), Uri.parse(folderUri));
-        if (folder == null) {
-            prefStatus.setSummary("");
-            return;
-        }
-        final GarminAgpsStatus agpsStatus;
-        final DocumentFile localFile = folder.findFile(filename);
-        if (localFile != null && localFile.isFile() && localFile.canRead()) {
-            if (localFile.lastModified() < prefs.getLong(GarminPreferences.agpsUpdateTime(url), 0L)) {
-                agpsStatus = GarminAgpsStatus.CURRENT;
-            } else {
-                agpsStatus = GarminAgpsStatus.PENDING;
-            }
-        } else {
-            agpsStatus = GarminAgpsStatus.MISSING;
-        }
-        prefStatus.setSummary(handler.getContext().getString(agpsStatus.getText()));
-    }
-
     @Override
     public Set<String> getPreferenceKeysWithSummary() {
         return Collections.emptySet();
@@ -449,69 +218,4 @@ public class GarminSettingsCustomizer implements DeviceSpecificSettingsCustomize
     public void writeToParcel(@NonNull Parcel dest, int flags) {
     }
 
-    private static final AtomicBoolean PARSING_FROM_STORAGE = new AtomicBoolean(false);
-
-    private static void parseAllFitFilesFromStorage(final Context context, final GBDevice device) {
-        if (!PARSING_FROM_STORAGE.compareAndSet(false, true)) {
-            GB.toast(context, "Already parsing!", Toast.LENGTH_LONG, GB.ERROR);
-            return;
-        }
-
-        LOG.info("Parsing all fit files from storage");
-
-        final List<File> fitFiles;
-        try {
-            final File exportDir = device.getDeviceCoordinator().getWritableExportDirectory(device, true);
-
-            if (!exportDir.exists() || !exportDir.isDirectory()) {
-                LOG.error("export directory {} not found", exportDir);
-                GB.toast(context, "export directory " + exportDir + " not found", Toast.LENGTH_LONG, GB.ERROR);
-                PARSING_FROM_STORAGE.set(false);
-                return;
-            }
-
-            fitFiles = FileUtils.listRecursive(exportDir, (dir, name) -> name.endsWith(".fit"));
-            if (fitFiles.isEmpty()) {
-                LOG.error("No fit files found in {}", exportDir);
-                GB.toast(context, "No fit files found in " + exportDir, Toast.LENGTH_LONG, GB.ERROR);
-                PARSING_FROM_STORAGE.set(false);
-                return;
-            }
-        } catch (final Exception e) {
-            LOG.error("Failed to parse from storage", e);
-            GB.toast(context, "Failed to parse from storage", Toast.LENGTH_LONG, GB.ERROR, e);
-            PARSING_FROM_STORAGE.set(false);
-            return;
-        }
-
-        LOG.debug("Got {} fit files to parse", fitFiles.size());
-
-        GB.toast(context, "Check notification for progress", Toast.LENGTH_LONG, GB.INFO);
-
-        final GBProgressNotification transferNotification = new GBProgressNotification(context, GB.NOTIFICATION_CHANNEL_ID_TRANSFER);
-        transferNotification.start(R.string.busy_task_processing_files, 0, fitFiles.size());
-
-        //try (DBHandler handler = GBApplication.acquireDB()) {
-        //    final DaoSession session = handler.getDaoSession();
-        //    final Device device = DBHelper.getDevice(gbDevice, session);
-        //    //getCoordinator().deleteAllActivityData(device, session);
-        //} catch (final Exception e) {
-        //    GB.toast(context, "Error deleting activity data", Toast.LENGTH_LONG, GB.ERROR, e);
-        //}
-
-        final FitAsyncProcessor fitAsyncProcessor = new FitAsyncProcessor(context, device);
-        fitAsyncProcessor.process(fitFiles, true, new FitAsyncProcessor.Callback() {
-            @Override
-            public void onProgress(final int i) {
-                transferNotification.setTotalProgress(i);
-            }
-
-            @Override
-            public void onFinish() {
-                PARSING_FROM_STORAGE.set(false);
-                transferNotification.finish();
-                GB.signalActivityDataFinish(device);
-            }
-        });
-    }
 }

@@ -20,6 +20,7 @@ package nodomain.freeyourgadget.gadgetbridge.service.serial;
 import android.location.Location;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.Alarm;
 import nodomain.freeyourgadget.gadgetbridge.model.CalendarEventSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.CallSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.CannedMessagesSpec;
+import nodomain.freeyourgadget.gadgetbridge.model.FindDeviceTarget;
 import nodomain.freeyourgadget.gadgetbridge.model.MusicSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.MusicStateSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationSpec;
@@ -239,6 +241,12 @@ public abstract class AbstractSerialDeviceSupport extends AbstractBluetoothDevic
     @Override
     public void onFindDevice(boolean start) {
         byte[] bytes = gbDeviceProtocol.encodeFindDevice(start);
+        sendToDevice(bytes);
+    }
+
+    @Override
+    public void onFindDevice(final boolean start, @NonNull final FindDeviceTarget target) {
+        final byte[] bytes = gbDeviceProtocol.encodeFindDevice(start, target);
         sendToDevice(bytes);
     }
 

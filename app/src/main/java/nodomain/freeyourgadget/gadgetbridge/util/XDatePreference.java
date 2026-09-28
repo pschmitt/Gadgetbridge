@@ -50,7 +50,8 @@ public class XDatePreference extends DialogPreference {
 
         if (StringUtils.isNullOrEmpty(persistedString)) {
             final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
-            dateStr = getPersistedString(sdf.format(new Date()));
+            dateStr = sdf.format(new Date());
+            persistStringValue(dateStr);
         } else {
             dateStr = persistedString;
         }

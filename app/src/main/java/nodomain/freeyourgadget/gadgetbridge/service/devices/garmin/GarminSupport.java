@@ -70,6 +70,7 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.appmanager.config.DynamicAppConfig;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
+import nodomain.freeyourgadget.gadgetbridge.database.repository.WorkoutTemplateRepository;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEvent;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventAppInfo;
 import nodomain.freeyourgadget.gadgetbridge.devices.PendingFileProvider;
@@ -94,6 +95,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.NotificationSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.RecordedDataTypes;
 import nodomain.freeyourgadget.gadgetbridge.model.weather.Weather;
 import nodomain.freeyourgadget.gadgetbridge.model.WeatherSpec;
+import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutTemplate;
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiCore;
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiDeviceStatus;
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiFileSyncService;
@@ -132,6 +134,7 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitDeviceSettings;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitFileId;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitWeather;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.workouts.GarminWorkoutFitEncoder;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.messages.CurrentTimeRequestMessage;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.messages.DownloadRequestMessage;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.messages.GFDIMessage;
@@ -240,10 +243,7 @@ public class GarminSupport extends AbstractBTLESingleDeviceSupport implements IC
     public void dispose() {
         synchronized (ConnectionMonitor) {
             LOG.info("Garmin dispose()");
-            // Clear any in-flight transfer notification; otherwise a disconnect
-            // mid-sync leaves the progress notification pinned indefinitely.
-            transferNotification.finish();
-            isBusyFetching = false;
+            resetFileSyncState();
             if (sleepAsAndroidSender != null) {
                 sleepAsAndroidSender.stopTracking();
             }
@@ -311,6 +311,8 @@ public class GarminSupport extends AbstractBTLESingleDeviceSupport implements IC
     @Override
     protected TransactionBuilder initializeDevice(final TransactionBuilder builder) {
         builder.setDeviceState(GBDevice.State.INITIALIZING);
+
+        resetFileSyncState();
 
         if (getDevicePrefs().getBoolean(PREF_ALLOW_HIGH_MTU, true)) {
             builder.requestMtu(515);
@@ -574,6 +576,16 @@ public class GarminSupport extends AbstractBTLESingleDeviceSupport implements IC
 
         if (dataTypes == RecordedDataTypes.TYPE_SYNC) {
             requestBatteryUpdate();
+        }
+
+        if (newSyncProtocol() && !getDevicePrefs().getBoolean("garmin_legacy_sync_flush", true)) {
+            // #6700 - Some firmwares will freeze on the legacy sync request
+            LOG.warn("Legacy sync flush is disabled - requesting file list directly");
+            sendProtobufRequest("directly request file list",
+                Smart.newBuilder().setFileSyncService(
+                    protocolBufferHandler.getFileSyncServiceHandler().requestFileList()
+                ).build());
+            return;
         }
 
         if (this.supportedFileTypeList.isEmpty() && !newSyncProtocol()) {
@@ -912,6 +924,15 @@ public class GarminSupport extends AbstractBTLESingleDeviceSupport implements IC
         }
     }
 
+    private void resetFileSyncState() {
+        // Clear any in-flight transfer notification; otherwise a disconnect
+        // mid-sync leaves the progress notification pinned indefinitely.
+        transferNotification.finish();
+        isBusyFetching = false;
+        currentlyDownloading = null;
+        filesToDownload.clear();
+    }
+
     private void processDownloadQueue() {
         if (LOG.isTraceEnabled()) {
             LOG.trace(
@@ -1230,10 +1251,10 @@ public class GarminSupport extends AbstractBTLESingleDeviceSupport implements IC
                 .setNumber(1)
                 .build());
 
-        final List<Number> deviceSettingsTimes = new ArrayList<>();
-        final List<Number> deviceSettingsMode = new ArrayList<>();
-        final List<Number> deviceSettingsEnabled = new ArrayList<>();
-        final List<Number> deviceSettingsRepeat = new ArrayList<>();
+        final List<Integer> deviceSettingsTimes = new ArrayList<>();
+        final List<Integer> deviceSettingsMode = new ArrayList<>();
+        final List<Integer> deviceSettingsEnabled = new ArrayList<>();
+        final List<Long> deviceSettingsRepeat = new ArrayList<>();
 
         int numberEnabledAlarms = 0;
         for (Alarm alarm : alarms) {
@@ -1288,10 +1309,10 @@ public class GarminSupport extends AbstractBTLESingleDeviceSupport implements IC
 
         if (numberEnabledAlarms > 0) {
             final FitDeviceSettings.Builder deviceSettingsBuilder = new FitDeviceSettings.Builder()
-                    .setAlarmsTime(deviceSettingsTimes.toArray(new Number[0]))
-                    .setAlarmsMode(deviceSettingsMode.toArray(new Number[0]))
-                    .setAlarmsEnabled(deviceSettingsEnabled.toArray(new Number[0]))
-                    .setAlarmsRepeat(deviceSettingsRepeat.toArray(new Number[0]));
+                    .setAlarmsTime(deviceSettingsTimes.toArray(new Integer[0]))
+                    .setAlarmsMode(deviceSettingsMode.toArray(new Integer[0]))
+                    .setAlarmsEnabled(deviceSettingsEnabled.toArray(new Integer[0]))
+                    .setAlarmsRepeat(deviceSettingsRepeat.toArray(new Long[0]));
 
             dataRecords.add(deviceSettingsBuilder.build());
         }
@@ -1522,6 +1543,47 @@ public class GarminSupport extends AbstractBTLESingleDeviceSupport implements IC
                                     )
                             ).build());
         }
+    }
+
+    @Override
+    public void onSyncWorkoutTemplate(final long templateId) {
+        final WorkoutTemplate template = WorkoutTemplateRepository.INSTANCE.load(templateId);
+        if (template == null) {
+            LOG.error("Workout template {} not found", templateId);
+            return;
+        }
+
+        final FitFile fitFile = GarminWorkoutFitEncoder.INSTANCE.encode(
+                template,
+                GarminTimeUtils.javaMillisToGarminTimestamp(System.currentTimeMillis())
+        );
+        if (fitFile == null) {
+            LOG.error("Failed to encode workout template {} as a fit file", templateId);
+            WorkoutTemplateRepository.INSTANCE.markSyncFailed(templateId, "FIT encoding failed");
+            return;
+        }
+
+        // The hash is saved before the upload, so an edit made during the upload shows as out of date
+        final int contentHash = WorkoutTemplateRepository.INSTANCE.contentHash(template);
+        WorkoutTemplateRepository.INSTANCE.markSyncPending(templateId);
+
+        communicator.sendMessage(
+                "upload workout template " + templateId,
+                fileTransferHandler.initiateUpload(
+                        fitFile.getOutgoingMessage(),
+                        FileType.FILETYPE.WORKOUTS,
+                        success -> {
+                            if (success) {
+                                WorkoutTemplateRepository.INSTANCE.markSynced(templateId, null, contentHash);
+                            } else {
+                                WorkoutTemplateRepository.INSTANCE.markSyncFailed(
+                                        templateId,
+                                        getContext().getString(R.string.workout_template_sync_failed_transfer)
+                                );
+                            }
+                        }
+                ).getOutgoingMessage()
+        );
     }
 
     @Override

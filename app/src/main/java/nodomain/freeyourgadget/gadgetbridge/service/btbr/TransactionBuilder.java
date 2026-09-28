@@ -80,12 +80,6 @@ public class TransactionBuilder {
         return add(action);
     }
 
-    /// @deprecated use {@link #sleep(int)} instead
-    @Deprecated
-    public TransactionBuilder wait(@IntRange(from = 0L) int millis) {
-        return sleep(millis);
-    }
-
     /// Causes the {@link BtBRQueue} to execute the {@link Predicate} and expect no {@link SocketCallback} result.
     /// The {@link Transaction} is aborted if the predicate throws an {@link Exception} or returns {@code false}.
     ///

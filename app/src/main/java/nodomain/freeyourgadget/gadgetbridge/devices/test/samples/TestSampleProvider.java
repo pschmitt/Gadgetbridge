@@ -107,14 +107,15 @@ public class TestSampleProvider extends AbstractSampleProvider<TestSampleProvide
         if (getDevice().getDeviceCoordinator().supportsRemSleep(getDevice())) {
             sleepStages = ArrayUtils.add(sleepStages, ActivityKind.REM_SLEEP.getCode());
         }
+        final boolean supportsAwakeSleep = getDevice().getDeviceCoordinator().supportsAwakeSleep(getDevice());
         int sleepStageCurrent = 0;
         int sleepStageDirection = 1;
         int sleepStageDurationRemaining = TestDeviceRand.randInt(timestamp_from * 1000L, 30, 90);
 
         boolean isActive = false;
         float dayActivityFactor = TestDeviceRand.randFloat(timestamp_from * 1000L, 0f, 1f);
-        int steps = (int) (TestDeviceRand.randInt(timestamp_from * 1000L, 0, 100) * dayActivityFactor);
-        int intensity = TestDeviceRand.randInt(timestamp_from * 1000L, 0, 100);
+        int steps = 0;
+        int intensity = 0;
         int hr = TestDeviceRand.randInt(timestamp_from * 1000L, minHeartRateValue, maxHeartRateValue);
 
         final long bedtimeHour = TestDeviceRand.randInt(timestamp_from, 21, 22);
@@ -146,11 +147,44 @@ public class TestSampleProvider extends AbstractSampleProvider<TestSampleProvide
                 isActive = TestDeviceRand.randBool(ts, 0.05F);
             }
 
+            final boolean isAwakeSleep = isSleep && supportsAwakeSleep && TestDeviceRand.randBool(ts, 0.03f);
+
+            final int targetHr;
+            final int targetIntensity;
+            final int targetSteps;
+            if (isSleep) {
+                targetHr = TestDeviceRand.randInt(ts, 48, 62);
+                targetIntensity = TestDeviceRand.randInt(ts, 0, 10);
+                targetSteps = 0;
+            } else if (isActive) {
+                targetHr = TestDeviceRand.randInt(ts, 95, 145);
+                targetIntensity = (int) (TestDeviceRand.randInt(ts, 40, 100) * dayActivityFactor);
+                targetSteps = (int) (TestDeviceRand.randInt(ts, 60, 120) * dayActivityFactor);
+            } else {
+                targetHr = TestDeviceRand.randInt(ts, 62, 85);
+                targetIntensity = TestDeviceRand.randInt(ts, 0, 20);
+                targetSteps = TestDeviceRand.randInt(ts, 0, 10);
+            }
+
+            hr += Math.max(-4, Math.min(4, targetHr - hr));
+            hr = Math.min(maxHeartRateValue, Math.max(minHeartRateValue, hr));
+            intensity += (targetIntensity - intensity) / 2;
+            steps += (targetSteps - steps) / 2;
+
             if (TestDeviceRand.randBool(ts, 0.85f)) {
+                final int kind;
+                if (isAwakeSleep) {
+                    kind = ActivityKind.AWAKE_SLEEP.getCode();
+                } else if (isSleep) {
+                    kind = sleepStages[sleepStageCurrent];
+                } else {
+                    kind = ActivityKind.UNKNOWN.getCode();
+                }
+
                 samples.add(new TestActivitySample(
                         (int) (ts / 1000),
-                        isSleep ? sleepStages[sleepStageCurrent] : ActivityKind.UNKNOWN.getCode(),
-                        isActive ? steps : 0,
+                        kind,
+                        steps,
                         intensity,
                         hr
                 ));
@@ -166,11 +200,6 @@ public class TestSampleProvider extends AbstractSampleProvider<TestSampleProvide
                     }
                 }
             }
-
-            steps += (int) (TestDeviceRand.randInt(ts, -steps, 100 - steps) * dayActivityFactor);
-            intensity += TestDeviceRand.randInt(ts, -1, 1);
-            hr += TestDeviceRand.randInt(ts, -2, 2);
-            hr = Math.min(maxHeartRateValue, Math.max(minHeartRateValue, hr));
         }
 
         return samples;

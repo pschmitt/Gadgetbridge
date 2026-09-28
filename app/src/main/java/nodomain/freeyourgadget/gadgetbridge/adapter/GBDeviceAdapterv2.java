@@ -56,6 +56,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -129,6 +130,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser;
 import nodomain.freeyourgadget.gadgetbridge.model.BatteryState;
 import nodomain.freeyourgadget.gadgetbridge.model.DailyTotals;
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceType;
+import nodomain.freeyourgadget.gadgetbridge.model.FindDeviceTarget;
 import nodomain.freeyourgadget.gadgetbridge.model.RecordedDataTypes;
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.FormatUtils;
@@ -618,60 +620,7 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         });
 
         holder.findDevice.setVisibility(device.isInitialized() && coordinator.supportsFindDevice(device) ? View.VISIBLE : View.GONE);
-        holder.findDevice.setOnClickListener(new View.OnClickListener() {
-                                                 @Override
-                                                 public void onClick(View v) {
-                                                     new MaterialAlertDialogBuilder(context)
-                                                             .setCancelable(true)
-                                                             .setTitle(context.getString(R.string.controlcenter_find_device))
-                                                             .setMessage(context.getString(R.string.find_lost_device_message, device.getAliasOrName()))
-                                                             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                                 @Override
-                                                                 public void onClick(DialogInterface dialog, int which) {
-                                                                     if (device.getType() == DeviceType.VIBRATISSIMO) {
-                                                                         Intent startIntent;
-                                                                         startIntent = new Intent(context, VibrationActivity.class);
-                                                                         startIntent.putExtra(GBDevice.EXTRA_DEVICE, device);
-                                                                         context.startActivity(startIntent);
-                                                                         return;
-                                                                     }
-                                                                     GBApplication.deviceService(device).onFindDevice(true);
-                                                                     Snackbar.make(parent, R.string.control_center_find_lost_device, Snackbar.LENGTH_INDEFINITE).setAction(R.string.find_lost_device_you_found_it, new View.OnClickListener() {
-                                                                         @Override
-                                                                         public void onClick(View v) {
-                                                                             GBApplication.deviceService(device).onFindDevice(false);
-                                                                         }
-                                                                     }).setCallback(new Snackbar.Callback() {
-                                                                         @Override
-                                                                         public void onDismissed(Snackbar snackbar, int event) {
-                                                                             GBApplication.deviceService(device).onFindDevice(false);
-                                                                             super.onDismissed(snackbar, event);
-                                                                         }
-                                                                     }).show();
-
-                                                                 }
-                                                             })
-                                                             .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                                                 @Override
-                                                                 public void onClick(DialogInterface dialog, int which) {
-                                                                     // do nothing
-                                                                 }
-                                                             })
-                                                             .show();
-//                                                             ProgressDialog.show(
-//                                                             context,
-//                                                             context.getString(R.string.control_center_find_lost_device),
-//                                                             context.getString(R.string.control_center_cancel_to_stop_vibration),
-//                                                             true, true,
-//                                                             new DialogInterface.OnCancelListener() {
-//                                                                 @Override
-//                                                                 public void onCancel(DialogInterface dialog) {
-//                                                                     GBApplication.deviceService().onFindDevice(false);
-//                                                                 }
-//                                                             });
-                                                 }
-                                             }
-        );
+        holder.findDevice.setOnClickListener(v -> showFindDeviceDialog(device, coordinator));
 
         holder.calibrateDevice.setVisibility(device.isInitialized() && (coordinator.getCalibrationActivity() != null) ? View.VISIBLE : View.GONE);
         holder.calibrateDevice.setOnClickListener(new View.OnClickListener() {
@@ -925,6 +874,77 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
     private boolean showInstallerItem(GBDevice device) {
         final DeviceCoordinator coordinator = device.getDeviceCoordinator();
         return coordinator.supportsAppsManagement(device) || coordinator.supportsFlashing(device);
+    }
+
+    /**
+     * Shows the dialog that asks the user to confirm the "find device" function.
+     * Devices that support {@link DeviceCoordinator#supportsFindDevicePerEarbud}
+     * also let the user select a earbud, or both.
+     */
+    private void showFindDeviceDialog(final GBDevice device, final DeviceCoordinator coordinator) {
+        final String message = context.getString(R.string.find_lost_device_message, device.getAliasOrName());
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context)
+                .setCancelable(true)
+                .setTitle(R.string.controlcenter_find_device)
+                .setNegativeButton(R.string.cancel, (dialog, which) -> {});
+
+        if (!coordinator.supportsFindDevicePerEarbud(device)) {
+            if (coordinator.getDeviceKind(device) == DeviceCoordinator.DeviceKind.HEADPHONES) {
+                // For headphones, display a warning
+                builder.setMessage(message + "\n\n" + context.getString(R.string.earfun_find_headphones_hint));
+            } else {
+                builder.setMessage(message);
+            }
+            builder.setPositiveButton(R.string.ok, (dialog, which) -> startFindDevice(device, FindDeviceTarget.ALL))
+                    .show();
+            return;
+        }
+
+        final View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_find_device, parent, false);
+        final TextView messageView = dialogView.findViewById(R.id.find_device_message);
+        messageView.setText(message);
+        final RadioGroup targetGroup = dialogView.findViewById(R.id.find_device_target_group);
+
+        builder.setView(dialogView)
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    final int checkedId = targetGroup.getCheckedRadioButtonId();
+                    final FindDeviceTarget target;
+                    if (checkedId == R.id.find_device_target_left) {
+                        target = FindDeviceTarget.LEFT;
+                    } else if (checkedId == R.id.find_device_target_right) {
+                        target = FindDeviceTarget.RIGHT;
+                    } else {
+                        target = FindDeviceTarget.ALL;
+                    }
+                    startFindDevice(device, target);
+                })
+                .show();
+    }
+
+    /**
+     * Starts the "find device" function and shows a snackbar that lets the user
+     * stop it.
+     */
+    private void startFindDevice(final GBDevice device, final FindDeviceTarget target) {
+        if (device.getType() == DeviceType.VIBRATISSIMO) {
+            final Intent startIntent = new Intent(context, VibrationActivity.class);
+            startIntent.putExtra(GBDevice.EXTRA_DEVICE, device);
+            context.startActivity(startIntent);
+            return;
+        }
+
+        GBApplication.deviceService(device).onFindDevice(true, target);
+
+        Snackbar.make(parent, R.string.control_center_find_lost_device, Snackbar.LENGTH_INDEFINITE)
+                .setAction(R.string.find_lost_device_you_found_it, v -> GBApplication.deviceService(device).onFindDevice(false, target))
+                .setCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(final Snackbar snackbar, final int event) {
+                        GBApplication.deviceService(device).onFindDevice(false, target);
+                        super.onDismissed(snackbar, event);
+                    }
+                })
+                .show();
     }
 
     private void showDeviceSubmenu(final View v, final GBDevice device) {

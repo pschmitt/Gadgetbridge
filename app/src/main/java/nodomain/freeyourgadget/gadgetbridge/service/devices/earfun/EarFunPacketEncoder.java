@@ -26,9 +26,6 @@ public class EarFunPacketEncoder {
                 // battery levels
                 new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_BATTERY_STATE_LEFT).encode(),
                 new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_BATTERY_STATE_RIGHT).encode(),
-                // sound settings
-                new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_GAME_MODE).encode(),
-                new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_AMBIENT_SOUND).encode(),
                 // touch settings
                 new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_TOUCH_ACTION).encode()
         );
@@ -39,9 +36,6 @@ public class EarFunPacketEncoder {
                 encodeCommonSettingsReq(),
                 // battery levels
                 new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_BATTERY_STATE_CASE).encode(),
-                // sound settings
-                new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_ANC_MODE).encode(),
-                new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_TRANSPARENCY_MODE).encode(),
                 // touch settings
                 new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_TOUCH_MODE).encode(),
                 new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_DISABLE_IN_EAR_DETECTION).encode(),
@@ -52,6 +46,15 @@ public class EarFunPacketEncoder {
                 new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_FIND_DEVICE).encode(),
                 new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_VOICE_PROMPT_VOLUME).encode(),
                 new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_AUDIO_CODEC).encode()
+        );
+    }
+
+    public static byte[] encodeSoundSettingsReq() {
+        return joinPackets(
+                new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_AMBIENT_SOUND).encode(),
+                new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_TRANSPARENCY_MODE).encode(),
+                new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_ANC_MODE).encode(),
+                new EarFunPacket(EarFunPacket.Command.REQUEST_RESPONSE_GAME_MODE).encode()
         );
     }
 

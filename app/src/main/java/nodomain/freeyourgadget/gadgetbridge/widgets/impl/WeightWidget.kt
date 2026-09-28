@@ -47,23 +47,7 @@ object WeightWidget : GaugeWidget<WeightWidget.Data>() {
         device.deviceCoordinator.supportsWeightMeasurement(device)
 
     override suspend fun loadData(scope: WidgetDataScope, config: WidgetConfig): Data {
-        val latest: WeightSample? = try {
-            scope.db { db ->
-                var newest: WeightSample? = null
-                for (dev in scope.devices) {
-                    val sample = dev.deviceCoordinator.getWeightSampleProvider(dev, db.daoSession)
-                        ?.getLatestSample(scope.query.timeTo * 1000L)
-                    if (sample != null && (newest == null || sample.timestamp > newest.timestamp)) {
-                        newest = sample
-                    }
-                }
-                newest
-            }
-        } catch (e: Exception) {
-            LOG.error("Could not get weight samples", e)
-            null
-        }
-
+        val latest = latestWeightSample(scope)
         return Data(latest?.weightKg?.toDouble() ?: 0.0, ActivityUser().heightCm)
     }
 
@@ -83,6 +67,24 @@ object WeightWidget : GaugeWidget<WeightWidget.Data>() {
             return
         }
         drawSimpleGauge(gaugeBar, Bmi.colorFor(bmi), Bmi.gaugeFraction(bmi))
+    }
+
+    /** The most recent weight measurement of any device, on or before the selected day. */
+    internal suspend fun latestWeightSample(scope: WidgetDataScope): WeightSample? = try {
+        scope.db { db ->
+            var newest: WeightSample? = null
+            for (dev in scope.devices) {
+                val sample = dev.deviceCoordinator.getWeightSampleProvider(dev, db.daoSession)
+                    ?.getLatestSample(scope.query.timeTo * 1000L)
+                if (sample != null && (newest == null || sample.timestamp > newest.timestamp)) {
+                    newest = sample
+                }
+            }
+            newest
+        }
+    } catch (e: Exception) {
+        LOG.error("Could not get weight samples", e)
+        null
     }
 
     data class Data(val weightKg: Double, val heightCm: Int)

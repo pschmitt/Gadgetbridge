@@ -8,10 +8,12 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.UUID
 import androidx.core.content.edit
+import nodomain.freeyourgadget.gadgetbridge.util.gson.GsonSerialized
 
 /**
  * The JSON-serializable shape of one configured widget.
  */
+@GsonSerialized
 private data class LayoutEntry(val id: String, val type: String, val cols: Int)
 
 /**

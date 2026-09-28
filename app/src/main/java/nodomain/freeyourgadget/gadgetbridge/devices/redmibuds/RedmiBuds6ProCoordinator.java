@@ -19,12 +19,8 @@ package nodomain.freeyourgadget.gadgetbridge.devices.redmibuds;
 import java.util.regex.Pattern;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettings;
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsCustomizer;
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsScreen;
-import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 
-public class RedmiBuds6ProCoordinator extends AbstractRedmiBudsCoordinator {
+public class RedmiBuds6ProCoordinator extends RedmiBuds5ProCoordinator {
     @Override
     public int getDeviceNameResource() {
         return R.string.devicetype_redmi_buds_6_pro;
@@ -33,23 +29,5 @@ public class RedmiBuds6ProCoordinator extends AbstractRedmiBudsCoordinator {
     @Override
     protected Pattern getSupportedDeviceName() {
         return Pattern.compile("Redmi Buds 6 Pro");
-    }
-
-    @Override
-    public DeviceSpecificSettings getDeviceSpecificSettings(final GBDevice device) {
-        final DeviceSpecificSettings deviceSpecificSettings = new DeviceSpecificSettings();
-        deviceSpecificSettings.addRootScreen(R.xml.devicesettings_redmibuds5pro_headphones);
-        deviceSpecificSettings.addRootScreen(R.xml.devicesettings_redmibuds5pro_gestures);
-        deviceSpecificSettings.addRootScreen(R.xml.devicesettings_redmibuds5pro_sound);
-        deviceSpecificSettings.addSubScreen(
-                DeviceSpecificSettingsScreen.CALLS_AND_NOTIFICATIONS,
-                R.xml.devicesettings_headphones
-        );
-        return deviceSpecificSettings;
-    }
-
-    @Override
-    public DeviceSpecificSettingsCustomizer getDeviceSpecificSettingsCustomizer(final GBDevice device) {
-        return new RedmiBudsSettingsCustomizer(device);
     }
 }

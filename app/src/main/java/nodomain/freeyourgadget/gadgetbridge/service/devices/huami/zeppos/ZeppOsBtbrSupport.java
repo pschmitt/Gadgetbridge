@@ -532,6 +532,11 @@ public class ZeppOsBtbrSupport extends AbstractBTBRDeviceSupport implements Zepp
     }
 
     @Override
+    public void onSyncWorkoutTemplate(final long templateId) {
+        zeppOsSupport.onSyncWorkoutTemplate(templateId);
+    }
+
+    @Override
     public void onDeleteNotification(final int id) {
         zeppOsSupport.onDeleteNotification(id);
     }

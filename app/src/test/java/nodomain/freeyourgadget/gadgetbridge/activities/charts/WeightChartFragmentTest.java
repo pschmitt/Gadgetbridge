@@ -43,6 +43,7 @@ import nodomain.freeyourgadget.gadgetbridge.entities.UserAttributes;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser;
 import nodomain.freeyourgadget.gadgetbridge.test.TestBase;
 import nodomain.freeyourgadget.gadgetbridge.util.BodyCompositionCalculator;
+import nodomain.freeyourgadget.gadgetbridge.util.BodyCompositionEstimates;
 
 public class WeightChartFragmentTest extends TestBase {
     private static final long MINUTE = 60_000L;
@@ -84,14 +85,14 @@ public class WeightChartFragmentTest extends TestBase {
     public void bmiUsesTheHeightRecordedAtTheTimeOfTheMeasurement() {
         final GenericWeightSample sample = measurementTakenWhenShorter(null);
 
-        final Float bmi = WeightChartFragment.estimateBmi(daoSession, sample);
+        final Float bmi = BodyCompositionEstimates.bmi(daoSession, sample);
 
         assertNotNull(bmi);
         assertEquals(WEIGHT_KG / (1.6f * 1.6f), bmi, 0.001f);
         assertNotEquals(WEIGHT_KG / (1.8f * 1.8f), bmi, 0.01f);
         // BMI needs no impedance, unlike the rest of the estimates
-        assertNull(WeightChartFragment.estimateComposition(daoSession, sample));
-        assertNull(WeightChartFragment.estimateBmi(daoSession, null));
+        assertNull(BodyCompositionEstimates.composition(daoSession, sample));
+        assertNull(BodyCompositionEstimates.bmi(daoSession, null));
     }
 
     @Test
@@ -99,7 +100,7 @@ public class WeightChartFragmentTest extends TestBase {
         final GenericWeightSample sample = measurementTakenWhenShorter(IMPEDANCE_OHM);
         final long measuredAt = sample.getTimestamp();
 
-        final BodyCompositionCalculator.BodyComposition actual = WeightChartFragment.estimateComposition(daoSession, sample);
+        final BodyCompositionCalculator.BodyComposition actual = BodyCompositionEstimates.composition(daoSession, sample);
 
         final ActivityUser prefsUser = new ActivityUser();
         final int ageThen = prefsUser.getAgeAt(Instant.ofEpochMilli(measuredAt).atZone(ZoneId.systemDefault()).toLocalDate());
@@ -185,7 +186,7 @@ public class WeightChartFragmentTest extends TestBase {
         sample.setWeightKg(WEIGHT_KG);
         sample.setImpedanceOhm(null);
 
-        assertNull(WeightChartFragment.estimateComposition(daoSession, sample));
-        assertNull(WeightChartFragment.estimateComposition(daoSession, null));
+        assertNull(BodyCompositionEstimates.composition(daoSession, sample));
+        assertNull(BodyCompositionEstimates.composition(daoSession, null));
     }
 }

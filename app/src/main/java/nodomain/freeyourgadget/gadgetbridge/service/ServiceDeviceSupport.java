@@ -44,6 +44,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.CalendarEventSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.CallSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.CannedMessagesSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.Contact;
+import nodomain.freeyourgadget.gadgetbridge.model.FindDeviceTarget;
 import nodomain.freeyourgadget.gadgetbridge.model.MusicSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.MusicStateSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.NavigationInfoSpec;
@@ -382,6 +383,14 @@ public class ServiceDeviceSupport implements DeviceSupport {
     }
 
     @Override
+    public void onFindDevice(final boolean start, @NonNull final FindDeviceTarget target) {
+        if (checkBusy("find device")) {
+            return;
+        }
+        delegate.onFindDevice(start, target);
+    }
+
+    @Override
     public void onFindPhone(final boolean start) {
         if (checkBusy("phone found")) {
             return;
@@ -427,6 +436,14 @@ public class ServiceDeviceSupport implements DeviceSupport {
             return;
         }
         delegate.onSetContacts(contacts);
+    }
+
+    @Override
+    public void onSyncWorkoutTemplate(final long templateId) {
+        if (checkBusy("sync workout template")) {
+            return;
+        }
+        delegate.onSyncWorkoutTemplate(templateId);
     }
 
     @Override

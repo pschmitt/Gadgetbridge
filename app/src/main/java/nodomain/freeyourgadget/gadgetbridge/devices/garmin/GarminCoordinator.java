@@ -31,7 +31,6 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import de.greenrobot.dao.AbstractDao;
@@ -41,9 +40,9 @@ import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.appmanager.AppManagerActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.appmanager.config.DynamicAppConfigActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.charts.DeviceChartsProvider;
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettings;
+import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsCustomizer;
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsScreen;
+import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.DeviceSettingsSpec;
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.GarminBodyEnergySampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.GarminSolarChargeSampleProvider;
@@ -89,6 +88,7 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceCandidate;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryParser;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrackProvider;
+import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.WorkoutTemplateSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.BodyEnergySample;
 import nodomain.freeyourgadget.gadgetbridge.model.SolarChargeSample;
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceType;
@@ -134,15 +134,15 @@ public abstract class GarminCoordinator extends AbstractBLEDeviceCoordinator {
     protected void applyDefaultPreferences(final DevicePrefs devicePreferences, final SharedPreferences.Editor editor) {
         if (defaultNewSyncProtocol()) {
             // #5021 - Some new devices like Venu X1 misses a lot of files without the new sync protocol
-            editor.putBoolean("new_sync_protocol", true);
+            editor.putBoolean(DeviceSettingsPreferenceConst.PREF_NEW_SYNC_PROTOCOL, true);
             // new sync protocol without MLR fails to sync large workouts
-            editor.putBoolean("garmin_mlr", true);
+            editor.putBoolean(GarminPreferences.PREF_GARMIN_MLR, true);
 
             editor.apply();
         }
 
         if (defaultExploreSync()) {
-            editor.putBoolean("garmin_exploresync", true);
+            editor.putBoolean(GarminPreferences.PREF_GARMIN_EXPLORE_SYNC, true);
         }
     }
 
@@ -319,69 +319,15 @@ public abstract class GarminCoordinator extends AbstractBLEDeviceCoordinator {
         );
     }
 
+    @Nullable
     @Override
-    public DeviceSpecificSettings getDeviceSpecificSettings(final GBDevice device) {
-        final DeviceSpecificSettings deviceSpecificSettings = new DeviceSpecificSettings();
+    public WorkoutTemplateSpec getWorkoutTemplateSpec(@NonNull final GBDevice device) {
+        return GarminWorkoutTemplateSpec.INSTANCE.build(this, device);
+    }
 
-        if (supports(device, GarminCapability.REALTIME_SETTINGS)) {
-            deviceSpecificSettings.addRootScreen(R.xml.devicesettings_garmin_realtime_settings);
-        }
-
-        if (supportsCalendarEvents(device)){
-            deviceSpecificSettings.addRootScreen(
-                    DeviceSpecificSettingsScreen.CALENDAR,
-                    R.xml.devicesettings_header_calendar,
-                    R.xml.devicesettings_sync_calendar
-            );
-        }
-
-        if (supportsSendWaypoint(device)) {
-            deviceSpecificSettings.addRootScreen(R.xml.devicesettings_garmin_send_waypoint);
-        }
-
-        final List<Integer> notifications = deviceSpecificSettings.addRootScreen(DeviceSpecificSettingsScreen.CALLS_AND_NOTIFICATIONS);
-
-        notifications.add(R.xml.devicesettings_send_app_notifications);
-
-        notifications.add(R.xml.devicesettings_transliteration);
-
-        if (getCannedRepliesSlotCount(device) > 0) {
-            notifications.add(R.xml.devicesettings_canned_reply_16);
-            notifications.add(R.xml.devicesettings_canned_dismisscall_16);
-        }
-        if (getContactsSlotCount(device) > 0) {
-            notifications.add(R.xml.devicesettings_contacts);
-        }
-
-        final List<Integer> location = deviceSpecificSettings.addRootScreen(DeviceSpecificSettingsScreen.LOCATION);
-        location.add(R.xml.devicesettings_workout_send_gps_to_band);
-        if (supportsAgpsUpdates(device)) {
-            location.add(R.xml.devicesettings_garmin_agps);
-        }
-
-        final List<Integer> dateTime = deviceSpecificSettings.addRootScreen(DeviceSpecificSettingsScreen.DATE_TIME);
-        dateTime.add(R.xml.devicesettings_time_sync);
-
-        final List<Integer> connection = deviceSpecificSettings.addRootScreen(DeviceSpecificSettingsScreen.CONNECTION);
-        connection.add(R.xml.devicesettings_high_mtu);
-
-        if (GBApplication.hasInternetAccess()) {
-            final List<Integer> internet = deviceSpecificSettings.addRootScreen(DeviceSpecificSettingsScreen.INTERNET);
-            internet.add(R.xml.devicesettings_device_internet_access);
-            internet.add(R.xml.devicesettings_device_internet_firewall);
-            internet.add(R.xml.devicesettings_device_internet_firewall_blacklisted_domains);
-        }
-
-        final List<Integer> developer = deviceSpecificSettings.addRootScreen(DeviceSpecificSettingsScreen.DEVELOPER);
-        developer.add(R.xml.devicesettings_import_activity_files);
-        developer.add(R.xml.devicesettings_reprocess_activity_files);
-        developer.add(R.xml.devicesettings_keep_activity_data_on_device);
-        developer.add(R.xml.devicesettings_fetch_unknown_files);
-        developer.add(R.xml.devicesettings_install_unsupported_files);
-        developer.add(R.xml.devicesettings_new_sync_protocol);
-        developer.add(R.xml.devicesettings_garmin_mlr);
-
-        return deviceSpecificSettings;
+    @Override
+    public DeviceSettingsSpec getDeviceSettings(@NonNull final GBDevice device) {
+        return GarminDeviceSettingsKt.garminDeviceSettings(device, this);
     }
 
     @Override

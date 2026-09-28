@@ -297,6 +297,15 @@ public abstract class AbstractDeviceSupport implements DeviceSupport {
     }
 
     /**
+     * If the device can receive workout templates, this method can be overridden
+     * and implemented by the device support class.
+     */
+    @Override
+    public void onSyncWorkoutTemplate(final long templateId) {
+
+    }
+
+    /**
      * If the device can receive and display notifications, this method
      * can be overridden and implemented by the device support class.
      * @param notificationSpec notification details
