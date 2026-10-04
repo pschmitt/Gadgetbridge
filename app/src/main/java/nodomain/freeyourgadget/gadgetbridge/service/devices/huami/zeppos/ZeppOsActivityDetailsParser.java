@@ -16,6 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos;
 
+import androidx.annotation.Nullable;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +36,15 @@ import java.util.TimeZone;
 import nodomain.freeyourgadget.gadgetbridge.GBException;
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityPoint;
+import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrack;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.AbstractHuamiActivityDetailsParser;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 
 public class ZeppOsActivityDetailsParser extends AbstractHuamiActivityDetailsParser {
     private static final Logger LOG = LoggerFactory.getLogger(ZeppOsActivityDetailsParser.class);
+
+    /** FIT length_type: 1 = active (a swum length), 0 = idle. */
+    private static final int LENGTH_TYPE_ACTIVE = 1;
 
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US);
 
@@ -167,7 +173,84 @@ public class ZeppOsActivityDetailsParser extends AbstractHuamiActivityDetailsPar
             }
         }
 
+        populateStandardTrack();
+
         return this.activityTrack;
+    }
+
+    /**
+     * Converts the ZeppOS-specific structures collected while parsing into the
+     * vendor-neutral {@link ActivityTrack} collections that the FIT exporter and the
+     * Health Connect syncer read: swimming intervals become per-length records.
+     * <p>
+     * The ZeppOS lists stay the source for the workout detail tables, which render per-row
+     * values (HR, SWOLF, calories, pace) that the shared model has no field for.
+     */
+    private void populateStandardTrack() {
+        populateLengths();
+    }
+
+    /**
+     * One ZeppOS swimming interval is one completed pool length, which is what a FIT
+     * {@code length} message (msg 101) models - not a lap. The exporter emits these for
+     * lap-swimming workouts, and counts them per lap for {@code num_lengths}.
+     */
+    private void populateLengths() {
+        for (final ZeppOsActivityTrack.SwimmingInterval interval : activityTrack.getSwimmingIntervals()) {
+            final double durationSec = interval.durationMillis() / 1000d;
+            if (durationSec <= 0 || interval.endTimeMillis() <= 0) {
+                LOG.warn("Ignoring swimming interval {}: duration={}, endTime={}",
+                        interval.number(), interval.durationMillis(), interval.endTimeMillis());
+                continue;
+            }
+
+            // The interval TLV is preceded by its own timestamp offset and is written once
+            // the length is done, so the reported time is the end of the length.
+            final long endSec = Math.round(interval.endTimeMillis() / 1000d);
+            final long startSec = endSec - Math.round(durationSec);
+
+            final Float avgSpeed;
+            if (interval.poolLengthMeters() > 0) {
+                avgSpeed = (float) (interval.poolLengthMeters() / durationSec);
+            } else if (interval.pace() > 0) {
+                avgSpeed = 1000f / interval.pace();
+            } else {
+                avgSpeed = null;
+            }
+
+            activityTrack.addLength(new ActivityTrack.LengthInfo(
+                    startSec,
+                    durationSec,
+                    durationSec,
+                    // The length TLV carries no stroke count, and the ZeppOS SWOLF convention is
+                    // not confirmed, so nothing is written rather than a guess.
+                    null,
+                    avgSpeed,
+                    mapSwimStyleToFit(interval.style()),
+                    LENGTH_TYPE_ACTIVE,
+                    interval.strokeRate() > 0 ? interval.strokeRate() : null
+            ));
+        }
+    }
+
+    /**
+     * Maps a ZeppOS swim style code to the FIT swim_stroke enum (0=freestyle,
+     * 1=backstroke, 2=breaststroke, 3=butterfly, 4=drill, 5=mixed, 6=individual medley).
+     * The ZeppOS codes are the ones already used for the workout detail label in
+     * {@code ZeppOsActivitySummaryParser#getSwimStyle}.
+     *
+     * @return the FIT enum value, or null for a style this parser does not know
+     */
+    @Nullable
+    private static Integer mapSwimStyleToFit(final int style) {
+        return switch (style) {
+            case 1 -> 2; // breaststroke
+            case 2 -> 0; // freestyle
+            case 3 -> 1; // backstroke
+            case 4 -> 3; // butterfly
+            case 6 -> 6; // medley
+            default -> null;
+        };
     }
 
     private static int consumeTag(final ByteBuffer buf) {
@@ -424,7 +507,8 @@ public class ZeppOsActivityDetailsParser extends AbstractHuamiActivityDetailsPar
                 strokeRate,
                 durationMillis,
                 strokeDistance,
-                calories
+                calories,
+                timestamp + offset
         );
 
         final List<ActivityPoint> allPoints = activityTrack.getAllPoints();
