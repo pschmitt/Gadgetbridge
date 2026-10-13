@@ -1,6 +1,6 @@
 [versions]
 ahocorasick = "0.6.3"
-android-emojify = "1.9.7"
+android-emojify = "2.2.0"
 android-gradle-plugin = "9.4.1"
 androidsvg = "1.4"
 androidx-activity = "1.13.0"
