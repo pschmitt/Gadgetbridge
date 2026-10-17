@@ -27,6 +27,7 @@ public class TestGenericMetricSampleProvider extends GenericMetricSampleProvider
     private static final double RACE_DISTANCE_HALF_MARATHON = 21097.5;
     private static final double RACE_DISTANCE_FULL_MARATHON = 42195;
     private static final double RIEGEL_CONSTANT = 1.06;
+    private static final int[] TRAINING_STATUSES = {5, 4, 4, 7, 7, 8, 3, 5, 6, 1, 1, -1, 2, 4, 9};
 
     private final Set<MetricSample.Metric> metrics;
 
@@ -135,6 +136,10 @@ public class TestGenericMetricSampleProvider extends GenericMetricSampleProvider
             }
             case GARMIN_RECOVERY_TIME -> {
                 return TestDeviceRand.randInt(ts, 0, 2880);
+            }
+            case GARMIN_TRAINING_STATUS -> {
+                final long dayIndex = (ts - TestDeviceRand.BASE_TIMESTAMP) / DAY_MILLIS;
+                return TRAINING_STATUSES[(int) Math.floorMod(dayIndex / 4, TRAINING_STATUSES.length)];
             }
             case DAILY_TOTAL_ASCENT, DAILY_TOTAL_DESCENT -> {
                 return TestDeviceRand.randInt(ts, 0, 400);

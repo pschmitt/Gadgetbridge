@@ -34,6 +34,7 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitEnduranceScore;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitFunctionalMetrics;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitHillScore;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitLoadHistory;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitMaxMetData;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitMetricRecovery;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitMonitoring;
@@ -66,11 +67,11 @@ public interface MetricSample extends TimeSample {
         setMetricExtra(extra);
     }
 
-    @IntRange(from = 0, to = 26)
+    @IntRange(from = 0, to = 27)
     int getMetricType();
 
     /// use {@link #setMetric(Metric)} or {@link #setMetric(Metric, double, Long)} instead
-    void setMetricType(@IntRange(from = 1, to = 26) int type);
+    void setMetricType(@IntRange(from = 1, to = 27) int type);
 
     double getMetricScore();
 
@@ -152,6 +153,8 @@ public interface MetricSample extends TimeSample {
         DAILY_TOTAL_DESCENT(25, UNIT_METERS, R.string.descentMeters),
         /// @see FitDiveReadiness#getDiveReadiness()
         GARMIN_DIVE_READINESS(26, UNIT_NONE, R.string.metric_garmin_dive_readiness),
+        /// @see FitLoadHistory#getTrainingStatus()
+        GARMIN_TRAINING_STATUS(27, UNIT_NONE, R.string.metric_garmin_training_status),
         ;
 
         public final int dbId;

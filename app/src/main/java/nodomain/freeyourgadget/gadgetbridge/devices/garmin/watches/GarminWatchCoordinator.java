@@ -123,6 +123,11 @@ public abstract class GarminWatchCoordinator extends GarminCoordinator {
     }
 
     @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return GenericMetricSampleProvider.supportsMetrics(device, MetricSample.Metric.GARMIN_TRAINING_STATUS);
+    }
+
+    @Override
     public boolean supportsActiveCalories(@NonNull GBDevice device) {
         return true;
     }

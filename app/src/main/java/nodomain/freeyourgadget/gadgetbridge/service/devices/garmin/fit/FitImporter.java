@@ -95,6 +95,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrack;
 import nodomain.freeyourgadget.gadgetbridge.model.FitActivityTrackProvider;
 import nodomain.freeyourgadget.gadgetbridge.model.MetricSample;
 import nodomain.freeyourgadget.gadgetbridge.model.Spo2Sample;
+import nodomain.freeyourgadget.gadgetbridge.model.TrainingStatus;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.FileType;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.GarminUtils;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.HrvStatus;
@@ -109,6 +110,7 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitHillScore;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitHrvStatusSummary;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitHrvValue;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitLoadHistory;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitMaxMetData;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitMetricRecovery;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitMonitoring;
@@ -169,6 +171,7 @@ public class FitImporter {
     @Nullable
     private FitFileId fileId = null;
     private final List<GenericMetricSample> genericMetricSamples = new ArrayList<>();
+    private boolean reportsTrainingStatus;
 
     private final GarminWorkoutParser workoutParser;
 
@@ -494,6 +497,10 @@ public class FitImporter {
                 final Float vo2Max = fitMaxMetData.getVo2Max();
                 final Integer maxMetCategory = fitMaxMetData.getMaxMetCategory();
                 addMetric(ts, vo2Max, MetricSample.Metric.GARMIN_MET_MAX_VO2, maxMetCategory);
+            } else if (record instanceof FitLoadHistory fitLoadHistory) {
+                final Integer trainingStatus = fitLoadHistory.getTrainingStatus();
+                final boolean pausable = trainingStatus == null && fitLoadHistory.getFieldByNumber(9) != null && reportsTrainingStatus();
+                addTrainingStatusSample(ts, trainingStatus, pausable, genericMetricSamples);
             } else if (record instanceof FitDiveReadiness fitDiveReadiness) {
                 final Integer diveReadiness = fitDiveReadiness.getDiveReadiness();
                 addMetric(ts, diveReadiness, MetricSample.Metric.GARMIN_DIVE_READINESS);
@@ -633,6 +640,25 @@ public class FitImporter {
         sample.setTimestamp(ts * 1000L);
         sample.setMetric(metric, v, extra);
         genericMetricSamples.add(sample);
+    }
+
+    private boolean reportsTrainingStatus() {
+        if (!reportsTrainingStatus) {
+            reportsTrainingStatus = genericMetricSamples.stream().anyMatch(s -> s.getMetricType() == MetricSample.Metric.GARMIN_TRAINING_STATUS.dbId)
+                    || GenericMetricSampleProvider.supportsMetrics(gbDevice, MetricSample.Metric.GARMIN_TRAINING_STATUS);
+        }
+        return reportsTrainingStatus;
+    }
+
+    /// Paused has no status value, so it is only recognized on records that otherwise carry one.
+    static void addTrainingStatusSample(@Nullable final Long ts, @Nullable final Integer status, final boolean statusRecord, final List<GenericMetricSample> out) {
+        if (ts == null || (status == null && !statusRecord)) {
+            return;
+        }
+        final GenericMetricSample sample = new GenericMetricSample();
+        sample.setTimestamp(ts * 1000L);
+        sample.setMetric(MetricSample.Metric.GARMIN_TRAINING_STATUS, status != null ? status : TrainingStatus.PAUSED_VALUE);
+        out.add(sample);
     }
 
     static void addSolarChargeSample(@Nullable final Long ts, @Nullable final Float percent, @Nullable final Long gain, final List<GarminSolarChargeSample> out) {

@@ -35,7 +35,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.GaugeDrawer;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileData;
@@ -124,8 +123,8 @@ public class TrainingReadinessFragment extends AbstractChartFragment<TrainingRea
         }
 
         final List<StatTileData> stats = new ArrayList<>();
-        stats.add(buildHrvTile(data.hrvStatus, data.hrvWeeklyAverage));
-        stats.add(buildAcuteLoadTile(data.acuteLoad, data.chronicLoad));
+        stats.add(TrainingStatTiles.hrv(requireContext(), data.hrvStatus, data.hrvWeeklyAverage));
+        stats.add(TrainingStatTiles.acuteLoad(requireContext(), getString(R.string.training_acute_load), data.acuteLoad, data.chronicLoad));
         stats.add(buildSleepScoreTile(data.sleepScore, getString(R.string.menuitem_sleep)));
         stats.add(buildRecoveryTile(data.recoveryMinutes));
         stats.add(buildSleepScoreTile(data.sleepHistoryAvg, getString(R.string.training_readiness_factor_sleep_3_nights)));
@@ -133,51 +132,6 @@ public class TrainingReadinessFragment extends AbstractChartFragment<TrainingRea
 
         statsContainer.removeAllViews();
         StatTileGridUtilKt.addStatTileGrid(statsContainer, requireContext(), stats, 0);
-    }
-
-    private StatTileData buildHrvTile(final HrvSummarySample.Status status, @Nullable final Integer weeklyAverageMs) {
-        final String value = weeklyAverageMs != null
-                ? getString(R.string.hrv_status_unit, weeklyAverageMs)
-                : getString(R.string.stats_empty_value);
-        final String label = getString(R.string.pref_header_hrv_status);
-
-        switch (status) {
-            case BALANCED:
-                return indicatorTile(value, label, getString(R.string.hrv_status_balanced), R.color.hrv_status_balanced);
-            case UNBALANCED:
-                return indicatorTile(value, label, getString(R.string.hrv_status_unbalanced), R.color.hrv_status_unbalanced);
-            case LOW:
-                return indicatorTile(value, label, getString(R.string.hrv_status_low), R.color.hrv_status_low);
-            case POOR:
-                return indicatorTile(value, label, getString(R.string.hrv_status_poor), R.color.hrv_status_poor);
-            case NONE:
-            default:
-                return new StatTileData(value, label);
-        }
-    }
-
-    private StatTileData buildAcuteLoadTile(@Nullable final Integer acuteLoad, @Nullable final Integer chronicLoad) {
-        final String label = getString(R.string.training_acute_load);
-        if (acuteLoad == null) {
-            return new StatTileData(getString(R.string.stats_empty_value), label);
-        }
-
-        final String value = String.valueOf(acuteLoad);
-
-        if (chronicLoad == null || chronicLoad <= 0) {
-            return indicatorTile(value, label, getString(R.string.none), null);
-        }
-
-        final float ratio = (float) acuteLoad / chronicLoad;
-        if (ratio < LoadFragment.OPTIMAL_LOAD_RATIO_LOWER) {
-            return indicatorTile(value, label, getString(R.string.low), R.color.training_load_low);
-        } else if (ratio < LoadFragment.OPTIMAL_LOAD_RATIO_UPPER) {
-            return indicatorTile(value, label, getString(R.string.optimal), R.color.training_load_optimal);
-        } else if (ratio < 2f) {
-            return indicatorTile(value, label, getString(R.string.high), R.color.training_load_high);
-        } else {
-            return indicatorTile(value, label, getString(R.string.very_high), R.color.training_load_high);
-        }
     }
 
     private StatTileData buildSleepScoreTile(@Nullable final Integer score, final String label) {
@@ -228,10 +182,7 @@ public class TrainingReadinessFragment extends AbstractChartFragment<TrainingRea
     }
 
     private StatTileData indicatorTile(final String value, final String label, final String indicatorText, @Nullable final Integer colorRes) {
-        final int color = colorRes != null
-                ? ContextCompat.getColor(requireContext(), colorRes)
-                : GBApplication.getSecondaryTextColor(requireContext());
-        return new StatTileData(value, label, null, indicatorText, null, color);
+        return TrainingStatTiles.indicator(requireContext(), value, label, indicatorText, colorRes);
     }
 
     private int[] zoneColors() {

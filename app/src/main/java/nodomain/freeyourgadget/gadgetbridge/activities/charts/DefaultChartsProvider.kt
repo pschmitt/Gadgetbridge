@@ -17,6 +17,7 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.DailyTotals
 import nodomain.freeyourgadget.gadgetbridge.model.HydrationUnit
 import nodomain.freeyourgadget.gadgetbridge.model.MetricSample
+import nodomain.freeyourgadget.gadgetbridge.model.TrainingStatus
 import nodomain.freeyourgadget.gadgetbridge.model.TemperatureUnit
 import nodomain.freeyourgadget.gadgetbridge.model.WeightUnit
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils
@@ -72,6 +73,9 @@ open class DefaultChartsProvider : DeviceChartsProvider {
         }
         if (coordinator.supportsTrainingReadiness(device)) {
             supportedCharts.add("trainingreadiness")
+        }
+        if (coordinator.supportsTrainingStatus(device)) {
+            supportedCharts.add("trainingstatus")
         }
         if (coordinator.supportsSolarCharging(device)) {
             supportedCharts.add("solarcharging")
@@ -177,6 +181,7 @@ open class DefaultChartsProvider : DeviceChartsProvider {
             "load" -> context.getString(R.string.pref_header_training_load)
             "raceprediction" -> context.getString(R.string.menuitem_race_predictor)
             "trainingreadiness" -> context.getString(R.string.metric_garmin_training_readiness)
+            "trainingstatus" -> context.getString(R.string.metric_garmin_training_status)
             "solarcharging" -> context.getString(R.string.menuitem_solar_charging)
             "genericmetrics" -> context.getString(R.string.generic_metrics)
             else -> String.format(Locale.getDefault(), "Unknown %s", chartName)
@@ -200,6 +205,7 @@ open class DefaultChartsProvider : DeviceChartsProvider {
             "load" -> LoadFragment()
             "raceprediction" -> RacePredictionCollectionFragment.newInstance(allowSwipe)
             "trainingreadiness" -> TrainingReadinessFragment()
+            "trainingstatus" -> TrainingStatusCollectionFragment.newInstance(allowSwipe)
             "solarcharging" -> SolarChargingCollectionFragment.newInstance(allowSwipe)
             "genericmetrics" -> GenericMetricCollectionFragment.newInstance(allowSwipe)
             "stress" -> StressCollectionFragment.newInstance(allowSwipe)
@@ -247,6 +253,7 @@ open class DefaultChartsProvider : DeviceChartsProvider {
             "load" -> R.drawable.ic_show_chart
             "raceprediction" -> R.drawable.ic_timer
             "trainingreadiness" -> R.drawable.ic_insights
+            "trainingstatus" -> R.drawable.ic_activity_stacked
             "solarcharging" -> R.drawable.ic_wb_sunny
             "genericmetrics" -> R.drawable.ic_bar_chart
             else -> R.drawable.ic_help_outline
@@ -481,6 +488,14 @@ open class DefaultChartsProvider : DeviceChartsProvider {
                 ?.metricScore
                 ?.roundToInt()
                 ?.toString()
+
+            // Training status - latest status until the end of the time range
+            "trainingstatus" -> GenericMetricSampleProvider.getLatestMetricSampleBefore(
+                db, device, MetricSample.Metric.GARMIN_TRAINING_STATUS, end
+            )
+                ?.metricScore
+                ?.roundToInt()
+                ?.let { TrainingStatus.label(context, it) }
 
             // Solar charging - battery gain for the time range
             "solarcharging" -> coordinator.getSolarChargeSampleProvider(device, session)

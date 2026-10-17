@@ -117,6 +117,18 @@
     <color name="vo2max_value_fair_color" type="color">#ffa703</color>
     <color name="vo2max_value_good_color" type="color">#04c79c</color>
     <color name="vo2max_value_excellent_color" type="color">#02a8e6</color>
+
+    <color name="training_status_productive" type="color">#2e9e44</color>
+    <color name="training_status_maintaining" type="color">#7cb342</color>
+    <color name="training_status_recovery" type="color">#2b8fd6</color>
+    <color name="training_status_strained" type="color">#d93832</color>
+    <color name="training_status_detraining" type="color">#f5b041</color>
+    <color name="training_status_paused" type="color">#9e9e9e</color>
+    <color name="training_status_no_status" type="color">#bdbdbd</color>
+    <color name="training_status_unproductive" type="color">#f08c00</color>
+    <color name="training_status_overreaching" type="color">#8b1a1a</color>
+    <color name="training_status_peaking" type="color">#7e57c2</color>
+    <color name="training_status_unknown" type="color">#78909c</color>
     <color name="vo2max_value_superior_color" type="color">#824be3</color>
     <color name="body_energy_level_color" type="color">#5ac234</color>
     <color name="body_energy_lost_color" type="color">#ff6c43</color>

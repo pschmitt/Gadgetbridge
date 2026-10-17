@@ -1,9 +1,9 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.charts.spec
 
 /**
- * A (x, y) data point. [x] is usually an epoch-second timestamp.
+ * A (x, y) data point. [x] is usually an epoch-second timestamp. [xEnd] is the last x of a [SeriesStyle.Span].
  */
-data class ChartPoint(val x: Double, val y: Double, val low: Double? = null)
+data class ChartPoint @JvmOverloads constructor(val x: Double, val y: Double, val low: Double? = null, val xEnd: Double? = null)
 
 /**
  * How one [ChartSeries] should be drawn.
@@ -42,6 +42,11 @@ sealed interface SeriesStyle {
      * A hypnogram: each point's row y lasts until the next point, coloured by [colors]. A y outside [colors] is a gap.
      */
     data class Stages(val colors: List<Int>) : SeriesStyle
+
+    /**
+     * A horizontal bar at y from each point's x to its [ChartPoint.xEnd], both included, on a slot axis.
+     */
+    data class Span(val color: Int) : SeriesStyle
 }
 
 /**
@@ -129,6 +134,7 @@ data class AxisSpec(
     val maximum: Double? = null,
     val unit: String? = null,
     val showLabels: Boolean = true,
+    val showGrid: Boolean = true,
     val labeler: ((Double) -> String)? = null,
 )
 

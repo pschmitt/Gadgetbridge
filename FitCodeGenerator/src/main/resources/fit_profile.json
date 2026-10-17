@@ -2541,6 +2541,7 @@
       "num": 232,
       "name": "LOAD_HISTORY",
       "fields": [
+        {"num":2,"name":"training_status","base":"ENUM"},
         {"num":5,"name":"weekly_load","base":"UINT16"},
         {"num":6,"name":"target_load_min","base":"UINT16"},
         {"num":7,"name":"target_load_max","base":"UINT16"},

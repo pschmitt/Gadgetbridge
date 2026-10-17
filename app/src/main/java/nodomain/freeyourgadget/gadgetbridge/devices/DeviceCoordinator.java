@@ -329,6 +329,7 @@ public interface DeviceCoordinator {
     boolean supportsTrainingLoadChronic(@NonNull final GBDevice device);
     boolean supportsRacePrediction(@NonNull final GBDevice device);
     boolean supportsTrainingReadiness(@NonNull final GBDevice device);
+    boolean supportsTrainingStatus(@NonNull final GBDevice device);
     boolean supportsGlucoseMeasurement(@NonNull final GBDevice device);
 
     /**
