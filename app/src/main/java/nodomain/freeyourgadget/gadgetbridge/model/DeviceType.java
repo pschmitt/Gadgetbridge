@@ -60,6 +60,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.cycling_sensor.coordinator.C
 import nodomain.freeyourgadget.gadgetbridge.devices.divoom.PixooCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.dji.cameras.DjiOsmoAction4Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.concept2.Concept2PM5Coordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.coros.CorosPace3Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.domyos.DomyosT540Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.earfun.EarFunAirPro4Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.earfun.EarFunAirSCoordinator;
@@ -1336,6 +1337,7 @@ public enum DeviceType {
     IGPSPORT_BINAVI(IGPSportBiNaviCoordinator.class),
     OLLEE_WATCH_ONE(OlleeDeviceCoordinator.class),
     UNA_WATCH(UnaDeviceCoordinator.class),
+    COROS_PACE_3(CorosPace3Coordinator.class),
     ZEBLAZE_BEYOND_3_PRO(Beyond3ProCoordinator.class),
     ZEBLAZE_STRATOS_4_PRO(Stratos4ProCoordinator.class),
     QN_SCALE(QnScaleCoordinator.class),

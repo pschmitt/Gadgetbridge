@@ -43,6 +43,7 @@ public class BluetoothNameTest extends TestBase {
             put("CIRQA Smart Band", DeviceType.GARMIN_CIRQA); // matrix
             put("CMF Buds 2", DeviceType.NOTHING_CMF_BUDS_2); // #5579
             put("CMF Buds 2a", DeviceType.NOTHING_CMF_BUDS_2A); // #6028
+            put("COROS PACE 3 72DC12", DeviceType.COROS_PACE_3); // #3929
             put("HC96", DeviceType.HC96);
             put("KW19-B", DeviceType.KW19_B); // #7092
             put("FireBoltt 069", DeviceType.FIREBOLTT_069);
