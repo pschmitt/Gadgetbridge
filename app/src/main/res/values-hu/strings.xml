@@ -4727,4 +4727,7 @@
     <string name="hydration_goal">Napi cél</string>
     <string name="hydration_daily_average">Napi átlag</string>
     <string name="hydration_add">Hozzáadás</string>
+    <string name="controlcenter_snackbar_discovering_services">Szolgáltatások felderítése…</string>
+    <string name="pref_device_card_show_quick_controls_title">Gyors vezérlők megjelenítése</string>
+    <string name="pref_device_card_quick_controls_title">Gyors vezérlők</string>
 </resources>
