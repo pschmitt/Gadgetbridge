@@ -4762,4 +4762,5 @@
     <string name="solar_charging_lux_hours">Nappali órák</string>
     <string name="solar_charging_peak_intensity">Legnagyobb fényerő</string>
     <string name="solar_charging_lux_hours_avg">Nappali órák ÁTLAG</string>
+    <string name="solar_charging_lux_hours_total">Összes nappali óra</string>
 </resources>
