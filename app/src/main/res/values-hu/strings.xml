@@ -4730,4 +4730,8 @@
     <string name="controlcenter_snackbar_discovering_services">Szolgáltatások felderítése…</string>
     <string name="pref_device_card_show_quick_controls_title">Gyors vezérlők megjelenítése</string>
     <string name="pref_device_card_quick_controls_title">Gyors vezérlők</string>
+    <string name="pref_device_card_quick_controls_summary">Gyors vezérlők testreszabása az eszköz kártyán</string>
+    <string name="device_card_quick_controls_reset_confirmation">Visszaállítja a gyors vezérlők eredeti sorrendjét, és visszaállítja a törölteket is?</string>
+    <string name="pref_header_devices_screen">Eszközök képernyő</string>
+    <string name="spo2_mode_sleep">Alvás közben</string>
 </resources>
