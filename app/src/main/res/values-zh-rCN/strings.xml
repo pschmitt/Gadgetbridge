@@ -5665,4 +5665,16 @@
     <string name="service_setup_title">%1$s 设置</string>
     <string name="service_setup_server_hostname">服务器主机名</string>
     <string name="service_setup_api_token">API 令牌</string>
+    <string name="pref_header_devices_screen">设备屏幕</string>
+    <string name="prefs_active_noise_cancelling_effective_level">主动降噪效果级别</string>
+    <string name="bottom_nav_workouts">锻炼</string>
+    <string name="pref_itag_alert_level">设备搜寻警报等级</string>
+    <string name="pref_itag_alert_level_high">高 (0x02)</string>
+    <string name="pref_itag_alert_level_mild">适度 (0x01)</string>
+    <string name="pref_itag_beep_on_disconnect">断开连接时发出哔声</string>
+    <string name="pref_itag_button_press">按下按钮采取的操作</string>
+    <string name="reset_fetch_timestamp_select_device">先选中单台设备</string>
+    <string name="pref_main_screens_title">主要屏幕</string>
+    <string name="pref_main_screens_summary">选择本应用的主要屏幕并排序。请注意，如果没有提供所需数据的设备，仪表盘和锻炼仍可能保持隐藏状态。</string>
+    <string name="pref_default_main_screen_title">启动时显示哪个屏幕</string>
 </resources>
