@@ -5677,4 +5677,8 @@
     <string name="pref_main_screens_title">主要屏幕</string>
     <string name="pref_main_screens_summary">选择本应用的主要屏幕并排序。请注意，如果没有提供所需数据的设备，仪表盘和锻炼仍可能保持隐藏状态。</string>
     <string name="pref_default_main_screen_title">启动时显示哪个屏幕</string>
+    <string name="spo2_mode_sleep">睡眠中</string>
+    <string name="spo2_mode_all_day">全天</string>
+    <string name="pref_override_features_default">默认功能</string>
+    <string name="pref_override_features_unsupported">不支持的功能</string>
 </resources>
