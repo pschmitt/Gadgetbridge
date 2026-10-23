@@ -4894,7 +4894,7 @@
     <string name="stratos4pro_pref_reply_all_apps_summary">Cette montre n\'offre que les notifications WhatsApp. Après activation de ce paramètre, toutes les notifications auxquelles vous pouvez répondre (SMS, Gmail, Telegram et autres) sont envoyées comme une notification WhatsApp dont le titre commence par le nom de l\'appli.</string>
     <string name="stratos4pro_pref_reply_icon_app_title">Conserver l\'icône de l\'appli</string>
     <string name="stratos4pro_pref_reply_icon_app_summary">Afficher l\'icône et le nom d\'appli (Gmail, SMS ou autre) en remplacement de l\'icône WhatsApp. La montre ne conserve qu\'une icône, les précédentes notifications de la liste prennent donc l\'icône de la dernière appli.</string>
-    <string name="stratos4pro_pref_scientific_sleep_summary">Enregistrement détaillé des stades de sommeil. Gadgetbridge ne lit ses données de sommeil qu\'ici, désactiver ce paramètre empêchera donc la synchronisation des stades de sommeil.</string>
+    <string name="stratos4pro_pref_scientific_sleep_summary">Enregistrement détaillé des stades de sommeil. Gadgetbridge lit ses données de sommeil ici, désactiver ce paramètre empêchera donc la synchronisation des stades de sommeil.</string>
     <string name="stratos4pro_pref_brightness_schedule_title">Luminosité programmée</string>
     <string name="stratos4pro_route_exists">Cet itinéraire est déjà sur la montre</string>
     <string name="heart_rate_daily">Fréquence cardiaque quotidienne</string>
@@ -5060,4 +5060,23 @@
     <string name="stratos4pro_pref_audio_pair_summary">Appaire le côté Bluetooth Classic de la montre afin que les appels puissent être pris sur la montre</string>
     <string name="ak102_pref_audio_pair_summary">Appairer la partie Bluetooth Classic de la montre et connecter les profils audio</string>
     <string name="map_theme_custom_file_invalid">Ce n\'est pas un thème de rendu mapforge valide : %1$s</string>
+    <string name="stratos4pro_pref_scientific_sleep_title">Suivi du sommeil avancé</string>
+    <string name="stratos4pro_light_white">Lampe blanche</string>
+    <string name="stratos4pro_light_red">Lampe rouge</string>
+    <string name="stratos4pro_light_strobe">Stroboscope</string>
+    <string name="stratos4pro_pref_light_white_strobe_title">Stroboscope blanc (ms)</string>
+    <string name="stratos4pro_pref_light_red_strobe_title">Stroboscope rouge (ms)</string>
+    <string name="stratos4pro_pref_light_strobe_off">Désactivé - Lumière constante</string>
+    <string name="stratos4pro_pref_brightness_schedule_summary">Le téléphone fixe le niveau le plus élevé à la première fois et le plus bas à la seconde, une fois chacun. Un temps manqué pendant que déconnecté est envoyé à la reconnection.</string>
+    <string name="clear_current_selection">Désélectionner tout</string>
+    <string name="hydration_add_title">Ajouter une prise d\'eau (%1$s)</string>
+    <string name="activity_type_custom">Personnalisé</string>
+    <string name="hrv_status_seven_days_avg_legend">Moyenne de 7 jours (ms)</string>
+    <string name="last_night_timeline">Suivi de la nuit dernière</string>
+    <string name="day_timeline">Suivi de la journée</string>
+    <string name="body_energy_daily"></string>
+    <string name="training_acute_load">Charge aigüe</string>
+    <string name="discovery_show_details">Montrer les détails</string>
+    <string name="title_activity_device_candidate_details">Détails de l\'appareil</string>
+    <string name="vo2max_any_sport">Tout sport</string>
 </resources>
