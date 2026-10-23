@@ -16,6 +16,10 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.coros
 
+import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst
+import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.DeviceSettingsSpec
+import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.ListEntry
+import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.deviceSettings
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
@@ -44,6 +48,32 @@ class CorosPace3Coordinator : AbstractBLEDeviceCoordinator() {
     override fun suggestUnbindBeforePair(): Boolean = false
 
     override fun isExperimental(): Boolean = true
+
+    override fun supportsNotificationVibrationPatterns(device: GBDevice): Boolean = false
+
+    override fun supportsNotificationLedPatterns(device: GBDevice): Boolean = false
+
+    override fun supportsNotificationVibrationRepetitionPatterns(device: GBDevice): Boolean = false
+
+    override fun supportsNotifications(device: GBDevice): Boolean = true
+
+    override fun getDeviceSettings(device: GBDevice): DeviceSettingsSpec = deviceSettings {
+        screen(key = "screen_do_not_disturb_no_auto", title = R.string.mi2_prefs_do_not_disturb, icon = R.drawable.ic_block) {
+            list(
+                key = DeviceSettingsPreferenceConst.PREF_DO_NOT_DISTURB_NOAUTO,
+                title = R.string.mi2_prefs_do_not_disturb,
+                defaultValue = DeviceSettingsPreferenceConst.PREF_DO_NOT_DISTURB_OFF,
+                entries = listOf(
+                    ListEntry.Res(DeviceSettingsPreferenceConst.PREF_DO_NOT_DISTURB_OFF, R.string.off),
+                    ListEntry.Res(DeviceSettingsPreferenceConst.PREF_DO_NOT_DISTURB_SCHEDULED, R.string.mi2_dnd_scheduled),
+                ),
+            )
+            time(key = DeviceSettingsPreferenceConst.PREF_DO_NOT_DISTURB_NOAUTO_START,
+                title = R.string.mi2_prefs_do_not_disturb_start, defaultValue = "22:00")
+            time(key = DeviceSettingsPreferenceConst.PREF_DO_NOT_DISTURB_NOAUTO_END,
+                title = R.string.mi2_prefs_do_not_disturb_end, defaultValue = "06:00")
+        }
+    }
 
     override fun supportsFindDevice(device: GBDevice): Boolean = true
 }

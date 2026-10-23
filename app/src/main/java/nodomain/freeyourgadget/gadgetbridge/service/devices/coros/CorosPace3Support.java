@@ -23,6 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.time.LocalTime;
+
+import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
+import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventFindPhone;
+import nodomain.freeyourgadget.gadgetbridge.model.NotificationSpec;
 import java.util.UUID;
 
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEvent;
@@ -40,13 +45,11 @@ import nodomain.freeyourgadget.gadgetbridge.util.GB;
 public class CorosPace3Support extends AbstractBTLESingleDeviceSupport {
     private static final Logger LOG = LoggerFactory.getLogger(CorosPace3Support.class);
 
-    private static final UUID SERVICE_CONTROL = UUID.fromString("6e400001-b5a3-f393-e0a9-77656c6f6f70");
-    private static final UUID CHARACTERISTIC_CONTROL_NOTIFY = UUID.fromString("6e400003-b5a3-f393-e0a9-77656c6f6f70");
-    private static final UUID CHARACTERISTIC_CONTROL_WRITE = UUID.fromString("6e400002-b5a3-f393-e0a9-77656c6f6f70");
-    private static final byte[] QUERY_CAPABILITIES = {(byte) 0xb0, 0x00, 0x00, 0x01, 0x02, 0x03};
-    private static final byte[] FIND_DEVICE = {(byte) 0xb4, 0x00};
-    private static final byte[] FIND_DEVICE_ACK = {(byte) 0xb4, 0x00, 0x01, 0x01};
-    private static final byte[] FIND_DEVICE_DISMISSED = {0x04, 0x00, 0x01, 0x01};
+    private static final UUID SERVICE_CONTROL =                     UUID.fromString("6e400001-b5a3-f393-e0a9-77656c6f6f70");
+    private static final UUID CHARACTERISTIC_CONTROL_NOTIFY =       UUID.fromString("6e400003-b5a3-f393-e0a9-77656c6f6f70");
+    private static final UUID CHARACTERISTIC_CONTROL_WRITE =        UUID.fromString("6e400002-b5a3-f393-e0a9-77656c6f6f70");
+    private static final UUID SERVICE_NOTIFICATION =                UUID.fromString("6e400001-b5a3-f393-e0a9-77757c7f7f70");
+    private static final UUID CHARACTERISTIC_NOTIFICATION_WRITE =   UUID.fromString("6e400002-b5a3-f393-e0a9-77757c7f7f70");
 
     private final DeviceInfoProfile<CorosPace3Support> deviceInfoProfile;
     private boolean awaitingCapabilities;
@@ -54,6 +57,7 @@ public class CorosPace3Support extends AbstractBTLESingleDeviceSupport {
     public CorosPace3Support() {
         super(LOG);
         addSupportedService(SERVICE_CONTROL);
+        addSupportedService(SERVICE_NOTIFICATION);
         addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
         addSupportedService(GattService.SERVICE_BATTERY.uuid);
         deviceInfoProfile = new DeviceInfoProfile<>(this);
@@ -86,10 +90,14 @@ public class CorosPace3Support extends AbstractBTLESingleDeviceSupport {
         builder.notify(GattCharacteristic.CHARACTERISTIC_BATTERY_LEVEL.uuid, true);
         getCharacteristic(CHARACTERISTIC_CONTROL_WRITE).setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
 
+        if (getCharacteristic(CHARACTERISTIC_NOTIFICATION_WRITE) != null) {
+            getCharacteristic(CHARACTERISTIC_NOTIFICATION_WRITE).setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+        }
+
         // Account binding and profile/settings synchronization are not implemented. Do not
         // report initialization success until the watch answers a read-only protocol query.
         awaitingCapabilities = true;
-        builder.write(CHARACTERISTIC_CONTROL_WRITE, QUERY_CAPABILITIES);
+        builder.write(CHARACTERISTIC_CONTROL_WRITE, CorosProtocol.QUERY_CAPABILITIES);
         return builder;
     }
 
@@ -149,13 +157,17 @@ public class CorosPace3Support extends AbstractBTLESingleDeviceSupport {
                 }
                 break;
             case 0x04:
-                if (Arrays.equals(value, FIND_DEVICE_DISMISSED)) {
+                if (Arrays.equals(value, CorosProtocol.FIND_PHONE)) {
+                    final GBDeviceEventFindPhone event = new GBDeviceEventFindPhone();
+                    event.event = GBDeviceEventFindPhone.Event.START;
+                    handleGBDeviceEvent(event);
+                } else if (Arrays.equals(value, CorosProtocol.FIND_DEVICE_DISMISSED)) {
                     // Acknowledge the watch-side dismissal; this is not a phone-side stop command.
-                    sendCommand("acknowledge find device dismissal", FIND_DEVICE_DISMISSED);
+                    sendCommand("acknowledge find device dismissal", CorosProtocol.FIND_DEVICE_DISMISSED);
                 }
                 break;
             case 0xb4:
-                if (Arrays.equals(value, FIND_DEVICE_ACK)) {
+                if (Arrays.equals(value, CorosProtocol.FIND_DEVICE_ACK)) {
                     LOG.debug("COROS acknowledged find device");
                 }
                 break;
@@ -167,7 +179,52 @@ public class CorosPace3Support extends AbstractBTLESingleDeviceSupport {
     public void onFindDevice(final boolean start) {
         // The watch dismisses the alert itself. No phone-side stop command is known.
         if (start) {
-            sendCommand("find device", FIND_DEVICE);
+            sendCommand("find device", CorosProtocol.findDevice());
+        }
+    }
+
+    @Override
+    public void onNotification(final NotificationSpec notification) {
+        if (!isConnected() || getCharacteristic(CHARACTERISTIC_NOTIFICATION_WRITE) == null) {
+            return;
+        }
+        final byte[] command = CorosProtocol.notification(
+            notification.getSourceAppId(),
+            notification.getSender() != null ? notification.getSender() : notification.getTitle(),
+            notification.getBody(),
+            getMTU() - 3);
+        if (command == null) {
+            LOG.warn("COROS notification exceeds the negotiated ATT payload or contains unsupported fields");
+            return;
+        }
+        final TransactionBuilder builder = createTransactionBuilder("send notification");
+        builder.write(CHARACTERISTIC_NOTIFICATION_WRITE, command);
+        builder.queue();
+    }
+
+    @Override
+    public void onFactoryReset() {
+        sendCommand("factory reset", CorosProtocol.factoryReset());
+    }
+
+    @Override
+    public void onSendConfiguration(final String config) {
+        switch (config) {
+            case DeviceSettingsPreferenceConst.PREF_DO_NOT_DISTURB_NOAUTO:
+            case DeviceSettingsPreferenceConst.PREF_DO_NOT_DISTURB_NOAUTO_START:
+            case DeviceSettingsPreferenceConst.PREF_DO_NOT_DISTURB_NOAUTO_END:
+                final boolean enabled = DeviceSettingsPreferenceConst.PREF_DO_NOT_DISTURB_SCHEDULED.equals(
+                        getDevicePrefs().getString(DeviceSettingsPreferenceConst.PREF_DO_NOT_DISTURB_NOAUTO,
+                                DeviceSettingsPreferenceConst.PREF_DO_NOT_DISTURB_OFF));
+                final LocalTime start = getDevicePrefs().getLocalTime(
+                        DeviceSettingsPreferenceConst.PREF_DO_NOT_DISTURB_NOAUTO_START, "22:00");
+                final LocalTime end = getDevicePrefs().getLocalTime(
+                        DeviceSettingsPreferenceConst.PREF_DO_NOT_DISTURB_NOAUTO_END, "06:00");
+                sendCommand("set do not disturb", CorosProtocol.doNotDisturb(enabled,
+                        start.getHour(), start.getMinute(), end.getHour(), end.getMinute()));
+                break;
+            default:
+                super.onSendConfiguration(config);
         }
     }
 
