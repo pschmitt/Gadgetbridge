@@ -5681,4 +5681,10 @@
     <string name="spo2_mode_all_day">全天</string>
     <string name="pref_override_features_default">默认功能</string>
     <string name="pref_override_features_unsupported">不支持的功能</string>
+    <string name="sports_activity_confirm_single_delete_title">删除活动</string>
+    <string name="sports_activity_confirm_single_delete_description">确定要删除这个活动吗？</string>
+    <string name="teufel_mynd_eco_mode">节电模式</string>
+    <string name="teufel_mynd_sound_icons">声音图标</string>
+    <string name="teufel_mynd_battery_friendly_charging">电池友好的充电</string>
+    <string name="teufel_mynd_led_brightness">LED 亮度</string>
 </resources>
