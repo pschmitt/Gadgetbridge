@@ -5015,7 +5015,7 @@
     <string name="gallery_download_summary">%1$d reçus, %2$d sautés, %3$d en échec</string>
     <string name="gallery_download_failed">Échec de réception</string>
     <string name="gallery_download_error_storage_permission">Autorisation de stockage non accordée</string>
-    <string name="gallery_favorite"></string>
+    <string name="gallery_favorite"/>
     <plurals name="gallery_delete_confirm">
         <item quantity="one">Supprimer %d fichier de l\'appareil photo ?</item>
         <item quantity="many">Supprimer %d fichiers de l\'appareil photo ?</item>
@@ -5044,4 +5044,20 @@
     <string name="workout_upload_toast_already_uploaded">%1$s a déjà cette séance d\'entraînement</string>
     <string name="workout_upload_toast_updated">Séance d\'entraînement mise à jour sur %1$s</string>
     <string name="workout_upload_toast_no_payload">Impossible de constituer le fichier à envoyer à %1$s</string>
+    <string name="range_integer">%1$d – %2$d</string>
+    <string name="controlcenter_snackbar_discovering_services">Découverte des services…</string>
+    <string name="pref_device_card_show_quick_controls_title">Afficher les contrôles rapides</string>
+    <string name="pref_device_card_quick_controls_title">Contrôles rapides</string>
+    <string name="device_card_quick_controls_reset_confirmation">Réinitialiser l\'ordre des contrôles rapides, et restaurer les contrôles rapides supprimées ?</string>
+    <string name="pref_title_allow_unsupported_devices">Permettre les appareils non gérés</string>
+    <string name="pref_title_accent_color">Couleur d\'accentuation</string>
+    <string name="pref_summary_accent_color">Couleur des boutons, des onglets et des puces</string>
+    <string name="pref_accent_color_dynamic_disabled_summary">Non disponible en même temps que les Couleurs dynamiques</string>
+    <string name="pref_summary_contrasting_surfaces">Donnez aux barres et aux tuiles leur propre ombre, distincte de l\'arrière-plan</string>
+    <string name="spo2_mode_sleep">Pendant le sommeil</string>
+    <string name="spo2_mode_all_day">Toute la journée</string>
+    <string name="activity_list_row_stats_pair">%1$s · %2$s</string>
+    <string name="stratos4pro_pref_audio_pair_summary">Appaire le côté Bluetooth Classic de la montre afin que les appels puissent être pris sur la montre</string>
+    <string name="ak102_pref_audio_pair_summary">Appairer la partie Bluetooth Classic de la montre et connecter les profils audio</string>
+    <string name="map_theme_custom_file_invalid">Ce n\'est pas un thème de rendu mapforge valide : %1$s</string>
 </resources>
