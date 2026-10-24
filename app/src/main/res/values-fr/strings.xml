@@ -5123,4 +5123,5 @@
     <string name="prefs_active_noise_reduction_level">Niveau de réduction de bruit active</string>
     <string name="prefs_voice_prompts_language">Langue des messages vocaux</string>
     <string name="prefs_shortcut_action">Action du raccourci</string>
+    <string name="prefs_busylight">Témoin d\'occupation</string>
 </resources>
