@@ -2498,6 +2498,7 @@
     <string name="devicetype_mijia_lywsd03" translatable="false">Mijia Temperature and Humidity Sensor 2</string>
     <string name="devicetype_mijia_xmwsdj04" translatable="false">Mijia Temperature and Humidity Sensor 2 (E-ink)</string>
     <string name="devicetype_mijia_mho_c303" translatable="false">Mijia MHO-C303</string>
+    <string name="devicetype_magic_touch_jj02" translatable="false">Mijia Smart Neck and Shoulder Massager</string>
     <string name="devicetype_makibes_hr3" translatable="false">Makibes HR3</string>
     <string name="devicetype_ovtouch_26" translatable="false">Overmax Touch 2.6</string>
     <string name="devicetype_banglejs" translatable="false">Bangle.js</string>
@@ -6721,4 +6722,31 @@
     <string name="vendor_data_import_garmin_step_5">Select the zip file.</string>
     <string name="vendor_data_import_garmin_unknown_product">Garmin product %1$d</string>
     <string name="appmanager_everything_up_to_date_message">Everything is up to date</string>
+    <!-- Mijia Smart Neck and Shoulder Massager (xiaomi.magic_touch.jj02) -->
+    <string name="magic_touch_jj02_bind_key_title">Cloud token</string>
+    <string name="magic_touch_jj02_bind_key_summary">Required for login and encrypted commands. Enter the 24-character (12-byte) Mi Home cloud token for this massager, not the BLE bind key.</string>
+    <string name="magic_touch_jj02_power_title">Power</string>
+    <string name="magic_touch_jj02_power_summary">Turn the massager on or off</string>
+    <string name="magic_touch_jj02_mode_title">Mode</string>
+    <string name="magic_touch_jj02_mode_gentle">Gentle</string>
+    <string name="magic_touch_jj02_mode_relax">Relax</string>
+    <string name="magic_touch_jj02_mode_stress_relief">Stress Relief</string>
+    <string name="magic_touch_jj02_mode_custom">Custom</string>
+    <string name="magic_touch_jj02_heating_title">Heating</string>
+    <string name="magic_touch_jj02_heating_summary">Heat on or off</string>
+    <string name="magic_touch_jj02_heat_level_title">Heat level</string>
+    <string name="magic_touch_jj02_timer_title">Timer (minutes)</string>
+    <string name="magic_touch_jj02_timer_summary">2–20 minutes</string>
+    <string name="magic_touch_jj02_battery_title">Battery</string>
+    <string name="magic_touch_control_title">Massager control</string>
+    <string name="magic_touch_heat_low">Low (40°C)</string>
+    <string name="magic_touch_heat_high">High (45°C)</string>
+    <string name="magic_touch_custom_name_title">MiOT label</string>
+    <string name="magic_touch_custom_name_summary">Internal on-device label (not the Mi Home title, which is cloud-side)</string>
+    <string name="magic_touch_default_mode_title">Default mode</string>
+    <string name="magic_touch_beep_title">Beep</string>
+    <string name="magic_touch_beep_summary">Beep on button press</string>
+    <string name="magic_touch_head_init_title">Massage head init</string>
+    <string name="magic_touch_unplug_charger">Unplug the charger to control the massager</string>
+    <string name="magic_touch_turn_on_first">Turn the massager on first</string>
 </resources>

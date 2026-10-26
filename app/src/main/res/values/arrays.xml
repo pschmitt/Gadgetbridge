@@ -4,6 +4,37 @@
         <!-- empty array -->
     </string-array>
 
+    <string-array name="magic_touch_jj02_mode_entries">
+        <item>@string/magic_touch_jj02_mode_gentle</item>
+        <item>@string/magic_touch_jj02_mode_relax</item>
+        <item>@string/magic_touch_jj02_mode_stress_relief</item>
+        <item>@string/magic_touch_jj02_mode_custom</item>
+    </string-array>
+    <string-array name="magic_touch_jj02_mode_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+    <string-array name="magic_touch_jj02_heat_level_entries">
+        <item>40°C</item>
+        <item>45°C</item>
+    </string-array>
+    <string-array name="magic_touch_jj02_heat_level_values">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="magic_touch_jj02_head_init_entries">
+        <item>Reserve</item>
+        <item>Normal</item>
+        <item>More better</item>
+    </string-array>
+    <string-array name="magic_touch_jj02_head_init_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
     <string-array name="http_methods">
         <item>GET</item>
         <item>POST</item>

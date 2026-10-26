@@ -632,6 +632,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.victron.VictronSmartShuntCoo
 import nodomain.freeyourgadget.gadgetbridge.devices.waspos.WaspOSCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.wearfit.WearFitCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.withingssteelhr.WithingsSteelHRDeviceCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.xiaomi.magic_touch.MagicTouchJj02Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.xiaomi.watches.MiBand10Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.xiaomi.watches.MiBand10ProCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.xiaomi.watches.MiBand11ActiveCoordinator;
@@ -861,6 +862,7 @@ public enum DeviceType {
     MIJIA_LYWSD03(MijiaLywsd03Coordinator::new),
     MIJIA_XMWSDJ04(MijiaXmwsdj04Coordinator::new),
     MIJIA_MHO_C303(MijiaMhoC303Coordinator::new),
+    MAGIC_TOUCH_JJ02(MagicTouchJj02Coordinator::new),
     LEFUN(LefunDeviceCoordinator::new),
     VIVITAR_HR_BP_MONITOR_ACTIVITY_TRACKER(VivitarHrBpMonitorActivityTrackerCoordinator::new),
     BOHEMIC_SMART_BRACELET(BohemicSmartBraceletDeviceCoordinator::new),
