@@ -22,6 +22,7 @@ import android.net.Uri;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -32,8 +33,14 @@ import java.util.GregorianCalendar;
 import java.util.UUID;
 
 import nodomain.freeyourgadget.gadgetbridge.devices.huami.HuamiFWHelper;
+import nodomain.freeyourgadget.gadgetbridge.service.SleepAsAndroidSender;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.TransactionBuilder;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.actions.WriteAction;
+import nodomain.freeyourgadget.gadgetbridge.util.GB;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class HuamiSupportTest {
     @Test
@@ -45,6 +52,38 @@ public class HuamiSupportTest {
         final WriteAction action = (WriteAction) testTransactionBuilder.getTransaction().getActions().get(0);
 
         Assert.assertArrayEquals(new byte[]{-26, 7, 12, 15, 20, 38, 53, 4, 0, 0, 4}, action.getValue());
+    }
+
+    @Test
+    public void testRawSensorAccelType1() {
+        final HuamiSupport huamiSupport = createSupport();
+        final SleepAsAndroidSender sender = mock(SleepAsAndroidSender.class);
+        huamiSupport.sleepAsAndroidSender = sender;
+
+        // Mi Band 4 (fw V1.0.9.70): type 0x01, index, then int16 x/y/z samples, 10 per packet
+        huamiSupport.handleRawSensorData(GB.hexStringToByteArray(
+                "0100BEFF7D018AFFC5FF1001C0FFC4FFE1001100DAFFFF00500089FF9E0076005DFF3E00BF0079FFEAFF990096FFBBFF8E007CFFF6FF980041FF0500B900"));
+        // 11 samples
+        huamiSupport.handleRawSensorData(GB.hexStringToByteArray(
+                "0103BCFEF6FFDBFF14FF74FF030009FF5AFF3C000EFFF0FF350009FF9A00200006FFE0FF0A00F9FE1000250007FF0200340003FFDEFF3A0004FFEFFF370002FFFAFF3400"));
+
+        final ArgumentCaptor<Float> x = ArgumentCaptor.forClass(Float.class);
+        final ArgumentCaptor<Float> y = ArgumentCaptor.forClass(Float.class);
+        final ArgumentCaptor<Float> z = ArgumentCaptor.forClass(Float.class);
+        verify(sender, times(21)).onAccelChanged(x.capture(), y.capture(), z.capture());
+
+        // first sample: x=-66 y=381 z=-118, 1 g ~ 256
+        Assert.assertEquals(2.529f, x.getAllValues().get(0), 0.01f);
+        Assert.assertEquals(-14.600f, y.getAllValues().get(0), 0.01f);
+        Assert.assertEquals(4.522f, z.getAllValues().get(0), 0.01f);
+
+        // wrist mostly at rest: average magnitude close to 1 g
+        double sum = 0;
+        for (int i = 0; i < 21; i++) {
+            final float gx = x.getAllValues().get(i), gy = y.getAllValues().get(i), gz = z.getAllValues().get(i);
+            sum += Math.sqrt(gx * gx + gy * gy + gz * gz);
+        }
+        Assert.assertEquals(9.81, sum / 21, 2.5);
     }
 
     private HuamiSupport createSupport() {

@@ -4062,20 +4062,23 @@ public abstract class HuamiSupport extends AbstractBTLESingleDeviceSupport
             LOG.warn("Raw sensor value too short: {}", value == null ? -1 : value.length);
             return;
         }
-        // The g values seem to vary between -4100 and 4100, so we scale them
-        final float scaleFactor = 4100f;
         final float gravity = -9.81f;
 
         final ByteBuffer buf = ByteBuffer.wrap(value).order(ByteOrder.LITTLE_ENDIAN);
         final byte type = buf.get();
         final int index = buf.get() & 0xff; // always incrementing, for each type
 
-        if (type == 0x00) {
-            // g-sensor x y z values, per second
+        if (type == 0x00 || type == 0x01) {
+            // g-sensor x y z values. Type 0 is sent once per second.
+            // Type 1 is what the Mi Band 4 (fw V1.0.9.70) sends: 10 or 11 samples per packet at ~25 Hz.
             if ((value.length - 2) % 6 != 0) {
-                LOG.warn("Raw sensor value for type 0 not divisible by 6");
+                LOG.warn("Raw sensor value for type {} not divisible by 6", type);
                 return;
             }
+
+            // Type 0 g values seem to vary between -4100 and 4100, so we scale them.
+            // Type 1 is ~256 per g, measured on a Mi Band 4 at rest; other bands may need their own value.
+            final float scaleFactor = type == 0x00 ? 4100f : 256f;
 
             for (int i = 2; i < value.length; i += 6) {
                 final int x = (BLETypeConversions.toUint16(value, i) << 16) >> 16;
@@ -4092,18 +4095,9 @@ public abstract class HuamiSupport extends AbstractBTLESingleDeviceSupport
                     LOG.debug("Raw sensor g: x={} y={} z={}", gx, gy, gz);
                 }
             }
-        } else if (type == 0x01) {
-            // TODO not sure what this is?
-            if ((value.length - 2) % 4 != 0) {
-                LOG.warn("Raw sensor value for type 1 not divisible by 4");
-                return;
-            }
-            for (int i = 2; i < value.length; i += 4) {
-                int val = BLETypeConversions.toUint32(value, i);
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Raw sensor type 1: {}", val);
-                }
-            }
+        } else if (type == 0x02 || type == (byte) 0x80) {
+            // 0x02 looks like raw PPG, 0x80 like a timestamp; not used
+            LOG.debug("Ignoring raw sensor type {}", type & 0xff);
         } else if (type == 0x07) {
             // Timestamp for the targetType, sent in intervals of ~10 seconds
             final int targetType = buf.get() & 0xff;
