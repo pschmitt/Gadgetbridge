@@ -3817,6 +3817,7 @@
     <string name="devicetype_galaxybuds_3_pro" translatable="false">Galaxy Buds3 Pro</string>
     <string name="devicetype_sanitas_sbm_67" translatable="false">Sanitas SBM67</string>
     <string name="devicetype_silvercrest_sbm_67" translatable="false">SilverCrest SBM67</string>
+    <string name="devicetype_beurer_bm_59" translatable="false">Beurer BM59</string>
     <string name="devicetype_beurer_bm_69" translatable="false">Beurer BM69</string>
     <string name="nothing_prefs_inear_summary">Play/pause the music depending on whether you wear the earbuds</string>
     <string name="nothing_prefs_inear_title">In-Ear detection</string>

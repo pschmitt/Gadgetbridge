@@ -163,6 +163,7 @@ public class BluetoothNameTest extends TestBase {
             put("P22B1", DeviceType.P22B1);
             put("SBM67", DeviceType.SILVERCREST_SBM_67);
             put("BPM Smart", DeviceType.SANITAS_SBM_67);
+            put("BM59", DeviceType.BEURER_BM_59); // #7186
             put("BM69", DeviceType.BEURER_BM_69); // #6687
             put("Sinilink-APP", DeviceType.SINILINK); // #6040
             put("80EL", DeviceType.EIGHTBITDO_MICRO);

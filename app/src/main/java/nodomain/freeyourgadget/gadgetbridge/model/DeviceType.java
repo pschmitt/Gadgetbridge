@@ -36,6 +36,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.asteroidos.AsteroidOSDeviceC
 import nodomain.freeyourgadget.gadgetbridge.devices.atcbleoepl.ATCBLEOEPLCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.bandwpseries.BandWPSeriesDeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.banglejs.BangleJSCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.beurer.BeurerBm59Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.beurer.BeurerBm69Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.binary_sensor.coordinator.BinarySensorCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.bm2.Bm2Coordinator;
@@ -1319,6 +1320,7 @@ public enum DeviceType {
     SOLARFLOW(SolarFlowDeviceCoordinator.class),
     SANITAS_SBM_67(SanitasSBM67Coordinator.class),
     SILVERCREST_SBM_67(SilverCrestSBM67Coordinator.class),
+    BEURER_BM_59(BeurerBm59Coordinator.class),
     BEURER_BM_69(BeurerBm69Coordinator.class),
     BRAUN_BPW4500(BraunBPW4500DeviceCoordinator.class),
     TEUFEL_MYND(TeufelMyndCoordinator.class),
