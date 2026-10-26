@@ -481,6 +481,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.moondrop.MoondropSpaceTravel
 import nodomain.freeyourgadget.gadgetbridge.devices.moondrop.MoondropSpaceTravelCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.moyoung.AdvanWatchSE1AICoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.moyoung.AltVibeCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.moyoung.BettdowFB051Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.moyoung.BlackviewR60Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.moyoung.C20Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.moyoung.ColmiI28UltraCoordinator;
@@ -1292,6 +1293,7 @@ public enum DeviceType {
     MT55(MT55Coordinator.class),
     GARETT_EVA(GarettEvaCoordinator.class),
     ADVAN_WATCH_SE1_AI(AdvanWatchSE1AICoordinator.class),
+    BETTDOW_FB051(BettdowFB051Coordinator.class),
     B_AND_W_P_SERIES(BandWPSeriesDeviceCoordinator.class),
     EARFUN_AIR_S(EarFunAirSCoordinator.class),
     EARFUN_AIR_PRO_4(EarFunAirPro4Coordinator.class),
