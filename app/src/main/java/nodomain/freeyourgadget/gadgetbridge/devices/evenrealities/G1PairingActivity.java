@@ -29,6 +29,7 @@ import java.util.Objects;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity;
+import nodomain.freeyourgadget.gadgetbridge.activities.permissions.DevicePermissionsActivity;
 import nodomain.freeyourgadget.gadgetbridge.adapter.DeviceCandidateAdapter;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
@@ -408,6 +409,7 @@ public class G1PairingActivity extends AbstractGBActivity
         Looper mainLooper = Looper.getMainLooper();
         new Handler(mainLooper).post(() -> {
             if (success && state == BondingState.READY_TO_FINISH) {
+                DevicePermissionsActivity.startAfterPairing(this, leftDeviceCandidate.getMacAddress());
                 setResult(RESULT_OK, null);
                 finish();
             } else {

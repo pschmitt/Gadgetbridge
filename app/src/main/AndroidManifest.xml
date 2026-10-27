@@ -204,6 +204,10 @@
             android:label="@string/first_start_permissions_title"
             android:parentActivityName=".activities.ControlCenterv2" />
         <activity
+            android:name=".activities.permissions.DevicePermissionsActivity"
+            android:label="@string/first_start_permissions_title"
+            android:parentActivityName=".activities.ControlCenterv2" />
+        <activity
             android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".activities.ControlCenterv2" />

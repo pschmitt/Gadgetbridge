@@ -5495,6 +5495,10 @@
     <string name="permission_answer_phone_calls_title">Answer phone calls</string>
     <string name="permission_answer_phone_calls_summary">Answering phone calls from gadgets</string>
     <string name="permission_calls_summary">Forwarding phone calls to gadgets</string>
+    <string name="permissions_section_recommended">Recommended</string>
+    <string name="permissions_section_optional">Optional</string>
+    <string name="permissions_section_granted">Granted</string>
+    <string name="permissions_grant_recommended">Grant recommended</string>
     <string name="permission_external_storage_title">External storage</string>
     <string name="permission_external_storage_summary">Using images, ringtones, app files and more</string>
     <string name="permission_query_all_packages_title">Query all packages</string>

@@ -2,15 +2,21 @@ package nodomain.freeyourgadget.gadgetbridge.util.permissions
 
 import android.Manifest
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.os.Build
+import android.provider.Settings
 import androidx.annotation.StringRes
 import androidx.core.app.ActivityCompat
+import androidx.core.content.edit
+import androidx.core.net.toUri
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.util.AndroidUtils
 import nodomain.freeyourgadget.gadgetbridge.util.AutoStartUtils
 import nodomain.freeyourgadget.gadgetbridge.util.PermissionsUtils
+import org.slf4j.LoggerFactory
 
 /**
  * A permission that Gadgetbridge asks the user to grant, with its rationale. A permission can require one or more
@@ -147,17 +153,91 @@ enum class GBPermission(
         return androidPermissions.isNotEmpty()
     }
 
+    /**
+     * True if Gadgetbridge must request this permission alone, and not in one request with other permissions
+     * (for special permissions that need a separate activity).
+     */
+    val isRequestedAlone: Boolean
+        get() = androidPermissions.any { it in PermissionsUtils.specialPermissions }
+
     fun isGranted(context: Context): Boolean {
         return androidPermissions.all { PermissionsUtils.checkPermission(context, it) }
     }
 
     open fun request(activity: Activity) {
-        val missing = androidPermissions.filterNot { PermissionsUtils.checkPermission(activity, it) }
-        when (missing.size) {
-            0 -> return
+        val missing = missingAndroidPermissions(activity)
+        when {
+            missing.isEmpty() -> return
+            isPermanentlyDenied(activity, missing) -> openAppInfo(activity)
             // PermissionsUtils shows the dialogs and settings pages of the special accesses
-            1 -> PermissionsUtils.requestPermission(activity, missing[0])
-            else -> ActivityCompat.requestPermissions(activity, missing.toTypedArray(), 0)
+            missing.size == 1 -> {
+                saveRequested(missing)
+                PermissionsUtils.requestPermission(activity, missing[0])
+            }
+
+            else -> requestAndroidPermissions(activity, missing)
+        }
+    }
+
+    private fun missingAndroidPermissions(context: Context): List<String> {
+        return androidPermissions.filterNot { PermissionsUtils.checkPermission(context, it) }
+    }
+
+    companion object {
+        private val LOG = LoggerFactory.getLogger(GBPermission::class.java)
+
+        private const val PREF_REQUESTED = "permissions_requested"
+
+        private val SPECIAL_ACCESSES = setOf(
+            PermissionsUtils.CUSTOM_PERM_IGNORE_BATT_OPTIM,
+            PermissionsUtils.CUSTOM_PERM_AUTOSTART,
+            PermissionsUtils.CUSTOM_PERM_NOTIFICATION_LISTENER,
+            PermissionsUtils.CUSTOM_PERM_NOTIFICATION_SERVICE,
+            PermissionsUtils.CUSTOM_PERM_DISPLAY_OVER,
+        )
+
+        /**
+         * Asks for the missing Android permissions for all [permissions] in one request. None of the permissions can
+         * be [isRequestedAlone].
+         */
+        @JvmStatic
+        fun requestTogether(activity: Activity, permissions: Collection<GBPermission>) {
+            val missing = permissions.flatMap { it.missingAndroidPermissions(activity) }
+            if (missing.isNotEmpty()) {
+                requestAndroidPermissions(activity, missing)
+            }
+        }
+
+        private fun requestAndroidPermissions(activity: Activity, missing: List<String>) {
+            saveRequested(missing)
+            ActivityCompat.requestPermissions(activity, missing.toTypedArray(), 0)
+        }
+
+        private fun saveRequested(permissions: List<String>) {
+            val prefs = GBApplication.getPrefs()
+            val requested =
+                prefs.getStringSet(PREF_REQUESTED, emptySet()) + permissions.filterNot { it in SPECIAL_ACCESSES }
+            LOG.debug("Requesting {}", permissions)
+            prefs.preferences.edit { putStringSet(PREF_REQUESTED, requested) }
+        }
+
+        /**
+         * True if Android will not show the dialog for the [missing] permissions anymore, after the user denied
+         * it twice, or selected "don't ask again".
+         */
+        private fun isPermanentlyDenied(activity: Activity, missing: List<String>): Boolean {
+            val requested = GBApplication.getPrefs().getStringSet(PREF_REQUESTED, emptySet())
+            return missing.all { it in requested && !ActivityCompat.shouldShowRequestPermissionRationale(activity, it) }
+        }
+
+        private fun openAppInfo(activity: Activity) {
+            try {
+                activity.startActivity(
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, "package:${activity.packageName}".toUri())
+                )
+            } catch (e: ActivityNotFoundException) {
+                LOG.error("App info activity not found", e)
+            }
         }
     }
 }
