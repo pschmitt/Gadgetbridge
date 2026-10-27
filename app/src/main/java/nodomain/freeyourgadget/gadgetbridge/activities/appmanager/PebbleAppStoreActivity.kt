@@ -116,7 +116,27 @@ class PebbleAppStoreActivity : AbstractGBActivity()  {
         return downloadExtensions.any { url.endsWith(it, ignoreCase = true) }
     }
 
-    private fun downloadInstallWatchapp(url: Uri) {
+    private fun downloadInstallWatchapp(url: Uri, knownStoreId: String? = null) {
+        // Try to get the app store id from the url and use that for the download
+        if (knownStoreId == null) {
+            val assetPattern = Regex(
+                """^https://appstore-api\.repebble\.com/api/assets/pbw/([a-f0-9]{24})/[\d.]+/[a-f0-9-]+\.pbw$"""
+            )
+            val releasePattern = Regex(
+                """^https://appstore-api\.repebble\.com/api/assets/apps/([a-f0-9]{24})/releases/[\d.]+\.pbw$"""
+            )
+            val appStoreId =
+                assetPattern.matchEntire(url.toString())?.groupValues?.get(1)
+                    ?: releasePattern.matchEntire(url.toString())?.groupValues?.get(1)
+            appStoreId?.let {
+                LOG.debug("Downloading Pebble app with app store ID '$it' from API")
+                downloadInstallWatchappById(it)
+                return
+            }
+        }
+
+        // No app store id found, continue downloading the file
+        LOG.debug("Downloading Pebble app from direct URL: {}", url)
         val filename = url.lastPathSegment ?: "downloaded_file.bin"
         val cacheDir = applicationContext.externalCacheDir
         val targetFile = File(cacheDir, filename)
@@ -138,7 +158,7 @@ class PebbleAppStoreActivity : AbstractGBActivity()  {
             // Find and install pbw file
             val latestRelease = firstAppObject.getJSONObject("latest_release")
             val pbwFile = latestRelease.getString("pbw_file")
-            downloadInstallWatchapp(pbwFile.toUri())
+            downloadInstallWatchapp(pbwFile.toUri(), storeId)
             // Download and cache preview image
             val previewUrl = firstAppObject.getJSONObject("list_image").getString("144x144")
             val cacheDir: File? = PebbleUtils.getPbwCacheDir()

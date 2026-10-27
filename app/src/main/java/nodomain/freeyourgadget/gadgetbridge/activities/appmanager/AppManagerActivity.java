@@ -96,6 +96,9 @@ public class AppManagerActivity extends AbstractGBActivity {
         if (coordinator.supportsCachedAppManagement(mGBDevice)) {
             enabledTabsList.add("cache");
         }
+        if (coordinator.supportsInstalledAppManagement(mGBDevice) || coordinator.supportsWatchfaceManagement(mGBDevice)) {
+            enabledTabsList.add("updates");
+        }
         if (coordinator.supportsInstalledAppManagement(mGBDevice)) {
             enabledTabsList.add("apps");
         }
@@ -147,6 +150,7 @@ public class AppManagerActivity extends AbstractGBActivity {
         public Fragment createFragment(int position) {
             return switch (enabledTabsList.get(position)) {
                 case "cache" -> new AppManagerFragmentCache();
+                case "updates" -> new AppManagerFragmentUpdates();
                 case "apps" -> new AppManagerFragmentInstalledApps();
                 case "watchfaces" -> new AppManagerFragmentInstalledWatchfaces();
                 default -> throw new IllegalArgumentException("Unknown tab position " + position);
@@ -162,6 +166,7 @@ public class AppManagerActivity extends AbstractGBActivity {
     public CharSequence getPageTitle(int position) {
         return switch (enabledTabsList.get(position)) {
             case "cache" -> getString(R.string.appmanager_cached_watchapps_watchfaces);
+            case "updates" -> getString(R.string.appmanager_watchapps_watchfaces_updates);
             case "apps" -> getString(R.string.appmanager_installed_watchapps);
             case "watchfaces" -> getString(R.string.appmanager_installed_watchfaces);
             default -> "";

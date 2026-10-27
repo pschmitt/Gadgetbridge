@@ -118,6 +118,8 @@ public abstract class AbstractAppManagerFragment extends Fragment {
 
     protected abstract boolean isCacheManager();
 
+    protected abstract boolean isUpdateManager();
+
     protected abstract boolean filterApp(GBDeviceApp gbDeviceApp);
 
     public void startDragging(RecyclerView.ViewHolder viewHolder) {
@@ -129,12 +131,20 @@ public abstract class AbstractAppManagerFragment extends Fragment {
         for (GBDeviceApp gbDeviceApp : mGBDeviceAppAdapter.getAppList()) {
             uuidList.add(gbDeviceApp.getUUID());
         }
-        AppManagerActivity.rewriteAppOrderFile(getSortFilename(), uuidList);
+        if (!isUpdateManager()) {
+            AppManagerActivity.rewriteAppOrderFile(getSortFilename(), uuidList);
+        }
     }
 
     protected void refreshList() {
         appList.clear();
-        ArrayList<UUID> uuids = AppManagerActivity.getUuidsFromFile(getSortFilename());
+        ArrayList<UUID> uuids;
+        if (isUpdateManager()) {
+            uuids = AppManagerActivity.getUuidsFromFile(mGBDevice.getAddress() + ".watchapps");
+            uuids.addAll(AppManagerActivity.getUuidsFromFile(mGBDevice.getAddress() + ".watchfaces"));
+        } else {
+            uuids = AppManagerActivity.getUuidsFromFile(getSortFilename());
+        }
         List<GBDeviceApp> systemApps = getSystemAppsInCategory();
         boolean needsRewrite = false;
         for (GBDeviceApp systemApp : systemApps) {
@@ -143,56 +153,21 @@ public abstract class AbstractAppManagerFragment extends Fragment {
                 needsRewrite = true;
             }
         }
-        if (needsRewrite) {
+        if (needsRewrite && !isUpdateManager()) {
             AppManagerActivity.rewriteAppOrderFile(getSortFilename(), uuids);
         }
-        appList.addAll(getCachedApps(uuids));
-
-        // Check for Pebble app updates outside the main thread
-        final ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            final boolean internetAvailable = GBApplication.hasInternetAccess();
-            final SharedPreferences devicePrefs = GBApplication.getDevicePrefs(mGBDevice).getPreferences();
-            final boolean pebbleSearchUpdates = devicePrefs.getBoolean("pebble_enable_finding_app_updates", false);
-            if (mGBDevice.getType() == DeviceType.PEBBLE && internetAvailable && pebbleSearchUpdates) {
-                for (GBDeviceApp app : appList) {
-                    PebbleAppstoreIdEntry appstoreIdEntry = DBHelper.getPebbleAppstoreIdByUUID(app.getUUID().toString());
-                    if (appstoreIdEntry != null) {
-                        if (appstoreIdEntry.getUpdateAvailable() || (System.currentTimeMillis() - 60 * 60 * 1000) < appstoreIdEntry.getLastUpdateCheck()) {
-                            // Skip online check if we already know an update is available or when the last check was
-                            // less than an hour ago
-                            continue;
-                        }
-                        LOG.debug("Searching update for Pebble app {} in appstore", app.getName());
-                        final String appStoreDomain = ((PebbleCoordinator) mGBDevice.getDeviceCoordinator()).getAppStoreDomain(mGBDevice);
-                        try {
-                            JSONObject appstoreEntry = InternetUtils.Companion.doJsonRequest(
-                                    Uri.parse("https://appstore-api." + appStoreDomain + "/api/v1/apps/id/" + appstoreIdEntry.getAppstoreId()),
-                                    "GET",
-                                    Collections.emptyMap(),
-                                    null,
-                                    false
-                            );
-                            JSONObject appEntry = (JSONObject) appstoreEntry.getJSONArray("data").get(0);
-                            String latestVersion = appEntry.getJSONObject("latest_release").getString("version");
-                            if (latestVersion.equals(app.getVersion())) {
-                                LOG.info("No update found for Pebble app {} {} in appstore", app.getName(), app.getVersion());
-                                appstoreIdEntry.setUpdateAvailable(false);
-                            } else {
-                                LOG.info("Found update for Pebble app {} ({} -> {}) in appstore", app.getName(), app.getVersion(), latestVersion);
-                                app.setUpToDate(false);
-                                appstoreIdEntry.setUpdateAvailable(true);
-                            }
-                            appstoreIdEntry.setLastUpdateCheck(System.currentTimeMillis());
-                            DBHelper.store(appstoreIdEntry);
-                        } catch (JSONException | NullPointerException e) {
-                            LOG.warn("JSON error while searching for Pebble app update", e);
-                        }
-                    }
+        for (final GBDeviceApp app : getCachedApps(uuids)) {
+            if (mGBDevice.getType() == DeviceType.PEBBLE) {
+                PebbleAppstoreIdEntry appstoreIdEntry = DBHelper.getPebbleAppstoreIdByUUID(app.getUUID().toString());
+                if (appstoreIdEntry != null && appstoreIdEntry.getUpdateAvailable()) {
+                    app.setUpToDate(false);
                 }
-                new Handler(Looper.getMainLooper()).post(() -> mGBDeviceAppAdapter.notifyDataSetChanged());
             }
-        });
+            LOG.debug("App list refresh: " + app.getName() + ", isUpToDate=" + app.isUpToDate());
+            if (filterApp(app)) {
+                appList.add(app);
+            }
+        }
     }
 
     private void refreshListFromDevice(Intent intent) {
@@ -485,6 +460,57 @@ public abstract class AbstractAppManagerFragment extends Fragment {
         } catch (IOException e) {
             LOG.warn("Could not delete temporary app cache directory", e);
         }
+
+        // Check for Pebble app updates outside the main thread
+        final ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            final boolean internetAvailable = GBApplication.hasInternetAccess();
+            final SharedPreferences devicePrefs = GBApplication.getDevicePrefs(mGBDevice).getPreferences();
+            final boolean pebbleSearchUpdates = devicePrefs.getBoolean("pebble_enable_finding_app_updates", false);
+            if (mGBDevice.getType() == DeviceType.PEBBLE && internetAvailable && pebbleSearchUpdates) {
+                LOG.debug("Starting search for Pebble app updates");
+                for (GBDeviceApp app : appList) {
+                    PebbleAppstoreIdEntry appstoreIdEntry = DBHelper.getPebbleAppstoreIdByUUID(app.getUUID().toString());
+                    if (appstoreIdEntry == null) {
+                        LOG.debug("The store ID of Pebble app '{}' is unknown to us", app.getName());
+                    } else {
+                        LOG.debug("Searching update for Pebble app {} (store ID: {})", app.getName(), appstoreIdEntry.getAppstoreId());
+                        if ((System.currentTimeMillis() - 60 * 60 * 1000) < appstoreIdEntry.getLastUpdateCheck()) {
+                            // Skip online check if the last check was less than an hour ago
+                            LOG.debug("Skipping online check because we checked this app less than an hour ago");
+                            continue;
+                        }
+                        final String appStoreDomain = ((PebbleCoordinator) mGBDevice.getDeviceCoordinator()).getAppStoreDomain(mGBDevice);
+                        try {
+                            JSONObject appstoreEntry = InternetUtils.Companion.doJsonRequest(
+                                Uri.parse("https://appstore-api." + appStoreDomain + "/api/v1/apps/id/" + appstoreIdEntry.getAppstoreId()),
+                                "GET",
+                                Collections.emptyMap(),
+                                null,
+                                false
+                            );
+                            JSONObject appEntry = (JSONObject) appstoreEntry.getJSONArray("data").get(0);
+                            Version latestVersion = new Version(appEntry.getJSONObject("latest_release").getString("version"));
+                            Version currentVersion = new Version(app.getVersion());
+                            if (latestVersion.greaterThan(currentVersion)) {
+                                LOG.info("Found update for Pebble app {} ({} -> {}) in appstore", app.getName(), currentVersion, latestVersion);
+                                app.setUpToDate(false);
+                                appstoreIdEntry.setUpdateAvailable(true);
+                            } else {
+                                LOG.info("No update found for Pebble app {} {} in appstore", app.getName(), currentVersion);
+                                appstoreIdEntry.setUpdateAvailable(false);
+                            }
+                            appstoreIdEntry.setLastUpdateCheck(System.currentTimeMillis());
+                            DBHelper.store(appstoreIdEntry);
+                        } catch (JSONException | NullPointerException e) {
+                            LOG.warn("JSON error while searching for Pebble app update", e);
+                        }
+                    }
+                }
+                LOG.debug("Finished search for Pebble app updates");
+                new Handler(Looper.getMainLooper()).post(() -> mGBDeviceAppAdapter.notifyDataSetChanged());
+            }
+        });
     }
 
     @Override

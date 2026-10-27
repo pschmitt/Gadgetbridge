@@ -118,6 +118,7 @@
     <!-- Strings related to AppManager -->
     <string name="title_activity_appmanager">App Manager</string>
     <string name="appmanager_cached_watchapps_watchfaces">Apps in cache</string>
+    <string name="appmanager_watchapps_watchfaces_updates">Updates</string>
     <string name="appmanager_installed_watchapps">Installed apps</string>
     <string name="appmanager_installed_watchfaces">Installed watchfaces</string>
     <string name="appmanager_watchface_activate">Activate</string>
