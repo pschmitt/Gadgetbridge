@@ -86,6 +86,7 @@ import nodomain.freeyourgadget.gadgetbridge.service.receivers.AutoConnectInterva
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
+import nodomain.freeyourgadget.gadgetbridge.util.permissions.GBPermission;
 
 public class DeviceCommunicationService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
     public static class DeviceStruct {
@@ -592,6 +593,12 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
             if (!fromExtra && !autoReconnect) {
                 LOG.debug("connectToDevice - {} neither from extra nor auto reconnect (2)",
                         deviceAddress);
+                continue;
+            }
+
+            final DeviceCoordinator.ConnectionType connectionType = gbDevice.getDeviceCoordinator().getConnectionType();
+            if ((connectionType.usesBluetoothLE() || connectionType.usesBluetoothClassic()) && !GBPermission.BLUETOOTH.isGranted(this)) {
+                LOG.warn("connectToDevice - {} skipped, Bluetooth permission not granted", deviceAddress);
                 continue;
             }
 
