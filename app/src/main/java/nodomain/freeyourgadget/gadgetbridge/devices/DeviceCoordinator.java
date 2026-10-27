@@ -87,6 +87,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.WorkoutLoadSample;
 import nodomain.freeyourgadget.gadgetbridge.model.heartratezones.HeartRateZonesSpec;
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.ServiceDeviceSupport;
+import nodomain.freeyourgadget.gadgetbridge.util.permissions.DevicePermission;
 import nodomain.freeyourgadget.gadgetbridge.vendorimport.VendorDataImporter;
 import nodomain.freeyourgadget.gadgetbridge.widgets.DeviceWidgetsProvider;
 
@@ -1200,6 +1201,13 @@ public interface DeviceCoordinator {
      * Returns true if the device can receive the real-time GPS location of the phone.
      */
     boolean supportsGpsSharing(@NonNull final GBDevice device);
+
+    /**
+     * Returns the permissions that the device needs on this phone, with the section (recommended or optional),
+     * and the rationale for each.
+     */
+    @NonNull
+    List<DevicePermission> getPermissions(@NonNull final GBDevice device);
 
     int getOrderPriority();
 

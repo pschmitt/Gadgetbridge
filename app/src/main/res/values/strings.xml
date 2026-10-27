@@ -5454,6 +5454,7 @@
     <string name="first_start_get_started_restore_button">Restore backup</string>
     <string name="first_start_get_started_go_to_app_button">Go to the app</string>
     <string name="permission_notifications_summary">Forwarding notifications to connected gadgets</string>
+    <string name="permission_notifications_aloud_summary">Reading notifications aloud</string>
     <string name="permission_manage_dnd_title">Manage Do Not Disturb</string>
     <string name="permission_manage_dnd_summary">Changing DND notification policy</string>
     <string name="permission_displayover_title">Display over other apps</string>
@@ -5462,6 +5463,7 @@
     <string name="permission_fine_location_summary">Scanning for Bluetooth devices</string>
     <string name="permission_background_location_title">Background location</string>
     <string name="permission_background_location_summary">Scanning for Bluetooth devices in the background and sending the location to certain gadgets</string>
+    <string name="permission_gps_sharing_summary">Sending the phone location to the gadget</string>
     <string name="permission_bluetooth_title">Bluetooth</string>
     <string name="permission_bluetooth_summary">Connecting to Bluetooth devices</string>
     <string name="permission_bluetooth_admin_title">Bluetooth admin</string>
@@ -5492,6 +5494,7 @@
     <string name="permission_process_outgoing_calls_summary">Reading the number of an outgoing call to display it on a gadget</string>
     <string name="permission_answer_phone_calls_title">Answer phone calls</string>
     <string name="permission_answer_phone_calls_summary">Answering phone calls from gadgets</string>
+    <string name="permission_calls_summary">Forwarding phone calls to gadgets</string>
     <string name="permission_external_storage_title">External storage</string>
     <string name="permission_external_storage_summary">Using images, ringtones, app files and more</string>
     <string name="permission_query_all_packages_title">Query all packages</string>

@@ -301,7 +301,12 @@ public class PermissionsUtils {
         Intent intent = new Intent();
         intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
         intent.setData(Uri.parse("package:" + activity.getApplicationContext().getPackageName()));
-        activity.startActivity(intent);
+        try {
+            activity.startActivity(intent);
+        } catch (final ActivityNotFoundException e) {
+            GB.toast(activity, "Ignore Battery Optimizations activity not found", Toast.LENGTH_LONG, GB.ERROR, e);
+            LOG.error("Ignore Battery Optimizations activity not found");
+        }
     }
 
     private static void showNotifyListenerPermissionsDialog(Activity activity) {
@@ -361,7 +366,12 @@ public class PermissionsUtils {
                             Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                             Uri.parse("package:" + BuildConfig.APPLICATION_ID)
                     );
-                    activity.startActivity(enableIntent);
+                    try {
+                        activity.startActivity(enableIntent);
+                    } catch (final ActivityNotFoundException e) {
+                        GB.toast(activity, "Display Over Other Apps activity not found", Toast.LENGTH_LONG, GB.ERROR, e);
+                        LOG.error("Display Over Other Apps activity not found");
+                    }
                 })
                 .setNegativeButton(R.string.dismiss, (dialog, id) -> {
                 })
