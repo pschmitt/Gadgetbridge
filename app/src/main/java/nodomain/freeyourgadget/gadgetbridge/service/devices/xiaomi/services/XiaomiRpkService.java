@@ -21,6 +21,7 @@ import com.google.protobuf.ByteString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 
@@ -62,8 +64,8 @@ public class XiaomiRpkService extends AbstractXiaomiService implements XiaomiDat
     public static final int CMD_RPK_SESSION_END = 7;
     public static final int CMD_RPK_MESSAGE = 8;
 
-    // Message waiting for CMD_RPK_LAUNCHED, by rpk id
-    private final Map<String, byte[]> pendingMessages = new HashMap<>();
+    // Messages waiting for CMD_RPK_LAUNCHED, by rpk id, oldest first
+    private final Map<String, Queue<byte[]>> pendingMessages = new HashMap<>();
     // Rpk ids to launch once the rpk list arrives
     private final Set<String> awaitingList = new HashSet<>();
 
@@ -116,11 +118,12 @@ public class XiaomiRpkService extends AbstractXiaomiService implements XiaomiDat
     /**
      * Send a message to an app installed on the band, as observed between the official app and the band:
      * launch the app (CMD_RPK_LAUNCH), wait for CMD_RPK_LAUNCHED, send CMD_RPK_MESSAGE, end with CMD_RPK_SESSION_END.
+     * Messages sent before the app reports it launched are queued and all sent in that session, in order.
      *
      * @param appId rpk id as reported in the rpk list
      */
     public void sendWearAppMessage(final String appId, final byte[] payload) {
-        pendingMessages.put(appId, payload);
+        pendingMessages.computeIfAbsent(appId, k -> new ArrayDeque<>()).add(payload);
         if (!shaMap.containsKey(appId)) {
             // sha is only known from the rpk list, which is fetched on demand
             LOG.debug("Rpk {} not in the cached list, requesting it", appId);
@@ -150,14 +153,23 @@ public class XiaomiRpkService extends AbstractXiaomiService implements XiaomiDat
     }
 
     private void onWearAppLaunched(final RpkInfoList app) {
-        final byte[] payload = pendingMessages.remove(app.getId());
-        if (payload == null) {
+        final Queue<byte[]> payloads = pendingMessages.remove(app.getId());
+        if (payloads == null) {
             LOG.debug("Wear app {} launched, no pending message", app.getId());
             return;
         }
         final RpkInfoList ref = rpkRef(app.getId(), app.getSha());
-        getSupport().sendCommand("wear app message " + app.getId(), buildMessageCommand(ref, payload));
+        for (final byte[] payload : payloads) {
+            getSupport().sendCommand("wear app message " + app.getId(), buildMessageCommand(ref, payload));
+        }
         getSupport().sendCommand("wear app session end " + app.getId(), buildSessionEndCommand(ref));
+    }
+
+    @Override
+    public void onDisconnect() {
+        // Otherwise messages from before the disconnect would go out with the next one, possibly much later
+        pendingMessages.clear();
+        awaitingList.clear();
     }
 
     static RpkInfoList rpkRef(final String id, final ByteString sha) {
