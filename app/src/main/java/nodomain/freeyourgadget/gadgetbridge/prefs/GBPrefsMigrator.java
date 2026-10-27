@@ -25,6 +25,7 @@ import nodomain.freeyourgadget.gadgetbridge.prefs.migrators.PreferenceMigrator71
 import nodomain.freeyourgadget.gadgetbridge.prefs.migrators.PreferenceMigrator72;
 import nodomain.freeyourgadget.gadgetbridge.prefs.migrators.PreferenceMigrator73;
 import nodomain.freeyourgadget.gadgetbridge.prefs.migrators.PreferenceMigrator74;
+import nodomain.freeyourgadget.gadgetbridge.prefs.migrators.PreferenceMigrator75;
 
 public class GBPrefsMigrator {
     private static final Logger LOG = LoggerFactory.getLogger(GBPrefsMigrator.class);
@@ -32,7 +33,7 @@ public class GBPrefsMigrator {
     public static final String PREFS_VERSION = "shared_preferences_version";
     //if preferences have to be migrated, increment the following and add the migration logic in migratePrefs below
     // see http://stackoverflow.com/questions/16397848/how-can-i-migrate-android-preferences-with-a-new-version
-    private static final int CURRENT_PREFS_VERSION = 74;
+    private static final int CURRENT_PREFS_VERSION = 75;
 
     public static void migratePrefsIfNeeded(final SharedPreferences sharedPrefs) {
         final int oldVersion = getPrefsFileVersion(sharedPrefs);
@@ -62,6 +63,7 @@ public class GBPrefsMigrator {
             if (oldVersion < 72) new PreferenceMigrator72().migrate(oldVersion, sharedPrefs, editor);
             if (oldVersion < 73) new PreferenceMigrator73().migrate(oldVersion, sharedPrefs, editor);
             if (oldVersion < 74) new PreferenceMigrator74().migrate(oldVersion, sharedPrefs, editor);
+            if (oldVersion < 75) new PreferenceMigrator75().migrate(oldVersion, sharedPrefs, editor);
 
             editor.putString(PREFS_VERSION, Integer.toString(CURRENT_PREFS_VERSION));
             editor.apply();

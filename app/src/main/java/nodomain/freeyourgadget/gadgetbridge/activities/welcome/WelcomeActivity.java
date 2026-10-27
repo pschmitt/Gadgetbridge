@@ -74,14 +74,13 @@ public class WelcomeActivity extends AbstractGBActivity {
                 case 0 -> new WelcomeFragmentIntro();
                 case 1 -> new WelcomeFragmentOverview();
                 case 2 -> new WelcomeFragmentDocsSource();
-                case 3 -> new WelcomeFragmentPermissions();
                 default -> new WelcomeFragmentGetStarted();
             };
         }
 
         @Override
         public int getItemCount() {
-            return 5;
+            return 4;
         }
     }
 }

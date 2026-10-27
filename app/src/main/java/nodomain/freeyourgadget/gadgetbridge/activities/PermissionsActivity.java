@@ -18,30 +18,17 @@ package nodomain.freeyourgadget.gadgetbridge.activities;
 
 import android.os.Bundle;
 
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.welcome.WelcomeFragmentPermissions;
 
 public class PermissionsActivity extends AbstractGBActivity {
-    public static final String ARG_SHOW_DO_NOT_ASK_BUTTON = "show_do_not_ask";
-
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_permissions);
 
-        final WelcomeFragmentPermissions permissionsFragment = new WelcomeFragmentPermissions();
-        final Bundle args = new Bundle();
-        args.putBoolean(
-                WelcomeFragmentPermissions.ARG_SHOW_DO_NOT_ASK_BUTTON,
-                getIntent().getBooleanExtra(ARG_SHOW_DO_NOT_ASK_BUTTON, false)
-        );
-        permissionsFragment.setArguments(args);
-
-        final FragmentManager fragmentManager = getSupportFragmentManager();
-        final FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.fragment_container, permissionsFragment).commit();
+        getSupportFragmentManager().beginTransaction()
+            .replace(R.id.fragment_container, new WelcomeFragmentPermissions())
+            .commit();
     }
 }

@@ -25,7 +25,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -49,7 +48,6 @@ import java.util.List;
 import java.util.Set;
 
 import nodomain.freeyourgadget.gadgetbridge.BuildConfig;
-import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.NotificationListener;
 
@@ -76,144 +74,6 @@ public class PermissionsUtils {
         }
     }};
 
-    public static ArrayList<PermissionDetails> getRequiredPermissionsList(Activity activity) {
-        ArrayList<PermissionDetails> permissionsList = new ArrayList<>();
-        if (CompanionDeviceUtil.getCompanionAssociations(GBApplication.getContext()).isEmpty()) {
-            permissionsList.add(new PermissionDetails(
-                    CUSTOM_PERM_IGNORE_BATT_OPTIM,
-                    activity.getString(R.string.permission_disable_doze_title),
-                    activity.getString(R.string.permission_disable_doze_summary)
-            ));
-        } else {
-            LOG.info("Not requesting explicit battery optimization exemption due to paired Companion devices");
-        }
-        if (AutoStartUtils.getSettingsIntent(activity) != null) {
-            permissionsList.add(new PermissionDetails(
-                    CUSTOM_PERM_AUTOSTART,
-                    activity.getString(R.string.permission_autostart_title),
-                    activity.getString(R.string.permission_autostart_summary)
-            ));
-        }
-        permissionsList.add(new PermissionDetails(
-                CUSTOM_PERM_NOTIFICATION_LISTENER,
-                activity.getString(R.string.menuitem_notifications),
-                activity.getString(R.string.permission_notifications_summary)));
-        permissionsList.add(new PermissionDetails(
-                CUSTOM_PERM_NOTIFICATION_SERVICE,
-                activity.getString(R.string.permission_manage_dnd_title),
-                activity.getString(R.string.permission_manage_dnd_summary)));
-        permissionsList.add(new PermissionDetails(
-                CUSTOM_PERM_DISPLAY_OVER,
-                activity.getString(R.string.permission_displayover_title),
-                activity.getString(R.string.permission_displayover_summary)));
-        permissionsList.add(new PermissionDetails(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                activity.getString(R.string.permission_fine_location_title),
-                activity.getString(R.string.permission_fine_location_summary)));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            permissionsList.add(new PermissionDetails(
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                    activity.getString(R.string.permission_background_location_title),
-                    activity.getString(R.string.permission_background_location_summary)));
-        }
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
-            permissionsList.add(new PermissionDetails(
-                    Manifest.permission.BLUETOOTH,
-                    activity.getString(R.string.permission_bluetooth_title),
-                    activity.getString(R.string.permission_bluetooth_summary)));
-            permissionsList.add(new PermissionDetails(
-                    Manifest.permission.BLUETOOTH_ADMIN,
-                    activity.getString(R.string.permission_bluetooth_admin_title),
-                    activity.getString(R.string.permission_bluetooth_admin_summary)));
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            permissionsList.add(new PermissionDetails(
-                    Manifest.permission.BLUETOOTH_SCAN,
-                    activity.getString(R.string.permission_bluetooth_scan_title),
-                    activity.getString(R.string.permission_bluetooth_scan_summary)));
-            permissionsList.add(new PermissionDetails(
-                    Manifest.permission.BLUETOOTH_CONNECT,
-                    activity.getString(R.string.permission_bluetooth_connect_title),
-                    activity.getString(R.string.permission_bluetooth_connect_summary)));
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissionsList.add(new PermissionDetails(
-                    Manifest.permission.POST_NOTIFICATIONS,
-                    activity.getString(R.string.permission_post_notification_title),
-                    activity.getString(R.string.permission_post_notification_summary)));
-        }
-        if (isPermissionDeclared(activity, Manifest.permission.INTERNET)) {
-            permissionsList.add(new PermissionDetails(
-                    Manifest.permission.INTERNET,
-                    activity.getString(R.string.permission_internet_access_title),
-                    activity.getString(R.string.permission_internet_access_summary)));
-        }
-        if (!GBApplication.hasDirectInternetAccess() && AndroidUtils.isPackageInstalled(PACKAGE_INTERNET_HELPER)) {
-            permissionsList.add(new PermissionDetails(
-                    CUSTOM_PERM_INTERNET_HELPER,
-                    activity.getString(R.string.internet_helper_permission_title),
-                    activity.getString(R.string.internet_helper_permission_summary)
-            ));
-        }
-//        permissionsList.add(new PermissionDetails(  // NOTE: can't request this, it's only allowed for system apps
-//                Manifest.permission.MEDIA_CONTENT_CONTROL,
-//                "Media content control",
-//                "Read and control media playback"));
-        permissionsList.add(new PermissionDetails(
-                Manifest.permission.READ_CONTACTS,
-                activity.getString(R.string.permission_contacts_title),
-                activity.getString(R.string.permission_contacts_summary)));
-        permissionsList.add(new PermissionDetails(
-                Manifest.permission.READ_CALENDAR,
-                activity.getString(R.string.permission_calendar_title),
-                activity.getString(R.string.permission_calendar_summary)));
-        if (GBApplication.getPrefs().getBoolean(GBPrefs.DEPRECATED_SMS_RECEIVER, false)) {
-            permissionsList.add(new PermissionDetails(
-                    Manifest.permission.RECEIVE_SMS,
-                    activity.getString(R.string.permission_receive_sms_title),
-                    activity.getString(R.string.permission_receive_sms_summary)));
-        }
-        permissionsList.add(new PermissionDetails(
-                Manifest.permission.SEND_SMS,
-                activity.getString(R.string.permission_send_sms_title),
-                activity.getString(R.string.permission_send_sms_summary)));
-        permissionsList.add(new PermissionDetails(
-                Manifest.permission.READ_CALL_LOG,
-                activity.getString(R.string.permission_read_call_log_title),
-                activity.getString(R.string.permission_read_call_log_summary)));
-        permissionsList.add(new PermissionDetails(
-                Manifest.permission.READ_PHONE_STATE,
-                activity.getString(R.string.permission_read_phone_state_title),
-                activity.getString(R.string.permission_read_phone_state_summary)));
-        permissionsList.add(new PermissionDetails(
-                Manifest.permission.CALL_PHONE,
-                activity.getString(R.string.permission_call_phone_title),
-                activity.getString(R.string.permission_call_phone_summary)));
-        permissionsList.add(new PermissionDetails(
-                Manifest.permission.PROCESS_OUTGOING_CALLS,
-                activity.getString(R.string.permission_process_outgoing_calls_title),
-                activity.getString(R.string.permission_process_outgoing_calls_summary)));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            permissionsList.add(new PermissionDetails(
-                    Manifest.permission.ANSWER_PHONE_CALLS,
-                    activity.getString(R.string.permission_answer_phone_calls_title),
-                    activity.getString(R.string.permission_answer_phone_calls_summary)));
-        }
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
-            permissionsList.add(new PermissionDetails(
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    activity.getString(R.string.permission_external_storage_title),
-                    activity.getString(R.string.permission_external_storage_summary)));
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            permissionsList.add(new PermissionDetails(
-                    Manifest.permission.QUERY_ALL_PACKAGES,
-                    activity.getString(R.string.permission_query_all_packages_title),
-                    activity.getString(R.string.permission_query_all_packages_summary)));
-        }
-        return permissionsList;
-    }
-
     public static boolean checkPermission(Context context, String permission) {
         switch (permission) {
             case CUSTOM_PERM_NOTIFICATION_LISTENER -> {
@@ -239,16 +99,6 @@ public class PermissionsUtils {
         }
     }
 
-    public static boolean checkAllPermissions(Activity activity) {
-        boolean result = true;
-        for (PermissionDetails permission : getRequiredPermissionsList(activity)) {
-            if (!checkPermission(activity, permission.permission())) {
-                result = false;
-            }
-        }
-        return result;
-    }
-
     public static void requestPermission(Activity activity, String permission) {
         if (permission.equals(CUSTOM_PERM_IGNORE_BATT_OPTIM)) {
             showRequestIgnoreBatteryOptimizationDialog(activity);
@@ -265,35 +115,6 @@ public class PermissionsUtils {
         } else {
             ActivityCompat.requestPermissions(activity, new String[]{permission}, 0);
         }
-    }
-
-    public record PermissionDetails(String permission,
-                                    String title,
-                                    String summary) {
-    }
-
-    public static boolean isPermissionDeclared(Context context, String permission) {
-        // Checks whether a permission has been declared in the (merged) manifest file.
-        // This also includes permissions declared by dependencies.
-        try {
-            PackageManager pm = context.getPackageManager();
-            PackageInfo info = pm.getPackageInfo(
-                    context.getPackageName(),
-                    PackageManager.GET_PERMISSIONS
-            );
-
-            String[] requestedPermissions = info.requestedPermissions;
-            if (requestedPermissions != null) {
-                for (String p : requestedPermissions) {
-                    if (p.equals(permission)) {
-                        return true;
-                    }
-                }
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            // Do nothing
-        }
-        return false;
     }
 
     @SuppressLint("BatteryLife")

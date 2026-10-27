@@ -25,6 +25,7 @@ import nodomain.freeyourgadget.gadgetbridge.util.kotlin.getParcelableCompat
 import nodomain.freeyourgadget.gadgetbridge.util.permissions.DevicePermission
 import nodomain.freeyourgadget.gadgetbridge.util.permissions.GBPermission
 import nodomain.freeyourgadget.gadgetbridge.util.permissions.MissingPermissions
+import nodomain.freeyourgadget.gadgetbridge.util.permissions.PermissionRequestQueue
 import org.slf4j.LoggerFactory
 
 class DevicePermissionsActivity : AbstractGBActivity() {
@@ -32,7 +33,7 @@ class DevicePermissionsActivity : AbstractGBActivity() {
     private lateinit var device: GBDevice
     private val adapter = PermissionsAdapter { it.request(this) }
 
-    private val pendingRequests = ArrayDeque<GBPermission>()
+    private val requestQueue = PermissionRequestQueue()
     private var missingRecommended: List<GBPermission> = emptyList()
 
     /**
@@ -74,9 +75,7 @@ class DevicePermissionsActivity : AbstractGBActivity() {
         binding.devicePermissionsList.layoutManager = LinearLayoutManager(this)
         binding.devicePermissionsList.adapter = adapter
         binding.devicePermissionsGrantRecommended.setOnClickListener {
-            pendingRequests.clear()
-            pendingRequests.addAll(missingRecommended)
-            requestPending()
+            requestQueue.start(this, missingRecommended)
         }
         binding.devicePermissionsDone.setOnClickListener { close() }
         onBackPressedDispatcher.addCallback(this) { close() }
@@ -93,9 +92,7 @@ class DevicePermissionsActivity : AbstractGBActivity() {
     override fun onResume() {
         super.onResume()
         refresh()
-        if (pendingRequests.isNotEmpty()) {
-            requestPending()
-        }
+        requestQueue.resume(this)
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -163,24 +160,6 @@ class DevicePermissionsActivity : AbstractGBActivity() {
             add(Item.Header(title))
             permissions.forEach { add(Item.Row(it, granted)) }
         }
-    }
-
-    /**
-     * Requests the next pending permissions. A permission that must be requested alone opens its own dialog or
-     * settings page, and [onResume] continues with the next one. All remaining permissions are requested in a
-     * single request at the end.
-     */
-    private fun requestPending() {
-        pendingRequests.removeAll { it.isGranted(this) }
-        val alone = pendingRequests.firstOrNull { it.isRequestedAlone }
-        if (alone != null) {
-            pendingRequests.remove(alone)
-            alone.request(this)
-            return
-        }
-        val together = pendingRequests.toList()
-        pendingRequests.clear()
-        GBPermission.requestTogether(this, together)
     }
 
     /**

@@ -94,7 +94,6 @@ import nodomain.freeyourgadget.gadgetbridge.util.DeviceHelper;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.GBChangeLog;
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
-import nodomain.freeyourgadget.gadgetbridge.util.PermissionsUtils;
 
 //TODO: extend AbstractGBActivity, but it requires actionbar that is not available
 public class ControlCenterv2 extends AppCompatActivity
@@ -177,7 +176,7 @@ public class ControlCenterv2 extends AppCompatActivity
             }
         }
     };
-    private boolean pesterWithPermissions = true;
+
     private final Map<GBDevice, Integer> currentHeartRate = new HashMap<>();
     private final Map<GBDevice, Long> currentHeartRateReceivedAt = new HashMap<>();
 
@@ -499,17 +498,10 @@ public class ControlCenterv2 extends AppCompatActivity
         filterLocal.addAction(DeviceManager.ACTION_DEVICES_CHANGED);
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, filterLocal);
 
-        // Open the Welcome flow on first run, only check permissions on next runs
+        // Open the Welcome flow on first run
         boolean firstRun = prefs.getBoolean("first_run", true);
         if (firstRun) {
             launchWelcomeActivity();
-        } else {
-            pesterWithPermissions = prefs.getBoolean("permission_pestering", true);
-            if (pesterWithPermissions && !PermissionsUtils.checkAllPermissions(this)) {
-                Intent permissionsIntent = new Intent(this, PermissionsActivity.class);
-                permissionsIntent.putExtra(PermissionsActivity.ARG_SHOW_DO_NOT_ASK_BUTTON, true);
-                startActivity(permissionsIntent);
-            }
         }
 
         final GBChangeLog cl = GBChangeLog.createChangeLog(this);

@@ -3235,9 +3235,6 @@
     <string name="device_unsupported">UNSUPPORTED</string>
     <string name="device_experimental">EXPERIMENTAL</string>
     <string name="error_background_service_reason">Starting the background service failed because of an exception - click here for more information.\n\nError:</string>
-    <string name="pref_check_permission_show_list">Show permission status</string>
-    <string name="pref_check_permission_status">Check permission status</string>
-    <string name="pref_check_permission_status_summary">Check and ask for missing permissions even when they might not be instantly needed. Disable this only if your devices actually doesn\'t support any of these features. Not granting a permission might cause issues!</string>
     <string name="pref_show_changelog">Show changelog on startup</string>
     <string name="pref_show_changelog_summary">Display the changelog since last version after Gadgetbridge is updated</string>
     <string name="error_exporting_device_preferences">Error exporting device specific preferences</string>
@@ -5445,7 +5442,6 @@
     <string name="first_start_permissions_desc">Gadgetbridge needs a lot of permissions to perform all its functions. Review the permissions and their purposes below.</string>
     <string name="first_start_permissions_request_all_button">Request all permissions</string>
     <string name="first_start_permissions_do_not_ask_again">Do not ask again</string>
-    <string name="first_start_permissions_do_not_ask_warning_summary">Not granting a permission might cause issues. You can open this screen again from the Settings screen.</string>
     <string name="first_start_permissions_request_button">Request</string>
     <string name="first_start_get_started_title">Get started</string>
     <string name="first_start_get_started_desc">To get started, add your first device directly from this screen, restore a backup or start with a clean database.</string>
@@ -5458,23 +5454,14 @@
     <string name="permission_manage_dnd_summary">Changing DND notification policy</string>
     <string name="permission_displayover_title">Display over other apps</string>
     <string name="permission_displayover_summary">Used by Bangle.js for starting apps and other functionality on your phone</string>
-    <string name="permission_fine_location_title">Fine location</string>
-    <string name="permission_fine_location_summary">Scanning for Bluetooth devices</string>
     <string name="permission_background_location_title">Background location</string>
     <string name="permission_background_location_summary">Scanning for Bluetooth devices in the background and sending the location to certain gadgets</string>
     <string name="permission_gps_sharing_summary">Sending the phone location to the gadget</string>
     <string name="permission_bluetooth_title">Bluetooth</string>
     <string name="permission_bluetooth_summary">Connecting to Bluetooth devices</string>
-    <string name="permission_bluetooth_admin_title">Bluetooth admin</string>
-    <string name="permission_bluetooth_admin_summary">Discovering and pairing Bluetooth devices</string>
-    <string name="permission_bluetooth_scan_title">Bluetooth scan</string>
-    <string name="permission_bluetooth_scan_summary">Scanning for new Bluetooth devices</string>
-    <string name="permission_bluetooth_connect_title">Bluetooth connect</string>
-    <string name="permission_bluetooth_connect_summary">Connecting to already-paired Bluetooth devices</string>
     <string name="permission_post_notification_title">Post notifications</string>
     <string name="permission_post_notification_summary">Posting ongoing notification which keeps the service running</string>
     <string name="permission_internet_access_title">Internet access</string>
-    <string name="permission_internet_access_summary">Synchronization with online resources</string>
     <string name="permission_contacts_title">Contacts</string>
     <string name="permission_contacts_summary">Sending contacts to gadgets</string>
     <string name="permission_calendar_title">Calendar</string>
@@ -5483,14 +5470,6 @@
     <string name="permission_receive_sms_summary">Forwarding SMS messages to gadgets</string>
     <string name="permission_send_sms_title">Send SMS</string>
     <string name="permission_send_sms_summary">Sending SMS (canned response) from gadgets</string>
-    <string name="permission_read_call_log_title">Read call log</string>
-    <string name="permission_read_call_log_summary">Forwarding call log to gadgets</string>
-    <string name="permission_read_phone_state_title">Read phone state</string>
-    <string name="permission_read_phone_state_summary">Reading status of ongoing calls</string>
-    <string name="permission_call_phone_title">Call phone</string>
-    <string name="permission_call_phone_summary">Initiating phone calls from gadgets</string>
-    <string name="permission_process_outgoing_calls_title">Process outgoing calls</string>
-    <string name="permission_process_outgoing_calls_summary">Reading the number of an outgoing call to display it on a gadget</string>
     <string name="permission_answer_phone_calls_title">Answer phone calls</string>
     <string name="permission_answer_phone_calls_summary">Answering phone calls from gadgets</string>
     <string name="permission_calls_summary">Forwarding phone calls to gadgets</string>
@@ -5505,10 +5484,6 @@
         <item quantity="one">Permission not granted: %1$s</item>
         <item quantity="other">Permissions not granted: %1$s</item>
     </plurals>
-    <string name="permission_external_storage_title">External storage</string>
-    <string name="permission_external_storage_summary">Using images, ringtones, app files and more</string>
-    <string name="permission_query_all_packages_title">Query all packages</string>
-    <string name="permission_query_all_packages_summary">Reading names and icons of all installed apps</string>
     <string name="about_build_details_copied_to_clipboard">Build details copied to clipboard</string>
     <string name="devicetype_marstek_b2500" translatable="false">Marstek B2500</string>
     <string name="battery_discharge_intervals">Battery Discharge Intervals</string>
