@@ -4074,7 +4074,7 @@
     <string name="pref_reprocess_activity_files_summary">重新处理所有来自手机存储的活动文件</string>
     <string name="output_power_grid">瓦特为单位的向电网输出功率</string>
     <string name="battery_maximum_charge">最大电池充电率</string>
-    <string name="activity_title_rebble_app_store">Rebble 应用商店</string>
+    <string name="activity_title_rebble_app_store">Pebble 应用商店</string>
     <string name="prefs_internet_helper_title">互联网助手</string>
     <string name="prefs_internet_helper_summary">配置允许通过互联网助手附加组件应用请求的网址</string>
     <string name="internet_helper_pref_app_req_title">需要附加组件应用</string>
@@ -5929,4 +5929,38 @@
         <item quantity="other">近 %d 分钟的平均值</item>
     </plurals>
     <string name="backup_restore_unknown_app_id">未知应用 (%1$s) 创建了这个备份，其数据不兼容此版本。\n\n导入该备份吗？</string>
+    <string name="activity_db_management_data_label">外部数据</string>
+    <string name="activity_db_management_legacy_export_label">旧导出/导入</string>
+    <string name="activity_DB_ShowExternalDataButton">显示外部数据目录内容</string>
+    <string name="generic_watch_measured_metrics">指标</string>
+    <string name="prefs_pebble_appstore_title">应用商店</string>
+    <string name="prefs_pebble_appstore_summary">选择安装及更新手表和表盘应用要使用的应用商店</string>
+    <string name="prefs_pebble_appstore_rebble">Rebble</string>
+    <string name="prefs_pebble_appstore_repebble">RePebble</string>
+    <string name="vendor_data_import_title">导入厂商数据</string>
+    <string name="vendor_data_import_summary">从厂商应用的导出文件导入数据。</string>
+    <string name="vendor_data_import_section">厂商应用导入</string>
+    <string name="vendor_data_import_select_target">选择要导入数据的设备。</string>
+    <string name="vendor_data_import_more_info">更多信息</string>
+    <string name="vendor_data_import_scanning">正在读取导出文件…</string>
+    <string name="vendor_data_import_scan_failed">文件读取失败。确保选择了来自厂商的 zip 文件且你没有解压缩。</string>
+    <string name="vendor_data_import_no_devices">文件不含本应用可导入的数据。</string>
+    <string name="vendor_data_import_select_device">厂商数据导出包含 %1$d 台设备，选择要把数据导入 %2$s 的设备。</string>
+    <string name="vendor_data_import_running_other">已在运行到 %1$s 的数据导入。</string>
+    <string name="vendor_data_import_model_mismatch">%1$s 和 %2$s 型号不同。</string>
+    <string name="vendor_data_import_categories">要导入的数据</string>
+    <string name="vendor_data_import_category_count">%1$s (%2$d)</string>
+    <string name="vendor_data_import_app_category_count">%1$s, 来自改应用的手动条目(%2$d)</string>
+    <string name="vendor_data_import_serial_number">序列号：%1$s</string>
+    <string name="vendor_data_import_notification_title">正导入厂商数据</string>
+    <string name="vendor_data_import_finished">已完成导入</string>
+    <string name="vendor_data_import_failed">导入失败</string>
+    <string name="vendor_data_import_cancelled">导入已取消</string>
+    <string name="vendor_data_import_result">%1$s： %2$d 已导入, %3$d 已跳过, %4$d 失败</string>
+    <string name="vendor_data_import_garmin_step_1">在 Garmin 网站上登录你的 Garmin 账户。</string>
+    <string name="vendor_data_import_garmin_step_2">转到账户 › 数据管理 › 导出你的数据，选择\"请求数据导出\"。</string>
+    <string name="vendor_data_import_garmin_step_3">你的请求已提交，将收到一封带下载链接的电子邮件。链接通常在 48 小时内到来，但发送可能最多要 30 天时间。</string>
+    <string name="vendor_data_import_garmin_step_4">下载 zip 文件到此手机。不要解压缩。</string>
+    <string name="vendor_data_import_garmin_step_5">选择 zip 文件。</string>
+    <string name="vendor_data_import_garmin_unknown_product">Garmin 产品 %1$d</string>
 </resources>
