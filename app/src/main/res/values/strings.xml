@@ -4578,6 +4578,9 @@
     <string name="intent_api_broadcast_activity_sync_title">Broadcast on activity sync finish</string>
     <string name="intent_api_broadcast_activity_sync_summary">Broadcast an intent when activity sync finishes for any device</string>
     <string name="intent_activity_sync_title">Activity sync</string>
+    <string name="intent_api_watch_app_messages_title">Watch app messages</string>
+    <string name="intent_api_allow_watch_app_messages_title">Allow messages to watch apps</string>
+    <string name="intent_api_allow_watch_app_messages_summary">Allow other apps to send messages to apps installed on the watch via Intent API</string>
     <string name="intent_api_allow_debug_commands_title">Allow Debug Commands</string>
     <string name="intent_api_allow_debug_commands_summary">Allow triggering debug menu commands via Intent API</string>
     <string name="intent_api_allow_global_settings_summary">Allow 3rd party apps to set global Gadgetbridge settings through intents. Please restart Gadgetbridge in order to take effect.</string>

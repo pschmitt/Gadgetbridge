@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -74,6 +75,7 @@ public class IntentApiReceiver extends BroadcastReceiver {
     private static final String COMMAND_TRIGGER_EXPORT = "nodomain.freeyourgadget.gadgetbridge.command.TRIGGER_EXPORT";
     public static final String COMMAND_TRIGGER_DATABASE_EXPORT = "nodomain.freeyourgadget.gadgetbridge.command.TRIGGER_DATABASE_EXPORT";
     public static final String COMMAND_TRIGGER_ZIP_EXPORT = "nodomain.freeyourgadget.gadgetbridge.command.TRIGGER_ZIP_EXPORT";
+    public static final String COMMAND_SEND_WATCH_APP_MESSAGE = "nodomain.freeyourgadget.gadgetbridge.command.SEND_WATCH_APP_MESSAGE";
     public static final String COMMAND_DEBUG_SEND_NOTIFICATION = "nodomain.freeyourgadget.gadgetbridge.command.DEBUG_SEND_NOTIFICATION";
     public static final String COMMAND_DEBUG_INCOMING_CALL = "nodomain.freeyourgadget.gadgetbridge.command.DEBUG_INCOMING_CALL";
     public static final String COMMAND_DEBUG_END_CALL = "nodomain.freeyourgadget.gadgetbridge.command.DEBUG_END_CALL";
@@ -83,6 +85,7 @@ public class IntentApiReceiver extends BroadcastReceiver {
     public static final String COMMAND_DEBUG_HEAP_DUMP = "nodomain.freeyourgadget.gadgetbridge.command.DEBUG_HEAP_DUMP";
 
     public static final String INTENT_API_ALLOW_DEBUG_COMMANDS = "intent_api_allow_debug_commands";
+    public static final String INTENT_API_ALLOW_WATCH_APP_MESSAGES = "intent_api_allow_watch_app_messages";
 
     /// @deprecated use {@link #EXTRA_DEVICE} instead
     @Deprecated
@@ -157,6 +160,27 @@ public class IntentApiReceiver extends BroadcastReceiver {
 
                 PeriodicZipExporter.INSTANCE.executeNow();
                 break;
+
+            case COMMAND_SEND_WATCH_APP_MESSAGE: {
+                if (!prefs.getBoolean(INTENT_API_ALLOW_WATCH_APP_MESSAGES, false)) {
+                    LOG.warn("Intent API watch app messages not allowed");
+                    return;
+                }
+                final String appId = intent.getStringExtra("appId");
+                final String payload = intent.getStringExtra("payload");
+                if (appId == null || payload == null) {
+                    LOG.warn("Watch app message needs the appId and payload extras");
+                    return;
+                }
+                final DeviceService deviceService = getDeviceService(intent);
+                if (deviceService != null) {
+                    final GBDevice device = deviceService.getDevice();
+                    LOG.info("Sending a message to watch app {} on {}", appId,
+                            (device != null) ? device.getAliasOrName() : "all devices");
+                    deviceService.onSendWatchAppMessage(appId, payload.getBytes(StandardCharsets.UTF_8));
+                }
+                break;
+            }
 
             case COMMAND_DEBUG_SEND_NOTIFICATION: {
                 if (!prefs.getBoolean(INTENT_API_ALLOW_DEBUG_COMMANDS, false)) {
@@ -344,6 +368,7 @@ public class IntentApiReceiver extends BroadcastReceiver {
         intentFilter.addAction(COMMAND_TRIGGER_EXPORT);
         intentFilter.addAction(COMMAND_TRIGGER_DATABASE_EXPORT);
         intentFilter.addAction(COMMAND_TRIGGER_ZIP_EXPORT);
+        intentFilter.addAction(COMMAND_SEND_WATCH_APP_MESSAGE);
         intentFilter.addAction(COMMAND_DEBUG_SEND_NOTIFICATION);
         intentFilter.addAction(COMMAND_DEBUG_INCOMING_CALL);
         intentFilter.addAction(COMMAND_DEBUG_END_CALL);

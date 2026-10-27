@@ -178,6 +178,13 @@ public interface EventHandler {
 
     void onPowerOff();
 
+    /**
+     * Send a message to an app installed on the device.
+     * @param appId the app's id as listed by the device
+     * @param payload message for the app, its format is up to the app
+     */
+    void onSendWatchAppMessage(@NonNull String appId, @NonNull byte[] payload);
+
     void onSetGpsLocation(@NonNull Location location);
 
     void onSleepAsAndroidAction(String action, Bundle extras);

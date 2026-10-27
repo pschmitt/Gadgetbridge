@@ -559,6 +559,19 @@
             </PreferenceCategory>
 
             <PreferenceCategory
+                android:key="pref_header_watch_app_messages"
+                android:title="@string/intent_api_watch_app_messages_title"
+                app:iconSpaceReserved="false">
+
+                <SwitchPreferenceCompat
+                    android:key="intent_api_allow_watch_app_messages"
+                    android:layout="@layout/preference_checkbox"
+                    android:summary="@string/intent_api_allow_watch_app_messages_summary"
+                    android:title="@string/intent_api_allow_watch_app_messages_title"
+                    app:iconSpaceReserved="false" />
+            </PreferenceCategory>
+
+            <PreferenceCategory
                 android:key="pref_header_auto_export_db"
                 android:title="@string/pref_header_auto_export_db"
                 app:iconSpaceReserved="false">
