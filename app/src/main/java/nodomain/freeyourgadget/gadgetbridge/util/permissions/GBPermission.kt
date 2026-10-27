@@ -186,6 +186,13 @@ enum class GBPermission(
     companion object {
         private val LOG = LoggerFactory.getLogger(GBPermission::class.java)
 
+        /**
+         * The local broadcast for permissions that the user has granted after the devices connected.
+         * The names of the permissions are sent in [EXTRA_PERMISSIONS].
+         */
+        const val ACTION_PERMISSIONS_GRANTED = "nodomain.freeyourgadget.gadgetbridge.action.PERMISSIONS_GRANTED"
+        const val EXTRA_PERMISSIONS = "permissions"
+
         private const val PREF_REQUESTED = "permissions_requested"
 
         private val SPECIAL_ACCESSES = setOf(

@@ -41,6 +41,11 @@ class DevicePermissionsActivity : AbstractGBActivity() {
     private var neededFor: String? = null
     private var needed: List<GBPermission> = emptyList()
 
+    /**
+     * The permissions that were granted at the last refresh. Null before the first refresh.
+     */
+    private var lastGranted: Set<GBPermission>? = null
+
     private val deviceChangedReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val changedDevice = intent.getParcelableCompat<GBDevice>(GBDevice.EXTRA_DEVICE) ?: return
@@ -106,6 +111,7 @@ class DevicePermissionsActivity : AbstractGBActivity() {
             .map { DevicePermission(it, DevicePermission.Section.OPTIONAL) }
         val permissions = listed + unlisted
         val granted = permissions.filter { it.permission.isGranted(this) }
+        sendNewGrants(granted.map { it.permission }.toSet())
         val missing = permissions - granted.toSet()
         val neededMissing = missing.filter { it.permission in needed }
         val saved = MissingPermissions.getSaved(device)
@@ -175,6 +181,22 @@ class DevicePermissionsActivity : AbstractGBActivity() {
         val together = pendingRequests.toList()
         pendingRequests.clear()
         GBPermission.requestTogether(this, together)
+    }
+
+    /**
+     * Broadcasts the new permissions granted by the user to the DeviceCommunicationService.
+     */
+    private fun sendNewGrants(granted: Set<GBPermission>) {
+        val newGrants = granted - (lastGranted ?: granted)
+        lastGranted = granted
+        if (newGrants.isEmpty()) {
+            return
+        }
+        LOG.info("Permissions granted for {}: {}", device.address, newGrants)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(
+            Intent(GBPermission.ACTION_PERMISSIONS_GRANTED)
+                .putStringArrayListExtra(GBPermission.EXTRA_PERMISSIONS, ArrayList(newGrants.map { it.name }))
+        )
     }
 
     private fun close() {
