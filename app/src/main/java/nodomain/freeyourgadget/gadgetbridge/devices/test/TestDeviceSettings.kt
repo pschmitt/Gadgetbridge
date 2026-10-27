@@ -55,6 +55,12 @@ fun testDeviceSettings(device: GBDevice, coordinator: TestDeviceCoordinator): De
         ) {}
     }
 
+    if (coordinator.supportsCalendarEvents(device)) {
+        DeviceSpecificSettingsScreen.CALENDAR.screen(
+            xmlSubScreens = listOf(R.xml.devicesettings_sync_calendar),
+        ) {}
+    }
+
     if (coordinator.supportsGallery(device)) {
         folderPicker(
             key = TestDeviceConst.PREF_TEST_GALLERY_FOLDER,

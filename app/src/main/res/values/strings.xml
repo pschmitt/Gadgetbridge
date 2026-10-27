@@ -572,7 +572,6 @@
     <string name="pref_summary_sync_calendar">Enables calendar alerts, even when disconnected</string>
     <string name="pref_title_sync_caldendar">Sync calendar events</string>
     <string name="permission_not_granted_contacts">Contacts permission not granted</string>
-    <string name="permission_not_granted_calendar">Calendar permission not granted</string>
     <string name="pref_summary_calendar_sync_choose">Choose which calendars and color labels to sync to the device</string>
     <string name="pref_title_calendar_sync_choose">Calendars to sync</string>
     <string name="pref_title_calendar_sync_colors">Event colors to sync</string>
@@ -5499,6 +5498,13 @@
     <string name="permissions_section_optional">Optional</string>
     <string name="permissions_section_granted">Granted</string>
     <string name="permissions_grant_recommended">Grant recommended</string>
+    <string name="permissions_section_needed_for">Needed for %1$s</string>
+    <string name="permissions_hint">Some recommended permissions are not granted</string>
+    <string name="permissions_hint_grant">Grant</string>
+    <plurals name="permission_hint_missing">
+        <item quantity="one">Permission not granted: %1$s</item>
+        <item quantity="other">Permissions not granted: %1$s</item>
+    </plurals>
     <string name="permission_external_storage_title">External storage</string>
     <string name="permission_external_storage_summary">Using images, ringtones, app files and more</string>
     <string name="permission_query_all_packages_title">Query all packages</string>

@@ -39,7 +39,6 @@ import static nodomain.freeyourgadget.gadgetbridge.devices.moyoung.MoyoungConsta
 import static nodomain.freeyourgadget.gadgetbridge.devices.moyoung.MoyoungConstants.PREF_MOYOUNG_WATCH_FACE;
 import static nodomain.freeyourgadget.gadgetbridge.util.GBPrefs.DEVICE_CONNECT_BY_TRIGGER;
 
-import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -47,7 +46,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.text.InputType;
@@ -107,6 +105,7 @@ import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.XmlScr
 import nodomain.freeyourgadget.gadgetbridge.activities.internet.InternetFirewallActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst;
+import nodomain.freeyourgadget.gadgetbridge.activities.permissions.DevicePermissionsActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.multipoint.MultipointPairingActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.musicmanager.MusicManagerActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.widgets.WidgetScreensListActivity;
@@ -138,6 +137,9 @@ public class DeviceSpecificSettingsFragment extends AbstractPreferenceFragment i
     private DeviceSpecificSettingsCustomizer deviceSpecificSettingsCustomizer;
 
     private GBDevice device;
+
+    @Nullable
+    private SettingPermissionHints permissionHints;
 
     /**
      * Handle returned by {@link DeviceSettingRenderer} after rendering model-provided preferences.
@@ -291,6 +293,7 @@ public class DeviceSpecificSettingsFragment extends AbstractPreferenceFragment i
                     addDynamicSettings(rootKey);
                     setChangeListener(rootKey);
                     reloadEnabledPreferences();
+                    permissionHints = new SettingPermissionHints(this, device);
                     return;
                 }
             }
@@ -397,6 +400,16 @@ public class DeviceSpecificSettingsFragment extends AbstractPreferenceFragment i
         setChangeListener(rootKey);
 
         reloadEnabledPreferences();
+
+        permissionHints = new SettingPermissionHints(this, device);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (permissionHints != null) {
+            permissionHints.update();
+        }
     }
 
     private void reloadEnabledPreferences() {
@@ -407,6 +420,9 @@ public class DeviceSpecificSettingsFragment extends AbstractPreferenceFragment i
                     pref.setEnabled(device.isInitialized());
                 }
             }
+        }
+        if (permissionHints != null) {
+            permissionHints.update();
         }
     }
 
@@ -1217,17 +1233,6 @@ public class DeviceSpecificSettingsFragment extends AbstractPreferenceFragment i
 
         final Preference syncCalendarPreference = findPreference(PREF_SYNC_CALENDAR);
         if (syncCalendarPreference != null) {
-            if (requireContext().checkSelfPermission(Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-                syncCalendarPreference.setEnabled(false);
-                syncCalendarPreference.setSummary(R.string.permission_not_granted_calendar);
-            }
-            if (requireContext().checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-                final Preference syncBirthdaysPreference = findPreference(PREF_SYNC_BIRTHDAYS);
-                if (syncBirthdaysPreference != null) {
-                    syncBirthdaysPreference.setEnabled(false);
-                    syncBirthdaysPreference.setSummary(R.string.permission_not_granted_contacts);
-                }
-            }
             addPreferenceHandlerFor(PREF_SYNC_CALENDAR);
             addPreferenceHandlerFor(PREF_SYNC_BIRTHDAYS);
             addPreferenceHandlerFor(PREF_CALENDAR_LOOKAHEAD_DAYS);
@@ -1758,6 +1763,14 @@ public class DeviceSpecificSettingsFragment extends AbstractPreferenceFragment i
             chartsTabsListPref.setEntries(entries);
         }
 
+        final Preference permissions = findPreference(PREF_DEVICE_PERMISSIONS);
+        if (permissions != null) {
+            permissions.setOnPreferenceClickListener(preference -> {
+                startActivity(DevicePermissionsActivity.newIntent(requireContext(), getDevice()));
+                return true;
+            });
+        }
+
         final Preference loyaltyCards = findPreference(LoyaltyCardsSettingsConst.PREF_KEY_LOYALTY_CARDS);
         if (loyaltyCards != null) {
             loyaltyCards.setOnPreferenceClickListener(preference -> {
@@ -1918,6 +1931,7 @@ public class DeviceSpecificSettingsFragment extends AbstractPreferenceFragment i
                     DeviceSpecificSettingsScreen.DEVICE_CARD,
                     deviceCardSubScreens
             );
+            deviceSpecificSettings.addRootScreen(R.xml.devicesettings_permissions);
 
             if (coordinator.getConnectionType() != DeviceCoordinator.ConnectionType.USB) {
                 // USB devices do not support it (and should not need it)
@@ -2100,6 +2114,9 @@ public class DeviceSpecificSettingsFragment extends AbstractPreferenceFragment i
 
     @Override
     protected void onSharedPreferenceChanged(Preference preference) {
+        if (permissionHints != null) {
+            permissionHints.update();
+        }
         if (deviceSpecificSettingsCustomizer != null) {
             deviceSpecificSettingsCustomizer.onPreferenceChange(preference, DeviceSpecificSettingsFragment.this);
         }

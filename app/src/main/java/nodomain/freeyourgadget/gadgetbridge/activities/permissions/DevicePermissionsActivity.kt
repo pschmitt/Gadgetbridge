@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
-import androidx.annotation.StringRes
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,6 +35,12 @@ class DevicePermissionsActivity : AbstractGBActivity() {
     private val pendingRequests = ArrayDeque<GBPermission>()
     private var missingRecommended: List<GBPermission> = emptyList()
 
+    /**
+     * The title of the setting that opened the screen, and the permissions that the setting needs.
+     */
+    private var neededFor: String? = null
+    private var needed: List<GBPermission> = emptyList()
+
     private val deviceChangedReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val changedDevice = intent.getParcelableCompat<GBDevice>(GBDevice.EXTRA_DEVICE) ?: return
@@ -53,6 +58,9 @@ class DevicePermissionsActivity : AbstractGBActivity() {
             finish()
             return
         }
+        neededFor = intent.getStringExtra(EXTRA_NEEDED_FOR)
+        val neededNames = intent.getStringArrayListExtra(EXTRA_NEEDED).orEmpty()
+        needed = GBPermission.entries.filter { it.name in neededNames }
 
         binding = ActivityDevicePermissionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -91,30 +99,44 @@ class DevicePermissionsActivity : AbstractGBActivity() {
     }
 
     private fun refresh() {
-        val permissions = device.deviceCoordinator.getPermissions(device)
+        val listed = device.deviceCoordinator.getPermissions(device)
+        // A setting might need a permission that is not in the list of the device (but that should never happen?)
+        val unlisted = needed
+            .filter { permission -> permission.isAvailable(this) && listed.none { it.permission == permission } }
+            .map { DevicePermission(it, DevicePermission.Section.OPTIONAL) }
+        val permissions = listed + unlisted
         val granted = permissions.filter { it.permission.isGranted(this) }
         val missing = permissions - granted.toSet()
+        val neededMissing = missing.filter { it.permission in needed }
         val saved = MissingPermissions.getSaved(device)
-        val new = if (saved != null) missing.filter { it.permission !in saved } else emptyList()
-        val notNew = missing - new.toSet()
+        val new = if (saved != null) {
+            (missing - neededMissing.toSet()).filter { it.permission !in saved }
+        } else {
+            emptyList()
+        }
+
+        val notNew = missing - neededMissing.toSet() - new.toSet()
 
         missingRecommended = missing.filter { it.section == DevicePermission.Section.RECOMMENDED }.map { it.permission }
         binding.devicePermissionsGrantRecommended.visibility =
             if (missingRecommended.isNotEmpty()) View.VISIBLE else View.GONE
 
         val items = buildList {
-            addGroup(R.string.battery_status_new, new, granted = false)
+            neededFor?.let {
+                addGroup(getString(R.string.permissions_section_needed_for, it), neededMissing, granted = false)
+            }
+            addGroup(getString(R.string.battery_status_new), new, granted = false)
             addGroup(
-                R.string.permissions_section_recommended,
+                getString(R.string.permissions_section_recommended),
                 notNew.filter { it.section == DevicePermission.Section.RECOMMENDED },
                 granted = false
             )
             addGroup(
-                R.string.permissions_section_optional,
+                getString(R.string.permissions_section_optional),
                 notNew.filter { it.section == DevicePermission.Section.OPTIONAL },
                 granted = false
             )
-            addGroup(R.string.permissions_section_granted, granted, granted = true)
+            addGroup(getString(R.string.permissions_section_granted), granted, granted = true)
         }
 
         val layoutManager = binding.devicePermissionsList.layoutManager
@@ -127,7 +149,7 @@ class DevicePermissionsActivity : AbstractGBActivity() {
     }
 
     private fun MutableList<Item>.addGroup(
-        @StringRes title: Int,
+        title: String,
         permissions: List<DevicePermission>,
         granted: Boolean
     ) {
@@ -161,7 +183,7 @@ class DevicePermissionsActivity : AbstractGBActivity() {
     }
 
     private sealed interface Item {
-        data class Header(@StringRes val title: Int) : Item
+        data class Header(val title: String) : Item
         data class Row(val permission: DevicePermission, val granted: Boolean) : Item
     }
 
@@ -227,6 +249,9 @@ class DevicePermissionsActivity : AbstractGBActivity() {
     companion object {
         private val LOG = LoggerFactory.getLogger(DevicePermissionsActivity::class.java)
 
+        private const val EXTRA_NEEDED_FOR = "needed_for"
+        private const val EXTRA_NEEDED = "needed"
+
         /**
          * Opens the screen after a device was paired, if the device is initialized and a permission is missing.
          */
@@ -240,9 +265,24 @@ class DevicePermissionsActivity : AbstractGBActivity() {
             if (MissingPermissions.of(context, device).isEmpty()) {
                 return
             }
-            context.startActivity(
-                Intent(context, DevicePermissionsActivity::class.java).putExtra(GBDevice.EXTRA_DEVICE, device)
-            )
+            context.startActivity(newIntent(context, device))
+        }
+
+        /**
+         * Open the screen with the [needed] permissions of the setting [neededFor] at the top of the list.
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun newIntent(
+            context: Context,
+            device: GBDevice,
+            neededFor: String? = null,
+            needed: List<GBPermission> = emptyList(),
+        ): Intent {
+            return Intent(context, DevicePermissionsActivity::class.java)
+                .putExtra(GBDevice.EXTRA_DEVICE, device)
+                .putExtra(EXTRA_NEEDED_FOR, neededFor)
+                .putStringArrayListExtra(EXTRA_NEEDED, ArrayList(needed.map { it.name }))
         }
     }
 }

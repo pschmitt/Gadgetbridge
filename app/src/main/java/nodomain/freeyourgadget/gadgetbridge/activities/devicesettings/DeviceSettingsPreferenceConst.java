@@ -128,6 +128,7 @@ public class DeviceSettingsPreferenceConst {
 
     public static final String PREF_DEVICE_INTERNET_ACCESS = "device_internet_access";
     public static final String PREF_DEVICE_INTENTS = "device_intents";
+    public static final String PREF_DEVICE_PERMISSIONS = "pref_device_permissions";
 
     public static final String PREF_ACTIVE_NOISE_CANCELLING_TOGGLE = "active_noise_cancelling_toggle";
     public static final String PREF_NOISE_CONTROL_SELECTOR = "noise_control_selector";
