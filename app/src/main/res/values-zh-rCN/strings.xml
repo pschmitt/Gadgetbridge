@@ -5963,4 +5963,6 @@
     <string name="vendor_data_import_garmin_step_4">下载 zip 文件到此手机。不要解压缩。</string>
     <string name="vendor_data_import_garmin_step_5">选择 zip 文件。</string>
     <string name="vendor_data_import_garmin_unknown_product">Garmin 产品 %1$d</string>
+    <string name="pref_deprecated_sms_receiver_title">废弃的 SMS 接收器</string>
+    <string name="pref_deprecated_sms_receiver_summary">从系统而不是消息应用的通知来接收 SMS 消息。</string>
 </resources>
