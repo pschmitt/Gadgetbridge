@@ -6,7 +6,7 @@
     <string name="action_debug">Debuguj</string>
     <string name="action_quit">Wyjdź</string>
     <string name="controlcenter_fetch_activity_data">Synchronizuj</string>
-    <string name="controlcenter_find_device">Znajdź zagubione urządzenie</string>
+    <string name="controlcenter_find_device">Odnajdź zagubione urządzenie</string>
     <string name="controlcenter_take_screenshot">Wykonaj zrzut ekranu</string>
     <string name="controlcenter_disconnect">Rozłącz</string>
     <string name="controlcenter_delete_device">Usuń urządzenie</string>
@@ -135,7 +135,7 @@
     <string name="male">Mężczyzna</string>
     <string name="female">Kobieta</string>
     <string name="other">Inne</string>
-    <string name="left">Lewa</string>
+    <string name="left">Lewy</string>
     <string name="right">Prawa</string>
     <string name="miband_pairing_using_dummy_userdata">Nie podano prawidłowych danych użytkownika, zostaną użyte dane zastępcze.</string>
     <string name="miband_pairing_tap_hint">Gdy twój Mi Band wibruje i błyska, dotknij jego ekran lub przycisk kilka razy pod rząd.</string>
@@ -155,7 +155,7 @@
     <string name="vibration_profile_medium">Średnie</string>
     <string name="vibration_profile_long">Długie</string>
     <string name="vibration_profile_waterdrop">Kropla wody</string>
-    <string name="vibration_profile_ring">Dzwonek</string>
+    <string name="vibration_profile_ring">Pierścień</string>
     <string name="vibration_profile_alarm_clock">Budzik</string>
     <string name="miband_prefs_vibration">Wibracja</string>
     <string name="pref_screen_notification_profile_sms">Powiadomienie SMS</string>
@@ -228,7 +228,7 @@
     <string name="live_activity_start_your_activity">Rozpocznij aktywność</string>
     <string name="abstract_chart_fragment_kind_activity">Aktywność</string>
     <string name="abstract_chart_fragment_kind_light_sleep">Płytki sen</string>
-    <string name="abstract_chart_fragment_kind_deep_sleep">Głęboki sen</string>
+    <string name="abstract_chart_fragment_kind_deep_sleep">Sen głęboki</string>
     <string name="abstract_chart_fragment_kind_not_worn">Niezałożone</string>
     <string name="device_not_connected">Nie połączono.</string>
     <string name="user_feedback_all_alarms_disabled">Wszystkie alarmy wyłączono</string>
@@ -339,7 +339,7 @@
     <string name="interval_one_hour">raz na godzinę</string>
     <string name="activity_type_light_sleep">Sen płytki</string>
     <string name="activity_type_deep_sleep">Sen głęboki</string>
-    <string name="activity_type_running">Bieganie</string>
+    <string name="activity_type_running">W trakcie</string>
     <string name="activity_type_swimming">Pływanie</string>
     <string name="activity_type_treadmill">Bieżnia</string>
     <string name="controlcenter_connect">Połącz…</string>
@@ -426,7 +426,7 @@
     <string name="mi2_prefs_button_action_summary">Włącz akcję po naciśnięciu przycisku określoną ilość razy</string>
     <string name="mi2_prefs_button_action_vibrate_summary">Włącz wibrację zegarka (opaski) przy uruchomieniu akcji przycisku</string>
     <string name="mi2_prefs_goal_notification">Powiadomienie o osiągnięciu celu</string>
-    <string name="mi2_prefs_display_items">Wyświetlane pozycje</string>
+    <string name="mi2_prefs_display_items">Wyświetl elementy</string>
     <string name="mi2_prefs_display_items_summary">Wybierz pozycje wyświetlane na ekranie urządzenia</string>
     <string name="mi2_prefs_activate_display_on_lift">Aktywuj ekran po podniesieniu nadgarstka</string>
     <string name="mi2_prefs_rotate_wrist_to_switch_info">Przekręć nadgarstek, aby przełączyć informacje</string>
@@ -512,7 +512,7 @@
     <string name="watch9_time_minutes">Minuty:</string>
     <string name="watch9_time_hours">Godziny:</string>
     <string name="watch9_time_seconds">Sekundy:</string>
-    <string name="watch9_calibration_button">Kalibruj</string>
+    <string name="watch9_calibration_button">Skalibruj</string>
     <string name="share_log_warning">Prosimy pamiętać, że logi Gadgetbridge mogą zawierać wiele informacji osobistych, w tym dane dotyczące zdrowia, unikalne identyfikatory (takie jak adresy MAC urządzeń), preferencje muzyczne itd. Rozważ edycję logów i usunięcie takich informacji, zanim wyślesz je przy zgłaszaniu problemu.</string>
     <string name="warning">Ostrzeżenie!</string>
     <string name="no_data">Brak danych</string>
@@ -646,7 +646,7 @@
     <string name="activity_DB_import_button">Import danych</string>
     <string name="activity_DB_test_export_message">Eksportowanie bazy danych…</string>
     <string name="activity_DB_delete_legacy_button">Usuń starą bazę danych</string>
-    <string name="activity_DB_empty_button">Opróżnij bazę danych</string>
+    <string name="activity_DB_empty_button">Opróżnienie bazy danych</string>
     <string name="activity_db_management_empty_DB">Opróżnienie bazy danych</string>
     <string name="activity_db_management_exportimport_label">Eksport i Import</string>
     <string name="activity_db_management_empty_db_warning">Ostrzeżenie! Naciskając ten przycisk wyczyścisz bazę danych i zaczniesz wszystko od nowa.</string>
@@ -914,12 +914,12 @@
     <string name="sports_activity_quick_filter_7days">7 dni</string>
     <string name="no">Nie</string>
     <string name="yes">Tak</string>
-    <string name="activity_detail_start_label">Początek</string>
+    <string name="activity_detail_start_label">Start</string>
     <string name="seconds_m">s/m</string>
     <string name="seconds_km">s/km</string>
     <string name="seconds">sek</string>
     <string name="averageSpeed">Średnia prędkość</string>
-    <string name="activeSeconds">Czas aktywności</string>
+    <string name="activeSeconds">Aktywny</string>
     <string name="pref_check_permission_status">Sprawdzanie stanu uprawnień</string>
     <string name="device_is_currently_bonded">JUŻ POWIĄZANE</string>
     <string name="activity_type_badminton">Badminton</string>
@@ -957,7 +957,7 @@
     <string name="prefs_events_forwarding_fellsleep">Po zaśnięciu</string>
     <string name="lefun_prefs_hydration_reminder_summary">Opaska zawibruje, aby przypomnieć ci o piciu wody</string>
     <string name="gps_track">Ścieżka GPS</string>
-    <string name="descentSeconds">Czas zejścia</string>
+    <string name="descentSeconds">Malejąco</string>
     <string name="chart_no_active_data">Brak aktywności.</string>
     <string name="qhybrid_calibration_align_hint">Użyj poniższych przycisków, aby ustawić wskazówki zegara na 12:00.</string>
     <string name="sports_activity_quick_filter_select">Okres czasu</string>
@@ -1016,7 +1016,7 @@
     <string name="swolf_index">indeks swolf</string>
     <string name="lefun_prefs_hydration_reminder_title">Przypomnienie o nawodnieniu</string>
     <string name="about_version">Wersja %s</string>
-    <string name="flatSeconds">Płasko</string>
+    <string name="flatSeconds">Płaski</string>
     <string name="averageStride">Średni krok</string>
     <string name="activity_filter_from_placeholder">odległa przeszłość</string>
     <string name="activity_filter_individual_items">Indywidualnie wybrane elementy</string>
@@ -1165,7 +1165,7 @@
     <string name="watchface_widget_type_steps">Kroki</string>
     <string name="watchface_widget_type_weather">Pogoda</string>
     <string name="watchface_widget_type_date">Data</string>
-    <string name="button_watchface_add_widget">Dodaj widget</string>
+    <string name="button_watchface_add_widget">Dodaj widżet</string>
     <string name="button_watchface_select_image">Zmień obraz tła</string>
     <string name="button_watchface_edit_name">Edytuj nazwę</string>
     <string name="watchface_setting_wrist_flick_minute">Wskazówka minutowa (-360 do 360)</string>
@@ -1258,7 +1258,7 @@
     <string name="toast_app_must_be_selected">Aplikacja musi być wybrana, aby mogła być skonfigurowana</string>
     <string name="prefs_game_mode_summary">Tylko jeśli Twój telefon obsługuje tryb gry</string>
     <string name="prefs_touch_lock_summary">Wyłącz zdarzenia dotykowe</string>
-    <string name="pref_title_equalizer_dynamic">Dynamiczne</string>
+    <string name="pref_title_equalizer_dynamic">Dynamiczny</string>
     <string name="toast_app_must_not_be_selected">Aplikacja nie może być wybrana, aby mogła być skonfigurowana</string>
     <string name="left_earbud">Lewa słuchawka</string>
     <string name="battery_case">Etui ładujące</string>
@@ -1299,7 +1299,7 @@
     <string name="controlcenter_start_configure_reminders">Skonfiguruj przypomnienia</string>
     <string name="reminder_time_every_week">%1$s, co tydzień</string>
     <string name="reminder_time_every_year">%1$s, każdego roku</string>
-    <string name="reminder_no_free_slots_title">Brak wolnych slotów</string>
+    <string name="reminder_no_free_slots_title">Brak wolnych miejsc</string>
     <string name="miband_prefs_reserve_reminder_calendar">Przypomnienia na nadchodzące wydarzenia</string>
     <string name="mi2_prefs_do_not_disturb_lift_wrist">Aktywuj wyświetlacz po podniesieniu w trybie Nie przeszkadzać</string>
     <string name="pref_title_equalizer_normal">Normalny</string>
@@ -1348,7 +1348,7 @@
     <string name="pref_header_sony_ambient_sound_control">Kontrola dźwięku otoczenia</string>
     <string name="sony_ambient_sound">Tryb</string>
     <string name="watchface_dialog_widget_width">Szerokość widżetu (w pikselach)</string>
-    <string name="reminder_repeat">Powtarzanie</string>
+    <string name="reminder_repeat">Powtarzaj</string>
     <string name="reminder_time_every_day">%1$s, codziennie</string>
     <string name="reminder_delete_confirm_title">Usuń przypomnienie</string>
     <string name="reminder_no_free_slots_description">Urządzenie nie ma wolnych slotów na przypomnienia (całkowita liczba slotów: %1$s)</string>
@@ -1361,13 +1361,13 @@
     <string name="averageCadence">Średnia kadencja</string>
     <string name="maxCadence">Maksymalne tempo</string>
     <string name="minCadence">Minimalne tempo</string>
-    <string name="prefs_active_noise_cancelling">Aktywna redukcja szumów</string>
+    <string name="prefs_active_noise_cancelling">Aktywna redukcja hałasu</string>
     <string name="prefs_active_noise_cancelling_summary">Blokowanie hałasów z otoczenia</string>
     <string name="pressure_relief_summary">Zapobiegaj uczuciu ucisku w uszach, gdy nie używasz aktywnej redukcji szumów</string>
     <string name="sony_ambient_sound_noise_cancelling">Redukcja szumów</string>
     <string name="sony_ambient_sound_wind_noise_reduction">Redukcja szumu wiatru</string>
     <string name="sony_ambient_sound_ambient_sound">Dźwięk otoczenia</string>
-    <string name="sony_ambient_sound_focus_voice">Skup się na głosie</string>
+    <string name="sony_ambient_sound_focus_voice">Skoncentruj się na głosie</string>
     <string name="sony_ambient_sound_level">Poziom dźwięku otoczenia</string>
     <string name="sony_sound_position">Pozycja dźwięku</string>
     <string name="sony_sound_position_front_left">Przedni lewy</string>
@@ -1539,14 +1539,14 @@
     <string name="steps_streaks_since_date">Od %s</string>
     <string name="spo2_off">Wył.</string>
     <string name="watchface_setting_button_toggle_backlight">Włącz podświetlenie</string>
-    <string name="prefs_active_noise_cancelling_level_high">Wysokie</string>
+    <string name="prefs_active_noise_cancelling_level_high">Wysoki</string>
     <string name="info_connected_count">%d połączone urządzenia</string>
     <string name="connection_over_ble">Połączenie poprzez BLE</string>
     <string name="watchface_dialog_widget_timezone_duration">Czas widoczności zegara (w sekundach)</string>
     <string name="controlcenter_set_folder_title">Ustaw lub utwórz nowy folder</string>
     <string name="prefs_active_noise_cancelling_level_low">Niskie</string>
     <string name="watchface_dialog_widget_cat_position">Pozycja</string>
-    <string name="watchface_dialog_title_widget">Ustawienia widżetu</string>
+    <string name="watchface_dialog_title_widget">Ustawienia widżetów</string>
     <string name="open_fw_installer_info_text">Instalator oprogramowania układowego/tarcz/aplikacji/plików pozwala na wgranie/instalację obsługiwanych plików (oprogramowanie układowe, tarcze, aplikacje, GPS, zasoby, czcionki...) do urządzenia. Zobacz więcej informacji na stronie: https://gadgetbridge.org/internals/features/installer/</string>
     <string name="pref_title_overwrite_settings_on_connection">Nadpisz ustawienia przy połączeniu</string>
     <string name="pref_summary_overwrite_settings_on_connection">Podczas łączenia się z opaską nadpisz wszystkie znajdujące się na niej ustawienia.</string>
@@ -1566,7 +1566,7 @@
     <string name="open_fw_installer_connect_maximum_one_device">Proszę podłączyć TYLKO JEDNO urządzenie, do którego chcesz wysłać plik.</string>
     <string name="pref_header_connection">Połączenie</string>
     <string name="pref_header_display">Wyświetlanie</string>
-    <string name="pref_header_workout">Ćwiczenia</string>
+    <string name="pref_header_workout">Trening</string>
     <string name="pref_summary_canned_replies">Odpowiadaj z zegarka za pomocą zaprogramowanych wiadomości</string>
     <string name="pref_cache_weather">Przechowuj informacje o pogodzie w pamięci podręcznej</string>
     <string name="pref_cache_weather_summary">Informacje o pogodzie będą buforowane podczas ponownych uruchomień aplikacji.</string>
@@ -1790,7 +1790,7 @@
     <string name="elevationLoss">Spadek wysokości</string>
     <string name="HeartRateZones">Strefy tętna</string>
     <string name="pref_header_authentication">Uwierzytelnianie</string>
-    <string name="abstract_chart_fragment_kind_rem_sleep">Sen w fazie REM</string>
+    <string name="abstract_chart_fragment_kind_rem_sleep">Sen REM</string>
     <string name="TrainingEffect">Efekt treningu</string>
     <string name="currentWorkoutLoad">Obciążenie treningowe</string>
     <string name="maximumOxygenUptake">Maksymalny pobór tlenu</string>
@@ -1969,11 +1969,11 @@
     <string name="pai_plus_num">+%d</string>
     <string name="num_min">%d min</string>
     <string name="menuitem_forecast">Prognoza</string>
-    <string name="stress_relaxed">Zreleksowany</string>
+    <string name="stress_relaxed">Zrelaksowany</string>
     <string name="kind_gpx_route">Ślad GPX</string>
     <string name="preferences_miband_1_2_settings" tools:ignore="TypographyFractions">Ustawienia Mi Band 1/2</string>
     <string name="croatian">Chorwacki</string>
-    <string name="stop">Zatrzymaj</string>
+    <string name="stop">Stop</string>
     <string name="long_press">Długie naciśnięcie</string>
     <string name="pref_camera_remote_title">Zdalna kamera</string>
     <string name="menuitem_recommendation">Rekomendacje</string>
@@ -1984,7 +1984,7 @@
     <string name="wifi_hotspot_status">Stan hotspotu Wi-Fi</string>
     <string name="address">Adres</string>
     <string name="activity_prefs_goals">Cele</string>
-    <string name="status">Stan</string>
+    <string name="status">Status</string>
     <string name="screenshot_taken">Wykonano zrzut ekranu</string>
     <string name="activity_detail_share_gps_label">Udostępnij trasę GPS</string>
     <string name="dev_tools">Narzędzia deweloperskie</string>
@@ -2011,7 +2011,7 @@
     <string name="stress_moderate">Średni</string>
     <string name="activity_type_hockey">Hokej</string>
     <string name="activity_type_icehockey">Hokej na lodzie</string>
-    <string name="activity_type_iceskating">Łyżwiarstwo na lodzie</string>
+    <string name="activity_type_iceskating">Jazda na łyżwach</string>
     <string name="activity_type_other">Inne</string>
     <string name="activity_type_weightlifting">Podnoszenie ciężarów</string>
     <string name="device_experimental">EKSPERYMENTALNE</string>
@@ -2261,7 +2261,7 @@
     <string name="activity_type_kitesurfing">Kitesurfing</string>
     <string name="prefs_wena3_hint_rich_design">Dodaje zaokrąglone prostokąty wokół ikon ekranu głównego</string>
     <string name="info_fossil_rebuild_watchface_custom_menu">Przebuduj tarczę zegarka, aby uzyskać niestandardowe menu</string>
-    <string name="pai_total">Całkowite</string>
+    <string name="pai_total">Łącznie</string>
     <string name="zepp_os_watchface_minimalist">Minimalistyczny</string>
     <string name="prefs_wena3_notification_default_led">Kolor diody powiadomień</string>
     <string name="sony_speak_to_chat_summary">Wyłącz automatycznie redukcję szumów, gdy zaczniesz mówić.</string>
@@ -2420,7 +2420,7 @@
     <string name="pref_title_debug">Żądanie debugowania</string>
     <string name="huawei_trusleep_title">HUAWEI TruSleep™</string>
     <string name="pref_spo_automatic_enable">Włącz automatyczne mierzenie SpO2</string>
-    <string name="manual">Ręcznie</string>
+    <string name="manual">Ręczny</string>
     <string name="pref_title_general_reconnectonlytoconnected">Połącz się ponownie tylko z połączonymi urządzeniami</string>
     <string name="pref_summary_general_reconnectonlytoconnected">Połącz się ponownie tylko z połączonymi urządzeniami, zamiast ponownego łączenia z wszystkimi urządzeniami</string>
     <string name="huawei_reparse_workout_data_description">Ta opcja będzie działać dopiero w nowszej wersji aplikacji</string>
@@ -2749,7 +2749,7 @@
     <string name="groundContactTimeAvg">Średni czas kontaktu z podłożem</string>
     <string name="cyclingPowerMax">Maksymalna moc rowerowa</string>
     <string name="hrv_status_low">Niski</string>
-    <string name="hrv_status_poor">Słaby</string>
+    <string name="hrv_status_poor">Słabo</string>
     <string name="hrv_status_unit">%1$d ms</string>
     <string name="hrv_status_baseline_label">Linia bazowa</string>
     <string name="unknownDataEncountered">Napotkano nieznane dane</string>
@@ -2888,7 +2888,7 @@
     <string name="no_supported_devices_found">Nie znaleziono wspieranych urządzeń</string>
     <string name="search">Szukaj</string>
     <string name="activity_type_rem_sleep">Sen REM</string>
-    <string name="pref_title_nagivation_apps">Aplikacje do nawigacji</string>
+    <string name="pref_title_nagivation_apps">Aplikacje nawigacyjne</string>
     <string name="pref_header_external_integrations">Integracje zewnętrzne</string>
     <string name="pref_header_automations">Automatyzacja</string>
     <string name="pref_description_general">Uruchomienie, język, region, lokalizacja</string>
@@ -3036,8 +3036,8 @@
     <string name="agps_status_current">Aktualny</string>
     <string name="hr_resting">Spoczynkowe</string>
     <string name="hr_maximum">Maksymalne</string>
-    <string name="hr_minimum">Minimalne</string>
-    <string name="hr_average">Średnie</string>
+    <string name="hr_minimum">Minimum</string>
+    <string name="hr_average">Średnia</string>
     <string name="activity_type_shot">Strzelectwo</string>
     <string name="activity_type_snowshoe">Bieg po śniegu</string>
     <string name="activity_type_plaza_dancing">Taniec na placu</string>
@@ -3142,7 +3142,7 @@
     <string name="pref_voice_passthrough_level">Poziom przejścia</string>
     <string name="prefs_summary_gatt_client_notification_intents">Otrzymuj zmiany charakterystyczne dla BLE poprzez Intencje</string>
     <string name="prefs_summary_gatt_client_api_package">Ogranicz komunikację BLE Intent API do tego pakietu</string>
-    <string name="pref_voice_passthrough_enabled">Przejście</string>
+    <string name="pref_voice_passthrough_enabled">Przepustowość</string>
     <string name="impactAvg">Średni wpływ</string>
     <string name="eversionAngleAvg">Średni kąt wywinięcia</string>
     <string name="pref_wear_sensor_title">Noś czujnik</string>
@@ -3185,7 +3185,7 @@
     <string name="foreFootLandings">Fore foot landings</string>
     <string name="backFootLandings">Back foot landings</string>
     <string name="moondrop_touch_trigger">Wyzwalacz</string>
-    <string name="activity_type_transition">Transition</string>
+    <string name="activity_type_transition">Przejście</string>
     <string name="activity_type_tactical">Tactical</string>
     <string name="activity_type_push_run_speed">Push - Run Speed</string>
     <string name="activity_type_indoor_push_run_speed">Indoor Push - Run Speed</string>
@@ -4326,7 +4326,7 @@
     <string name="uploadrpkoperation_complete">Instalacja rpk zakończona</string>
     <string name="uploadrpkoperation_failed">Instalacja rpk nie powiodła się</string>
     <string name="kind_waypoints">Punkty orientacyjne</string>
-    <string name="kind_segments">Odcinki</string>
+    <string name="kind_segments">Segmenty</string>
     <string name="waypoint_count">%d punktów orientacyjnych</string>
     <string name="pref_title_qhybrid_top_button_function">Funkcja górnego przycisku</string>
     <string name="pref_title_qhybrid_middle_button_function">Funkcja środkowego przycisku</string>
@@ -4405,7 +4405,7 @@
     <string name="activity_type_geocaching">Geocaching</string>
     <string name="activity_type_mobility">Mobilność</string>
     <string name="activity_type_motor_sport">Sporty motorowe</string>
-    <string name="activity_type_cycling_downhill">Zjazd</string>
+    <string name="activity_type_cycling_downhill">Spadek</string>
     <string name="activity_type_indoor_skiing">Narciarstwo halowe</string>
     <string name="hrv_status_last_night_legend">Wczoraj wieczorem (ms)</string>
     <string name="hrv_status_nightly_avg">Średnia z nocy</string>
@@ -4559,7 +4559,7 @@
     <string name="soundcore_equalizer_preset_lounge">Salon</string>
     <string name="soundcore_equalizer_preset_piano">Pianino</string>
     <string name="soundcore_equalizer_preset_rnb">Rytm i blues</string>
-    <string name="equalizer_preset_country">Country</string>
+    <string name="equalizer_preset_country">Kraj</string>
     <string name="soundcore_equalizer_preset_small_speakers">Małe głośniki</string>
     <string name="soundcore_equalizer_preset_spoken_word">Słowo mówione</string>
     <string name="soundcore_equalizer_preset_treble_reducer">Reduktor wysokich tonów</string>
@@ -4800,7 +4800,7 @@
     <string name="xiaomi_scooter_tcs_anti_slip_summary">Zapobiega poślizgowi koła, zwłaszcza na śliskich nawierzchniach.</string>
     <string name="xiaomi_scooter_energy_recovery_level">Poziom odzyskiwania energii</string>
     <string name="xiaomi_scooter_energy_recovery_low">Niski</string>
-    <string name="xiaomi_scooter_energy_recovery_medium">Średni</string>
+    <string name="xiaomi_scooter_energy_recovery_medium">Średnie</string>
     <string name="xiaomi_scooter_energy_recovery_high">Wysoki</string>
     <string name="xiaomi_scooter_voltage">Napięcie</string>
     <string name="xiaomi_scooter_power">Moc</string>
@@ -4866,7 +4866,7 @@
     <string name="soundbrenner_pref_beat_14_title">Akcent na 14 uderzeń</string>
     <string name="soundbrenner_pref_beat_15_title">Akcent na 15 uderzeń</string>
     <string name="soundbrenner_pref_beat_16_title">Akcent na 16 uderzeń</string>
-    <string name="appmanager_app_store">Sklep z aplikacjami</string>
+    <string name="appmanager_app_store">Sklep z aplikacjami Pebble</string>
     <string name="refresh">Odśwież</string>
     <string name="pref_title_notifications_ignore_other_users">Zignoruj profile innych użytkowników</string>
     <string name="pref_summary_notifications_ignore_other_users">Nie wysyłaj powiadomień z innych profili użytkowników zegarków</string>
@@ -4950,7 +4950,7 @@
     <string name="gpx_roundabout_exit">Wyjście %1$d</string>
     <string name="solar_charging_lux_hours">Godziny naświetlania</string>
     <string name="solar_charging_peak_intensity">Maksymalna intensywność</string>
-    <string name="solar_charging_battery_gain">Wzmocnienie baterii</string>
+    <string name="solar_charging_battery_gain">Zysk baterii</string>
     <string name="solar_charging_lux_hours_avg">Średnia liczba godzin pracy w trybie naświetlania</string>
     <string name="solar_charging_battery_gain_avg">Średnie wzmocnienie baterii</string>
     <string name="solar_charging_lux_hours_total">Łączna liczba godzin naświetlania</string>
@@ -5018,7 +5018,7 @@
     <string name="training_readiness_zone_prime_desc">Najlepsze z możliwych</string>
     <string name="training_readiness_zone_high">Szczytowe</string>
     <string name="training_readiness_zone_high_desc">Gotowi na wyzwania</string>
-    <string name="training_readiness_zone_moderate">Umiarkowane</string>
+    <string name="training_readiness_zone_moderate">Średni</string>
     <string name="training_readiness_zone_moderate_desc">Wszystko gotowe</string>
     <string name="training_readiness_zone_low">Niski</string>
     <string name="training_readiness_zone_low_desc">Czas zwolnić tempo</string>
@@ -5030,7 +5030,7 @@
     <string name="training_readiness_recovery_fully_recovered">W pełni wypoczęty</string>
     <string name="training_readiness_recovery_recovering">Powrót do zdrowia</string>
     <string name="sleep_score_excellent">Wspaniale</string>
-    <string name="sleep_score_good">Dobrze</string>
+    <string name="sleep_score_good">Dobry</string>
     <string name="sleep_score_fair">Poprawnie</string>
     <string name="sleep_score_poor">Słabo</string>
     <string name="body_composition_bmi_value">%1$.1f</string>
@@ -5386,7 +5386,7 @@
     <string name="accent_color_lime">Limonkowy</string>
     <string name="accent_color_green">Zielony</string>
     <string name="accent_color_teal">Turkusowy</string>
-    <string name="accent_color_cyan">Cyjan</string>
+    <string name="accent_color_cyan">Jasnoniebieski</string>
     <string name="accent_color_blue">Niebieski</string>
     <string name="accent_color_indigo">Indigo</string>
     <string name="accent_color_violet">Fioletowy</string>
@@ -5416,7 +5416,7 @@
     <string name="hydration_unit_ounce_symbol">uncje płynne</string>
     <string name="pref_header_hydration">Nawodnienie</string>
     <string name="pref_hydration_container_i">Zbiornik %1$d</string>
-    <string name="pref_hydration_container_volume">Poziom</string>
+    <string name="pref_hydration_container_volume">Głośność</string>
     <string name="hydration_total">Łącznie</string>
     <string name="hydration_goal">Dzienny cel</string>
     <string name="hydration_daily_average">Średnia dzienna</string>
@@ -5837,23 +5837,23 @@
     <string name="widget_value_minutes">%d min</string>
     <string name="widget_duration_hours">%d godz.</string>
     <string name="widget_value_target">" Cel: %s"</string>
-    <string name="widget_description_of_goal">Opis celu</string>
-    <string name="widget_overview_description">Przegląd widżetu</string>
-    <string name="widget_description_item">Element opisu</string>
-    <string name="widget_description_percent">%d%%</string>
-    <string name="widget_status_resting">Spoczynek</string>
+    <string name="widget_description_of_goal">%1$s %2$s z %3$s</string>
+    <string name="widget_overview_description">%1$s. %2$s</string>
+    <string name="widget_description_item">%1$s %2$s</string>
+    <string name="widget_description_percent">%1$s %2$d %</string>
+    <string name="widget_status_resting">Spoczynkowe %d</string>
     <string name="widget_status_at_time">O godzinie: %s</string>
-    <string name="widget_stress_latest_value">Ostatnia wartość stresu: %s</string>
+    <string name="widget_stress_latest_value">Ostatnia wartość</string>
     <plurals name="widget_stress_last_minutes">
         <item quantity="one">Ostatnia minuta</item>
         <item quantity="few">Ostatnie %d minuty</item>
         <item quantity="many">Ostatnich %d minut</item>
         <item quantity="other">Ostatnich %d minut</item>
     </plurals>
-    <string name="widget_hr_description">Opis tętna</string>
-    <string name="widget_hr_description_resting">Spoczynkowe tętno</string>
-    <string name="widget_hr_description_min_max">Min / Max tętno</string>
-    <string name="widget_hr_description_stale">Nieaktualne tętno</string>
+    <string name="widget_hr_description">%1$s, %2$d bpm</string>
+    <string name="widget_hr_description_resting">spoczynkowe %d</string>
+    <string name="widget_hr_description_min_max">min. %1$d, maks. %2$d</string>
+    <string name="widget_hr_description_stale">ostatni pomiar o %s</string>
     <string name="widget_stat_to_goal">Do celu</string>
     <string name="widget_stat_goal_met">Cel osiągnięty</string>
     <string name="widget_stat_peak_hour">Godzina szczytowa</string>
@@ -5862,9 +5862,9 @@
     <string name="widget_stat_last_night">Ostatnia noc</string>
     <string name="widget_stat_twelve_weeks">12 tygodni</string>
     <string name="widget_stat_next_vo2max_zone">%s o</string>
-    <string name="widget_value_of_goal">Wartość celu</string>
-    <string name="widget_value_kcal">%d kcal</string>
-    <string name="widget_duration_hours_minutes">%1$d godz. %2$d min</string>
+    <string name="widget_value_of_goal">/ %s</string>
+    <string name="widget_value_kcal">%s kcal</string>
+    <string name="widget_duration_hours_minutes">%1$dh %2$02dmin</string>
     <string name="widget_status_sleep_avg">Średni sen</string>
     <string name="widget_stat_awake_avg">Średni czas czuwania</string>
     <string name="widget_stat_sleep_avg">Średni sen</string>
