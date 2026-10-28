@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -417,12 +418,10 @@ public class GBDevice implements Parcelable {
     }
 
     private void unsetDynamicState() {
-        setBatteryLevel(BATTERY_UNKNOWN, 0);
-        setBatteryLevel(BATTERY_UNKNOWN, 1);
-        setBatteryLevel(BATTERY_UNKNOWN, 2);
-        setBatteryState(UNKNOWN, 0);
-        setBatteryState(UNKNOWN, 1);
-        setBatteryState(UNKNOWN, 2);
+        for (int i = 0; i < 3; i++) {
+            setBatteryLevel(BATTERY_UNKNOWN, i);
+            setBatteryState(UNKNOWN, i);
+        }
         setRssi(RSSI_UNKNOWN);
         resetExtraInfos();
         if (mBusyTask != null) {

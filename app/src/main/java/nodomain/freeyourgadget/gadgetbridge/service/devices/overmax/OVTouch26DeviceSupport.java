@@ -65,6 +65,7 @@ import nodomain.freeyourgadget.gadgetbridge.service.btle.profiles.deviceinfo.Dev
 import nodomain.freeyourgadget.gadgetbridge.service.btle.profiles.deviceinfo.DeviceInfoProfile;
 import nodomain.freeyourgadget.gadgetbridge.util.CheckSums;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
+import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
 
 public class OVTouch26DeviceSupport extends AbstractBTLESingleDeviceSupport {
     private static final Logger LOG = LoggerFactory.getLogger(OVTouch26DeviceSupport.class);
@@ -83,7 +84,7 @@ public class OVTouch26DeviceSupport extends AbstractBTLESingleDeviceSupport {
         super(LOG);
 
         addSupportedService(OVTouch26Constants.UUID_SERVICE);
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION);
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
 
         IntentListener mListener = new IntentListener() {
             @Override
@@ -343,10 +344,10 @@ public class OVTouch26DeviceSupport extends AbstractBTLESingleDeviceSupport {
     public void onNotification(NotificationSpec notificationSpec) {
         String body = notificationSpec.getBody();
         String title = notificationSpec.getTitle();
-        if (title.isEmpty()) {
+        if (StringUtils.isNullOrEmpty(title)) {
             title = "Notification";
         }
-        if (body.isEmpty()) {
+        if (StringUtils.isNullOrEmpty(body)) {
             body = title;
         }
         int titleLength = title.length();

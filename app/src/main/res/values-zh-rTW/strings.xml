@@ -1587,10 +1587,10 @@
     <string name="prefs_noise_control_with_one_earbud_summary">當只使用一個耳機時允許噪音控制</string>
     <string name="pref_ambient_sound_tone">環境聲音音調</string>
     <string name="pref_balance">平衡</string>
-    <string name="pref_switch_controls_anc_ambient">降噪 ←→ 環境</string>
-    <string name="pref_switch_controls_anc_off">噪音消除 ←→ 關閉</string>
-    <string name="pref_switch_controls_ambient_off">環境 ←→ 關</string>
-    <string name="pref_switch_controls_anc_ambient_off">降噪 ←→ 環繞音 ←→ 關</string>
+    <string name="pref_switch_controls_anc_ambient">降噪 ↔ 環境</string>
+    <string name="pref_switch_controls_anc_off">噪音消除 ↔ 關閉</string>
+    <string name="pref_switch_controls_ambient_off">環境 ↔ 關</string>
+    <string name="pref_switch_controls_anc_ambient_off">降噪 ↔ 環繞音 ↔ 關</string>
     <string name="prefs_voice_detect">語音檢測</string>
     <string name="prefs_voice_detect_summary">啟用環境聲音，並在檢測到聲音後自動降低播放音量</string>
     <string name="prefs_double_tap_edge_summary">即使未在觸控板上點擊，也能檢測雙擊</string>

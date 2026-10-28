@@ -74,7 +74,7 @@ public class SpeedZonesFragment extends AbstractActivityChartFragment<ChartsData
         }*/
 
         for (Map.Entry<Integer, Long> entry : analysis.stats.entrySet()) {
-            entries.add(new BarEntry(entry.getKey(), entry.getValue() / 60));
+            entries.add(new BarEntry<>(entry.getKey(), entry.getValue() / 60, null, null));
         }
 
         BarDataSet set = new BarDataSet(entries, "");
@@ -116,6 +116,7 @@ public class SpeedZonesFragment extends AbstractActivityChartFragment<ChartsData
         mStatsChart.setBackgroundColor(BACKGROUND_COLOR);
         mStatsChart.getDescription().setTextColor(DESCRIPTION_COLOR);
         mStatsChart.setNoDataText("");
+        mStatsChart.setNoDataIconEnabled(false);
         mStatsChart.getLegend().setEnabled(false);
         mStatsChart.setTouchEnabled(false);
         mStatsChart.getDescription().setText("");

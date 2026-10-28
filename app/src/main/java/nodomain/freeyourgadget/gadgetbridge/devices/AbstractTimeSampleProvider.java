@@ -81,7 +81,8 @@ public abstract class AbstractTimeSampleProvider<T extends AbstractTimeSample> i
         }
         final Property deviceProperty = getDeviceIdentifierSampleProperty();
         qb.where(deviceProperty.eq(dbDevice.getId()), timestampProperty.ge(timestampFrom))
-                .where(timestampProperty.le(timestampTo));
+                .where(timestampProperty.le(timestampTo))
+                .orderAsc(timestampProperty);
         applyAdditionalFilters(qb);
         final List<T> samples = qb.build().list();
         detachFromSession();

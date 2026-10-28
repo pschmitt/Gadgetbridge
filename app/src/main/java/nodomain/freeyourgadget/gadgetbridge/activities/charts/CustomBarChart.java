@@ -16,13 +16,14 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities.charts;
 
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.util.AttributeSet;
 
+import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.renderer.BarChartRenderer;
+
+import kotlin.Unit;
 
 /**
  * A BarChart with some specific customization, like
@@ -30,8 +31,8 @@ import com.github.mikephil.charting.renderer.BarChartRenderer;
  */
 public class CustomBarChart extends BarChart {
 
-    private Entry entry = null;
-    private SingleEntryValueAnimator singleEntryAnimator;
+    private Entry<?> entry = null;
+    private float nextValue;
 
     public CustomBarChart(Context context) {
         super(context);
@@ -45,32 +46,26 @@ public class CustomBarChart extends BarChart {
         super(context, attrs, defStyle);
     }
 
-    public void setSinglAnimationEntry(Entry entry) {
+    public void setSinglAnimationEntry(final Entry<?> entry) {
         this.entry = entry;
-
         if (entry != null) {
-            // single entry animation mode
-            singleEntryAnimator = new SingleEntryValueAnimator(entry, new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    // ViewCompat.postInvalidateOnAnimation(Chart.this);
-                    postInvalidate();
-                }
-            });
-            mAnimator = singleEntryAnimator;
-            mRenderer = new BarChartRenderer(this, singleEntryAnimator, getViewPortHandler());
+            nextValue = entry.getY();
         }
     }
 
     /**
      * Call this to set the next value for the Entry to be animated.
-     * Call animateY() when ready to do that.
+     * Call animateSingleEntry() when ready to do that.
      *
      * @param nextValue
      */
-    public void setSingleEntryYValue(float nextValue) {
-        if (singleEntryAnimator != null) {
-            singleEntryAnimator.setEntryYValue(nextValue);
+    public void setSingleEntryYValue(final float nextValue) {
+        this.nextValue = nextValue;
+    }
+
+    public void animateSingleEntry(final int durationMillis) {
+        if (entry != null) {
+            animateValue(entry, nextValue, durationMillis, Easing.INSTANCE.getLinear(), () -> Unit.INSTANCE);
         }
     }
 }

@@ -24,13 +24,13 @@ public class NutConstants {
     /**
      * Just battery info
      */
-    public static final UUID SERVICE_BATTERY = GattService.UUID_SERVICE_BATTERY_SERVICE;
+    public static final UUID SERVICE_BATTERY = GattService.SERVICE_BATTERY.uuid;
     public static final UUID CHARAC_BATTERY_INFO = UUID.fromString("00002a19-0000-1000-8000-00805f9b34fb");
 
     /**
      * Device info available.
      **/
-    public static final UUID SERVICE_DEVICE_INFO = GattService.UUID_SERVICE_DEVICE_INFORMATION;
+    public static final UUID SERVICE_DEVICE_INFO = GattService.SERVICE_DEVICE_INFORMATION.uuid;
     /**
      * Firmware version.
      * Used with {@link NutConstants#SERVICE_DEVICE_INFO}

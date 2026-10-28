@@ -17,7 +17,6 @@
 package nodomain.freeyourgadget.gadgetbridge.adapter;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -28,8 +27,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
-
-import nodomain.freeyourgadget.gadgetbridge.R;
 
 /**
  * Adapter for displaying generic ItemWithDetails instances.
@@ -98,7 +95,7 @@ public abstract class AbstractActivityListingAdapter<T> extends RecyclerView.Ada
     public AbstractActivityListingViewHolder<T> onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         switch (viewType) {
             case 1: // empty
-                return new EmptyViewHolder(LayoutInflater.from(getContext()).inflate(R.layout.activity_list_item, parent, false));
+                return new EmptyViewHolder(new View(getContext()));
         }
 
         throw new IllegalArgumentException("Unknown view type " + viewType);

@@ -4,11 +4,6 @@ import android.app.Activity;
 
 import androidx.annotation.NonNull;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.Property;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.CyclingSampleProvider;
@@ -16,7 +11,6 @@ import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.cycling_sensor.activity.CyclingLiveDataActivity;
 import nodomain.freeyourgadget.gadgetbridge.entities.CyclingSample;
-import nodomain.freeyourgadget.gadgetbridge.entities.CyclingSampleDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceCandidate;
@@ -24,13 +18,6 @@ import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.cycling_sensor.support.CyclingSensorSupport;
 
 public class CyclingSensorCoordinator extends AbstractBLEDeviceCoordinator {
-    @Override
-    public Map<AbstractDao<?, ?>, Property> getAllDeviceDao(@NonNull final DaoSession session) {
-        Map<AbstractDao<?, ?>, Property> map = new HashMap<>(1);
-        map.put(session.getCyclingSampleDao(), CyclingSampleDao.Properties.DeviceId);
-        return map;
-    }
-
     @Override
     public boolean supports(GBDeviceCandidate candidate) {
         return candidate.supportsService(CyclingSensorSupport.UUID_CYCLING_SENSOR_SERVICE);

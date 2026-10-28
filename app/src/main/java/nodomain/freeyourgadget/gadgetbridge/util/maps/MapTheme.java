@@ -12,6 +12,7 @@ public enum MapTheme implements XmlRenderTheme {
     DEFAULT("/assets/mapsforge/default.xml"),
     BIKER("/assets/mapsforge/biker.xml"),
     DARK("/assets/mapsforge/dark.xml"),
+    DARK_LOW_CONTRAST("/assets/map_themes/dark_low_contrast.xml"),
     INDIGO("/assets/mapsforge/indigo.xml"),
     MOTORIDER("/assets/mapsforge/motorider.xml"),
     OSMARENDER("/assets/mapsforge/osmarender.xml"),

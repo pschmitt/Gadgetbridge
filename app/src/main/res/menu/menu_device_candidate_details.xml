@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="nodomain.freeyourgadget.gadgetbridge.activities.discovery.DeviceCandidateDetailsActivity">
+    <item
+        android:id="@+id/device_candidate_details_copy"
+        android:icon="@drawable/ic_content_copy"
+        android:title="@string/copy_to_clipboard"
+        app:iconTint="?attr/actionmenu_icon_color"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/device_candidate_details_share"
+        android:icon="@drawable/ic_share"
+        android:title="@string/share"
+        app:iconTint="?attr/actionmenu_icon_color"
+        app:showAsAction="always" />
+</menu>

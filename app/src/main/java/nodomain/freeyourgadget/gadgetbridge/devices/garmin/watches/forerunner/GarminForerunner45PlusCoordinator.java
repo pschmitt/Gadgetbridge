@@ -16,12 +16,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.forerunner;
 
-import androidx.annotation.NonNull;
-
 import java.util.regex.Pattern;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
-import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 
 public class GarminForerunner45PlusCoordinator extends GarminForerunner45Coordinator {
     @Override

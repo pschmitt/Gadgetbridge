@@ -17,8 +17,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,62 +45,64 @@ import nodomain.freeyourgadget.gadgetbridge.util.GB;
  * Adapter for displaying GBDeviceCandate instances.
  */
 public class DeviceCandidateAdapter extends ArrayAdapter<GBDeviceCandidate> {
+    private final ColorMatrixColorFilter grayscaleFilter;
+
     public DeviceCandidateAdapter(final Context context, final List<GBDeviceCandidate> deviceCandidates) {
         super(context, 0, deviceCandidates);
+        final ColorMatrix colorMatrix = new ColorMatrix();
+        colorMatrix.setSaturation(0);
+        grayscaleFilter = new ColorMatrixColorFilter(colorMatrix);
     }
 
-    @SuppressLint("SetTextI18n")
     @NonNull
     @Override
-    public View getView(int position, View view, @NonNull final ViewGroup parent) {
-        final GBDeviceCandidate device = getItem(position);
+    public View getView(final int position, View view, @NonNull final ViewGroup parent) {
         if (view == null) {
-            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = inflater.inflate(R.layout.item_with_details, parent, false);
+            view = LayoutInflater.from(getContext()).inflate(R.layout.item_device_candidate, parent, false);
+            final ImageView imageView = view.findViewById(R.id.candidate_image);
+            imageView.setColorFilter(grayscaleFilter);
         }
-        final ImageView deviceImageView = view.findViewById(R.id.item_image);
-        final TextView deviceNameLabel = view.findViewById(R.id.item_name);
-        final TextView deviceDetailsLabel = view.findViewById(R.id.item_details);
-        final TextView deviceStatus = view.findViewById(R.id.item_status);
+        final ImageView deviceImageView = view.findViewById(R.id.candidate_image);
+        final TextView deviceNameLabel = view.findViewById(R.id.candidate_name);
+        final TextView deviceTypeLabel = view.findViewById(R.id.candidate_type);
+        final TextView deviceAddressLabel = view.findViewById(R.id.candidate_address);
+        final TextView deviceStatusLabel = view.findViewById(R.id.candidate_status);
+        final TextView deviceRssiLabel = view.findViewById(R.id.candidate_rssi);
 
+        final GBDeviceCandidate device = getItem(position);
         if (device == null) {
-            // Should never happen?
-            deviceNameLabel.setText("(null)");
-            deviceDetailsLabel.setText("(null)");
-            deviceImageView.setImageResource(R.drawable.ic_device_unknown);
-            deviceStatus.setText("");
             return view;
         }
 
         final DeviceType deviceType = DeviceHelper.getInstance().resolveDeviceType(device);
         final DeviceCoordinator coordinator = deviceType.getDeviceCoordinator();
 
-        final String name = formatDeviceName(device);
-        deviceNameLabel.setText(name);
-        deviceDetailsLabel.setText(getContext().getString(coordinator.getDeviceNameResource()) + "\n" + device.getMacAddress());
+        deviceNameLabel.setText(device.getName());
+        deviceTypeLabel.setText(coordinator.getDeviceNameResource());
+        deviceAddressLabel.setText(device.getMacAddress());
+
         deviceImageView.setImageResource(coordinator.getDefaultIconResource());
+
+        if (device.getRssi() > GBDevice.RSSI_UNKNOWN) {
+            deviceRssiLabel.setText(getContext().getString(R.string.device_rssi_dbm, GB.formatRssi(device.getRssi())));
+            deviceRssiLabel.setVisibility(View.VISIBLE);
+        } else {
+            deviceRssiLabel.setVisibility(View.GONE);
+        }
 
         final List<String> statusLines = new ArrayList<>();
         if (device.isBonded()) {
             statusLines.add(getContext().getString(R.string.device_is_currently_bonded));
         }
-
         if (!deviceType.isSupported()) {
             statusLines.add(getContext().getString(R.string.device_unsupported));
         }
-
         if (coordinator.isExperimental()) {
             statusLines.add(getContext().getString(R.string.device_experimental));
         }
+        deviceStatusLabel.setText(TextUtils.join("\n", statusLines));
+        deviceStatusLabel.setVisibility(statusLines.isEmpty() ? View.GONE : View.VISIBLE);
 
-        deviceStatus.setText(TextUtils.join("\n", statusLines));
         return view;
-    }
-
-    private String formatDeviceName(final GBDeviceCandidate device) {
-        if (device.getRssi() > GBDevice.RSSI_UNKNOWN) {
-            return getContext().getString(R.string.device_with_rssi, device.getName(), GB.formatRssi(device.getRssi()));
-        }
-        return device.getName();
     }
 }

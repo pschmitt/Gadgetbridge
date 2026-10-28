@@ -20,7 +20,7 @@ import androidx.annotation.Nullable;
 
 public enum SubscriptionType {
     BATTERY(0x01),
-    STATUS(0x02),
+    EARBUDS_STATUS(0x02),
     ANC_SELECTOR(0x03),
     GAME_MODE(0x05),
     MULTIPOINT(0x06),

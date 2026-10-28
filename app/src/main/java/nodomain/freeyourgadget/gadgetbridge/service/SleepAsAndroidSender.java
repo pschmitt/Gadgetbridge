@@ -3,6 +3,7 @@ package nodomain.freeyourgadget.gadgetbridge.service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 
 import androidx.annotation.Nullable;
 
@@ -98,34 +99,39 @@ public class SleepAsAndroidSender {
     }
 
     /**
-     * Check if a SleepAsAndroid feature is enabled
-     * @param feature
-     * @return
+     * Check if a SleepAsAndroid feature is enabled.
+     *
+     * <p>The per-feature toggles default to true, matching sleepasandroid_preferences.xml. Those
+     * defaults are only written once the settings screen has been shown, so a false fallback
+     * reports every feature as disabled until then.
+     *
+     * @param feature the feature
+     * @return true if the feature is enabled
      */
     public boolean isFeatureEnabled(SleepAsAndroidFeature feature) {
         boolean enabled = isSleepAsAndroidEnabled();
         if (enabled) {
             switch (feature) {
                 case ACCELEROMETER:
-                    enabled = GBApplication.getPrefs().getBoolean("pref_key_sleepasandroid_feat_movement", false);
+                    enabled = GBApplication.getPrefs().getBoolean("pref_key_sleepasandroid_feat_movement", true);
                     break;
                 case HEART_RATE:
-                    enabled = GBApplication.getPrefs().getBoolean("pref_key_sleepasandroid_feat_hr", false);
+                    enabled = GBApplication.getPrefs().getBoolean("pref_key_sleepasandroid_feat_hr", true);
                     break;
                 case RR_INTERVALS:
-                    enabled = GBApplication.getPrefs().getBoolean("pref_key_sleepasandroid_feat_rr_intervals", false);
+                    enabled = GBApplication.getPrefs().getBoolean("pref_key_sleepasandroid_feat_rr_intervals", true);
                     break;
                 case SPO2:
-                    enabled = GBApplication.getPrefs().getBoolean("pref_key_sleepasandroid_feat_spo2", false);
+                    enabled = GBApplication.getPrefs().getBoolean("pref_key_sleepasandroid_feat_spo2", true);
                     break;
                 case OXIMETRY:
-                    enabled = GBApplication.getPrefs().getBoolean("pref_key_sleepasandroid_feat_oximetry", false);
+                    enabled = GBApplication.getPrefs().getBoolean("pref_key_sleepasandroid_feat_oximetry", true);
                     break;
                 case NOTIFICATIONS:
-                    enabled = GBApplication.getPrefs().getBoolean("pref_key_sleepasandroid_feat_notifications", false);
+                    enabled = GBApplication.getPrefs().getBoolean("pref_key_sleepasandroid_feat_notifications", true);
                     break;
                 case ALARMS:
-                    enabled = GBApplication.getPrefs().getBoolean("pref_key_sleepasandroid_feat_alarms", false);
+                    enabled = GBApplication.getPrefs().getBoolean("pref_key_sleepasandroid_feat_alarms", true);
                     break;
                 default:
                     break;
@@ -179,8 +185,8 @@ public class SleepAsAndroidSender {
             }
         }, ACCEL_AGGREGATE_INTERVAL_MS, ACCEL_AGGREGATE_INTERVAL_MS, TimeUnit.MILLISECONDS);
 
-        lastRawDataMs = System.currentTimeMillis();
-        lastHrDataMs = System.currentTimeMillis();
+        lastRawDataMs = SystemClock.elapsedRealtime();
+        lastHrDataMs = SystemClock.elapsedRealtime();
 
         this.trackingOngoing = true;
 
@@ -188,15 +194,20 @@ public class SleepAsAndroidSender {
     }
 
     /**
-     * Stop tracking
+     * Stop tracking.
+     * <p>
+     * The schedulers are shut down before anything else is considered: a session interrupted by a
+     * dropped link is stopped while the device no longer counts as the provider, and a timer left
+     * running then outlives the session that started it.
      */
     public void stopTracking() {
-        if (!isDeviceDefault() || !trackingOngoing) return;
         if (accDataScheduler != null) {
             accDataScheduler.shutdownNow();
             accDataScheduler = null;
         }
         enableSpo2AutoFetch(false);
+
+        if (!trackingOngoing) return;
 
         this.trackingOngoing = false;
         synchronized (accelLock) {
@@ -342,7 +353,7 @@ public class SleepAsAndroidSender {
      */
     public void setBatchSize(long batchSize) {
         if (!isDeviceDefault()) return;
-        LOG.debug("Setting batch size to " + batchSize);
+        LOG.debug("Setting batch size to {}", batchSize);
         this.batchSize = batchSize;
     }
 
@@ -357,6 +368,21 @@ public class SleepAsAndroidSender {
     }
 
     /**
+     * Whether accelerometer samples are wanted. Reads several preferences, so a caller holding a
+     * whole batch of samples checks this once and feeds each of them to
+     * {@link #submitAccelSample}.
+     *
+     * @return true if a sample submitted now would be measured
+     */
+    public boolean acceptsAccelSamples() {
+        return isDeviceDefault()
+                && isFeatureEnabled(SleepAsAndroidFeature.ACCELEROMETER)
+                && hasFeature(SleepAsAndroidFeature.ACCELEROMETER)
+                && trackingOngoing
+                && !trackingPaused;
+    }
+
+    /**
      * On accelerometer changed
      *
      * @param x the x value
@@ -364,11 +390,19 @@ public class SleepAsAndroidSender {
      * @param z the z value
      */
     public void onAccelChanged(float x, float y, float z) {
-        if (!isDeviceDefault() || !isFeatureEnabled(SleepAsAndroidFeature.ACCELEROMETER) || !hasFeature(SleepAsAndroidFeature.ACCELEROMETER) || !trackingOngoing)
-            return;
-        if (trackingPaused)
-            return;
+        if (!acceptsAccelSamples()) return;
 
+        submitAccelSample(x, y, z);
+    }
+
+    /**
+     * Measure one sample, for a caller that has just checked {@link #acceptsAccelSamples()}.
+     *
+     * @param x the x value
+     * @param y the y value
+     * @param z the z value
+     */
+    public void submitAccelSample(float x, float y, float z) {
         updateMaxRawData(x, y, z);
     }
 
@@ -493,9 +527,9 @@ public class SleepAsAndroidSender {
         updateLastHrData(hr);
 
         if (lastHrDataMs == 0) {
-            lastHrDataMs = System.currentTimeMillis();
+            lastHrDataMs = SystemClock.elapsedRealtime();
         }
-        long ms = System.currentTimeMillis();
+        long ms = SystemClock.elapsedRealtime();
         if (ms - lastHrDataMs >= sendDelay) {
             lastHrDataMs = ms;
             sendHrData();
@@ -506,7 +540,7 @@ public class SleepAsAndroidSender {
      * Send the heart rate data
      */
     private synchronized void sendHrData() {
-        LOG.debug("Sending heart rate data: " + this.hrData);
+        LOG.debug("Sending heart rate data: {}", this.hrData);
         Intent intent = new Intent(ACTION_HEART_RATE_DATA_UPDATE);
         intent.putExtra(DATA, convertToFloatArray(this.hrData));
         broadcastToSleepAsAndroid(intent);

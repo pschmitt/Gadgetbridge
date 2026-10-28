@@ -87,7 +87,7 @@ open class F8Support : AbstractBTLESingleDeviceSupport(LOG) {
             }
         }
 
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION)
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid)
         deviceInfoProfile = DeviceInfoProfile<F8Support>(this)
         deviceInfoProfile.addListener(mListener)
         addSupportedProfile(deviceInfoProfile)

@@ -1,7 +1,12 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.workouts
 
+import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutBatchExporter.Part
+import nodomain.freeyourgadget.gadgetbridge.database.DBHelper
+import nodomain.freeyourgadget.gadgetbridge.devices.DeviceManager
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary
+import nodomain.freeyourgadget.gadgetbridge.entities.Device
+import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind
 import nodomain.freeyourgadget.gadgetbridge.test.TestBase
 import nodomain.freeyourgadget.gadgetbridge.util.ActivitySummaryUtils
@@ -9,6 +14,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import java.io.File
 import java.text.SimpleDateFormat
@@ -19,9 +25,23 @@ import java.util.zip.ZipFile
 
 class WorkoutBatchExporterTest : TestBase() {
     private val start = Date(1_790_000_000_000L)
+    private lateinit var testDevice: Device
+
+    @Before
+    fun registerDevice() {
+        val gbDevice = createDummyGDevice("00:00:00:00:00:01")
+        testDevice = DBHelper.getDevice(gbDevice, daoSession)
+        val field = DeviceManager::class.java.getDeclaredField("deviceList")
+        field.isAccessible = true
+        @Suppress("UNCHECKED_CAST")
+        val deviceList = field.get(GBApplication.app().deviceManager) as MutableList<GBDevice>
+        deviceList.clear()
+        deviceList.add(gbDevice)
+    }
 
     private fun summary(id: Long, raw: ByteArray? = null) = BaseActivitySummary().apply {
         this.id = id
+        device = testDevice
         startTime = start
         endTime = Date(start.time + 30 * 60 * 1000L)
         activityKind = ActivityKind.RUNNING.code
@@ -29,9 +49,9 @@ class WorkoutBatchExporterTest : TestBase() {
     }
 
     private fun export(summaries: List<BaseActivitySummary>, parts: Set<Part>, asZip: Boolean) =
-        WorkoutBatchExporter.export(getContext(), createDummyGDevice("00:00:00:00:00:01"), summaries, parts, asZip)
+        WorkoutBatchExporter.export(context, summaries, parts, asZip)
 
-    private val base get() = ActivitySummaryUtils.getExportBaseName(getContext(), summary(1))
+    private val base get() = ActivitySummaryUtils.getExportBaseName(context, summary(1))
 
     private fun assertFit(bytes: ByteArray) {
         assertTrue(bytes.size > 12)
@@ -98,7 +118,7 @@ class WorkoutBatchExporterTest : TestBase() {
             val result = export(listOf(summary(1)), setOf(Part.RAW), asZip)
             assertTrue(result.files.isEmpty())
             assertEquals(0, result.entries)
-            assertFalse(File(getContext().cacheDir, "raw/workouts").exists())
+            assertFalse(File(context.cacheDir, "raw/workouts").exists())
         }
     }
 

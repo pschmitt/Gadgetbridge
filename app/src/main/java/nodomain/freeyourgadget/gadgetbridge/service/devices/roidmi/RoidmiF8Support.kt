@@ -117,8 +117,8 @@ class RoidmiF8Support : BleGattClientSupport() {
         // The parent (BleGattClientSupport) adds the standard GATT battery and device-info
         // services by default. This device does not use them – remove them to avoid
         // unexpected characteristic reads or subscriptions on those services.
-        supportedServices.remove(GattService.UUID_SERVICE_BATTERY_SERVICE)
-        supportedServices.remove(GattService.UUID_SERVICE_DEVICE_INFORMATION)
+        supportedServices.remove(GattService.SERVICE_BATTERY.uuid)
+        supportedServices.remove(GattService.SERVICE_DEVICE_INFORMATION.uuid)
     }
 
     // ── Initialisation ────────────────────────────────────────────────────────
@@ -321,7 +321,7 @@ class RoidmiF8Support : BleGattClientSupport() {
     ): Boolean {
         // Explicitly skip the parent's standard GATT battery level handler – this device
         // estimates battery level from pack voltage on FFD2.
-        if (characteristic.uuid == GattCharacteristic.UUID_CHARACTERISTIC_BATTERY_LEVEL) {
+        if (characteristic.uuid == GattCharacteristic.CHARACTERISTIC_BATTERY_LEVEL.uuid) {
             return true
         }
         if (super.onCharacteristicRead(gatt, characteristic, value, status)) {

@@ -33,7 +33,7 @@ public class XiaomiBodyEnergySampleProvider extends AbstractSampleToTimeSamplePr
 
     @Override
     protected BodyEnergySample convertSample(final XiaomiActivitySample sample) {
-        if (sample.getEnergy() <= 0) {
+        if (sample == null || sample.getEnergy() <= 0) {
             return null;
         }
 

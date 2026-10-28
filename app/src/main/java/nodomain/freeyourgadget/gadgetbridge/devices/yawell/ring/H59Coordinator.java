@@ -63,4 +63,14 @@ public class H59Coordinator extends AbstractYawellRingCoordinator {
     public int getAlarmTitleLimit(@NonNull final GBDevice device) {
         return 28; // bytes, not characters
     }
+
+    @Override
+    public boolean supportsAppNotifications(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsPhoneCalls(@NonNull final GBDevice device) {
+        return true;
+    }
 }

@@ -52,6 +52,7 @@ class VictronSmartShuntCoordinator : AbstractBLEDeviceCoordinator() {
     )
 
     private fun displayAction(@StringRes descriptionRes: Int, extraKey: String) = deviceCardAction {
+        id = "victron_$extraKey"
         icon = { R.drawable.ic_bolt }
         isVisible = { device -> device.isConnected && !(device.getExtraInfo(extraKey) as? String).isNullOrBlank() }
         description = { _, context -> context.getString(descriptionRes) }

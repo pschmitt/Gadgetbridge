@@ -1,12 +1,11 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.debug
 
-import android.app.DatePickerDialog
 import android.os.Bundle
-import android.widget.DatePicker
 import android.widget.Toast
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
@@ -17,13 +16,13 @@ import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils
 import nodomain.freeyourgadget.gadgetbridge.util.GB
 import nodomain.freeyourgadget.gadgetbridge.util.healthconnect.GadgetbridgeDataExporter
 import nodomain.freeyourgadget.gadgetbridge.util.healthconnect.HealthConnectSyncWorker
+import nodomain.freeyourgadget.gadgetbridge.util.healthconnect.HealthConnectWorkoutSync
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Calendar
+import java.time.temporal.ChronoUnit
 
 class HealthConnectDebugFragment : AbstractDebugFragment() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -54,12 +53,14 @@ class HealthConnectDebugFragment : AbstractDebugFragment() {
                         GBApplication.acquireDB().use { db ->
                             db.daoSession.healthConnectSyncStateDao.deleteAll()
                             db.daoSession.healthConnectSleepSessionDao.deleteAll()
+                            db.daoSession.healthConnectWorkoutSyncFailureDao.deleteAll()
                             GB.toast("Health Connect sync state reset successfully", Toast.LENGTH_SHORT, GB.INFO)
                         }
                     } catch (e: Exception) {
                         GB.toast("Failed to reset Health Connect sync state", Toast.LENGTH_LONG, GB.ERROR, e)
                     }
                     reloadSyncStates()
+                    HealthConnectWorkoutSync.notifyStateChanged(requireContext())
                 }
                 .setNegativeButton(R.string.cancel) { _, _ -> }
                 .show()
@@ -67,25 +68,25 @@ class HealthConnectDebugFragment : AbstractDebugFragment() {
 
         onClick(PREF_DEBUG_EXPORT_GB_DATA) {
             runOnDebugDevices("Export data for device", forceDialog = true) { gbDevice ->
-                val cal = Calendar.getInstance()
-                cal.add(Calendar.DAY_OF_YEAR, -7)
-                DatePickerDialog(
-                    requireActivity(),
-                    { _: DatePicker?, year: Int, month: Int, day: Int ->
-                        val startDate = LocalDate.of(year, month + 1, day)
-                        val startInstant = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()
-                        val endInstant = Instant.now()
-                        try {
-                            val file = GadgetbridgeDataExporter.export(gbDevice, startInstant, endInstant)
-                            GB.toast("Exported to ${file.name}", Toast.LENGTH_LONG, GB.INFO)
-                        } catch (e: Exception) {
-                            GB.toast("Export failed: ${e.message}", Toast.LENGTH_LONG, GB.ERROR, e)
-                        }
-                    },
-                    cal.get(Calendar.YEAR),
-                    cal.get(Calendar.MONTH),
-                    cal.get(Calendar.DAY_OF_MONTH)
-                ).show()
+                val datePicker = MaterialDatePicker.Builder.datePicker()
+                    .setSelection(
+                        DateTimeUtils.toUtcDayStartMillis(
+                            Instant.now().minus(7, ChronoUnit.DAYS).toEpochMilli()
+                        )
+                    )
+                    .build()
+                datePicker.addOnPositiveButtonClickListener { selection ->
+                    val startDate = DateTimeUtils.utcMillisToLocalDate(selection)
+                    val startInstant = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()
+                    val endInstant = Instant.now()
+                    try {
+                        val file = GadgetbridgeDataExporter.export(gbDevice, startInstant, endInstant)
+                        GB.toast("Exported to ${file.name}", Toast.LENGTH_LONG, GB.INFO)
+                    } catch (e: Exception) {
+                        GB.toast("Export failed: ${e.message}", Toast.LENGTH_LONG, GB.ERROR, e)
+                    }
+                }
+                datePicker.show(childFragmentManager, "HC_EXPORT_DATE_PICKER")
             }
         }
 
@@ -121,30 +122,34 @@ class HealthConnectDebugFragment : AbstractDebugFragment() {
                         state.dataType,
                         zonedDateTime.format(formatter)
                     ) {
-                        DatePickerDialog(
-                            requireActivity(),
-                            { _: DatePicker?, year: Int, monthOfYear: Int, dayOfMonth: Int ->
-                                val date = DateTimeUtils.dayStart(year, monthOfYear, dayOfMonth)
+                        val datePicker = MaterialDatePicker.Builder.datePicker()
+                            .setSelection(DateTimeUtils.toUtcDayStartMillis(state.lastSyncTimestamp * 1000L))
+                            .build()
+                        datePicker.addOnPositiveButtonClickListener { selection ->
+                            val selectedDate = DateTimeUtils.utcMillisToLocalDate(selection)
+                            val date = DateTimeUtils.dayStart(
+                                selectedDate.year,
+                                selectedDate.monthValue - 1,
+                                selectedDate.dayOfMonth
+                            )
 
-                                GBApplication.acquireDB().use { db ->
-                                    val syncStateDao = db.daoSession.healthConnectSyncStateDao
-                                    state.lastSyncTimestamp = date.time / 1000
+                            GBApplication.acquireDB().use { db ->
+                                val syncStateDao = db.daoSession.healthConnectSyncStateDao
+                                state.lastSyncTimestamp = date.time / 1000
 
-                                    LOG.info(
-                                        "Updating Health Connect sync state for device {}, data type {} to timestamp: {}",
-                                        gbDevice.aliasOrName,
-                                        state.dataType,
-                                        date
-                                    )
-                                    syncStateDao.insertOrReplace(state)
-                                }
+                                LOG.info(
+                                    "Updating Health Connect sync state for device {}, data type {} to timestamp: {}",
+                                    gbDevice.aliasOrName,
+                                    state.dataType,
+                                    date
+                                )
+                                syncStateDao.insertOrReplace(state)
+                            }
 
-                                reloadSyncStates()
-                            },
-                            zonedDateTime.year,
-                            zonedDateTime.monthValue - 1,
-                            zonedDateTime.dayOfMonth
-                        ).show()
+                            reloadSyncStates()
+                            HealthConnectWorkoutSync.notifyStateChanged(requireContext())
+                        }
+                        datePicker.show(childFragmentManager, "HC_SYNC_STATE_DATE_PICKER")
                     }
                 }
             }

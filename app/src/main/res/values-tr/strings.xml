@@ -1508,9 +1508,9 @@
     <string name="pref_screen_vibration_patterns_summary">Farklı bildirimler için titreşim modellerini yapılandırın</string>
     <string name="pref_ambient_sound_tone">Ortam Sesi Tonu</string>
     <string name="prefs_noise_control_with_one_earbud">Bir kulak ile gürültü denetimi</string>
-    <string name="pref_switch_controls_ambient_off">Ortam ←→ Kapalı</string>
-    <string name="pref_switch_controls_anc_ambient">Gürültü engelleme ←→ Ortam</string>
-    <string name="pref_switch_controls_anc_off">Gürültü engelleme ←→ Kapalı</string>
+    <string name="pref_switch_controls_ambient_off">Ortam ↔ Kapalı</string>
+    <string name="pref_switch_controls_anc_ambient">Gürültü engelleme ↔ Ortam</string>
+    <string name="pref_switch_controls_anc_off">Gürültü engelleme ↔ Kapalı</string>
     <string name="prefs_noise_control">Gürültü denetimi</string>
     <string name="prefs_voice_detect">Ses algılama</string>
     <string name="pref_voice_detect_duration_5">5 saniye</string>
@@ -2337,7 +2337,7 @@
     <string name="activity_type_dancing">Dans etme</string>
     <string name="activity_type_trail_run">Patika koşusu</string>
     <string name="stress_relaxed">Rahat</string>
-    <string name="pref_switch_controls_anc_ambient_off">Gürültü engelleme ←→ Ortam ←→ Kapalı</string>
+    <string name="pref_switch_controls_anc_ambient_off">Gürültü engelleme ↔ Ortam ↔ Kapalı</string>
     <string name="menuitem_readiness">Hazır olma durumu</string>
     <string name="menuitem_body_composition">Vücut yapısı</string>
     <string name="zepp_os_watchface_rush">Acele</string>
@@ -3947,9 +3947,9 @@
     <string name="internet_firewall_action">Eylem</string>
     <string name="internet_firewall_allow">İzin ver</string>
     <string name="internet_firewall_block">Engelle</string>
-    <string name="endurain_invalid_server_url">Geçersiz sunucu URL\'si</string>
+    <string name="service_invalid_server_url">Geçersiz sunucu URL\'si</string>
     <string name="endurain_failed_to_connect_to_server">Sunucuya bağlanılamadı</string>
-    <string name="endurain_server_version">\nSunucu sürümü: %1$s</string>
+    <string name="service_server_version">\nSunucu sürümü: %1$s</string>
     <string name="xiaomi_vibration_section_types">Bildirim türleri</string>
     <string name="xiaomi_vibration_type_notification">Bildirimler</string>
     <string name="xiaomi_vibration_type_sms">SMS</string>

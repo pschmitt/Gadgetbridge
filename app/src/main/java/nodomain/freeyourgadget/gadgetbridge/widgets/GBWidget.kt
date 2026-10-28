@@ -36,18 +36,24 @@ interface GBWidget<D> {
     @get:StringRes
     val name: Int get() = label
 
+    /**
+     * [name] as text, for widgets whose name depends on the paired devices.
+     */
+    fun displayName(context: Context): String = context.getString(name)
+
     @get:DrawableRes
     val icon: Int
 
     /**
-     * Default column span for a newly placed instance. Height is intrinsic to the view.
+     * The variants of this widget. The first one is the default. A variant is at most
+     * [WidgetGrid.BASE_COLUMNS] cells wide.
      */
-    val defaultColumns: Int get() = 1
+    val variants: List<WidgetVariant>
 
     /**
-     * Column spans the user can choose in the settings; a single element means fixed size.
+     * Whether this widget can be added to the launcher.
      */
-    val allowedColumns: List<Int> get() = listOf(1)
+    val supportsLauncher: Boolean get() = true
 
     /**
      * Whether this widget is supported by the [device].
@@ -55,13 +61,13 @@ interface GBWidget<D> {
     fun isSupportedBy(device: GBDevice): Boolean
 
     /**
-     * Per-instance settings, rendered with the same DSL used for device settings (see
+     * Per-instance settings that apply to [variant], rendered with the same DSL used for device settings (see
      * [nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.deviceSettings]).
-     * Common settings (device selection, column span, title) are prepended by the settings
+     * Common settings (device selection, variant, title) are prepended by the settings
      * screen; this only needs to declare widget-specific options.
      * Returns null if the widget has none.
      */
-    fun settings(context: Context): DeviceSettingsSpec? = null
+    fun settings(context: Context, variant: WidgetVariant): DeviceSettingsSpec? = null
 
     /**
      * Loads the data this widget needs to render. Runs on a background dispatcher via
@@ -71,20 +77,30 @@ interface GBWidget<D> {
     suspend fun loadData(scope: WidgetDataScope, config: WidgetConfig): D
 
     /**
-     * Inflates an empty view for this widget kind. Called once per RecyclerView view holder.
+     * Generates fake data with reasonable values, to display a preview of each widget.
      */
-    fun createView(inflater: LayoutInflater, parent: ViewGroup): View
+    fun previewData(): D
 
     /**
-     * Binds [data] (from [loadData]) onto a view created by [createView]. Runs on the UI thread.
+     * Inflates an empty view for [variant]. The view must fill the size of the variant that it gets from its parent.
      */
-    fun bind(view: View, config: WidgetConfig, data: D)
+    fun createView(inflater: LayoutInflater, parent: ViewGroup, variant: WidgetVariant): View
+
+    /**
+     * Binds [data] (from [loadData]) onto a view created by [createView] for the same [variant]. Runs on the UI thread.
+     */
+    fun bind(view: View, variant: WidgetVariant, config: WidgetConfig, data: D)
+
+    /**
+     * Shows a view created by [createView] while its data is still loading. No-op by default.
+     */
+    fun bindLoading(view: View, variant: WidgetVariant, config: WidgetConfig) {}
 
     /**
      * Optional click target for the whole widget, e.g. opening a chart. No-op by default.
      * [timestamp] is the epoch second of the dashboard's currently selected day.
      */
-    fun onClick(view: View, config: WidgetConfig, timestamp: Int) {}
+    fun onClick(view: View, variant: WidgetVariant, config: WidgetConfig, timestamp: Int) {}
 }
 
 /**
@@ -93,6 +109,6 @@ interface GBWidget<D> {
  * since `DashboardViewModel` pairs each loaded value with the widget it loaded it from.
  */
 @Suppress("UNCHECKED_CAST")
-fun <D> GBWidget<D>.bindUnsafe(view: View, config: WidgetConfig, data: Any?) {
-    bind(view, config, data as D)
+fun <D> GBWidget<D>.bindUnsafe(view: View, variant: WidgetVariant, config: WidgetConfig, data: Any?) {
+    bind(view, variant, config, data as D)
 }

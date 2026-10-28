@@ -20,16 +20,27 @@ package nodomain.freeyourgadget.gadgetbridge.activities;
 
 import android.os.Bundle;
 import android.text.InputFilter;
-import android.text.Spanned;
 import android.text.format.DateFormat;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckedTextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.TooltipCompat;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.material.chip.Chip;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 
 import java.text.NumberFormat;
+import java.time.DayOfWeek;
+import java.time.format.TextStyle;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -40,11 +51,14 @@ import nodomain.freeyourgadget.gadgetbridge.databinding.ActivityAlarmDetailsBind
 import nodomain.freeyourgadget.gadgetbridge.entities.Alarm;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.util.AlarmUtils;
+import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 import nodomain.freeyourgadget.gadgetbridge.model.Alarm.ALARM_LABEL;
 import nodomain.freeyourgadget.gadgetbridge.model.Alarm.ALARM_SOUND;
 import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
 
 public class AlarmDetails extends AbstractGBActivity {
+    private static final String TAG_TIME_PICKER = "ALARM_TIME_PICKER";
+
     private ActivityAlarmDetailsBinding binding;
 
     private Alarm alarm;
@@ -59,28 +73,27 @@ public class AlarmDetails extends AbstractGBActivity {
         binding = ActivityAlarmDetailsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        alarm = (Alarm) getIntent().getSerializableExtra(nodomain.freeyourgadget.gadgetbridge.model.Alarm.EXTRA_ALARM);
+        if (savedInstanceState != null) {
+            alarm = (Alarm) savedInstanceState.getSerializable(nodomain.freeyourgadget.gadgetbridge.model.Alarm.EXTRA_ALARM);
+        } else {
+            alarm = (Alarm) getIntent().getSerializableExtra(nodomain.freeyourgadget.gadgetbridge.model.Alarm.EXTRA_ALARM);
+        }
         device = getIntent().getParcelableExtra(GBDevice.EXTRA_DEVICE);
         if (device == null) {
             throw new IllegalArgumentException("No device provided to AlarmDetails");
         }
 
-        binding.cbSmartWakeup.setOnClickListener(v -> {
-            ((CheckedTextView) v).toggle();
-            binding.cbSmartWakeupInterval.setEnabled(((CheckedTextView) v).isChecked());
+        binding.cbSmartWakeup.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            binding.smartWakeupIntervalLayout.setEnabled(isChecked);
         });
-        binding.cbSnooze.setOnClickListener(v -> ((CheckedTextView) v).toggle());
-        binding.cbMonday.setOnClickListener(v -> ((CheckedTextView) v).toggle());
-        binding.cbTuesday.setOnClickListener(v -> ((CheckedTextView) v).toggle());
-        binding.cbWednesday.setOnClickListener(v -> ((CheckedTextView) v).toggle());
-        binding.cbThursday.setOnClickListener(v -> ((CheckedTextView) v).toggle());
-        binding.cbFriday.setOnClickListener(v -> ((CheckedTextView) v).toggle());
-        binding.cbSaturday.setOnClickListener(v -> ((CheckedTextView) v).toggle());
-        binding.cbSunday.setOnClickListener(v -> ((CheckedTextView) v).toggle());
 
-        binding.timePicker.setIs24HourView(DateFormat.is24HourFormat(GBApplication.getContext()));
-        binding.timePicker.setCurrentHour(alarm.getHour());
-        binding.timePicker.setCurrentMinute(alarm.getMinute());
+        updateTimeText();
+        binding.cardTime.setOnClickListener(v -> showTimePicker());
+        // The picker is restored by the fragment manager, without its listener
+        final Fragment restoredTimePicker = getSupportFragmentManager().findFragmentByTag(TAG_TIME_PICKER);
+        if (restoredTimePicker instanceof MaterialTimePicker) {
+            addTimePickerListener((MaterialTimePicker) restoredTimePicker);
+        }
 
         boolean smartAlarmSupported = supportsSmartWakeup(alarm.getPosition());
         boolean smartAlarmForced = forcedSmartWakeup(alarm.getPosition());
@@ -90,45 +103,31 @@ public class AlarmDetails extends AbstractGBActivity {
 
         binding.cbSmartWakeup.setChecked(alarm.getSmartWakeup() || smartAlarmForced);
         binding.cbSmartWakeup.setVisibility(smartAlarmSupported ? View.VISIBLE : View.GONE);
-        if (smartAlarmForced) {
-            binding.cbSmartWakeup.setEnabled(false);
-            // Force the text to be visible for the "interval" part
-            // Enabled or not can still be seen in the checkmark
-            // TODO: I'd like feedback on this
-            if (GBApplication.isDarkThemeEnabled())
-                binding.cbSmartWakeup.setTextColor(getResources().getColor(android.R.color.secondary_text_dark));
-            else
-                binding.cbSmartWakeup.setTextColor(getResources().getColor(android.R.color.secondary_text_light));
-        }
-        if (smartAlarmIntervalSupported)
-            binding.cbSmartWakeup.setText(R.string.alarm_smart_wakeup_interval);
+        binding.cbSmartWakeup.setEnabled(!smartAlarmForced);
 
-        binding.cbSmartWakeupInterval.setVisibility(smartAlarmSupported && smartAlarmIntervalSupported ? View.VISIBLE : View.GONE);
-        binding.cbSmartWakeupInterval.setEnabled(alarm.getSmartWakeup() || smartAlarmForced);
+        binding.smartWakeupIntervalLayout.setVisibility(smartAlarmSupported && smartAlarmIntervalSupported ? View.VISIBLE : View.GONE);
+        binding.smartWakeupIntervalLayout.setEnabled(alarm.getSmartWakeup() || smartAlarmForced);
         if (alarm.getSmartWakeupInterval() != null) {
             binding.cbSmartWakeupInterval.setText(NumberFormat.getInstance().format(alarm.getSmartWakeupInterval()));
         }
         final int maxDigits = String.valueOf(smartWakeupMax).length();
         binding.cbSmartWakeupInterval.setFilters(new InputFilter[]{
-                new InputFilter() {
-                    @Override
-                    public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-                        if (dend >= maxDigits + 1) // Limit length
-                            return "";
+            (source, start, end, dest, dstart, dend) -> {
+                if (dend >= maxDigits + 1) // Limit length
+                    return "";
 
-                        String strValue = dest.subSequence(0, dstart) + source.subSequence(start, end).toString() + dest.subSequence(dend, dest.length());
-                        try {
-                            int value = Integer.parseInt(strValue);
-                            if (value > smartWakeupMax) {
-                                binding.cbSmartWakeupInterval.setText(String.valueOf(smartWakeupMax));
-                                binding.cbSmartWakeupInterval.setSelection(String.valueOf(smartWakeupMax).length()); // Move cursor to end
-                            }
-                        } catch (NumberFormatException e) {
-                            return "";
-                        }
-                        return null;
+                String strValue = dest.subSequence(0, dstart) + source.subSequence(start, end).toString() + dest.subSequence(dend, dest.length());
+                try {
+                    int value = Integer.parseInt(strValue);
+                    if (value > smartWakeupMax) {
+                        binding.cbSmartWakeupInterval.setText(String.valueOf(smartWakeupMax));
+                        binding.cbSmartWakeupInterval.setSelection(String.valueOf(smartWakeupMax).length()); // Move cursor to end
                     }
+                } catch (NumberFormatException e) {
+                    return "";
                 }
+                return null;
+            }
         });
 
         if (smartAlarmIntervalSupported && smartWakeupDescription != null) {
@@ -143,7 +142,6 @@ public class AlarmDetails extends AbstractGBActivity {
 
         binding.cbBacklight.setChecked(alarm.getBacklight());
         binding.cbBacklight.setVisibility(supportsAlarmBacklight() ? View.VISIBLE : View.GONE);
-        binding.cbBacklight.setOnClickListener(v -> ((CheckedTextView) v).toggle());
 
         binding.presetLabelLayout.setVisibility(supportsAlarmTitlePresets() ? View.VISIBLE : View.GONE);
         if (supportsAlarmTitlePresets()) {
@@ -169,7 +167,7 @@ public class AlarmDetails extends AbstractGBActivity {
             for (int i = 0; i < items.length; i++) {
                 final ALARM_SOUND alarmSound = ALARM_SOUND.values()[i + 1]; // skip unused
                 items[i] = getString(alarmSound.getLabel());
-                if (alarm.getSoundCode() == i) {
+                if (alarm.getSoundCode() == alarmSound.ordinal()) {
                     binding.soundModeSpinner.setText(items[i], false);
                 }
                 textToAlarmSound.put(items[i], alarmSound);
@@ -178,7 +176,7 @@ public class AlarmDetails extends AbstractGBActivity {
             binding.soundModeSpinner.setAdapter(adapter);
         }
 
-        binding.title.setVisibility(shouldShowTitle() ? View.VISIBLE : View.GONE);
+        binding.titleLayout.setVisibility(shouldShowTitle() ? View.VISIBLE : View.GONE);
         binding.title.setText(alarm.getTitle());
 
         final int titleLimit = getAlarmTitleLimit();
@@ -186,8 +184,30 @@ public class AlarmDetails extends AbstractGBActivity {
             binding.title.setFilters(new InputFilter[]{new InputFilter.LengthFilter(titleLimit)});
         }
 
-        binding.description.setVisibility(supportsDescription() ? View.VISIBLE : View.GONE);
+        binding.descriptionLayout.setVisibility(supportsDescription() ? View.VISIBLE : View.GONE);
         binding.description.setText(alarm.getDescription());
+
+        setDayOfWeekLabel(binding.cbMonday, DayOfWeek.MONDAY);
+        setDayOfWeekLabel(binding.cbTuesday, DayOfWeek.TUESDAY);
+        setDayOfWeekLabel(binding.cbWednesday, DayOfWeek.WEDNESDAY);
+        setDayOfWeekLabel(binding.cbThursday, DayOfWeek.THURSDAY);
+        setDayOfWeekLabel(binding.cbFriday, DayOfWeek.FRIDAY);
+        setDayOfWeekLabel(binding.cbSaturday, DayOfWeek.SATURDAY);
+        setDayOfWeekLabel(binding.cbSunday, DayOfWeek.SUNDAY);
+        final List<Integer> dayIds = AlarmUtils.orderByFirstDayOfWeek(Arrays.asList(
+            R.id.cb_monday,
+            R.id.cb_tuesday,
+            R.id.cb_wednesday,
+            R.id.cb_thursday,
+            R.id.cb_friday,
+            R.id.cb_saturday,
+            R.id.cb_sunday
+        ));
+        final int[] referencedIds = new int[dayIds.size()];
+        for (int i = 0; i < referencedIds.length; i++) {
+            referencedIds[i] = dayIds.get(i);
+        }
+        binding.dowFlow.setReferencedIds(referencedIds);
 
         binding.cbMonday.setChecked(alarm.getRepetition(Alarm.ALARM_MON));
         binding.cbTuesday.setChecked(alarm.getRepetition(Alarm.ALARM_TUE));
@@ -196,6 +216,55 @@ public class AlarmDetails extends AbstractGBActivity {
         binding.cbFriday.setChecked(alarm.getRepetition(Alarm.ALARM_FRI));
         binding.cbSaturday.setChecked(alarm.getRepetition(Alarm.ALARM_SAT));
         binding.cbSunday.setChecked(alarm.getRepetition(Alarm.ALARM_SUN));
+
+        binding.cardLabel.setVisibility(hasVisibleChild(binding.cardLabelContent) ? View.VISIBLE : View.GONE);
+        binding.cardOptions.setVisibility(hasVisibleChild(binding.cardOptionsContent) ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(nodomain.freeyourgadget.gadgetbridge.model.Alarm.EXTRA_ALARM, alarm);
+    }
+
+    private static boolean hasVisibleChild(final ViewGroup viewGroup) {
+        for (int i = 0; i < viewGroup.getChildCount(); i++) {
+            if (viewGroup.getChildAt(i).getVisibility() == View.VISIBLE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void setDayOfWeekLabel(final Chip chip, final DayOfWeek dayOfWeek) {
+        final Locale locale = Locale.getDefault();
+        final String fullName = dayOfWeek.getDisplayName(TextStyle.FULL_STANDALONE, locale);
+        chip.setText(dayOfWeek.getDisplayName(TextStyle.NARROW_STANDALONE, locale));
+        chip.setContentDescription(fullName);
+        TooltipCompat.setTooltipText(chip, fullName);
+    }
+
+    private void updateTimeText() {
+        binding.alarmTime.setText(DateTimeUtils.formatTime(alarm.getHour(), alarm.getMinute()));
+    }
+
+    private void showTimePicker() {
+        final MaterialTimePicker timePicker = new MaterialTimePicker.Builder()
+            .setTimeFormat(DateFormat.is24HourFormat(this) ? TimeFormat.CLOCK_24H : TimeFormat.CLOCK_12H)
+            .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
+            .setHour(alarm.getHour())
+            .setMinute(alarm.getMinute())
+            .build();
+        addTimePickerListener(timePicker);
+        timePicker.show(getSupportFragmentManager(), TAG_TIME_PICKER);
+    }
+
+    private void addTimePickerListener(final MaterialTimePicker timePicker) {
+        timePicker.addOnPositiveButtonClickListener(v -> {
+            alarm.setHour(timePicker.getHour());
+            alarm.setMinute(timePicker.getMinute());
+            updateTimeText();
+        });
     }
 
     private boolean supportsSmartWakeup(int position) {
@@ -223,8 +292,8 @@ public class AlarmDetails extends AbstractGBActivity {
 
     private boolean shouldShowTitle() {
         return device.getDeviceCoordinator().supportsAlarmTitle(device) ||
-                GBApplication.getDeviceSpecificSharedPrefs(device.getAddress())
-                        .getBoolean("third_party_apps_set_alarms", false);
+            GBApplication.getDeviceSpecificSharedPrefs(device.getAddress())
+                .getBoolean("third_party_apps_set_alarms", false);
     }
 
     private int getAlarmTitleLimit() {
@@ -277,17 +346,15 @@ public class AlarmDetails extends AbstractGBActivity {
         alarm.setSmartWakeupInterval(interval.isEmpty() ? null : Integer.parseInt(interval));
         alarm.setSnooze(supportsSnoozing() && binding.cbSnooze.isChecked());
         int repetitionMask = AlarmUtils.createRepetitionMask(
-                binding.cbMonday.isChecked(),
-                binding.cbTuesday.isChecked(),
-                binding.cbWednesday.isChecked(),
-                binding.cbThursday.isChecked(),
-                binding.cbFriday.isChecked(),
-                binding.cbSaturday.isChecked(),
-                binding.cbSunday.isChecked()
+            binding.cbMonday.isChecked(),
+            binding.cbTuesday.isChecked(),
+            binding.cbWednesday.isChecked(),
+            binding.cbThursday.isChecked(),
+            binding.cbFriday.isChecked(),
+            binding.cbSaturday.isChecked(),
+            binding.cbSunday.isChecked()
         );
         alarm.setRepetition(repetitionMask);
-        alarm.setHour(binding.timePicker.getCurrentHour());
-        alarm.setMinute(binding.timePicker.getCurrentMinute());
         alarm.setBacklight(binding.cbBacklight.isChecked());
         if (supportsAlarmTitlePresets()) {
             final ALARM_LABEL alarmLabel = textToAlarmLabel.get(binding.presetLabelSpinner.getText().toString());

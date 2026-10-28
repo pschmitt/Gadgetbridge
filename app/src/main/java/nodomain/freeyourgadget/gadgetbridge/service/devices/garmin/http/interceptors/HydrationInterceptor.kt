@@ -196,7 +196,7 @@ class HydrationInterceptor(private val deviceSupport: GarminSupport) : HttpInter
         /**
          * Local date and time, without zero padding, with an optional fraction of the second.
          */
-        private val TIMESTAMP_LOCAL_PARSER: DateTimeFormatter = DateTimeFormatterBuilder()
+        internal val TIMESTAMP_LOCAL_PARSER: DateTimeFormatter = DateTimeFormatterBuilder()
             .appendValue(ChronoField.YEAR, 4)
             .appendLiteral('-')
             .appendValue(ChronoField.MONTH_OF_YEAR, 1, 2, SignStyle.NOT_NEGATIVE)

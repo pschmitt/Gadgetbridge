@@ -36,12 +36,17 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
+        <nodomain.freeyourgadget.gadgetbridge.activities.workouts.SectionHeaderView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:sectionTitle="@string/calories_daily_active" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="250sp"
             >
 
-            <com.github.mikephil.charting.charts.BarChart
+            <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView
                 android:id="@+id/calories_chart"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"

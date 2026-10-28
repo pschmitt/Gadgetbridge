@@ -33,6 +33,10 @@ data class WorkoutTarget(
 data class WorkoutDuration(
     val type: WorkoutDurationType,
     val value: Long? = null,
+    /**
+     * Whether the value is a target that the user can go beyond.
+     */
+    val plus: Boolean = false,
 ) : Parcelable
 
 /**
@@ -114,6 +118,12 @@ data class WorkoutStepNode(
      */
     fun flattenSelfAndDescendants(): List<WorkoutStepNode> =
         listOf(this) + children.flatMap { it.flattenSelfAndDescendants() }
+
+    /**
+     * A copy of this node and its descendants, with new local ids.
+     */
+    fun deepCopy(): WorkoutStepNode =
+        copy(localId = nextLocalId(), children = children.mapTo(mutableListOf()) { it.deepCopy() })
 }
 
 /**

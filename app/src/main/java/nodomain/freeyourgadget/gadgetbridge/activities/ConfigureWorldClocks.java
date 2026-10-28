@@ -16,6 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -73,7 +74,7 @@ public class ConfigureWorldClocks extends AbstractGBActivity {
 
         gbDevice = getIntent().getParcelableExtra(GBDevice.EXTRA_DEVICE);
 
-        mGBWorldClockListAdapter = new GBWorldClockListAdapter(this);
+        mGBWorldClockListAdapter = new GBWorldClockListAdapter(this, gbDevice.getDeviceCoordinator().supportsDisabledWorldClocks(gbDevice));
 
         final RecyclerView worldClocksRecyclerView = findViewById(R.id.world_clock_list);
         worldClocksRecyclerView.setHasFixedSize(true);
@@ -115,7 +116,7 @@ public class ConfigureWorldClocks extends AbstractGBActivity {
                     return;
                 }
 
-                configureWorldClock(worldClock);
+                configureWorldClock(worldClock, true);
             }
         });
     }
@@ -157,7 +158,7 @@ public class ConfigureWorldClocks extends AbstractGBActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQ_CONFIGURE_WORLD_CLOCK && resultCode == 1) {
+        if (requestCode == REQ_CONFIGURE_WORLD_CLOCK && resultCode == Activity.RESULT_OK) {
             updateWorldClocksFromDB();
             sendWorldClocksToDevice();
         }
@@ -200,10 +201,11 @@ public class ConfigureWorldClocks extends AbstractGBActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void configureWorldClock(final WorldClock worldClock) {
+    public void configureWorldClock(final WorldClock worldClock, final boolean isNew) {
         final Intent startIntent = new Intent(getApplicationContext(), WorldClockDetails.class);
         startIntent.putExtra(GBDevice.EXTRA_DEVICE, gbDevice);
         startIntent.putExtra(WorldClock.EXTRA_WORLD_CLOCK, worldClock);
+        startIntent.putExtra(WorldClockDetails.EXTRA_NEW, isNew);
         startActivityForResult(startIntent, REQ_CONFIGURE_WORLD_CLOCK);
     }
 
@@ -213,7 +215,7 @@ public class ConfigureWorldClocks extends AbstractGBActivity {
         sendWorldClocksToDevice();
     }
 
-    private void sendWorldClocksToDevice() {
+    public void sendWorldClocksToDevice() {
         if (gbDevice.isInitialized()) {
             GBApplication.deviceService(gbDevice).onSetWorldClocks(mGBWorldClockListAdapter.getWorldClockList());
         }

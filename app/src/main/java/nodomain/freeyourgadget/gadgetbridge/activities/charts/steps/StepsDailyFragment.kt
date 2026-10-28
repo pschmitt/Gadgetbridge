@@ -1,30 +1,21 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.charts.steps
 
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import kotlinx.coroutines.launch
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.AbstractCoroutineChartFragment
 import nodomain.freeyourgadget.gadgetbridge.activities.charts.ChartDataRange
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.ChartDataScope
 import nodomain.freeyourgadget.gadgetbridge.activities.charts.ChartsHost
 import nodomain.freeyourgadget.gadgetbridge.activities.charts.StepStreaksDashboard
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.vico.AbstractVicoChartFragment
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.vico.ChartDataScope
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.vico.ChartSpec
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.vico.ChartTheme
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.vico.ChartUiState
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.vico.GbLineChart
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartSelection
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSpec
 import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.GaugeDrawer
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileData
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutValueFormatter
@@ -32,16 +23,18 @@ import nodomain.freeyourgadget.gadgetbridge.activities.workouts.addStatTileGrid
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler
 import nodomain.freeyourgadget.gadgetbridge.databinding.FragmentStepsBinding
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
+import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 /**
  * A day's cumulative steps / the daily goal.
  */
-class StepsDailyFragment : AbstractVicoChartFragment<StepsDailyFragment.ScreenData>() {
+class StepsDailyFragment : AbstractCoroutineChartFragment<StepsDailyFragment.ScreenData>() {
     data class ScreenData(
         val totals: StepsDailyChartData.DailyTotals,
         val spec: ChartSpec,
@@ -63,7 +56,8 @@ class StepsDailyFragment : AbstractVicoChartFragment<StepsDailyFragment.ScreenDa
             chartsHost().enableSwipeRefresh(scrollY == 0)
         }
 
-        bindChartComposeView(binding.stepsDailyChart)
+        binding.stepsDailyChart.zoomable = true
+        binding.stepsDailyChart.dismissSelectionOnTapOutside(binding.root)
 
         stepsColor = ContextCompat.getColor(requireContext(), R.color.steps_color)
         stepsGoal = GBApplication.getPrefs()
@@ -72,16 +66,6 @@ class StepsDailyFragment : AbstractVicoChartFragment<StepsDailyFragment.ScreenDa
         binding.stepsStreaksButton.setOnClickListener {
             StepStreaksDashboard.newInstance(stepsGoal, chartsHost().device)
                 .show(requireActivity().supportFragmentManager, "steps_streaks_dashboard")
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.state.collect { state ->
-                    if (state is ChartUiState.Ready) {
-                        showTotals(state.data.totals)
-                    }
-                }
-            }
         }
 
         return binding.root
@@ -106,13 +90,30 @@ class StepsDailyFragment : AbstractVicoChartFragment<StepsDailyFragment.ScreenDa
         return ScreenData(totals, spec)
     }
 
-    override fun isEmpty(data: ScreenData): Boolean = data.spec.isEmpty
+    override fun renderChart(data: ScreenData) {
+        showTotals(data.totals)
+        val chart = binding.stepsDailyChart
+        if (data.spec.isEmpty) {
+            chart.showMessage(getString(R.string.chart_no_data_synchronize))
+            return
+        }
+        chart.selectionContent = { x -> selection(data.spec, x) }
+        chart.setSpec(data.spec)
+    }
 
-    @Composable
-    override fun RenderChart(data: ScreenData) {
-        val context = LocalContext.current
-        val theme = remember(context) { ChartTheme.from(context) }
-        GbLineChart(spec = data.spec, theme = theme, modifier = Modifier)
+    override fun renderError() {
+        binding.stepsDailyChart.showMessage(getString(R.string.chart_no_data_synchronize))
+    }
+
+    private fun selection(spec: ChartSpec, x: Double): ChartSelection {
+        val title = DateFormat.getTimeFormat(requireContext()).format(Date(x.toLong() * 1000L))
+        val steps = spec.series.firstOrNull()?.points?.firstOrNull { it.x == x }?.y ?: 0.0
+        val value = WorkoutValueFormatter().formatValue(steps.toLong(), ActivitySummaryEntries.UNIT_STEPS)
+        return ChartSelection(
+            title = title,
+            rows = listOf(ChartSelection.Row(stepsColor, value)),
+            description = "$title. ${getString(R.string.steps)} $value.",
+        )
     }
 
     private fun showTotals(totals: StepsDailyChartData.DailyTotals) {

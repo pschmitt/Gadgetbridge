@@ -41,6 +41,21 @@ internal object Bmi {
         else -> RED
     }
 
+    /** WHO class: 0 underweight, 1 normal, 2 overweight, 3 obese. */
+    fun categoryOf(bmi: Double): Int = when {
+        bmi < 18.5 -> 0
+        bmi < 25 -> 1
+        bmi < 30 -> 2
+        else -> 3
+    }
+
+    /** The WHO classes as fractions of a 15-40 scale, and their colours. */
+    val SEGMENTS = floatArrayOf(0.14f, 0.26f, 0.2f, 0.4f)
+    val COLORS = intArrayOf(ORANGE, GREEN, ORANGE, RED)
+
+    /** Position on the 15-40 scale of [SEGMENTS]. */
+    fun scaleFraction(bmi: Double): Float = ((bmi - 15) / 25).toFloat().coerceIn(0f, 1f)
+
     /** Position on the gauge, one step per WHO class. */
     fun gaugeFraction(bmi: Double): Float = when {
         bmi < 18.5 -> 0.15f

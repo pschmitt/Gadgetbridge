@@ -100,7 +100,7 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
             }
             holder.menu.setVisibility(View.GONE);
         } else {
-            holder.icon.setImageDrawable(AppCompatResources.getDrawable(mContext, R.drawable.ic_file_open));
+            holder.icon.setImageDrawable(AppCompatResources.getDrawable(mContext, R.drawable.ic_draft));
             holder.description.setText(formatFileSize(file.length()));
             holder.description.setVisibility(View.VISIBLE);
             holder.menu.setVisibility(View.VISIBLE);

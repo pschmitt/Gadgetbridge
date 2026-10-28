@@ -17,8 +17,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities;
 
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
@@ -28,33 +26,35 @@ import android.text.format.DateFormat;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
-import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.entities.Reminder;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
+import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 
-public class ReminderDetails extends AbstractGBActivity implements TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
+public class ReminderDetails extends AbstractGBActivity {
     private Reminder reminder;
     private GBDevice device;
 
@@ -110,15 +110,11 @@ public class ReminderDetails extends AbstractGBActivity implements TimePickerDia
         cardDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final Calendar date = new GregorianCalendar();
-                date.setTime(reminder.getDate());
-                new DatePickerDialog(
-                        ReminderDetails.this,
-                        ReminderDetails.this,
-                        date.get(Calendar.YEAR),
-                        date.get(Calendar.MONTH),
-                        date.get(Calendar.DAY_OF_MONTH)
-                ).show();
+                final MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
+                        .setSelection(DateTimeUtils.toUtcDayStartMillis(reminder.getDate().getTime()))
+                        .build();
+                datePicker.addOnPositiveButtonClickListener(selection -> onDateSet(DateTimeUtils.utcMillisToLocalDate(selection)));
+                datePicker.show(getSupportFragmentManager(), "REMINDER_DATE_PICKER");
             }
         });
 
@@ -127,13 +123,15 @@ public class ReminderDetails extends AbstractGBActivity implements TimePickerDia
             cardTime.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    new TimePickerDialog(
-                            ReminderDetails.this,
-                            ReminderDetails.this,
-                            reminder.getDate().getHours(),
-                            reminder.getDate().getMinutes(),
-                            DateFormat.is24HourFormat(GBApplication.getContext())
-                    ).show();
+                    final Calendar date = new GregorianCalendar();
+                    date.setTime(reminder.getDate());
+                    final MaterialTimePicker timePicker = new MaterialTimePicker.Builder()
+                            .setTimeFormat(DateFormat.is24HourFormat(ReminderDetails.this) ? TimeFormat.CLOCK_24H : TimeFormat.CLOCK_12H)
+                            .setHour(date.get(Calendar.HOUR_OF_DAY))
+                            .setMinute(date.get(Calendar.MINUTE))
+                            .build();
+                    timePicker.addOnPositiveButtonClickListener(v -> onTimeSet(timePicker.getHour(), timePicker.getMinute()));
+                    timePicker.show(getSupportFragmentManager(), "REMINDER_TIME_PICKER");
                 }
             });
         } else {
@@ -198,22 +196,26 @@ public class ReminderDetails extends AbstractGBActivity implements TimePickerDia
         updateUiFromReminder();
     }
 
-    @Override
-    public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-        reminder.getDate().setHours(hour);
-        reminder.getDate().setMinutes(minute);
+    private void onTimeSet(final int hour, final int minute) {
+        final Calendar date = new GregorianCalendar();
+        date.setTime(reminder.getDate());
+        date.set(Calendar.HOUR_OF_DAY, hour);
+        date.set(Calendar.MINUTE, minute);
+        reminder.setDate(date.getTime());
         updateUiFromReminder();
     }
 
-    @Override
-    public void onDateSet(DatePicker datePicker, int year, int month, int dayOfMonth) {
+    private void onDateSet(final LocalDate selectedDate) {
         final DeviceCoordinator coordinator = device.getDeviceCoordinator();
+        final int year = selectedDate.getYear();
+        final int month = selectedDate.getMonthValue() - 1;
+        final int dayOfMonth = selectedDate.getDayOfMonth();
 
         if (coordinator.getRemindersHaveTime()) {
             final Calendar date = new GregorianCalendar(year, month, dayOfMonth);
             reminder.setDate(new Date(date.getTimeInMillis()));
         } else {
-            Calendar noonUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            final Calendar noonUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
             noonUTC.set(year, month, dayOfMonth, 12, 0);
             reminder.setDate(noonUTC.getTime());
         }

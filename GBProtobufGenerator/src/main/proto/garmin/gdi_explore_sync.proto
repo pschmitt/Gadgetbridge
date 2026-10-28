@@ -2,7 +2,7 @@ syntax = "proto2";
 
 package garmin_vivomovehr;
 option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin";
-option java_outer_classname = "GdiExploreSyncService";
+option java_outer_classname = "GdiExploreSync";
 
 // GDI ExploreSync sub-service definitions, restricted to what GB actually
 // parses. Messages we don't read are stubbed to {status} so we can still
@@ -69,7 +69,7 @@ enum LineType {
   LINE_TYPE_ROUTE = 1;
   LINE_TYPE_ACTIVITY = 2;
   LINE_TYPE_CURRENT_RECORDING = 3;
-  LINE_TYPE_TRACBACK = 4;
+  LINE_TYPE_TRACKBACK = 4;
   LINE_TYPE_GOTO_COURSE = 5;
   LINE_TYPE_GOTO_BEARING = 6;
   LINE_TYPE_ON_ROAD_ROUTE = 7;

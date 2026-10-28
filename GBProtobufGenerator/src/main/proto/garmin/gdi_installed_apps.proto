@@ -1,0 +1,178 @@
+syntax = "proto2";
+
+package GDI.Proto.ConnectIQInstalledApps;
+option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin";
+
+enum AppType {
+    UNKNOWN_APP_TYPE = 0;
+    WATCH_APP = 1;
+    WIDGET = 2;
+    WATCH_FACE = 3;
+    DATA_FIELD = 4;
+    ALL = 5;
+    NONE = 6;
+    AUDIO_CONTENT_PROVIDER = 7;
+    ACTIVITY = 8;
+}
+
+message CapabilitiesRequest {
+}
+
+message CapabilitiesResponse {
+    optional bool support_faceit_slot_1 = 1;
+    optional bool support_faceit_slot_2 = 2;
+    optional bool support_faceit_slot_3 = 3;
+    optional uint32 service_revision = 4;
+}
+
+message ConnectIQInstalledAppsService {
+    optional GDI.Proto.ConnectIQInstalledApps.GetInstalledAppsRequest get_installed_apps_request = 1;
+    optional GDI.Proto.ConnectIQInstalledApps.GetInstalledAppsResponse get_installed_apps_response = 2;
+    optional GDI.Proto.ConnectIQInstalledApps.DeleteAppRequest delete_app_request = 3;
+    optional GDI.Proto.ConnectIQInstalledApps.DeleteAppResponse delete_app_response = 4;
+    optional GDI.Proto.ConnectIQInstalledApps.UpdateInstalledAppsRequest update_installed_app_request = 5;
+    optional GDI.Proto.ConnectIQInstalledApps.UpdateInstalledAppsResponse update_installed_app_response = 6;
+    optional GDI.Proto.ConnectIQInstalledApps.EnableNativeAppRequest enable_native_app_request = 7;
+    optional GDI.Proto.ConnectIQInstalledApps.EnableNativeAppResponse enable_native_app_response = 8;
+    optional GDI.Proto.ConnectIQInstalledApps.LaunchAppRequest launch_app_request = 9;
+    optional GDI.Proto.ConnectIQInstalledApps.LaunchAppResponse launch_app_response = 10;
+    optional GDI.Proto.ConnectIQInstalledApps.UpdateFaceItProjectIdMappingsRequest update_faceit_project_id_mappings_request = 11;
+    optional GDI.Proto.ConnectIQInstalledApps.UpdateFaceItProjectIdMappingsResponse update_faceit_project_id_mappings_response = 12;
+    optional GDI.Proto.ConnectIQInstalledApps.PendingAppInstallRequest pending_app_install_request = 13;
+    optional GDI.Proto.ConnectIQInstalledApps.PendingAppInstallResponse pending_app_install_response = 14;
+}
+
+message DeleteAppRequest {
+    required bytes store_app_id = 1;
+    required GDI.Proto.ConnectIQInstalledApps.AppType app_type = 2;
+}
+
+message DeleteAppResponse {
+    enum Status {
+        UNKNOWN_STATUS = 0;
+        OK = 1;
+        FAILED_TO_DELETE = 2;
+    }
+
+    required GDI.Proto.ConnectIQInstalledApps.DeleteAppResponse.Status status = 1;
+}
+
+message EnableNativeAppRequest {
+    required uint32 native_app_id = 1;
+    required GDI.Proto.ConnectIQInstalledApps.AppType app_type = 2;
+    optional bytes app_id = 3;
+}
+
+message EnableNativeAppResponse {
+    enum Status {
+        UNKNOWN_STATUS = 0;
+        OK = 1;
+        INVALID_NATIVE_APP = 2;
+    }
+
+    required GDI.Proto.ConnectIQInstalledApps.EnableNativeAppResponse.Status status = 1;
+}
+
+message GetInstalledAppsRequest {
+    required GDI.Proto.ConnectIQInstalledApps.AppType app_type = 1;
+}
+
+message GetInstalledAppsResponse {
+    message InstalledApp {
+        required bytes store_app_id = 1;
+        required GDI.Proto.ConnectIQInstalledApps.AppType app_type = 2;
+        required string name = 3;
+        required bool disabled = 4;
+        optional uint32 version = 5;
+        optional string filename = 6;
+        optional uint64 filesize = 7;
+        optional uint32 native_app_id = 8;
+        optional bool favorite = 9;
+        optional string faceit_project_id = 10;
+    }
+
+    required uint64 available_space = 1;
+    required uint32 available_slots = 2;
+    repeated GDI.Proto.ConnectIQInstalledApps.GetInstalledAppsResponse.InstalledApp installed_app = 3 [packed = false];
+}
+
+message LaunchAppRequest {
+    enum StartUpMode {
+        APP_STARTUP_MODE_NORMAL = 0;
+        APP_STARTUP_MODE_MEDIA_PLAYBACK_CONFIGURATION = 1;
+        APP_STARTUP_MODE_MEDIA_SYNC_CONFIGURATION = 2;
+        APP_STARTUP_MODE_NO_UI = 3;
+    }
+
+    required bytes app_uuid = 1;
+    required GDI.Proto.ConnectIQInstalledApps.LaunchAppRequest.StartUpMode app_startup_mode = 2;
+}
+
+message LaunchAppResponse {
+    enum Status {
+        LAUNCH_STATUS_SUCCESS = 0;
+        LAUNCH_STATUS_APP_ALREADY_RUNNING = 1;
+        LAUNCH_STATUS_APP_NOT_INSTALLED = 2;
+        LAUNCH_STATUS_UNKNOWN_ERROR = 3;
+    }
+
+    required GDI.Proto.ConnectIQInstalledApps.LaunchAppResponse.Status status = 1;
+}
+
+message PendingAppInstallRequest {
+    optional GDI.Proto.ConnectIQInstalledApps.AppType app_type = 1;
+    optional bytes store_app_id = 2;
+    optional bytes app_uuid = 3;
+    optional string name = 4;
+}
+
+message PendingAppInstallResponse {
+    enum Status {
+        SUCCESS = 0;
+        FAIL = 1;
+        NO_CIQ_SUPPORT = 2;
+        ALREADY_INSTALLED = 3;
+        NO_SPACE = 4;
+    }
+
+    optional GDI.Proto.ConnectIQInstalledApps.PendingAppInstallResponse.Status status = 1;
+}
+
+message UpdateFaceItProjectIdMappingsRequest {
+    optional string slot_1 = 1;
+    optional string slot_2 = 2;
+    optional string slot_3 = 3;
+}
+
+message UpdateFaceItProjectIdMappingsResponse {
+    enum Status {
+        SUCCESS = 0;
+        NO_CHANGE = 1;
+        FAIL = 2;
+    }
+
+    optional GDI.Proto.ConnectIQInstalledApps.UpdateFaceItProjectIdMappingsResponse.Status slot_1_status = 1;
+    optional GDI.Proto.ConnectIQInstalledApps.UpdateFaceItProjectIdMappingsResponse.Status slot_2_status = 2;
+    optional GDI.Proto.ConnectIQInstalledApps.UpdateFaceItProjectIdMappingsResponse.Status slot_3_status = 3;
+}
+
+message UpdateInstalledAppsRequest {
+    message InstalledApp {
+        required bytes app_id = 1;
+        required GDI.Proto.ConnectIQInstalledApps.AppType app_type = 2;
+        required bool disabled = 3;
+        optional bool favorite = 4;
+    }
+
+    repeated GDI.Proto.ConnectIQInstalledApps.UpdateInstalledAppsRequest.InstalledApp installed_app = 1 [packed = false];
+}
+
+message UpdateInstalledAppsResponse {
+    enum Status {
+        UNKNOWN_STATUS = 0;
+        OK = 1;
+        FAILED_TO_UPDATE = 2;
+    }
+
+    required GDI.Proto.ConnectIQInstalledApps.UpdateInstalledAppsResponse.Status status = 1;
+}

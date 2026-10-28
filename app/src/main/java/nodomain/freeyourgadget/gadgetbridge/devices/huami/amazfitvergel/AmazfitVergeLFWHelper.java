@@ -34,7 +34,7 @@ public class AmazfitVergeLFWHelper extends HuamiFWHelper {
     protected void determineFirmwareInfo(byte[] wholeFirmwareBytes) {
         firmwareInfo = new AmazfitVergeLFirmwareInfo(wholeFirmwareBytes);
         if (!firmwareInfo.isHeaderValid()) {
-            throw new IllegalArgumentException("Not a an Amazfit Verge Lite firmware");
+            throw new IllegalArgumentException("Not an Amazfit Verge Lite firmware");
         }
     }
 }

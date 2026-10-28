@@ -221,7 +221,7 @@ public class SolarEquipmentStatusActivity extends AbstractGBActivity {
         if (view != null) {
             TextView gaugeValue = view.findViewById(R.id.gauge_value);
             gaugeValue.setText(value);
-            GaugeDrawer gaugeDrawer = new GaugeDrawer();
+            final GaugeDrawer gaugeDrawer = new GaugeDrawer(GaugeDrawer.Shape.HALF_CIRCLE);
             ImageView gaugeBar = view.findViewById(R.id.gauge_bar);
             if (name.startsWith("output")) {
                 gaugeDrawer.drawSegmentedGauge(gaugeBar, getColorsOutput(), getSegmentsOutput(), gaugeFill, true, false);

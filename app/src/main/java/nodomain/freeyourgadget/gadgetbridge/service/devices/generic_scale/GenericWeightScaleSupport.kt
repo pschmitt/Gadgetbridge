@@ -63,17 +63,17 @@ open class GenericWeightScaleSupport(logger: Logger = LOG) :
             }
         }
 
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION)
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid)
         mDeviceInfoProfile = DeviceInfoProfile<GenericWeightScaleSupport>(this)
         mDeviceInfoProfile.addListener(mListener)
         addSupportedProfile(mDeviceInfoProfile)
 
-        addSupportedService(GattService.UUID_SERVICE_BATTERY_SERVICE)
+        addSupportedService(GattService.SERVICE_BATTERY.uuid)
         mBatteryInfoProfile = BatteryInfoProfile<GenericWeightScaleSupport>(this)
         mBatteryInfoProfile.addListener(mListener)
         addSupportedProfile(mBatteryInfoProfile)
 
-        addSupportedService(GattService.UUID_SERVICE_WEIGHT_SCALE)
+        addSupportedService(GattService.SERVICE_WEIGHT_SCALE.uuid)
         mWeightScaleProfile = WeightScaleProfile<GenericWeightScaleSupport>(this)
         mWeightScaleProfile.addListener(mListener)
         addSupportedProfile(mWeightScaleProfile)

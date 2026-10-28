@@ -16,6 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.util.backup;
 
+import androidx.annotation.NonNull;
+
 import java.util.Date;
 
 public class ZipBackupMetadata {
@@ -56,5 +58,17 @@ public class ZipBackupMetadata {
 
     public Date getBackupDate() {
         return backupDate;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "ZipBackupMetadata{" +
+            "appId='" + appId + '\'' +
+            ", appVersionName='" + appVersionName + '\'' +
+            ", appVersionCode=" + appVersionCode +
+            ", backupVersion=" + backupVersion +
+            ", backupDate=" + backupDate +
+            '}';
     }
 }

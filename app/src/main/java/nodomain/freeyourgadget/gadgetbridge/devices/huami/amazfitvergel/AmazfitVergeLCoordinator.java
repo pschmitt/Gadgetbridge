@@ -77,6 +77,11 @@ public class AmazfitVergeLCoordinator extends HuamiCoordinator {
         return true;
     }
 
+    @Override
+    public boolean supportsPhoneSilentMode(@NonNull final GBDevice device) {
+        return true;
+    }
+
 
     @Override
     public DeviceSpecificSettings getDeviceSpecificSettings(final GBDevice device) {

@@ -7,14 +7,18 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.NotificationCompat
 import androidx.core.app.RemoteInput
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.edit
 import androidx.preference.ListPreference
+import androidx.preference.Preference
 import nodomain.freeyourgadget.gadgetbridge.BuildConfig
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
@@ -27,6 +31,14 @@ import java.io.File
 import java.util.Objects
 
 class NotificationsDebugFragment : AbstractDebugFragment() {
+    private val pickPictureLauncher = registerForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            saveCustomPictureToCache(uri)
+        }
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setupPreferences()
     }
@@ -38,6 +50,10 @@ class NotificationsDebugFragment : AbstractDebugFragment() {
         onClick(PREF_DEBUG_PEBBLEKIT_NOTIFICATION) { testPebbleKitNotification() }
         onClick(PREF_DEBUG_CREATE_TEST_NOTIFICATION) { createTestNotification() }
         onClick(PREF_DEBUG_NOTIFICATIONS_RESET) { resetPreferences() }
+        onClick(PREF_DEBUG_NOTIFICATIONS_PICTURE_SELECT) {
+            pickPictureLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
+        updatePictureSummary()
 
         val callCommandPref = findPreference<ListPreference>(PREF_DEBUG_NOTIFICATIONS_TYPE)!!
         callCommandPref.entries = NotificationType.sortedValues().map { it.name }.toList().toTypedArray()
@@ -65,18 +81,23 @@ class NotificationsDebugFragment : AbstractDebugFragment() {
 
         val notificationSpec = NotificationSpec()
         notificationSpec.flags = sharedPreferences.getString(PREF_DEBUG_NOTIFICATIONS_FLAGS, "0")!!.toInt()
-        notificationSpec.key = sharedPreferences.getString(PREF_DEBUG_NOTIFICATIONS_KEY, "0|nodomain.freeyourgadget.gadgetbridge|-493519667|null|10679")
+        notificationSpec.key = sharedPreferences.getString(
+            PREF_DEBUG_NOTIFICATIONS_KEY,
+            "0|nodomain.freeyourgadget.gadgetbridge|-493519667|null|10679"
+        )
         notificationSpec.sender = sharedPreferences.getString(PREF_DEBUG_NOTIFICATIONS_SENDER, null)
         notificationSpec.phoneNumber = sharedPreferences.getString(PREF_DEBUG_NOTIFICATIONS_PHONENUMBER, null)
         notificationSpec.title = sharedPreferences.getString(PREF_DEBUG_NOTIFICATIONS_TITLE, "Title")
         notificationSpec.subject = sharedPreferences.getString(PREF_DEBUG_NOTIFICATIONS_SUBJECT, "Subject")
         notificationSpec.body = sharedPreferences.getString(PREF_DEBUG_NOTIFICATIONS_BODY, "Notification body")
-        notificationSpec.type = NotificationType.valueOf(sharedPreferences.getString(PREF_DEBUG_NOTIFICATIONS_TYPE, "UNKNOWN")!!)
+        notificationSpec.type =
+            NotificationType.valueOf(sharedPreferences.getString(PREF_DEBUG_NOTIFICATIONS_TYPE, "UNKNOWN")!!)
         notificationSpec.sourceName = sharedPreferences.getString(PREF_DEBUG_NOTIFICATIONS_SOURCENAME, "Gadgetbridge")
         if (notificationSpec.type != NotificationType.GENERIC_SMS) {
             // SMS notifications don't have a source app ID when sent by the SMSReceiver,
             // so let's not set it here as well for consistency
-            notificationSpec.sourceAppId = sharedPreferences.getString(PREF_DEBUG_NOTIFICATIONS_SOURCEAPPID, BuildConfig.APPLICATION_ID)
+            notificationSpec.sourceAppId =
+                sharedPreferences.getString(PREF_DEBUG_NOTIFICATIONS_SOURCEAPPID, BuildConfig.APPLICATION_ID)
         }
         notificationSpec.channelId = sharedPreferences.getString(PREF_DEBUG_NOTIFICATIONS_CHANNELID, "the_channel")
         notificationSpec.category = sharedPreferences.getString(PREF_DEBUG_NOTIFICATIONS_CATEGORY, null)
@@ -87,7 +108,8 @@ class NotificationsDebugFragment : AbstractDebugFragment() {
             notificationSpec.picturePath = getTestPicture()?.absolutePath
         }
 
-        notificationSpec.dndSuppressed = if (sharedPreferences.getBoolean(PREF_DEBUG_NOTIFICATIONS_DNDSUPPRESSED, false)) 1 else 0
+        notificationSpec.dndSuppressed =
+            if (sharedPreferences.getBoolean(PREF_DEBUG_NOTIFICATIONS_DNDSUPPRESSED, false)) 1 else 0
         // TODO notificationSpec.cannedReplies = sharedPreferences.getString(PREF_DEBUG_NOTIFICATIONS_CANNEDREPLIES, null)
         notificationSpec.attachedActions = ArrayList<NotificationSpec.Action?>()
 
@@ -137,6 +159,7 @@ class NotificationsDebugFragment : AbstractDebugFragment() {
             remove(PREF_DEBUG_NOTIFICATIONS_ICONID)
             remove(PREF_DEBUG_NOTIFICATIONS_PICTUREPATH_BOOL)
         }
+        getCustomPictureFileFromCache().delete()
 
         // Reload the preference screen to reflect the changes
         setupPreferences()
@@ -146,14 +169,16 @@ class NotificationsDebugFragment : AbstractDebugFragment() {
         val notificationIntent = Intent(requireContext(), DebugActivityV2::class.java)
         notificationIntent.setPackage(BuildConfig.APPLICATION_ID)
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        val pendingIntent = PendingIntent.getActivity(requireContext(), 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent =
+            PendingIntent.getActivity(requireContext(), 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
 
         val remoteInput = RemoteInput.Builder(EXTRA_REPLY).build()
 
         val replyIntent = Intent(ACTION_REPLY)
         replyIntent.setPackage(BuildConfig.APPLICATION_ID)
 
-        val replyPendingIntent = PendingIntent.getBroadcast(requireContext(), 0, replyIntent, PendingIntent.FLAG_MUTABLE)
+        val replyPendingIntent =
+            PendingIntent.getBroadcast(requireContext(), 0, replyIntent, PendingIntent.FLAG_MUTABLE)
 
         val action = NotificationCompat.Action.Builder(android.R.drawable.ic_input_add, "Reply", replyPendingIntent)
             .addRemoteInput(remoteInput)
@@ -184,9 +209,11 @@ class NotificationsDebugFragment : AbstractDebugFragment() {
             try {
                 val bitmap = BitmapFactory.decodeStream(requireContext().contentResolver.openInputStream(pictureUri))
                 builder.setLargeIcon(bitmap)
-                    .setStyle(NotificationCompat.BigPictureStyle()
-                        .bigPicture(bitmap)
-                        .bigLargeIcon(null as android.graphics.Bitmap?))
+                    .setStyle(
+                        NotificationCompat.BigPictureStyle()
+                            .bigPicture(bitmap)
+                            .bigLargeIcon(null as android.graphics.Bitmap?)
+                    )
             } catch (e: Exception) {
                 LOG.error("Failed to decode image for notification", e)
             }
@@ -195,7 +222,44 @@ class NotificationsDebugFragment : AbstractDebugFragment() {
         GB.notify(System.currentTimeMillis().toInt(), builder.build(), requireContext())
     }
 
+    private fun getCustomPictureFileFromCache(): File {
+        return File(File(requireContext().cacheDir, "images"), "custom_notification_image")
+    }
+
+    private fun saveCustomPictureToCache(uri: Uri) {
+        val customFile = getCustomPictureFileFromCache()
+        try {
+            customFile.parentFile?.mkdirs()
+            requireContext().contentResolver.openInputStream(uri)!!.use { input ->
+                customFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            LOG.debug(
+                "Saved custom notification picture from {} ({} bytes) to {}",
+                uri,
+                customFile.length(),
+                customFile
+            )
+        } catch (e: Exception) {
+            LOG.error("Failed to save custom notification picture", e)
+            GB.toast("Failed to save picture", Toast.LENGTH_SHORT, GB.ERROR)
+            customFile.delete()
+        }
+        updatePictureSummary()
+    }
+
+    private fun updatePictureSummary() {
+        findPreference<Preference>(PREF_DEBUG_NOTIFICATIONS_PICTURE_SELECT)?.summary =
+            if (getCustomPictureFileFromCache().exists()) "Custom picture" else "Default picture"
+    }
+
     private fun getTestPicture(): File? {
+        val customFile = getCustomPictureFileFromCache()
+        if (customFile.exists()) {
+            return customFile
+        }
+
         try {
             requireContext().assets.open("fossil_hr/default_background.png").use {
                 val tempDir = File(requireContext().cacheDir, "images")
@@ -266,10 +330,12 @@ class NotificationsDebugFragment : AbstractDebugFragment() {
         private const val PREF_DEBUG_NOTIFICATIONS_SOURCENAME = "pref_debug_notifications_sourceName"
         private const val PREF_DEBUG_NOTIFICATIONS_CHANNELID = "pref_debug_notifications_channelId"
         private const val PREF_DEBUG_NOTIFICATIONS_CATEGORY = "pref_debug_notifications_category"
-        private const val PREF_DEBUG_NOTIFICATIONS_ATTACHEDACTIONS_REPLY = "pref_debug_notifications_attachedActions_reply"
+        private const val PREF_DEBUG_NOTIFICATIONS_ATTACHEDACTIONS_REPLY =
+            "pref_debug_notifications_attachedActions_reply"
         private const val PREF_DEBUG_NOTIFICATIONS_SOURCEAPPID = "pref_debug_notifications_sourceAppId"
         private const val PREF_DEBUG_NOTIFICATIONS_ICONID = "pref_debug_notifications_iconId"
         private const val PREF_DEBUG_NOTIFICATIONS_PICTUREPATH_BOOL = "pref_debug_notifications_picturePath_bool"
+        private const val PREF_DEBUG_NOTIFICATIONS_PICTURE_SELECT = "pref_debug_notifications_picture_select"
         private const val PREF_DEBUG_NOTIFICATIONS_DNDSUPPRESSED = "pref_debug_notifications_dndSuppressed"
     }
 }

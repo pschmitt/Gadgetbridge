@@ -34,14 +34,4 @@ public class GarminEdgeExplore820Coordinator extends GarminBikeComputerCoordinat
     public boolean supportsVO2Max(@NonNull final GBDevice device) {
         return false;
     }
-
-    @Override
-    public boolean supportsMusicInfo(@NonNull final GBDevice device) {
-        return false;
-    }
-
-    @Override
-    public boolean supportsFindDevice(@NonNull final GBDevice device) {
-        return false;
-    }
 }

@@ -1,11 +1,10 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.debug
 
-import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
-import android.widget.DatePicker
 import android.widget.Toast
 import androidx.core.content.edit
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
@@ -13,7 +12,6 @@ import nodomain.freeyourgadget.gadgetbridge.activities.files.FileManagerActivity
 import nodomain.freeyourgadget.gadgetbridge.model.RecordedDataTypes
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils
 import nodomain.freeyourgadget.gadgetbridge.util.GB
-import java.util.Calendar
 
 
 class OtherDebugFragment : AbstractDebugFragment() {
@@ -31,58 +29,55 @@ class OtherDebugFragment : AbstractDebugFragment() {
         }
 
         onClick(PREF_DEBUG_SET_ACTIVITY_FETCH_TIME) {
-            val currentDate = Calendar.getInstance()
             runOnDebugDevices {
-                DatePickerDialog(
-                    requireActivity(),
-                    { _: DatePicker?, year: Int, monthOfYear: Int, dayOfMonth: Int ->
-                        val date = DateTimeUtils.dayStart(year, monthOfYear, dayOfMonth)
+                val datePicker = MaterialDatePicker.Builder.datePicker()
+                    .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                    .build()
+                datePicker.addOnPositiveButtonClickListener { selection ->
+                    val selectedDate = DateTimeUtils.utcMillisToLocalDate(selection)
+                    val date =
+                        DateTimeUtils.dayStart(selectedDate.year, selectedDate.monthValue - 1, selectedDate.dayOfMonth)
 
-                        GB.toast("Fetch time: ${date.time}", Toast.LENGTH_LONG, GB.INFO)
-                        GBApplication.getDeviceSpecificSharedPrefs(it.address).edit {
-                            //FIXME: key reconstruction is BAD
+                    GB.toast("Fetch time: ${date.time}", Toast.LENGTH_LONG, GB.INFO)
+                    GBApplication.getDeviceSpecificSharedPrefs(it.address).edit {
+                        //FIXME: key reconstruction is BAD
 
-                            remove("lastSyncTimeMillis")
-                            remove("lastTemperatureTimeMillis")
-                            remove("lastStressManualTimeMillis")
-                            remove("lastStressAutoTimeMillis")
-                            remove("lastDebugTimeMillis")
-                            remove("lastStatisticsTimeMillis")
-                            remove("lastSportsActivityTimeMillis")
-                            remove("lastSpo2sleepTimeMillis")
-                            remove("lastSpo2normalTimeMillis")
-                            remove("lastSleepSessionTimeMillis")
-                            remove("lastPaiTimeMillis")
-                            remove("lastHeartRateManualTimeMillis")
-                            remove("lastHeartRateRestingTimeMillis")
-                            remove("lastHrvTimeMillis")
-                            remove("lastHeartRateMaxTimeMillis")
-                            remove("lastSleepRespiratoryRateTimeMillis")
+                        remove("lastSyncTimeMillis")
+                        remove("lastTemperatureTimeMillis")
+                        remove("lastStressManualTimeMillis")
+                        remove("lastStressAutoTimeMillis")
+                        remove("lastDebugTimeMillis")
+                        remove("lastStatisticsTimeMillis")
+                        remove("lastSportsActivityTimeMillis")
+                        remove("lastSpo2sleepTimeMillis")
+                        remove("lastSpo2normalTimeMillis")
+                        remove("lastSleepSessionTimeMillis")
+                        remove("lastPaiTimeMillis")
+                        remove("lastHeartRateManualTimeMillis")
+                        remove("lastHeartRateRestingTimeMillis")
+                        remove("lastHrvTimeMillis")
+                        remove("lastHeartRateMaxTimeMillis")
+                        remove("lastSleepRespiratoryRateTimeMillis")
 
-                            putLong("lastSyncTimeMillis", date.time)
-                            putLong("lastTemperatureTimeMillis", date.time)
-                            putLong("lastStressManualTimeMillis", date.time)
-                            putLong("lastStressAutoTimeMillis", date.time)
-                            putLong("lastDebugTimeMillis", date.time)
-                            putLong("lastStatisticsTimeMillis", date.time)
-                            putLong("lastSportsActivityTimeMillis", date.time)
-                            putLong("lastSpo2sleepTimeMillis", date.time)
-                            putLong("lastSpo2normalTimeMillis", date.time)
-                            putLong("lastSleepSessionTimeMillis", date.time)
-                            putLong("lastPaiTimeMillis", date.time)
-                            putLong("lastHeartRateManualTimeMillis", date.time)
-                            putLong("lastHeartRateRestingTimeMillis", date.time)
-                            putLong("lastHrvTimeMillis", date.time)
-                            putLong("lastHeartRateMaxTimeMillis", date.time)
-                            putLong("lastSleepRespiratoryRateTimeMillis", date.time)
-                        }
-                    },
-                    currentDate.get(Calendar.YEAR),
-                    currentDate.get(Calendar.MONTH),
-                    currentDate.get(
-                        Calendar.DATE
-                    )
-                ).show()
+                        putLong("lastSyncTimeMillis", date.time)
+                        putLong("lastTemperatureTimeMillis", date.time)
+                        putLong("lastStressManualTimeMillis", date.time)
+                        putLong("lastStressAutoTimeMillis", date.time)
+                        putLong("lastDebugTimeMillis", date.time)
+                        putLong("lastStatisticsTimeMillis", date.time)
+                        putLong("lastSportsActivityTimeMillis", date.time)
+                        putLong("lastSpo2sleepTimeMillis", date.time)
+                        putLong("lastSpo2normalTimeMillis", date.time)
+                        putLong("lastSleepSessionTimeMillis", date.time)
+                        putLong("lastPaiTimeMillis", date.time)
+                        putLong("lastHeartRateManualTimeMillis", date.time)
+                        putLong("lastHeartRateRestingTimeMillis", date.time)
+                        putLong("lastHrvTimeMillis", date.time)
+                        putLong("lastHeartRateMaxTimeMillis", date.time)
+                        putLong("lastSleepRespiratoryRateTimeMillis", date.time)
+                    }
+                }
+                datePicker.show(childFragmentManager, "DEBUG_FETCH_DATE_PICKER")
             }
         }
 

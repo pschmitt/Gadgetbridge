@@ -71,7 +71,7 @@ public class CasioGB6900DeviceSupport extends CasioSupport {
 
     public CasioGB6900DeviceSupport() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_IMMEDIATE_ALERT);
+        addSupportedService(GattService.SERVICE_IMMEDIATE_ALERT.uuid);
         addSupportedService(CasioConstants.CASIO_VIRTUAL_SERVER_SERVICE);
         addSupportedService(CasioConstants.ALERT_SERVICE_UUID);
         addSupportedService(CasioConstants.CASIO_IMMEDIATE_ALERT_SERVICE_UUID);

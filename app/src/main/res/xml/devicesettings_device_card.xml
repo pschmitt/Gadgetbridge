@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ListPreference
+        android:defaultValue="always"
+        android:entries="@array/pref_device_card_show_items"
+        android:entryValues="@array/pref_device_card_show_items_values"
+        android:icon="@drawable/ic_visibility_lock"
+        android:key="pref_device_card_show_items"
+        android:title="@string/pref_device_card_show_items_title"
+        app:useSimpleSummaryProvider="true" />
+
+    <Preference
+        android:icon="@drawable/ic_widgets"
+        android:key="pref_device_card_items"
+        android:persistent="false"
+        android:summary="@string/pref_device_card_items_summary"
+        android:title="@string/pref_device_card_items_title" />
+</androidx.preference.PreferenceScreen>

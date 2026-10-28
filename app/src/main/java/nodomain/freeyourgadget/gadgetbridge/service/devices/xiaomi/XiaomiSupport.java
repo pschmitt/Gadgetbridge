@@ -22,7 +22,6 @@ import android.content.Context;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
@@ -189,7 +188,9 @@ public class XiaomiSupport extends AbstractBluetoothDeviceSupport {
     }
 
     @Override
-    public void setContext(final GBDevice device, final BluetoothAdapter adapter, final Context context) {
+    public void setContext(@NonNull final GBDevice device,
+                           @NonNull final BluetoothAdapter adapter,
+                           @NonNull final Context context) {
         // FIXME unsetDynamicState unsets the fw version, which causes problems..
         if (device.getFirmwareVersion() != null) {
             setCachedFirmwareVersion(device.getFirmwareVersion());
@@ -207,7 +208,7 @@ public class XiaomiSupport extends AbstractBluetoothDeviceSupport {
 
         if (device.getDeviceCoordinator().supportsSleepAsAndroid(device)) {
             sleepAsAndroidSender = new SleepAsAndroidSender(device);
-            healthService.setSleepAsAndroidSender(sleepAsAndroidSender);
+            healthService.getSleepAsAndroidManager().setSender(sleepAsAndroidSender);
         }
     }
 
@@ -526,11 +527,11 @@ public class XiaomiSupport extends AbstractBluetoothDeviceSupport {
                 sleepAsAndroidSender.confirmConnected();
                 break;
             case SleepAsAndroidAction.START_TRACKING:
-                healthService.startRawSensor();
                 sleepAsAndroidSender.startTracking(extras);
+                healthService.getSleepAsAndroidManager().start(sleepAsAndroidSender.isHeartRateRequested());
                 break;
             case SleepAsAndroidAction.STOP_TRACKING:
-                healthService.stopRawSensor();
+                healthService.getSleepAsAndroidManager().stop();
                 sleepAsAndroidSender.stopTracking();
                 break;
             case SleepAsAndroidAction.SET_PAUSE: {

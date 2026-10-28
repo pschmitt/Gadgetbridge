@@ -100,9 +100,11 @@ class SyncerRangeValidationTest {
         }
 
     @Test
-    fun weight_lowerBoundary_accepted() {
-        // HC's WeightRecord.weight uses requireNotLess(weight, 0 kg), so 0.0 is at the bound and accepted.
-        assertNotNull(WeightSyncer.convertSample(weightSample(0.0f), offset, metadata, device))
+    fun weight_lowerBoundary_dropped() {
+        // 0.0 kg is a scale's step-off/tare event, not a real reading. Health Connect's
+        // WeightRecord accepts it, but downstream consumers reject non-positive weights
+        // ("must be a positive number"), so the syncer drops it at the lower bound.
+        assertNull(WeightSyncer.convertSample(weightSample(0.0f), offset, metadata, device))
     }
 
     @Test

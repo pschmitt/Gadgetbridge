@@ -14,21 +14,32 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="@dimen/chart_section_spacing"
             android:gravity="center"
             android:textColor="?attr/textColorPrimary"
             android:textSize="20sp" />
 
+        <nodomain.freeyourgadget.gadgetbridge.activities.workouts.SectionHeaderView
+            android:id="@+id/hr_chart_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="300sp">
+            android:layout_height="250sp">
 
-            <com.github.mikephil.charting.charts.LineChart
+            <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView
                 android:id="@+id/heart_rate_line_chart"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_weight="2" />
         </LinearLayout>
+
+        <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartLegendView
+            android:id="@+id/heart_rate_chart_legend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
 
         <LinearLayout
             android:id="@+id/hr_stats_container"

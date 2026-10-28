@@ -75,6 +75,7 @@ class WorkoutGpsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        registerReceiver()
         observeViewModel()
     }
 
@@ -107,7 +108,6 @@ class WorkoutGpsFragment : Fragment() {
         super.onResume()
         // Expensive setup happens only when the page becomes visible to the user.
         ensureMapInitialized()
-        registerReceiver()
 
         if (!mapValid) {
             mapsManager?.reload()
@@ -116,11 +116,6 @@ class WorkoutGpsFragment : Fragment() {
 
         loadTrackDataIfReady()
         drawPendingTrackIfReady()
-    }
-
-    override fun onPause() {
-        unregisterReceiver()
-        super.onPause()
     }
 
     override fun onDestroyView() {

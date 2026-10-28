@@ -1,3 +1,19 @@
+/*  Copyright (C) 2025-2026 José Rebelo, Thomas Kuehne
+
+    This file is part of Gadgetbridge.
+
+    Gadgetbridge is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Gadgetbridge is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.http;
 
 import androidx.annotation.NonNull;
@@ -37,6 +53,7 @@ public class GarminJson {
     private static final byte TYPE_SINT64 = 0x0e;
     private static final byte TYPE_DOUBLE = 0x0f;
     private static final byte TYPE_CHAR = 0x13;
+    private static final byte TYPE_BYTE_ARRAY = 0x14;
 
     public static byte[] encode(final JsonElement object) throws GarminJsonException {
         try {
@@ -134,7 +151,7 @@ public class GarminJson {
                     }
                     writeUint32BE(out, offset);
                 } else {
-                    throw new GarminJsonException("Unexpected json primitive: " + jsonPrimitive.getClass().getName());
+                    throw new GarminJsonException("Unexpected JSON primitive: " + jsonPrimitive.getClass().getName());
                 }
             } else if (obj instanceof String str) {
                 out.write(TYPE_STRING);
@@ -331,8 +348,19 @@ public class GarminJson {
                 // Decoding is breadth-first - don't decode children yet
                 // return placeholder with the expected number of children
                 return new MapPlaceholder(new JsonObject(), mapSize);
-            case TYPE_CHAR:
-                throw new GarminJsonException("Unsupported TYPE_CHAR (0x13 / 19) with payload value 0x" + Integer.toHexString(buffer.getInt()));
+            case TYPE_CHAR: {
+                int raw = buffer.getInt();
+                // two bytes are always 0, likely a reserve for non-BMP characters
+                char c = (char) (0xFFFF & raw);
+                return new JsonPrimitive(c);
+            }
+            case TYPE_BYTE_ARRAY: {
+                final JsonArray array = new JsonArray();
+                for (int elements = buffer.getInt(); elements > 0; elements--) {
+                    array.add(buffer.get());
+                }
+                return array;
+            }
             default:
                 throw new GarminJsonException("Unknown type: 0x" + Integer.toHexString(type & 0xFF));
         }

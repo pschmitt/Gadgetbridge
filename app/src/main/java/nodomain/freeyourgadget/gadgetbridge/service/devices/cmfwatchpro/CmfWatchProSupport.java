@@ -31,7 +31,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import net.e175.klaus.solarpositioning.DeltaT;
 import net.e175.klaus.solarpositioning.SolarEvents;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -46,7 +45,6 @@ import java.security.MessageDigest;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -956,14 +954,7 @@ public class CmfWatchProSupport extends AbstractBTLESingleDeviceSupport implemen
     }
 
     private void putSunriseSunset(final ByteBuffer buf, final Location location, final GregorianCalendar date) {
-        final ZonedDateTime zonedDate = date.toZonedDateTime();
-        final SolarEvents.Day solarDay = SolarEvents.spa().forDate(
-                zonedDate.toLocalDate(),
-                zonedDate.getZone(),
-                location.getLatitude(),
-                location.getLongitude(),
-                DeltaT.estimate(zonedDate.toLocalDate())
-        );
+        final SolarEvents.Day solarDay = WeatherSpec.solarDay(date, location);
 
         if (!solarDay.rises().isEmpty() && !solarDay.sets().isEmpty()) {
             buf.putInt((int) solarDay.rises().get(0).toEpochSecond());

@@ -17,7 +17,6 @@ import nodomain.freeyourgadget.gadgetbridge.devices.soundbrenner.SoundbrennerCon
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventBatteryInfo;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventUpdatePreferences;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
-import nodomain.freeyourgadget.gadgetbridge.model.BatteryState;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.AbstractBTLESingleDeviceSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.GattService;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.TransactionBuilder;
@@ -38,7 +37,7 @@ public class SoundbrennerSupport extends AbstractBTLESingleDeviceSupport {
     public SoundbrennerSupport() {
         super(LOG);
         addSupportedService(SoundbrennerConstants.UUID_SERVICE_METRONOME);
-        addSupportedService(GattService.UUID_SERVICE_BATTERY_SERVICE);
+        addSupportedService(GattService.SERVICE_BATTERY.uuid);
 
         batteryInfoProfile = new BatteryInfoProfile<>(this);
         batteryInfoProfile.addListener(new IntentListener() {

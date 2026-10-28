@@ -462,6 +462,11 @@ public class ZeppOsBtbrSupport extends AbstractBTBRDeviceSupport implements Zepp
     }
 
     @Override
+    public void onMusicListReq() {
+        zeppOsSupport.onMusicListReq();
+    }
+
+    @Override
     public void onFindPhone(final boolean start) {
         zeppOsSupport.onFindPhone(start);
     }

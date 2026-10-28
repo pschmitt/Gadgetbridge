@@ -1340,8 +1340,8 @@
     <string name="fossil_hr_edit_action">Modifica azione</string>
     <string name="pref_title_equalizer_bass_boost">Potenziamento bassi</string>
     <string name="pref_title_equalizer_soft">Morbido</string>
-    <string name="pref_switch_controls_anc_ambient">Cancellazione rumore ←→ Ambiente</string>
-    <string name="pref_switch_controls_ambient_off">Ambiente ←→ Spento</string>
+    <string name="pref_switch_controls_anc_ambient">Cancellazione rumore ↔ Ambiente</string>
+    <string name="pref_switch_controls_ambient_off">Ambiente ↔ Spento</string>
     <string name="prefs_noise_control">Controllo rumore</string>
     <string name="prefs_voice_detect">Rilevamento voce</string>
     <string name="pref_ambient_sound_tone">Tono del Suono Ambiente</string>
@@ -1524,7 +1524,7 @@
     <string name="gadgetbridge_running_banglejs_nightly">Nightly Bangle.js in esecuzione</string>
     <string name="application_name_banglejs_nightly">Bangle.js Gadgetbridge (Nightly)</string>
     <string name="prefs_left">Sinistra</string>
-    <string name="pref_switch_controls_anc_off">Cancellazione rumore ←→ Spento</string>
+    <string name="pref_switch_controls_anc_off">Cancellazione rumore ↔ Spento</string>
     <string name="pref_explanation_authkey">Alcuni dispositivi richiedono una chiave di accoppiamento speciale per la prima inizializzazione. Tocca qui per maggiori dettagli nella wiki.</string>
     <string name="heartrate_bpm_145">145 bpm</string>
     <string name="prefs_customize_ambient_sound_summary">Personalizza Suono Ambiente</string>
@@ -1970,7 +1970,7 @@
     <string name="wifi_hotspot_summary">Controlla l\'hotspot Wi-Fi sull\'orologio</string>
     <string name="sony_button_mode_help_title">Modalità pulsanti - Guida</string>
     <string name="sony_button_mode_help_summary">Una descrizione per ciascuna modalità dei pulsanti</string>
-    <string name="pref_switch_controls_anc_ambient_off">Cancellazione rumore ←→ Ambiente ←→ Spento</string>
+    <string name="pref_switch_controls_anc_ambient_off">Cancellazione rumore ↔ Ambiente ↔ Spento</string>
     <string name="sony_speak_to_chat_summary">Disattiva automaticamente la cancellazione del rumore quando inizi a parlare.</string>
     <string name="croatian">Croato</string>
     <string name="stop">Ferma</string>

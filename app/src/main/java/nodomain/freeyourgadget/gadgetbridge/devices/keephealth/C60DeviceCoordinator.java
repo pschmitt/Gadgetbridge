@@ -22,13 +22,9 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
-import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.Property;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.CameraActivity;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventCameraRemote;
@@ -38,12 +34,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.GenericSpo2SampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
-import nodomain.freeyourgadget.gadgetbridge.entities.GenericHeartRateSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.GenericSpo2SampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.KeephealthActivitySampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.KeephealthBloodPressureSampleDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.KeephealthTemperatureSample;
-import nodomain.freeyourgadget.gadgetbridge.entities.KeephealthTemperatureSampleDao;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.Spo2Sample;
@@ -113,6 +104,12 @@ public class C60DeviceCoordinator extends AbstractDeviceCoordinator  {
         }
 
         DeviceCardAction action = new DeviceCardAction() {
+            @NonNull
+            @Override
+            public String getId() {
+                return "c60_camera";
+            }
+
             @Override
             public int getIcon(@NonNull GBDevice device) {
                 return R.drawable.ic_camera_remote;
@@ -143,6 +140,16 @@ public class C60DeviceCoordinator extends AbstractDeviceCoordinator  {
     public boolean supportsWeather(GBDevice device) {
         // TODO implement
         return false;
+    }
+
+    @Override
+    public boolean supportsAppNotifications(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsPhoneCalls(@NonNull final GBDevice device) {
+        return true;
     }
 
     @Override
@@ -210,16 +217,5 @@ public class C60DeviceCoordinator extends AbstractDeviceCoordinator  {
             DaoSession session
     ) {
         return new KeephealthTemperatureSampleProvider(device, session);
-    }
-
-    @Override
-    public Map<AbstractDao<?, ?>, Property> getAllDeviceDao(@NonNull final DaoSession session) {
-        Map<AbstractDao<?, ?>, Property> map = new HashMap<>(2);
-        map.put(session.getKeephealthActivitySampleDao(), KeephealthActivitySampleDao.Properties.DeviceId);
-        map.put(session.getGenericHeartRateSampleDao(), GenericHeartRateSampleDao.Properties.DeviceId);
-        map.put(session.getGenericSpo2SampleDao(), GenericSpo2SampleDao.Properties.DeviceId);
-        map.put(session.getKeephealthTemperatureSampleDao(), KeephealthTemperatureSampleDao.Properties.DeviceId);
-        map.put(session.getKeephealthBloodPressureSampleDao(), KeephealthBloodPressureSampleDao.Properties.DeviceId);
-        return map;
     }
 }

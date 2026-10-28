@@ -20,12 +20,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -105,19 +107,42 @@ public class ConfigureContacts extends AbstractGBActivity {
                 return;
             }
 
-            final Contact contact;
-            try (DBHandler db = GBApplication.acquireDB()) {
-                final DaoSession daoSession = db.getDaoSession();
-                final Device device = DBHelper.getDevice(gbDevice, daoSession);
-                final User user = DBHelper.getUser(daoSession);
-                contact = createDefaultContact(device, user);
-            } catch (final Exception e) {
-                LOG.error("Error accessing database", e);
-                return;
-            }
-
-            configureContact(contact);
+            showAddContactPopupMenu(v);
         });
+    }
+
+    private void showAddContactPopupMenu(View v) {
+        final PopupMenu popupMenu = new PopupMenu(v.getContext(), v);
+        popupMenu.inflate(R.menu.menu_configure_contacts_add);
+        popupMenu.setOnMenuItemClickListener(item -> {
+            final int itemId = item.getItemId();
+            if (itemId == R.id.configure_contacts_add_manually) {
+                addContactManually();
+                return true;
+            } else if (itemId == R.id.configure_contacts_select_from_contacts) {
+                final Intent startIntent = new Intent(getApplicationContext(), ContactPickerActivity.class);
+                startIntent.putExtra(GBDevice.EXTRA_DEVICE, gbDevice);
+                configureContactLauncher.launch(startIntent);
+                return true;
+            }
+            return false;
+        });
+        popupMenu.show();
+    }
+
+    private void addContactManually() {
+        final Contact contact;
+        try (DBHandler db = GBApplication.acquireDB()) {
+            final DaoSession daoSession = db.getDaoSession();
+            final Device device = DBHelper.getDevice(gbDevice, daoSession);
+            final User user = DBHelper.getUser(daoSession);
+            contact = createDefaultContact(device, user);
+        } catch (final Exception e) {
+            LOG.error("Error accessing database", e);
+            return;
+        }
+
+        configureContact(contact);
     }
 
     private Contact createDefaultContact(@NonNull Device device, @NonNull User user) {

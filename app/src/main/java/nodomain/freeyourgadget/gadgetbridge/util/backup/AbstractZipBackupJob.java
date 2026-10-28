@@ -93,4 +93,9 @@ public abstract class AbstractZipBackupJob implements Runnable {
     protected void onFailure(final String errorMessage) {
         mCallback.onFailure(errorMessage);
     }
+
+    @WorkerThread
+    protected void onConfirmationRequired(final String message) {
+        mCallback.onConfirmationRequired(message);
+    }
 }

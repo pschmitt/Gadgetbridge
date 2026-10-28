@@ -38,7 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiHttpService;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiHttp;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.BLETypeConversions;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.GarminSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.http.GarminHttpRequest;
@@ -68,7 +68,7 @@ public class ImageServiceInterceptor implements HttpInterceptor {
     @Override
     @Nullable
     public GarminHttpResponse handle(@NonNull final GarminHttpRequest request) {
-        if (request.getRawRequest().getMethod() != GdiHttpService.HttpService.Method.GET) {
+        if (request.getRawRequest().getMethod() != GdiHttp.RawResourceRequest.HTTPMethod.GET) {
             LOG.warn("Known image service requests should be GET");
             return null;
         }

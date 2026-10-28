@@ -21,6 +21,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -66,26 +67,21 @@ public class WidgetScreenListAdapter extends RecyclerView.Adapter<WidgetScreenLi
 
         holder.container.setOnClickListener(v -> ((WidgetScreensListActivity) mContext).configureWidgetScreen(widgetScreen));
 
-        holder.container.setOnLongClickListener(v -> {
-            // TODO move up
-            // TODO move down
-            new MaterialAlertDialogBuilder(v.getContext())
-                    .setTitle(R.string.widget_screen_delete_confirm_title)
-                    .setMessage(mContext.getString(
-                            R.string.widget_screen_delete_confirm_description,
-                            mContext.getString(R.string.widget_screen_x, widgetScreen.getId())
-                    ))
-                    .setIcon(R.drawable.ic_warning)
-                    .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {
-                        ((WidgetScreensListActivity) mContext).deleteWidgetScreen(widgetScreen);
-                    })
-                    .setNegativeButton(android.R.string.no, null)
-                    .show();
-
-            return true;
-        });
+        holder.delete.setOnClickListener(v -> new MaterialAlertDialogBuilder(v.getContext())
+                .setTitle(R.string.widget_screen_delete_confirm_title)
+                .setMessage(mContext.getString(
+                        R.string.widget_screen_delete_confirm_description,
+                        mContext.getString(R.string.widget_screen_x, widgetScreen.getId())
+                ))
+                .setIcon(R.drawable.ic_warning)
+                .setPositiveButton(R.string.delete, (dialog, whichButton) -> {
+                    ((WidgetScreensListActivity) mContext).deleteWidgetScreen(widgetScreen);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show());
 
         holder.widgetScreenName.setText(mContext.getString(R.string.widget_screen_x, widgetScreen.getId()));
+        holder.widgetScreenLayout.setText(widgetScreen.getLayout().getName());
         final List<String> widgetNames = new ArrayList<>();
 
         for (final WidgetPart part : widgetScreen.getParts()) {
@@ -110,7 +106,9 @@ public class WidgetScreenListAdapter extends RecyclerView.Adapter<WidgetScreenLi
         final MaterialCardView container;
 
         final TextView widgetScreenName;
+        final TextView widgetScreenLayout;
         final TextView widgetScreenDescription;
+        final ImageButton delete;
 
         ViewHolder(View view) {
             super(view);
@@ -118,7 +116,9 @@ public class WidgetScreenListAdapter extends RecyclerView.Adapter<WidgetScreenLi
             container = view.findViewById(R.id.card_widget_screen);
 
             widgetScreenName = view.findViewById(R.id.widget_screen_name);
+            widgetScreenLayout = view.findViewById(R.id.widget_screen_layout);
             widgetScreenDescription = view.findViewById(R.id.widget_screen_description);
+            delete = view.findViewById(R.id.widget_screen_delete);
         }
     }
 }

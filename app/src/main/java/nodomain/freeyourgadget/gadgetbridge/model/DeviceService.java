@@ -55,6 +55,7 @@ public interface DeviceService extends EventHandler {
     String ACTION_APP_CONFIG_SET = PREFIX + ".action.app_config_set";
     String ACTION_APP_REORDER = PREFIX + ".action.app_reorder";
     String ACTION_INSTALL = PREFIX + ".action.install";
+    String ACTION_INSTALL_SESSION = PREFIX + ".action.install_session";
     String ACTION_REBOOT = PREFIX + ".action.reboot";
     String ACTION_FACTORY_RESET = PREFIX + ".action.factory_reset";
     String ACTION_HEARTRATE_TEST = PREFIX + ".action.heartrate_test";
@@ -121,6 +122,7 @@ public interface DeviceService extends EventHandler {
     String EXTRA_APP_CONFIG_ID = "app_config_id";
     String EXTRA_URI = "uri";
     String EXTRA_OPTIONS = "options";
+    String EXTRA_INSTALL_SESSION_ID = "install_session_id";
     String EXTRA_CONFIG = "config";
     String EXTRA_ALARMS = "alarms";
     String EXTRA_REMINDERS = "reminders";
@@ -164,6 +166,11 @@ public interface DeviceService extends EventHandler {
      * </p>
      */
     void requestDeviceInfo();
+
+    /**
+     * Starts the install of an {@link nodomain.freeyourgadget.gadgetbridge.install.InstallSession}.
+     */
+    void onInstall(long sessionId);
 
     @Nullable
     GBDevice getDevice();

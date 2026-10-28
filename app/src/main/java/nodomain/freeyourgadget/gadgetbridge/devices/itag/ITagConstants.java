@@ -23,4 +23,17 @@ public final class ITagConstants {
     public static final UUID UUID_SERVICE_BUTTON = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
     /** Contains information about the button state */
     public static final UUID UUID_LINK_LOSS_ALERT_LEVEL = UUID.fromString("00002a06-0000-1000-8000-00805f9b34fb");
+    /** Serial service (nRF-style) that contains the button (ffe1) and link-loss (ffe2) characteristics */
+    public static final UUID UUID_SERVICE_SERIAL_NRF = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb");
+    /** Writing 0x01/0x00 enables/disables the beep on disconnect */
+    public static final UUID UUID_CHAR_LINKLOSS_FFE2 = UUID.fromString("0000ffe2-0000-1000-8000-00805f9b34fb");
+
+    public static final String PREF_ALERT_LEVEL = "itag_alert_level";
+    public static final byte ALERT_LEVEL_MILD = 0x01;
+    public static final byte ALERT_LEVEL_HIGH = 0x02;
+
+    public static final String PREF_BEEP_ON_DISCONNECT = "itag_beep_on_disconnect";
+
+    public static final String PREF_BUTTON_EVENT = "itag_button_event";
+
 }

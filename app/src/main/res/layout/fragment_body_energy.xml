@@ -34,7 +34,7 @@
             android:id="@+id/body_energy_stats_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/chart_section_spacing"
+            android:layout_marginTop="13dp"
             android:layout_marginBottom="15dp"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
@@ -44,12 +44,18 @@
             android:layout_width="match_parent"
             android:layout_height="250sp">
 
-            <com.github.mikephil.charting.charts.LineChart
+            <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView
                 android:id="@+id/body_energy_chart"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_weight="2" />
         </LinearLayout>
+
+        <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartLegendView
+            android:id="@+id/body_energy_chart_legend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
 
     </LinearLayout>
 

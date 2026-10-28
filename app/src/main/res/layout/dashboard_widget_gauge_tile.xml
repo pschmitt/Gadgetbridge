@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:importantForAccessibility="no"
+    android:padding="12dp"
+    tools:context=".widgets.impl.MetricWidget">
+
+    <include layout="@layout/dashboard_widget_header" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <nodomain.freeyourgadget.gadgetbridge.activities.dashboard.ArcGaugeView
+        android:id="@+id/gauge_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:importantForAccessibility="no">
+
+        <TextView
+            android:id="@+id/gauge_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:fontFeatureSettings="tnum"
+            android:gravity="center_horizontal"
+            android:importantForAccessibility="no"
+            android:text="@string/stats_empty_value"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="28sp" />
+
+    </nodomain.freeyourgadget.gadgetbridge.activities.dashboard.ArcGaugeView>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

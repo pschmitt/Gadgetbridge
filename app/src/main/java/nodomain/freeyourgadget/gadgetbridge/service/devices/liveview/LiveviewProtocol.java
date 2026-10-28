@@ -25,6 +25,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.liveview.LiveviewConstants;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationSpec;
 import nodomain.freeyourgadget.gadgetbridge.service.serial.GBDeviceProtocol;
+import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
 
 public class LiveviewProtocol extends GBDeviceProtocol {
 
@@ -89,7 +90,7 @@ public class LiveviewProtocol extends GBDeviceProtocol {
         if (notificationSpec.getSender() != null) {
             headerText = notificationSpec.getSender();
         } else {
-            headerText = notificationSpec.getTitle();
+            headerText = StringUtils.ensureNotNull(notificationSpec.getTitle());
         }
 
         String footerText = (null != notificationSpec.getSourceName()) ? notificationSpec.getSourceName() : "";

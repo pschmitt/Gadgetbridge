@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -11,19 +10,18 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:paddingHorizontal="8dp"
-        android:background="?attr/datestep_row_bg">
+        android:background="?attr/datestep_row_bg"
+        android:paddingHorizontal="8dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/arrow_left"
-            style="@style/Widget.App.DateStep.Primary"
+            style="@style/Widget.App.PeriodStep"
             android:layout_width="48dp"
-            android:layout_height="36dp"
-            android:layout_centerVertical="true"
+            android:layout_height="48dp"
             android:layout_alignParentStart="true"
-            android:text="@string/datestep_letter_day"
-            app:icon="@drawable/ic_chevron_1"
-            android:contentDescription="@string/datestep_prev_day"/>
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/datestep_prev_day"
+            app:icon="@drawable/ic_chevron_1" />
 
         <TextView
             android:id="@+id/dashboard_date"
@@ -32,30 +30,51 @@
             android:layout_centerInParent="true"
             android:text="@string/activity_summary_today"
             android:textAppearance="@style/TextAppearance.App.DateLabel"
-            android:textSize="16sp"/>
+            android:textSize="16sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/arrow_right"
-            style="@style/Widget.App.DateStep.Primary.End"
+            style="@style/Widget.App.PeriodStep"
             android:layout_width="48dp"
-            android:layout_height="36dp"
-            android:layout_centerVertical="true"
+            android:layout_height="48dp"
             android:layout_alignParentEnd="true"
-            android:text="@string/datestep_letter_day"
-            app:icon="@drawable/ic_chevron_1_right"
-            android:contentDescription="@string/datestep_next_day"/>
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/datestep_next_day"
+            app:icon="@drawable/ic_chevron_1_right" />
     </RelativeLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/dashboard_recyclerview"
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/dashboard_scroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clipToPadding="false"
-            tools:listitem="@layout/dashboard_widget_card" />
+            android:clipToPadding="false">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/dashboard_notices"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <nodomain.freeyourgadget.gadgetbridge.activities.dashboard.WidgetGridRecyclerView
+                    android:id="@+id/dashboard_grid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:nestedScrollingEnabled="false"
+                    android:overScrollMode="never"
+                    android:padding="10dp" />
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
 
         <View
             android:id="@+id/dashboard_date_row_shade"
@@ -64,4 +83,40 @@
             android:background="?attr/bar_shade"
             android:visibility="gone" />
     </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/dashboard_edit_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?attr/bottom_bar_divider"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dashboard_discard"
+            style="@style/Widget.App.EditBarItem"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:text="@string/dashboard_discard_changes"
+            app:icon="@drawable/ic_undo" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dashboard_add_widget"
+            style="@style/Widget.App.EditBarItem"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:text="@string/widgets_add_widget"
+            app:icon="@drawable/ic_add" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dashboard_done"
+            style="@style/Widget.App.EditBarItem"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:text="@string/done"
+            app:icon="@drawable/ic_done" />
+    </LinearLayout>
 </LinearLayout>

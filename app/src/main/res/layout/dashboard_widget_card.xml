@@ -1,15 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/dashboard_widget_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_margin="@dimen/dashboard_grid_spacing"
     android:clickable="true"
     android:focusable="true">
 
     <FrameLayout
         android:id="@+id/dashboard_widget_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:id="@+id/dashboard_widget_error"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="center"
+        android:contentDescription="@string/dashboard_widget_load_failed"
+        android:src="@drawable/ic_warning"
+        android:visibility="gone" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/dashboard_widget_edit"
+        style="@style/Widget.App.WidgetEditButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="-4dp"
+        android:layout_marginEnd="-4dp"
+        android:contentDescription="@string/appmanager_app_edit"
+        android:visibility="gone"
+        app:icon="@drawable/ic_edit" />
 
 </com.google.android.material.card.MaterialCardView>

@@ -7,13 +7,6 @@
         app:iconSpaceReserved="false">
         <SwitchPreferenceCompat
             android:defaultValue="true"
-            android:key="dashboard_as_default_view"
-            android:layout="@layout/preference_checkbox"
-            android:title="@string/pref_dashboard_first_title"
-            android:summary="@string/pref_dashboard_first_summary"
-            app:iconSpaceReserved="false" />
-        <SwitchPreferenceCompat
-            android:defaultValue="true"
             android:key="dashboard_cards_enabled"
             android:layout="@layout/preference_checkbox"
             android:title="@string/pref_dashboard_cards_title"

@@ -95,6 +95,7 @@ data class SwitchSetting(
     @StringRes val confirmationMessage: Int = 0,
     override val visibleWhen: ((Prefs) -> Boolean)? = null,
     override val connectedOnly: Boolean = true,
+    val onSharedPreferenceChanged: ((Boolean) -> Unit)? = null,
 ) : DeviceSetting()
 
 /**
@@ -180,6 +181,8 @@ data class TextSetting(
     val defaultSummary: ((Context) -> String)? = null,
     /** When non-zero, wraps the current value in this format string for the summary. */
     @StringRes val summaryTemplate: Int = 0,
+    /** Computes the summary on every refresh. Overrides [summary], [defaultSummary] and [summaryTemplate]. */
+    val summaryProvider: ((Context, Prefs) -> CharSequence?)? = null,
 ) : DeviceSetting()
 
 /**
@@ -246,6 +249,9 @@ data class MultiSelectSetting(
     val dependency: String? = null,
     override val visibleWhen: ((Prefs) -> Boolean)? = null,
     override val connectedOnly: Boolean = true,
+    val onSharedPreferenceChanged: ((Set<String>) -> Unit)? = null,
+    /** Entries shown after [entries], each group below a header with the group title. */
+    val entryGroups: List<ListEntryGroup> = emptyList(),
 ) : DeviceSetting()
 
 /**

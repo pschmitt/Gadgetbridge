@@ -39,8 +39,8 @@ public class MoyoungWeatherForecast {
             minTemp = (byte) TemperatureUtils.celsiusToFahrenheit(forecast.getMinTemp() - 273); // Kelvin -> Fahrenheit
             maxTemp = (byte) TemperatureUtils.celsiusToFahrenheit(forecast.getMaxTemp() - 273); // Kelvin -> Fahrenheit
         } else {
-            minTemp = (byte) (forecast.getMinTemp() - 273); // Kelvin -> Celcius
-            maxTemp = (byte) (forecast.getMaxTemp() - 273); // Kelvin -> Celcius
+            minTemp = (byte) (forecast.getMinTemp() - 273); // Kelvin -> Celsius
+            maxTemp = (byte) (forecast.getMaxTemp() - 273); // Kelvin -> Celsius
         }
     }
 }

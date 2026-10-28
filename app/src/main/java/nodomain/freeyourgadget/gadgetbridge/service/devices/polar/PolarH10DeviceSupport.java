@@ -52,10 +52,10 @@ public class PolarH10DeviceSupport extends AbstractBTLESingleDeviceSupport {
 
     private boolean newSamples = false;
 
-    public static final UUID UUID_SERVICE_DEVICE_INFORMATION = GattService.UUID_SERVICE_DEVICE_INFORMATION;
-    public static final UUID UUID_SERVICE_BATTERY_SERVICE = GattService.UUID_SERVICE_BATTERY_SERVICE;
-    public static final UUID UUID_SERVICE_HEART_RATE = GattService.UUID_SERVICE_HEART_RATE;
-    public static final UUID UUID_CHARACTERISTIC_HEART_RATE_MEASUREMENT = GattCharacteristic.UUID_CHARACTERISTIC_HEART_RATE_MEASUREMENT;
+    public static final UUID UUID_SERVICE_DEVICE_INFORMATION = GattService.SERVICE_DEVICE_INFORMATION.uuid;
+    public static final UUID UUID_SERVICE_BATTERY_SERVICE = GattService.SERVICE_BATTERY.uuid;
+    public static final UUID UUID_SERVICE_HEART_RATE = GattService.SERVICE_HEART_RATE.uuid;
+    public static final UUID UUID_CHARACTERISTIC_HEART_RATE_MEASUREMENT = GattCharacteristic.CHARACTERISTIC_HEART_RATE_MEASUREMENT.uuid;
 
     public static final UUID UUID_SERVICE_POLAR_SETTINGS = UUID.fromString("6217ff4b-fb31-1140-ad5a-a45545d7ecf3");
     public static final UUID UUID_CHARACTERISTIC_POLAR_SETTINGS = UUID.fromString("6217ff4d-91bb-91d0-7e2a-7cd3bda8a1f3");

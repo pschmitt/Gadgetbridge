@@ -20,6 +20,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
+import androidx.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -46,16 +49,31 @@ import nodomain.freeyourgadget.gadgetbridge.entities.Device;
 import nodomain.freeyourgadget.gadgetbridge.util.FileUtils;
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetInstance;
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetLayoutStore;
+import nodomain.freeyourgadget.gadgetbridge.widgets.launcher.LauncherWidgetStore;
 
 public class ZipBackupImportJob extends AbstractZipBackupJob {
     private static final Logger LOG = LoggerFactory.getLogger(ZipBackupImportJob.class);
 
     private final Uri mUri;
     private final byte[] copyBuffer = new byte[8192];
+    private final CountDownLatch confirmationLatch = new CountDownLatch(1);
 
     public ZipBackupImportJob(final Context context, final ZipBackupCallback callback, final Uri uri) {
         super(context, callback);
         this.mUri = uri;
+    }
+
+    /**
+     * Continues the import after {@link ZipBackupCallback#onConfirmationRequired(String)}.
+     */
+    public void confirm() {
+        confirmationLatch.countDown();
+    }
+
+    @Override
+    public void abort() {
+        super.abort();
+        confirmationLatch.countDown();
     }
 
     @Override
@@ -71,9 +89,21 @@ public class ZipBackupImportJob extends AbstractZipBackupJob {
 
             // Validate file
             updateProgress(10, R.string.backup_restore_importing_validating);
-            validateBackupFile(zipFile);
+            final ZipBackupMetadata metadata = validateBackupFile(zipFile);
 
-            LOG.debug("Valid zip file: {}", mUri);
+            LOG.debug(
+                "Valid zip file from {}: {}",
+                mUri,
+                metadata
+            );
+
+            if (isAborted()) return;
+
+            if (!isKnownAppId(metadata.getAppId())) {
+                LOG.warn("Backup is from unknown app id {}, requesting confirmation", metadata.getAppId());
+                onConfirmationRequired(getContext().getString(R.string.backup_restore_unknown_app_id, metadata.getAppId()));
+                confirmationLatch.await();
+            }
 
             if (isAborted()) return;
 
@@ -162,6 +192,9 @@ public class ZipBackupImportJob extends AbstractZipBackupJob {
             try (InputStream globalPrefsInputStream = zipFile.getInputStream(zipFile.getEntry(PREFS_GLOBAL_FILENAME))) {
                 final SharedPreferences globalPreferences = GBApplication.getPrefs().getPreferences();
 
+                // Keep existing local launcher widgets, since the IDs are local to the launcher anyway
+                final String launcherWidgets = globalPreferences.getString(LauncherWidgetStore.PREF_LAUNCHER_WIDGETS, null);
+
                 final JsonBackupPreferences jsonBackupPreferences = JsonBackupPreferences.fromJson(globalPrefsInputStream);
                 if (!jsonBackupPreferences.importInto(globalPreferences)) {
                     LOG.warn("Global preferences were not commited");
@@ -170,6 +203,7 @@ public class ZipBackupImportJob extends AbstractZipBackupJob {
                 // We may be restoring from different versions - reset the changelog version
                 globalPreferences.edit()
                         .putInt("ckChangeLog_last_version_code", BuildConfig.VERSION_CODE)
+                        .putString(LauncherWidgetStore.PREF_LAUNCHER_WIDGETS, launcherWidgets)
                         .apply();
             }
 
@@ -198,10 +232,11 @@ public class ZipBackupImportJob extends AbstractZipBackupJob {
 
             if (isAborted()) return;
 
-            // At this point global preferences (which includes pref_dashboard_layout) are
-            // already restored, so WidgetLayoutStore.load() reflects the imported layout.
+            // At this point global preferences (which includes the dashboard layouts) are
+            // already restored, so the widget stores reflect the imported instances.
             LOG.debug("Importing widget preferences");
-            for (final WidgetInstance widgetInstance : WidgetLayoutStore.INSTANCE.load()) {
+            final List<WidgetInstance> widgetInstances = WidgetLayoutStore.INSTANCE.instances();
+            for (final WidgetInstance widgetInstance : widgetInstances) {
                 if (isAborted()) break;
 
                 LOG.debug("Importing widget preferences for {}", widgetInstance.getInstanceId());
@@ -259,7 +294,11 @@ public class ZipBackupImportJob extends AbstractZipBackupJob {
         return new ZipFile(tmpFile);
     }
 
-    private static void validateBackupFile(final ZipFile zipFile) throws IOException {
+    private static boolean isKnownAppId(@Nullable final String appId) {
+        return FileUtils.KNOWN_PACKAGES.contains(appId);
+    }
+
+    private static ZipBackupMetadata validateBackupFile(final ZipFile zipFile) throws IOException {
         final ZipEntry metadataEntry = zipFile.getEntry(METADATA_FILENAME);
         if (metadataEntry == null) {
             throw new IOException("Zip file has no metadata");
@@ -278,5 +317,7 @@ public class ZipBackupImportJob extends AbstractZipBackupJob {
         if (databaseEntry == null) {
             throw new IOException("Zip file has no database");
         }
+
+        return zipBackupMetadata;
     }
 }

@@ -2,40 +2,40 @@ package nodomain.freeyourgadget.gadgetbridge.activities.charts;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.github.mikephil.charting.charts.BarChart;
+import androidx.core.content.ContextCompat;
+
 import com.github.mikephil.charting.charts.Chart;
-import com.github.mikephil.charting.components.LimitLine;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartSelection;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.steps.StepsPeriodChartData;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileData;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileGridUtilKt;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutValueFormatter;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
+import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser;
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 
@@ -44,7 +44,7 @@ public class StepsPeriodFragment extends StepsFragment<StepsPeriodFragment.Steps
 
     private TextView mDateView;
     private LinearLayout stepsPeriodStatsContainer;
-    private BarChart stepsChart;
+    private GbChartView stepsChart;
 
     private TextView mBalanceView;
 
@@ -85,6 +85,8 @@ public class StepsPeriodFragment extends StepsFragment<StepsPeriodFragment.Steps
 
         mDateView = rootView.findViewById(R.id.steps_date_view);
         stepsChart = rootView.findViewById(R.id.steps_chart);
+        stepsChart.setZoomable(TOTAL_DAYS > 7);
+        stepsChart.dismissSelectionOnTapOutside(rootView);
         stepsPeriodStatsContainer = rootView.findViewById(R.id.steps_period_stats_container);
         STEPS_GOAL = GBApplication.getPrefs().getInt(ActivityUser.PREF_USER_STEPS_GOAL, ActivityUser.defaultUserStepsGoal);
 
@@ -97,46 +99,9 @@ public class StepsPeriodFragment extends StepsFragment<StepsPeriodFragment.Steps
             mBalanceView.setVisibility(View.GONE);
         }
 
-        setupStepsChart();
         refresh();
 
         return rootView;
-    }
-
-    protected void setupStepsChart() {
-        stepsChart.getDescription().setEnabled(false);
-        if (TOTAL_DAYS <= 7) {
-            stepsChart.setTouchEnabled(false);
-            stepsChart.setPinchZoom(false);
-        }
-        stepsChart.setDoubleTapToZoomEnabled(false);
-        stepsChart.getLegend().setEnabled(false);
-
-        final XAxis xAxisBottom = stepsChart.getXAxis();
-        xAxisBottom.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxisBottom.setDrawLabels(true);
-        xAxisBottom.setDrawGridLines(false);
-        xAxisBottom.setEnabled(true);
-        xAxisBottom.setDrawLimitLinesBehindData(true);
-        xAxisBottom.setTextColor(CHART_TEXT_COLOR);
-
-        final YAxis yAxisLeft = stepsChart.getAxisLeft();
-        yAxisLeft.setDrawGridLines(true);
-        yAxisLeft.setDrawTopYLabelEntry(true);
-        yAxisLeft.setEnabled(true);
-        yAxisLeft.setTextColor(CHART_TEXT_COLOR);
-        yAxisLeft.setAxisMinimum(0f);
-        final LimitLine goalLine = new LimitLine(STEPS_GOAL);
-        goalLine.setLineColor(getResources().getColor(R.color.steps_color));
-        goalLine.setLineWidth(1.5f);
-        goalLine.enableDashedLine(15f, 10f, 0f);
-        yAxisLeft.addLimitLine(goalLine);
-
-        final YAxis yAxisRight = stepsChart.getAxisRight();
-        yAxisRight.setEnabled(true);
-        yAxisRight.setDrawLabels(false);
-        yAxisRight.setDrawGridLines(false);
-        yAxisRight.setDrawAxisLine(true);
     }
 
     @Override
@@ -164,28 +129,17 @@ public class StepsPeriodFragment extends StepsFragment<StepsPeriodFragment.Steps
     @Override
     protected void updateChartsnUIThread(StepsData stepsData) {
         mDateView.setText(DateTimeUtils.formatDaysUntil(TOTAL_DAYS, getTSEnd()));
-        stepsChart.setData(null);
 
-        List<BarEntry> entries = new ArrayList<>();
-        int counter = 0;
-        for (StepsDay day : stepsData.days) {
-            entries.add(new BarEntry(counter, day.steps));
-            counter++;
+        final long[] epochDays = new long[stepsData.days.size()];
+        final long[] steps = new long[stepsData.days.size()];
+        for (int i = 0; i < stepsData.days.size(); i++) {
+            epochDays[i] = epochDay(stepsData.days.get(i).day);
+            steps[i] = stepsData.days.get(i).steps;
         }
-        BarDataSet set = new BarDataSet(entries, "Steps");
-        set.setDrawValues(true);
-        set.setColors(getResources().getColor(R.color.steps_color));
-        final XAxis x = stepsChart.getXAxis();
-        x.setValueFormatter(getStepsChartDayValueFormatter(stepsData));
-        stepsChart.getAxisLeft().setAxisMaximum(Math.max(set.getYMax(), STEPS_GOAL) + 2000);
+        final int stepsColor = ContextCompat.getColor(requireContext(), R.color.steps_color);
+        stepsChart.setSelectionContent(x -> selection(epochDays, steps, stepsColor, x));
+        stepsChart.setSpec(StepsPeriodChartData.buildChartSpec(epochDays, steps, stepsColor, STEPS_GOAL));
 
-        BarData barData = new BarData(set);
-        set.setValueTextColor(TEXT_COLOR);
-        barData.setValueTextSize(10f);
-        if (TOTAL_DAYS > 7) {
-            stepsChart.setRenderer(new AngledLabelsChartRenderer(stepsChart, stepsChart.getAnimator(), stepsChart.getViewPortHandler()));
-        }
-        stepsChart.setData(barData);
         final WorkoutValueFormatter valueFormatter = new WorkoutValueFormatter();
         stepsPeriodStatsContainer.removeAllViews();
         final List<StatTileData> stats = new ArrayList<>();
@@ -198,16 +152,32 @@ public class StepsPeriodFragment extends StepsFragment<StepsPeriodFragment.Steps
         mBalanceView.setText(stepsData.getBalanceMessage(getContext(), STEPS_GOAL));
     }
 
-    ValueFormatter getStepsChartDayValueFormatter(StepsPeriodFragment.StepsData stepsData) {
-        return new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                StepsPeriodFragment.StepsDay day = stepsData.days.get((int) value);
-                String pattern = TOTAL_DAYS > 7 ? "dd" : "EEE";
-                SimpleDateFormat formatLetterDay = new SimpleDateFormat(pattern, Locale.getDefault());
-                return formatLetterDay.format(new Date(day.day.getTimeInMillis()));
+    /**
+     * The tooltip of a day: its date and steps.
+     */
+    private ChartSelection selection(final long[] epochDays, final long[] steps, final int stepsColor, final double x) {
+        final Locale locale = Locale.getDefault();
+        final String title = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEMMMd"), locale)
+                .format(LocalDate.ofEpochDay(Math.round(x)));
+        long daySteps = 0;
+        for (int i = 0; i < epochDays.length; i++) {
+            if (epochDays[i] == Math.round(x)) {
+                daySteps = steps[i];
             }
-        };
+        }
+        if (daySteps == 0) {
+            return new ChartSelection(title, Collections.emptyList(), title + ".");
+        }
+        final String value = new WorkoutValueFormatter().formatValue(daySteps, ActivitySummaryEntries.UNIT_STEPS);
+        return new ChartSelection(
+                title,
+                Collections.singletonList(new ChartSelection.Row(stepsColor, value)),
+                title + ". " + getString(R.string.steps) + " " + value + "."
+        );
+    }
+
+    private static long epochDay(final Calendar day) {
+        return LocalDate.of(day.get(Calendar.YEAR), day.get(Calendar.MONTH) + 1, day.get(Calendar.DAY_OF_MONTH)).toEpochDay();
     }
 
     @Override

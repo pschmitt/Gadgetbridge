@@ -1,12 +1,84 @@
 package nodomain.freeyourgadget.gadgetbridge.model
 
+import android.location.Location
 import android.os.Parcel
-import nodomain.freeyourgadget.gadgetbridge.model.WeatherSpec
+import net.e175.klaus.solarpositioning.DeltaT
+import net.e175.klaus.solarpositioning.SolarEvents
 import nodomain.freeyourgadget.gadgetbridge.test.TestBase
 import org.junit.Assert
 import org.junit.Test
+import java.time.Duration
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.GregorianCalendar
 
 class WeatherSpecTest : TestBase() {
+    @Test
+    fun testSolarEventsMatchReferenceAcrossSeasonsAndTimeZones() {
+        val locations = listOf(
+            Triple(-37.8, 145.0, "Australia/Melbourne"),
+            Triple(51.5, -0.1, "Europe/London"),
+            Triple(1.3, 103.8, "Asia/Singapore"),
+            Triple(69.6, 19.0, "Europe/Oslo"),
+            Triple(90.0, 0.0, "UTC"),
+        )
+        val dates = listOf(
+            "2011-01-01", "2026-03-20", "2026-06-21", "2026-09-22",
+            "2026-12-21", "2026-10-04", "2109-12-31"
+        )
+        for ((latitude, longitude, zone) in locations) {
+            val location = Location("test").apply {
+                this.latitude = latitude
+                this.longitude = longitude
+            }
+            for (dateString in dates) {
+                val date = LocalDate.parse(dateString)
+                val calendar = GregorianCalendar.from(date.atStartOfDay(ZoneId.of(zone)))
+                for (horizon in listOf(SolarEvents.Horizon.SUNRISE_SUNSET, SolarEvents.Horizon.CIVIL_TWILIGHT)) {
+                    val reference = SolarEvents.spa().forDate(
+                        date, calendar.timeZone.toZoneId(), latitude, longitude, DeltaT.estimate(date), horizon
+                    )
+                    val actual = WeatherSpec.solarDay(calendar, location, horizon)
+                    val label = "$dateString $zone $horizon"
+                    Assert.assertEquals(label, reference.start(), actual.start())
+                    Assert.assertEquals(label, reference.end(), actual.end())
+                    Assert.assertEquals(label, reference.stateAtStart(), actual.stateAtStart())
+                    Assert.assertEquals(label, reference.alwaysAbove(), actual.alwaysAbove())
+                    Assert.assertEquals(label, reference.alwaysBelow(), actual.alwaysBelow())
+                    for ((expectedEvents, actualEvents) in listOf(
+                        reference.rises() to actual.rises(),
+                        reference.sets() to actual.sets(),
+                    )) {
+                        Assert.assertEquals(label, expectedEvents.size, actualEvents.size)
+                        for (i in expectedEvents.indices) {
+                            Assert.assertTrue(
+                                label,
+                                Duration.between(expectedEvents[i], actualEvents[i]).abs() <= Duration.ofSeconds(5)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testSolarEventsOutsideGrenaRangeUseReferenceModel() {
+        val location = Location("test").apply {
+            latitude = -37.8
+            longitude = 145.0
+        }
+        for (dateString in listOf("2000-06-21", "2010-01-01", "2110-12-31", "2200-06-21")) {
+            val date = LocalDate.parse(dateString)
+            val zone = ZoneId.of("Australia/Melbourne")
+            val calendar = GregorianCalendar.from(date.atStartOfDay(zone))
+            val reference = SolarEvents.spa().forDate(
+                date, zone, location.latitude, location.longitude, DeltaT.estimate(date)
+            )
+            Assert.assertEquals(reference, WeatherSpec.solarDay(calendar, location))
+        }
+    }
+
     @Test
     fun testParcelUnmarshallV4() {
         val weatherSpec = WeatherSpec()

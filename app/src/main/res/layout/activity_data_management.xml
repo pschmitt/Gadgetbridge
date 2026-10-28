@@ -17,11 +17,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingBottom="@dimen/activity_vertical_margin">
+            android:orientation="vertical">
             <TextView
                 android:id="@+id/backupRestoreLabel"
                 android:layout_width="match_parent"
@@ -64,66 +60,136 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/vendorImportSection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
             android:orientation="vertical"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingBottom="@dimen/activity_vertical_margin">
-
+            android:visibility="gone">
 
             <TextView
-                android:id="@+id/exportImportLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/activity_db_management_exportimport_label"
+                android:text="@string/vendor_data_import_section"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="?attr/accent_color" />
 
             <TextView
-                android:id="@+id/db_management_intro"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/activity_db_management_import_export_explanation"
+                android:text="@string/vendor_data_import_summary"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
+            <Button
+                android:id="@+id/vendorImportButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/vendor_data_import_title" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="24dp">
+
             <TextView
-                android:id="@+id/activity_data_management_path"
+                android:id="@+id/dataLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/exportDataButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="2dp"
-                    android:text="@string/activity_DB_ExportButton" />
-
-                <Button
-                    android:id="@+id/importDataButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="2dp"
-                    android:text="@string/activity_DB_import_button" />
-            </LinearLayout>
+                android:text="@string/activity_db_management_data_label"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="?attr/accent_color" />
 
             <Button
                 android:id="@+id/showContentDataButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/activity_DB_ShowContentButton" />
+                android:layout_marginTop="10dp"
+                android:text="@string/activity_DB_ShowExternalDataButton" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="24dp">
+
+            <LinearLayout
+                android:id="@+id/legacyExportHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:orientation="horizontal"
+                android:paddingVertical="12dp">
+
+                <TextView
+                    android:id="@+id/legacyExportLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/activity_db_management_legacy_export_label"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?attr/accent_color" />
+
+                <ImageView
+                    android:id="@+id/legacyExportArrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_arrow_drop_down_chart" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/legacyExportContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/db_management_intro"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/activity_db_management_import_export_explanation"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                <TextView
+                    android:id="@+id/activity_data_management_path"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/exportDataButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="2dp"
+                        android:text="@string/activity_DB_ExportButton" />
+
+                    <Button
+                        android:id="@+id/importDataButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="2dp"
+                        android:text="@string/activity_DB_import_button" />
+                </LinearLayout>
+            </LinearLayout>
 
         </LinearLayout>
 

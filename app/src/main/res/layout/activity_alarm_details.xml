@@ -1,231 +1,298 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     tools:context="nodomain.freeyourgadget.gadgetbridge.activities.AlarmDetails">
 
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true">
+        android:orientation="vertical"
+        android:paddingVertical="6dp">
 
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_label"
+            style="?attr/materialCardViewFilledStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingBottom="@dimen/activity_vertical_margin">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/preset_label_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:hint="@string/world_clock_label"
-                app:endIconMode="dropdown_menu">
-
-                <AutoCompleteTextView
-                    android:id="@+id/preset_label_spinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none"
-                    android:focusable="false" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <EditText
-                android:id="@+id/title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="@string/title"
-                android:inputType="text"
-                android:maxLength="32" />
-
-            <EditText
-                android:id="@+id/description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:gravity="start|top"
-                android:hint="@string/description"
-                android:inputType="textMultiLine"
-                android:maxLength="256"
-                android:singleLine="false" />
-
-            <androidx.appcompat.widget.AppCompatCheckedTextView
-                android:id="@+id/cb_snooze"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginStart="4dp"
-                android:drawableStart="?android:attr/listChoiceIndicatorMultiple"
-                android:gravity="center"
-                android:text="@string/alarm_snooze"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/sound_mode_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:hint="@string/pref_header_sound_vibration"
-                app:endIconMode="dropdown_menu">
-
-                <AutoCompleteTextView
-                    android:id="@+id/sound_mode_spinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none"
-                    android:focusable="false" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <androidx.appcompat.widget.AppCompatCheckedTextView
-                android:id="@+id/cb_backlight"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginStart="4dp"
-                android:drawableStart="?android:attr/listChoiceIndicatorMultiple"
-                android:gravity="center"
-                android:text="@string/watchface_setting_button_toggle_backlight"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
-
-            <androidx.appcompat.widget.AppCompatCheckedTextView
-                android:id="@+id/cb_smart_wakeup"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginStart="4dp"
-                android:drawableStart="?android:attr/listChoiceIndicatorMultiple"
-                android:gravity="center"
-                android:text="@string/alarm_smart_wakeup"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
-
-            <EditText
-                android:id="@+id/cb_smart_wakeup_interval"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="number"
-                android:hint="@string/alarm_smart_wakeup_interval_default" />
-
-            <TextView
-                android:id="@+id/tv_smart_wakeup_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:visibility="gone" />
-
-            <TimePicker
-                android:id="@+id/time_picker"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:scaleX="1"
-                android:scaleY="1" />
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginVertical="6dp"
+            app:cardBackgroundColor="?attr/device_card_bg"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeColor="?attr/stat_tile_border"
+            app:strokeWidth="1dp">
 
             <LinearLayout
-                android:id="@+id/dowSelector"
-                android:layout_width="fill_parent"
+                android:id="@+id/card_label_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="16dp">
 
-                <androidx.appcompat.widget.AppCompatCheckedTextView
-                    android:id="@+id/cb_monday"
-                    android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/preset_label_layout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_weight="1"
-                    android:drawableTop="?android:attr/listChoiceIndicatorMultiple"
-                    android:gravity="center"
-                    android:text="@string/alarm_mon_short"
-                    android:textAlignment="gravity"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/world_clock_label"
+                    android:labelFor="@+id/preset_label_spinner">
 
-                <androidx.appcompat.widget.AppCompatCheckedTextView
-                    android:id="@+id/cb_tuesday"
-                    android:layout_width="wrap_content"
+                    <AutoCompleteTextView
+                        android:id="@+id/preset_label_spinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/title_layout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_weight="1"
-                    android:drawableTop="?android:attr/listChoiceIndicatorMultiple"
-                    android:gravity="center"
-                    android:text="@string/alarm_tue_short"
-                    android:textAlignment="gravity"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/title"
+                    android:labelFor="@+id/title">
 
-                <androidx.appcompat.widget.AppCompatCheckedTextView
-                    android:id="@+id/cb_wednesday"
-                    android:layout_width="wrap_content"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:maxLength="32" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/description_layout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_weight="1"
-                    android:drawableTop="?android:attr/listChoiceIndicatorMultiple"
-                    android:gravity="center"
-                    android:text="@string/alarm_wed_short"
-                    android:textAlignment="gravity"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/description"
+                    android:labelFor="@+id/description">
 
-                <androidx.appcompat.widget.AppCompatCheckedTextView
-                    android:id="@+id/cb_thursday"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_weight="1"
-                    android:drawableTop="?android:attr/listChoiceIndicatorMultiple"
-                    android:gravity="center"
-                    android:text="@string/alarm_thu_short"
-                    android:textAlignment="gravity"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
-
-                <androidx.appcompat.widget.AppCompatCheckedTextView
-                    android:id="@+id/cb_friday"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_weight="1"
-                    android:drawableTop="?android:attr/listChoiceIndicatorMultiple"
-                    android:gravity="center"
-                    android:text="@string/alarm_fri_short"
-                    android:textAlignment="gravity"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
-
-                <androidx.appcompat.widget.AppCompatCheckedTextView
-                    android:id="@+id/cb_saturday"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_weight="1"
-                    android:drawableTop="?android:attr/listChoiceIndicatorMultiple"
-                    android:gravity="center"
-                    android:text="@string/alarm_sat_short"
-                    android:textAlignment="gravity"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
-
-                <androidx.appcompat.widget.AppCompatCheckedTextView
-                    android:id="@+id/cb_sunday"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_weight="1"
-                    android:drawableTop="?android:attr/listChoiceIndicatorMultiple"
-                    android:gravity="center"
-                    android:text="@string/alarm_sun_short"
-                    android:textAlignment="gravity"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
-
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/description"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start|top"
+                        android:inputType="textMultiLine"
+                        android:maxLength="256" />
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        </LinearLayout>
-    </ScrollView>
-</RelativeLayout>
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_time"
+            style="?attr/materialCardViewFilledStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginVertical="6dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardBackgroundColor="?attr/device_card_bg"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeColor="?attr/stat_tile_border"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/reminder_time"
+                    android:textAppearance="?attr/textAppearanceLabelLarge"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    android:id="@+id/alarm_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceDisplayMedium" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            style="?attr/materialCardViewFilledStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginVertical="6dp"
+            app:cardBackgroundColor="?attr/device_card_bg"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeColor="?attr/stat_tile_border"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/reminder_repeat"
+                    android:textAppearance="?attr/textAppearanceLabelLarge"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/dowSelector"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/cb_monday"
+                        style="@style/Widget.App.Chip.Weekday" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/cb_tuesday"
+                        style="@style/Widget.App.Chip.Weekday" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/cb_wednesday"
+                        style="@style/Widget.App.Chip.Weekday" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/cb_thursday"
+                        style="@style/Widget.App.Chip.Weekday" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/cb_friday"
+                        style="@style/Widget.App.Chip.Weekday" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/cb_saturday"
+                        style="@style/Widget.App.Chip.Weekday" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/cb_sunday"
+                        style="@style/Widget.App.Chip.Weekday" />
+
+                    <androidx.constraintlayout.helper.widget.Flow
+                        android:id="@+id/dow_flow"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:constraint_referenced_ids="cb_monday,cb_tuesday,cb_wednesday,cb_thursday,cb_friday,cb_saturday,cb_sunday"
+                        app:flow_horizontalStyle="spread_inside"
+                        app:flow_wrapMode="none"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_options"
+            style="?attr/materialCardViewFilledStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginVertical="6dp"
+            app:cardBackgroundColor="?attr/device_card_bg"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeColor="?attr/stat_tile_border"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:id="@+id/card_options_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/sound_mode_layout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="8dp"
+                    android:hint="@string/pref_header_sound_vibration"
+                    android:labelFor="@+id/sound_mode_spinner">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/sound_mode_spinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/cb_snooze"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_activity_sleep"
+                    android:drawablePadding="16dp"
+                    android:drawableTint="?android:attr/textColorSecondary"
+                    android:minHeight="48dp"
+                    android:text="@string/alarm_snooze"
+                    android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/cb_backlight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_wb_sunny"
+                    android:drawablePadding="16dp"
+                    android:drawableTint="?android:attr/textColorSecondary"
+                    android:minHeight="48dp"
+                    android:text="@string/watchface_setting_button_toggle_backlight"
+                    android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/cb_smart_wakeup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_alarm_smart_wake"
+                    android:drawablePadding="16dp"
+                    android:drawableTint="?android:attr/textColorSecondary"
+                    android:minHeight="48dp"
+                    android:text="@string/alarm_smart_wakeup"
+                    android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/smart_wakeup_interval_layout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="8dp"
+                    android:hint="@string/alarm_smart_wakeup_interval_minutes"
+                    android:labelFor="@+id/cb_smart_wakeup_interval"
+                    app:placeholderText="@string/alarm_smart_wakeup_interval_default">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/cb_smart_wakeup_interval"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/tv_smart_wakeup_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</ScrollView>

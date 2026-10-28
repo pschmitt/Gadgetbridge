@@ -932,7 +932,7 @@
     <string name="lefun_prefs_hydration_reminder_interval_title">الفاصل الزمني للتذكير بالترطيب (بالدقائق)</string>
     <string name="pref_workout_detection_categories_summary">فئات التدريبات لاكتشافها تلقائيًا</string>
     <string name="reminder_no_free_slots_description">لا يحتوي الجهاز على صفحات فارغة للتذكيرات (إجمالي الصفحات: %1$s)</string>
-    <string name="pref_switch_controls_anc_ambient_off">إلغاء الضوضاء ←→ إيقاف ←→ المحيط</string>
+    <string name="pref_switch_controls_anc_ambient_off">إلغاء الضوضاء ↔ إيقاف ↔ المحيط</string>
     <string name="autoconnect_from_device_title">الاتصال عند الاتصال من الجهاز</string>
     <string name="updatefirmwareoperation_metadata_updateproblem">مشكلة في نقل البيانات الوصفية للبرنامج الثابت</string>
     <string name="pref_title_keep_data_on_device">الاحتفاظ ببيانات النشاط على الجهاز</string>
@@ -1254,8 +1254,8 @@
     <string name="pref_header_heartrate_allday">مراقبة طوال اليوم</string>
     <string name="pref_title_touch_quick_ambient">صوت محيطي سريع</string>
     <string name="sony_ambient_sound_focus_voice">التركيز على الصوت</string>
-    <string name="pref_switch_controls_anc_ambient">إلغاء الضوضاء ←→ المحيطي</string>
-    <string name="pref_switch_controls_ambient_off">محيطي ←→ إيقاف</string>
+    <string name="pref_switch_controls_anc_ambient">إلغاء الضوضاء ↔ المحيطي</string>
+    <string name="pref_switch_controls_ambient_off">محيطي ↔ إيقاف</string>
     <string name="prefs_voice_detect_duration">انتهى بعد الهدوء من أجل:</string>
     <string name="pref_voice_detect_duration_5">5 ثوان</string>
     <string name="pref_voice_detect_duration_15">15 ثانية</string>

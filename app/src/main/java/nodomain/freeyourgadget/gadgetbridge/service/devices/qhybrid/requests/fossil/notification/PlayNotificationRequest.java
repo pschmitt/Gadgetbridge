@@ -62,6 +62,7 @@ public abstract class PlayNotificationRequest extends FilePutRequest {
         byte[] titleBytes = nullTerminatedTitle.getBytes(charsetUTF8);
         String nullTerminatedSender = StringUtils.terminateNull(sender);
         byte[] senderBytes = nullTerminatedSender.getBytes(charsetUTF8);
+        message = StringUtils.ensureNotNull(message);
         if (message.length() > 475) {
             message = message.substring(0, 475);
         }

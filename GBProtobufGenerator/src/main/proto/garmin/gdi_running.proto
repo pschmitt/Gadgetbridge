@@ -1,0 +1,95 @@
+syntax = "proto2";
+package GDI.Proto.Running;
+
+option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin";
+option java_outer_classname = "GdiRunning";
+
+message AlgorithmInputNotification {
+    optional uint32 horizontal_speed_1_256ths_ms = 1;
+    optional GDI.Proto.Running.SpeedDistanceAlgorithmInputs speed_distance_algorithm_inputs = 2;
+}
+
+message CapabilitiesRequest {
+}
+
+message CapabilitiesResponse {
+    optional GDI.Proto.Running.SpeedDistanceCapabilities speed_distance_capabilities = 1;
+    optional GDI.Proto.Running.DynamicsCapabilities dynamics_capabilities = 2;
+}
+
+message ConfigurationNotification {
+    optional GDI.Proto.Running.SpeedDistanceConfigurationFields speed_distance_config = 1;
+}
+
+message ConfigurationRequest {
+    optional GDI.Proto.Running.SpeedDistanceConfigurationFields speed_distance_config = 1;
+}
+
+message ConfigurationResponse {
+    optional GDI.Proto.Running.SpeedDistanceConfigurationFields speed_distance_config = 1;
+}
+
+message Dynamics {
+    optional uint32 vertical_oscillation_1_4ths_mm = 1;
+    optional uint32 ground_contact_time_ms = 2;
+    optional uint32 stance_time_1_4ths_percent = 3;
+    optional uint32 ground_contact_balance_1_32ths_percent = 4;
+    optional uint32 vertical_ratio_1_32ths_percent = 5;
+    optional uint32 step_length_mm = 6;
+    optional bool is_module_right_side_up = 7;
+    optional uint32 cadence_1_32_strides_per_min = 8;
+    optional uint32 step_count = 9;
+    optional bool is_walking = 10;
+    optional GDI.Proto.Running.StepSpeedLoss step_speed_loss_data = 11;
+}
+
+message DynamicsCapabilities {
+    optional bool is_step_speed_loss_supported = 1;
+}
+
+message MeasurementNotification {
+    optional GDI.Proto.Running.Dynamics dynamics_data = 1;
+    optional GDI.Proto.Running.SpeedDistance speed_distance_data = 2;
+}
+
+message ResetSpeedDistanceCalibrationMetricsRequest {
+}
+
+message ResetSpeedDistanceCalibrationMetricsResponse {
+}
+
+message Service {
+    optional GDI.Proto.Running.ConfigurationRequest configuration_request = 1;
+    optional GDI.Proto.Running.ConfigurationResponse configuration_response = 2;
+    optional GDI.Proto.Running.ConfigurationNotification configuration_notification = 3;
+    optional GDI.Proto.Running.ResetSpeedDistanceCalibrationMetricsRequest reset_calibration_request = 4;
+    optional GDI.Proto.Running.ResetSpeedDistanceCalibrationMetricsResponse reset_calibration_response = 5;
+}
+
+message SpeedDistance {
+    optional uint32 speed_1_256_m_per_s = 1;
+    optional uint32 distance_1_16_m = 2;
+}
+
+message SpeedDistanceAlgorithmInputs {
+    optional sint32 grade_1_100_pct = 1;
+    optional uint32 gps_speed_1_mm_per_s = 2;
+}
+
+message SpeedDistanceCapabilities {
+    optional bool is_auto_calibration_supported = 1;
+}
+
+message SpeedDistanceConfigurationFields {
+    optional uint32 treadmill_calibration_factor_1_100_pct = 1;
+    optional bool is_auto_calibration_enabled = 2;
+    optional uint32 user_height_cm = 3;
+}
+
+message StepSpeedLoss {
+    optional sint32 step_forward_velocity_trough_mm_per_s = 1;
+    optional sint32 step_forward_velocity_peak_mm_per_s = 2;
+    optional sint32 step_forward_velocity_mean_mm_per_s = 3;
+    optional sint32 step_vertical_velocity_at_trough_mm_per_s = 4;
+    optional uint32 time_to_trough_ms = 5;
+}

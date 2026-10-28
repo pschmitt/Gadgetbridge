@@ -50,4 +50,9 @@ public interface ChartsHost {
     ViewGroup getDateBar();
 
     void enableSwipeRefresh(boolean enable);
+
+    /**
+     * Go to the chart tab with the given name, if it is enabled.
+     */
+    void showChart(String chartName);
 }

@@ -107,6 +107,10 @@ public class ZeppOsMusicInstallHandler implements InstallHandler {
     public void onStartInstall(@NonNull final GBDevice device) {
     }
 
+    public Uri getUri() {
+        return mUri;
+    }
+
     public AudioInfo getAudioInfo() {
         return mAudioInfo;
     }

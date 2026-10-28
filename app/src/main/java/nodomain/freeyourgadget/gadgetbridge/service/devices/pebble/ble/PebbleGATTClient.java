@@ -79,7 +79,7 @@ class PebbleGATTClient extends BluetoothGattCallback implements PairingCallback 
             mPebbleLESupport.setMTU(newMTU);
         } else if (characteristic.getUuid().equals(PebbleGATTConstants.PPOGATT_CHARACTERISTIC_READ)) {
             mPebbleLESupport.handlePPoGATTPacket(characteristic.getValue().clone());
-        } else if (characteristic.getUuid().equals(GattCharacteristic.UUID_CHARACTERISTIC_BATTERY_LEVEL)) {
+        } else if (characteristic.getUuid().equals(GattCharacteristic.CHARACTERISTIC_BATTERY_LEVEL.uuid)) {
             int battery_percent = ValueDecoder.decodePercent(characteristic, characteristic.getValue());
             LOG.info("Got battery level through notification, is at {}%", battery_percent);
         } else {
@@ -103,7 +103,7 @@ class PebbleGATTClient extends BluetoothGattCallback implements PairingCallback 
             }
 
             // Handle non-pairing characteristics
-            if (characteristic.getUuid().equals(GattCharacteristic.UUID_CHARACTERISTIC_BATTERY_LEVEL)) {
+            if (characteristic.getUuid().equals(GattCharacteristic.CHARACTERISTIC_BATTERY_LEVEL.uuid)) {
                 int battery_percent = ValueDecoder.decodePercent(characteristic, characteristic.getValue());
                 LOG.info("Got battery level through read, is at {}%", battery_percent);
                 GBDeviceEventBatteryInfo gbDeviceEventBatteryInfo = new GBDeviceEventBatteryInfo();
@@ -171,7 +171,7 @@ class PebbleGATTClient extends BluetoothGattCallback implements PairingCallback 
             subscribeToConnectivity(gatt);
         } else if (CHARACTERISTICUUID.equals(PebbleGATTConstants.CONNECTIVITY_CHARACTERISTIC)) {
             subscribeToMTUOrBattery(gatt);
-        } else if (CHARACTERISTICUUID.equals(PebbleGATTConstants.MTU_CHARACTERISTIC) || CHARACTERISTICUUID.equals(GattCharacteristic.UUID_CHARACTERISTIC_BATTERY_LEVEL)) {
+        } else if (CHARACTERISTICUUID.equals(PebbleGATTConstants.MTU_CHARACTERISTIC) || CHARACTERISTICUUID.equals(GattCharacteristic.CHARACTERISTIC_BATTERY_LEVEL.uuid)) {
             if (mPebbleLESupport.clientOnly) {
                 subscribeToPPoGATT(gatt);
             } else {
@@ -234,11 +234,11 @@ class PebbleGATTClient extends BluetoothGattCallback implements PairingCallback 
     }
 
     public void readBatteryCharacteristic() {
-        BluetoothGattService serivce = mBluetoothGatt.getService(GattService.UUID_SERVICE_BATTERY_SERVICE);
+        BluetoothGattService serivce = mBluetoothGatt.getService(GattService.SERVICE_BATTERY.uuid);
         if (serivce == null)
             return;
 
-        BluetoothGattCharacteristic characteristic = serivce.getCharacteristic(GattCharacteristic.UUID_CHARACTERISTIC_BATTERY_LEVEL);
+        BluetoothGattCharacteristic characteristic = serivce.getCharacteristic(GattCharacteristic.CHARACTERISTIC_BATTERY_LEVEL.uuid);
         if (characteristic == null)
             return;
 
@@ -289,12 +289,12 @@ class PebbleGATTClient extends BluetoothGattCallback implements PairingCallback 
     }
 
     private void subscribeToBattery(BluetoothGatt gatt) {
-        BluetoothGattCharacteristic characteristic = gatt.getService(GattService.UUID_SERVICE_BATTERY_SERVICE).getCharacteristic(GattCharacteristic.UUID_CHARACTERISTIC_BATTERY_LEVEL);
+        BluetoothGattCharacteristic characteristic = gatt.getService(GattService.SERVICE_BATTERY.uuid).getCharacteristic(GattCharacteristic.CHARACTERISTIC_BATTERY_LEVEL.uuid);
         if (characteristic != null) {
             LOG.info("subscribing to battery characteristic");
-            BluetoothGattDescriptor descriptor = gatt.getService(GattService.UUID_SERVICE_BATTERY_SERVICE).getCharacteristic(GattCharacteristic.UUID_CHARACTERISTIC_BATTERY_LEVEL).getDescriptor(PebbleGATTConstants.CHARACTERISTIC_CONFIGURATION_DESCRIPTOR);
+            BluetoothGattDescriptor descriptor = gatt.getService(GattService.SERVICE_BATTERY.uuid).getCharacteristic(GattCharacteristic.CHARACTERISTIC_BATTERY_LEVEL.uuid).getDescriptor(PebbleGATTConstants.CHARACTERISTIC_CONFIGURATION_DESCRIPTOR);
             NotifyAction.writeDescriptor(gatt, descriptor, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            gatt.setCharacteristicNotification(gatt.getService(GattService.UUID_SERVICE_BATTERY_SERVICE).getCharacteristic(GattCharacteristic.UUID_CHARACTERISTIC_BATTERY_LEVEL), true);
+            gatt.setCharacteristicNotification(gatt.getService(GattService.SERVICE_BATTERY.uuid).getCharacteristic(GattCharacteristic.CHARACTERISTIC_BATTERY_LEVEL.uuid), true);
         } else {
             LOG.info("Could not find Battery Characteristic. This is normal on pre-2025 pebbles.");
         }

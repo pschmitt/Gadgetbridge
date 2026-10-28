@@ -61,10 +61,10 @@ public class SoFlowSupport extends AbstractBTLESingleDeviceSupport {
 
     public SoFlowSupport() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION);
-        addSupportedService(GattService.UUID_SERVICE_BATTERY_SERVICE);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
+        addSupportedService(GattService.SERVICE_BATTERY.uuid);
         addSupportedService(UUID.fromString("60000001-0000-1000-8000-00805f9b34fb"));
 
         deviceInfoProfile = new DeviceInfoProfile<>(this);

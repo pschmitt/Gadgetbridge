@@ -9,6 +9,8 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
+import java.util.Locale;
+
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutValueFormatter;
@@ -56,7 +58,7 @@ public class ActivitySummaryProgressEntry extends ActivitySummarySimpleEntry {
         valueTextView.setTextSize(12);
         valueTextView.setTextColor(GBApplication.getTextColor(context));
         valueTextView.setGravity(Gravity.END);
-        valueTextView.setText(workoutValueFormatter.formatValue(getValue(), getUnit()));
+        valueTextView.setText(String.format(Locale.getDefault(), "%s (%d%%)", workoutValueFormatter.formatValue(getValue(), getUnit()), progress));
 
         // Layout for the labels, so the value is at the right
         final LinearLayout labelsLinearLayout = new LinearLayout(context);
@@ -79,7 +81,10 @@ public class ActivitySummaryProgressEntry extends ActivitySummarySimpleEntry {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         progressLayout.addView(progressBar, params);
 
+        final LinearLayout.LayoutParams progressLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        progressLayoutParams.topMargin = (int) (4 * context.getResources().getDisplayMetrics().density);
+
         linearLayout.addView(labelsLinearLayout);
-        linearLayout.addView(progressLayout);
+        linearLayout.addView(progressLayout, progressLayoutParams);
     }
 }

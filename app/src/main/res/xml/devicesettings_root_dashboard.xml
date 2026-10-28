@@ -4,5 +4,5 @@
         android:icon="@drawable/ic_dashboard"
         android:key="pref_screen_dashboard"
         android:persistent="false"
-        android:title="@string/pref_header_dashboard"></PreferenceScreen>
+        android:title="@string/pref_header_dashboard" />
 </androidx.preference.PreferenceScreen>

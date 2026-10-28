@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:title="@string/bottom_nav_dashboard"
+    tools:ignore="HardcodedText">
+
+    <Preference
+        android:icon="@drawable/ic_settings_backup_restore"
+        android:key="pref_debug_dashboard_reset"
+        android:persistent="false"
+        android:summary="Reset the new dashboard, migrate the legacy config again"
+        android:title="Reset dashboard" />
+
+    <Preference
+        android:icon="@drawable/ic_add"
+        android:key="pref_debug_dashboard_add_all_variants"
+        android:persistent="false"
+        android:summary="Add every possible variant of every widget - including unsupported"
+        android:title="Add every widget variant" />
+
+    <PreferenceCategory
+        android:key="pref_debug_dashboard_header_layouts"
+        android:title="Layouts"
+        app:iconSpaceReserved="false" />
+
+</androidx.preference.PreferenceScreen>

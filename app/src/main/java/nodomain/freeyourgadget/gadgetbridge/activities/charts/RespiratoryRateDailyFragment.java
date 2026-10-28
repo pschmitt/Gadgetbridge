@@ -1,6 +1,7 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.charts;
 
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,14 +11,6 @@ import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 
 import com.github.mikephil.charting.charts.Chart;
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.LegendEntry;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,21 +18,27 @@ import org.slf4j.LoggerFactory;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartSelection;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.respiratoryrate.RespiratoryRateChartData;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileData;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileGridUtilKt;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.RespiratoryRateSample;
+import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 
 public class RespiratoryRateDailyFragment extends RespiratoryRateFragment<RespiratoryRateFragment.RespiratoryRateDay> {
     protected static final Logger LOG = LoggerFactory.getLogger(RespiratoryRateDailyFragment.class);
 
     private TextView mDateView;
     private LinearLayout statsContainer;
-    private LineChart respiratoryRateChart;
+    private GbChartView respiratoryRateChart;
 
     @Override
     public void onResume() {
@@ -57,7 +56,8 @@ public class RespiratoryRateDailyFragment extends RespiratoryRateFragment<Respir
         mDateView = rootView.findViewById(R.id.rr_date_view);
         statsContainer = rootView.findViewById(R.id.respiratory_rate_daily_stats_container);
         respiratoryRateChart = rootView.findViewById(R.id.respiratory_rate_line_chart);
-        setupRespiratoryRateChart();
+        respiratoryRateChart.setZoomable(true);
+        respiratoryRateChart.dismissSelectionOnTapOutside(rootView);
         refresh();
 
         return rootView;
@@ -106,75 +106,31 @@ public class RespiratoryRateDailyFragment extends RespiratoryRateFragment<Respir
         statsContainer.removeAllViews();
         StatTileGridUtilKt.addStatTileGrid(statsContainer, requireContext(), stats, 0);
 
-        // Chart
-        final List<LegendEntry> legendEntries = new ArrayList<>(1);
-        final LegendEntry respiratoryRateEntry = new LegendEntry();
-        respiratoryRateEntry.label = getString(R.string.respiratoryrate);
-        respiratoryRateEntry.formColor = ContextCompat.getColor(requireContext(), R.color.respiratory_rate_color);
-        legendEntries.add(respiratoryRateEntry);
-        respiratoryRateChart.getLegend().setTextColor(TEXT_COLOR);
-        respiratoryRateChart.getLegend().setCustom(legendEntries);
-
-        final List<ILineDataSet> lineDataSets = new ArrayList<>();
-        List<Entry> lineEntries = new ArrayList<>();
-        final TimestampTranslation tsTranslation = new TimestampTranslation();
-        int lastTsShorten = 0;
-        for (final RespiratoryRateSample sample : respiratoryRateDay.respiratoryRateSamples) {
-            int ts = (int) (sample.getTimestamp() / 1000L);
-            int tsShorten = tsTranslation.shorten(ts);
-            if (lastTsShorten == 0 || (tsShorten - lastTsShorten) <= 300) {
-                lineEntries.add(new Entry(tsShorten, (int) sample.getRespiratoryRate()));
-            } else {
-                if (!lineEntries.isEmpty()) {
-                    List<Entry> clone = new ArrayList<>(lineEntries.size());
-                    clone.addAll(lineEntries);
-                    lineDataSets.add(createDataSet(clone));
-                    lineEntries.clear();
+        final List<? extends RespiratoryRateSample> samples = respiratoryRateDay.respiratoryRateSamples;
+        final long[] seconds = new long[samples.size()];
+        final double[] values = new double[samples.size()];
+        for (int i = 0; i < samples.size(); i++) {
+            seconds[i] = samples.get(i).getTimestamp() / 1000L;
+            values[i] = samples.get(i).getRespiratoryRate();
+        }
+        final int rateColor = ContextCompat.getColor(requireContext(), R.color.respiratory_rate_color);
+        final long dayStart = DateTimeUtils.dayStart(respiratoryRateDay.day.getTime()).getTime() / 1000L;
+        respiratoryRateChart.setSelectionContent(x -> {
+            final long time = Math.round(x);
+            final String title = DateFormat.getTimeFormat(requireContext()).format(new Date(time * 1000L));
+            for (int i = 0; i < seconds.length; i++) {
+                if (seconds[i] == time && values[i] > 0) {
+                    final String text = String.valueOf(Math.round(values[i]));
+                    return new ChartSelection(
+                            title,
+                            Collections.singletonList(new ChartSelection.Row(rateColor, text)),
+                            title + ". " + getTitle() + " " + text + "."
+                    );
                 }
             }
-            lastTsShorten = tsShorten;
-            lineEntries.add(new Entry(tsShorten, (int) sample.getRespiratoryRate()));
-        }
-
-        if (!lineEntries.isEmpty()) {
-            lineDataSets.add(createDataSet(lineEntries));
-        }
-
-        respiratoryRateChart.getXAxis().setValueFormatter(new SampleXLabelFormatter(tsTranslation, "HH:mm"));
-        if (respiratoryRateDay.rateLowest > 0 && respiratoryRateDay.rateHighest > 0) {
-            final YAxis yAxisLeft = respiratoryRateChart.getAxisLeft();
-            yAxisLeft.setAxisMaximum(Math.max(respiratoryRateDay.rateHighest + 3, 20));
-        }
-
-        final LineDataSet lineDataSet = new LineDataSet(lineEntries, getString(R.string.respiratoryrate));
-        lineDataSet.setColor(ContextCompat.getColor(requireContext(), R.color.respiratory_rate_color));
-        lineDataSet.setDrawCircles(false);
-        lineDataSet.setLineWidth(2f);
-        lineDataSet.setFillAlpha(255);
-        lineDataSet.setDrawCircles(false);
-        lineDataSet.setCircleColor(ContextCompat.getColor(requireContext(), R.color.respiratory_rate_color));
-        lineDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-        lineDataSet.setDrawValues(false);
-        lineDataSet.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
-
-        lineDataSets.add(lineDataSet);
-        final LineData lineData = new LineData(lineDataSets);
-        respiratoryRateChart.setData(lineData);
-    }
-
-    protected LineDataSet createDataSet(final List<Entry> values) {
-        final LineDataSet lineDataSet = new LineDataSet(values, getString(R.string.respiratoryrate));
-        lineDataSet.setColor(ContextCompat.getColor(requireContext(), R.color.respiratory_rate_color));
-        lineDataSet.setDrawCircles(false);
-        lineDataSet.setLineWidth(2f);
-        lineDataSet.setFillAlpha(255);
-        lineDataSet.setDrawCircles(false);
-        lineDataSet.setCircleColor(ContextCompat.getColor(requireContext(), R.color.respiratory_rate_color));
-        lineDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-        lineDataSet.setDrawValues(false);
-        lineDataSet.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
-
-        return lineDataSet;
+            return new ChartSelection(title, Collections.emptyList(), title + ".");
+        });
+        respiratoryRateChart.setSpec(RespiratoryRateChartData.daySpec(dayStart, seconds, values, getTitle(), rateColor));
     }
 
     @Override
@@ -184,34 +140,4 @@ public class RespiratoryRateDailyFragment extends RespiratoryRateFragment<Respir
 
     @Override
     protected void setupLegend(Chart<?> chart) {}
-
-    private void setupRespiratoryRateChart() {
-        respiratoryRateChart.getDescription().setEnabled(false);
-        respiratoryRateChart.setDoubleTapToZoomEnabled(false);
-
-        final XAxis xAxisBottom = respiratoryRateChart.getXAxis();
-        xAxisBottom.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxisBottom.setDrawLabels(true);
-        xAxisBottom.setDrawGridLines(false);
-        xAxisBottom.setEnabled(true);
-        xAxisBottom.setDrawLimitLinesBehindData(true);
-        xAxisBottom.setTextColor(CHART_TEXT_COLOR);
-        xAxisBottom.setAxisMinimum(0f);
-        xAxisBottom.setAxisMaximum(86400f);
-        xAxisBottom.setLabelCount(7, true);
-
-        final YAxis yAxisLeft = respiratoryRateChart.getAxisLeft();
-        yAxisLeft.setDrawGridLines(true);
-        yAxisLeft.setAxisMinimum(0);
-        yAxisLeft.setAxisMaximum(20);
-        yAxisLeft.setDrawTopYLabelEntry(true);
-        yAxisLeft.setEnabled(true);
-        yAxisLeft.setTextColor(CHART_TEXT_COLOR);
-
-        final YAxis yAxisRight = respiratoryRateChart.getAxisRight();
-        yAxisRight.setEnabled(true);
-        yAxisRight.setDrawLabels(false);
-        yAxisRight.setDrawGridLines(false);
-        yAxisRight.setDrawAxisLine(true);
-    }
 }

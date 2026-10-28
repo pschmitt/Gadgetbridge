@@ -41,7 +41,7 @@
             android:layout_height="250sp"
             >
 
-            <com.github.mikephil.charting.charts.BarChart
+            <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView
                 android:id="@+id/steps_chart"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"

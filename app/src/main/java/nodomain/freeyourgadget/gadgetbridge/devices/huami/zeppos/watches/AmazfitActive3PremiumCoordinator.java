@@ -45,7 +45,7 @@ public class AmazfitActive3PremiumCoordinator extends ZeppOsCoordinator {
     @Override
     public Set<Integer> getDeviceSources() {
         return new HashSet<>(Arrays.asList(
-                10944768, // chinese mainland version
+                10944768, // Chinese mainland version
                 10944769,
                 10944771,
                 10948867

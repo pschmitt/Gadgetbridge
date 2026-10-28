@@ -19,6 +19,7 @@
 package nodomain.freeyourgadget.gadgetbridge.util;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
@@ -34,10 +35,12 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 
 import androidx.annotation.Nullable;
+import androidx.exifinterface.media.ExifInterface;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -421,5 +424,74 @@ public class BitmapUtil {
         }
 
         return bitmap;
+    }
+
+    public static Matrix matrixForExifOrientation(final int orientation) {
+        final Matrix matrix = new Matrix();
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.postScale(-1f, 1f);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.postRotate(180f);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.postScale(1f, -1f);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                matrix.postRotate(90f);
+                matrix.postScale(-1f, 1f);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.postRotate(90f);
+                break;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+                matrix.postRotate(-90f);
+                matrix.postScale(-1f, 1f);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.postRotate(-90f);
+                break;
+            default:
+                // ORIENTATION_NORMAL / ORIENTATION_UNDEFINED
+                break;
+        }
+        return matrix;
+    }
+
+    /**
+     * Decodes an image file and applies its EXIF orientation.
+     *
+     * @return the upright bitmap, or null if the file cannot be decoded
+     */
+    @Nullable
+    public static Bitmap decodeFileUpright(final String path) {
+        final Bitmap bitmap = BitmapFactory.decodeFile(path);
+        if (bitmap == null) {
+            return null;
+        }
+
+        int orientation;
+        try {
+            orientation = new ExifInterface(path).getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_UNDEFINED
+            );
+        } catch (final IOException e) {
+            LOG.warn("Failed to read EXIF orientation from {}", path, e);
+            orientation = ExifInterface.ORIENTATION_UNDEFINED;
+        }
+
+        final Matrix matrix = matrixForExifOrientation(orientation);
+        if (matrix.isIdentity()) {
+            return bitmap;
+        }
+
+        LOG.debug("Applying EXIF orientation {} to {}", orientation, path);
+        final Bitmap rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        if (rotated != bitmap) {
+            bitmap.recycle();
+        }
+        return rotated;
     }
 }

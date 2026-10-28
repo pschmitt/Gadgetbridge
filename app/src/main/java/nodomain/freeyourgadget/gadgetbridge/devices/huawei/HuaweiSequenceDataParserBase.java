@@ -14,7 +14,7 @@ public abstract class HuaweiSequenceDataParserBase<T> {
         if (data == null || data.length == 0 || data.length > 4) {
             return def;
         }
-        // NOTE: Looks like validData should be float but the watch returns it as integer.
+        // NOTE: Looks like validData should be a float but the watch returns it as integer.
         // unsigned integer  stored as 0xBF800000 = 10111111 10000000 00000000 00000000
         // for float -1.
         if(Arrays.equals(data,new byte[]{(byte) 0xBF, (byte) 0x80, 0x00, 0x00})) {

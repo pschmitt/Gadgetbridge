@@ -29,6 +29,25 @@ public abstract class AbstractSoundcoreProtocol extends GBDeviceProtocol {
         return info;
     }
 
+    protected GBDeviceEventVersionInfo buildVersionInfo(String firmware1, String serialNumber) {
+        return buildVersionInfo(firmware1, "", serialNumber);
+    }
+
+    protected final GBDeviceEventVersionInfo buildVersionInfo(final byte[] payload,
+                                                              final int firmwareOffset) {
+        return buildVersionInfo(payload, firmwareOffset, 16);
+    }
+
+    /** Reads a single five-byte firmware version followed by the model's serial field. */
+    protected final GBDeviceEventVersionInfo buildVersionInfo(final byte[] payload,
+                                                              final int firmwareOffset,
+                                                              final int serialLength) {
+        return buildVersionInfo(
+                readString(payload, firmwareOffset, 5),
+                readString(payload, firmwareOffset + 5, serialLength)
+        );
+    }
+
     protected String readString(byte[] data, int position, int size) {
         if (position + size > data.length) throw new IllegalStateException();
         return new String(data, position, size, StandardCharsets.UTF_8);
@@ -59,23 +78,8 @@ public abstract class AbstractSoundcoreProtocol extends GBDeviceProtocol {
         return encodeCommand(command, new byte[]{value});
     }
 
-    /**
-     * 0: No Auto Power off
-     * 1: Auto Power off 10 min
-     * 2: Auto Power off 20 min
-     * 3: Auto Power off 30 min
-     * 4: Auto Power off 60 min
-    */
-    protected byte[] encodeAutoPowerOff(final short command, final int duration, final byte disabledDuration) {
-        final byte[] payload;
-
-        if (duration > 0) {
-            payload = new byte[]{0x01, (byte) (duration - 1)};
-        } else {
-            payload = new byte[]{0x00, disabledDuration};
-        }
-
-        return encodeCommand(command, payload);
+    protected byte[] encodeByteCommand(final short command, final int value) {
+        return encodeCommand(command, new byte[]{(byte) value});
     }
 
 }

@@ -24,7 +24,6 @@ import java.util.Date;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.FileTransferHandler;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.FileType;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.GarminTimeUtils;
-import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.messages.status.GenericStatusMessage;
 
 public class FileAvailableMessage extends GFDIMessage {
     protected static final Logger LOG = LoggerFactory.getLogger(FileAvailableMessage.class);

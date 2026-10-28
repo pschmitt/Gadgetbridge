@@ -436,6 +436,33 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
         final byte[] expectedSignature;
 
         switch (version) {
+            case 1:
+                // Mi Watch Color Sport v1, dispatched by signature.
+                //   12-byte segment header:
+                //     offset 0-3:  float initHeight — meters
+                //     offset 4-7:  int32 nr         — record count for this segment
+                //     offset 8-11: int32 ts         — segment start, unix seconds
+                //   A pause starts a new segment. The file ends with a truncated 8-byte header
+                //   (initHeight + nr = 0), which the loop below skips.
+                if (bytes.length >= 10 && bytes[8] == (byte) 0xEC && bytes[9] == (byte) 0xFC) {
+                    // SPORTS_OUTDOOR_WALKING_V1: 4-byte records, decoded in case 102.
+                    expectedSignature = new byte[]{(byte) 0xEC, (byte) 0xFC};
+                    recordSize = 4;
+                    layoutCode = 102;
+                } else if (bytes.length >= 10 && bytes[8] == (byte) 0xCC && bytes[9] == (byte) 0xF0) {
+                    // SPORTS_OUTDOOR_CYCLING_V2: 3-byte records, decoded in case 101.
+                    expectedSignature = new byte[]{(byte) 0xCC, (byte) 0xF0};
+                    recordSize = 3;
+                    layoutCode = 101;
+                } else {
+                    LOG.warn("Unknown v1 DETAILS signature: {}",
+                            GB.hexdump(bytes, 8, Math.min(2, bytes.length - 8)));
+                    return null;
+                }
+                segmentHeaderSize = 12;
+                tsPosition = 8;
+                nrPosition = 4;
+                break;
             case 2:
                 // Signature: 0xC0 (1 byte), segment header 9 bytes, 2-byte records: [hr][calories]
                 expectedSignature = new byte[]{(byte) 0xC0};
@@ -664,6 +691,9 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
         while (buf.position() < buf.limit()) {
             // Read segment header
             if (buf.remaining() < segmentHeaderSize) {
+                if (version == 1 && buf.remaining() == 8 && buf.getInt(buf.position() + 4) == 0) {
+                    break; // v1 trailer: truncated header of an empty segment
+                }
                 LOG.warn("Not enough bytes for segment header, stopping");
                 break;
             }
@@ -766,6 +796,33 @@ public class WorkoutDetailsParser extends XiaomiActivityParser {
                         r.cadence = buf.get() & 0xFF;
                         r.paceSecPerKm = buf.getShort() & 0xFFFF;
                         break;
+                    case 101:
+                        // SPORTS_OUTDOOR_CYCLING_V2 v1: 3-byte record. Verified on a ride: the
+                        // calories sum to the summary CALORIES_BURNT and the HR column reproduces
+                        // its min / avg / max. No speed - that comes from the GPS track.
+                        //   byte 0: calories in this second
+                        //   byte 1: HR (uint8 bpm)
+                        //   byte 2: height change - bit 6 set = up, bits 0-5 = change in dm
+                        buf.get();
+                        r.hr = buf.get() & 0xFF;
+                        buf.get();
+                        break;
+                    case 102:
+                        // SPORTS_OUTDOOR_WALKING_V1 v1: 4-byte record. Verified on two walks: steps,
+                        // calories and distance sum to the summary values, and the HR column
+                        // reproduces its min / max.
+                        //   byte 0: nibble-packed: high4=caloriesInc, low4=stepsInc
+                        //   byte 1: HR (uint8 bpm)
+                        //   byte 2: height change - bit 6 set = up, bits 0-5 = change in dm
+                        //   byte 3: distanceInc (uint8 dm)
+                    {
+                        final int caloriesAndSteps = buf.get() & 0xFF;
+                        r.steps = caloriesAndSteps & 0x0F;
+                        r.hr = buf.get() & 0xFF;
+                        buf.get();
+                        buf.get();
+                        break;
+                    }
                     case 103:
                         // v3 FREESTYLE (Mi Band 8). 4-byte record: HR at byte 0, byte 1 events/flags,
                         // bytes 2-3 unknown (mostly zero; occasional small values).

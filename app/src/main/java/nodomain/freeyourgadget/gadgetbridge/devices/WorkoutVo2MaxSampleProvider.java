@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import de.greenrobot.dao.query.LazyList;
 import de.greenrobot.dao.query.QueryBuilder;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
@@ -75,9 +76,9 @@ public class WorkoutVo2MaxSampleProvider implements Vo2MaxSampleProvider<Vo2MaxS
         final QueryBuilder<BaseActivitySummary> qb = summaryDao.queryBuilder();
         qb.where(BaseActivitySummaryDao.Properties.DeviceId.eq(dbDevice.getId()))
                 .where(BaseActivitySummaryDao.Properties.StartTime.gt(new Date(timestampFrom)))
-                .where(BaseActivitySummaryDao.Properties.StartTime.lt(new Date(timestampTo)))
-                .where(BaseActivitySummaryDao.Properties.SummaryData.like("%" + ActivitySummaryEntries.MAXIMUM_OXYGEN_UPTAKE + "%"))
-                .orderAsc(BaseActivitySummaryDao.Properties.StartTime);
+                .where(BaseActivitySummaryDao.Properties.StartTime.lt(new Date(timestampTo)));
+        whereMayHaveVo2Max(qb);
+        qb.orderAsc(BaseActivitySummaryDao.Properties.StartTime);
 
         final List<BaseActivitySummary> samples = qb.build().list();
         summaryDao.detachAll();
@@ -123,16 +124,11 @@ public class WorkoutVo2MaxSampleProvider implements Vo2MaxSampleProvider<Vo2MaxS
             qb.where(BaseActivitySummaryDao.Properties.StartTime.le(new Date(until)));
         }
 
-        qb.where(BaseActivitySummaryDao.Properties.DeviceId.eq(dbDevice.getId()))
-                .where(BaseActivitySummaryDao.Properties.SummaryData.like("%" + ActivitySummaryEntries.MAXIMUM_OXYGEN_UPTAKE + "%"))
-                .orderDesc(BaseActivitySummaryDao.Properties.StartTime)
-                .limit(1);
+        qb.where(BaseActivitySummaryDao.Properties.DeviceId.eq(dbDevice.getId()));
+        whereMayHaveVo2Max(qb);
+        qb.orderDesc(BaseActivitySummaryDao.Properties.StartTime);
 
-        final List<BaseActivitySummary> samples = qb.build().list();
-        summaryDao.detachAll();
-        fillSummaryData(coordinator, samples);
-
-        return !samples.isEmpty() ? GarminVo2maxSample.fromActivitySummary(samples.get(0)) : null;
+        return findFirstSample(coordinator, qb);
     }
 
     private static void addWhereFilter(final DeviceCoordinator coordinator,
@@ -182,8 +178,11 @@ public class WorkoutVo2MaxSampleProvider implements Vo2MaxSampleProvider<Vo2MaxS
                                  final Collection<BaseActivitySummary> summaries) {
         ActivitySummaryParser activitySummaryParser = coordinator.getActivitySummaryParser(device, GBApplication.getContext());
         for (final BaseActivitySummary summary : summaries) {
-            if (summary.getSummaryData() == null) {
+            final String json = summary.getSummaryData();
+            if (json == null) {
                 activitySummaryParser.parseBinaryData(summary, true);
+            } else if (!json.contains(ActivitySummaryEntries.MAXIMUM_OXYGEN_UPTAKE) && summary.getRawSummaryData() != null) {
+                activitySummaryParser.parseBinaryData(summary, false);
             }
         }
     }
@@ -204,16 +203,45 @@ public class WorkoutVo2MaxSampleProvider implements Vo2MaxSampleProvider<Vo2MaxS
             return null;
         }
 
+        final DeviceCoordinator coordinator = device.getDeviceCoordinator();
         final QueryBuilder<BaseActivitySummary> qb = summaryDao.queryBuilder();
-        qb.where(BaseActivitySummaryDao.Properties.DeviceId.eq(dbDevice.getId()))
-                .where(BaseActivitySummaryDao.Properties.SummaryData.like("%" + ActivitySummaryEntries.MAXIMUM_OXYGEN_UPTAKE + "%"))
-                .orderAsc(BaseActivitySummaryDao.Properties.StartTime)
-                .limit(1);
+        qb.where(BaseActivitySummaryDao.Properties.DeviceId.eq(dbDevice.getId()));
+        whereMayHaveVo2Max(qb);
+        qb.orderAsc(BaseActivitySummaryDao.Properties.StartTime);
 
-        final List<BaseActivitySummary> samples = qb.build().list();
-        summaryDao.detachAll();
+        return findFirstSample(coordinator, qb);
+    }
 
-        return !samples.isEmpty() ? GarminVo2maxSample.fromActivitySummary(samples.get(0)) : null;
+    /**
+     * Some devices (e.g. Xiaomi) persist only the raw bytes and no or a partial summary json
+     * (just the GPS flag), so the VO2 max can only be found after re-parsing. Keep those
+     * summaries in the query.
+     */
+    private static void whereMayHaveVo2Max(final QueryBuilder<BaseActivitySummary> qb) {
+        qb.whereOr(
+                BaseActivitySummaryDao.Properties.SummaryData.like("%" + ActivitySummaryEntries.MAXIMUM_OXYGEN_UPTAKE + "%"),
+                BaseActivitySummaryDao.Properties.SummaryData.isNull(),
+                BaseActivitySummaryDao.Properties.RawSummaryData.isNotNull()
+        );
+    }
+
+    /** Returns the sample of the first summary in query order that has a VO2 max. */
+    @Nullable
+    private Vo2MaxSample findFirstSample(final DeviceCoordinator coordinator,
+                                         final QueryBuilder<BaseActivitySummary> qb) {
+        final BaseActivitySummaryDao summaryDao = session.getBaseActivitySummaryDao();
+        // Uncached, so the re-parsed summary json never ends up in the session
+        try (LazyList<BaseActivitySummary> summaries = qb.build().listLazyUncached()) {
+            for (final BaseActivitySummary summary : summaries) {
+                summaryDao.detach(summary);
+                fillSummaryData(coordinator, Collections.singletonList(summary));
+                final Vo2MaxSample sample = GarminVo2maxSample.fromActivitySummary(summary);
+                if (sample != null) {
+                    return sample;
+                }
+            }
+        }
+        return null;
     }
 
 

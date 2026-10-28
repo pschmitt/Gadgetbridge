@@ -21,15 +21,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.interfaces.datasets.IDataSet;
-
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartDataBuilder;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartPoint;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityPoint;
 import nodomain.freeyourgadget.gadgetbridge.model.workout.WorkoutChart;
@@ -56,11 +56,11 @@ public class ZeroRateGapTest extends TestBase {
         final List<WorkoutChart> charts = DefaultWorkoutCharts.buildDefaultCharts(getContext(), stopAndGo(), ActivityKind.CYCLING);
 
         final WorkoutChart speed = find(charts, "speed");
-        assertEquals(2, speed.getChartData().getDataSetCount());
+        assertEquals(2, segmentCount(speed));
         assertNoZeros(speed);
 
         final WorkoutChart respiratoryRate = find(charts, "respiratory_rate");
-        assertEquals(2, respiratoryRate.getChartData().getDataSetCount());
+        assertEquals(2, segmentCount(respiratoryRate));
         assertNoZeros(respiratoryRate);
 
         assertNoZeros(find(charts, "cadence"));
@@ -81,11 +81,15 @@ public class ZeroRateGapTest extends TestBase {
         assertNull(findOrNull(charts, "respiratory_rate"));
     }
 
+    private int segmentCount(final WorkoutChart chart) {
+        return ChartDataBuilder.INSTANCE.segments(
+                WorkoutChartSpecs.spec(getContext(), Collections.singletonList(chart), false).getSeries().get(0)
+        ).size();
+    }
+
     private static void assertNoZeros(final WorkoutChart chart) {
-        for (final IDataSet<? extends Entry> dataSet : chart.getChartData().getDataSets()) {
-            for (int i = 0; i < dataSet.getEntryCount(); i++) {
-                assertTrue(chart.getId() + " has a zero entry", dataSet.getEntryForIndex(i).getY() > 0f);
-            }
+        for (final ChartPoint point : chart.getSeries().getPoints()) {
+            assertTrue(chart.getId() + " has a zero entry", point.getY() > 0);
         }
     }
 

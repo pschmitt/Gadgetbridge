@@ -15,6 +15,7 @@ import java.util.Map;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.model.NavigationInfoSpec;
+import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
 import nodomain.freeyourgadget.gadgetbridge.util.NavigationUtils;
 
 public final class CoMapsNavigationReceiver extends ContentObserver {
@@ -114,11 +115,12 @@ public final class CoMapsNavigationReceiver extends ContentObserver {
 
             final int exitNumCol = cursor.getColumnIndex(NavigationContract.Live.Columns.EXIT_NUM);
             if (exitNumCol >= 0 && navInfo.getNextAction() == NavigationInfoSpec.ACTION_ROUNDABOUT_STRAIGHT) {
-                int exitNum = cursor.getInt(exitNumCol);
+                final int exitNum = cursor.getInt(exitNumCol);
+                final boolean rightHandTraffic = GBApplication.getPrefs().getBoolean(GBPrefs.NAVIGATION_RIGHT_HAND_TRAFFIC, true);
                 if (exitNum == 1) {
-                    navInfo.setNextAction(NavigationInfoSpec.ACTION_ROUNDABOUT_LEFT);
+                    navInfo.setNextAction(rightHandTraffic ? NavigationInfoSpec.ACTION_ROUNDABOUT_RIGHT : NavigationInfoSpec.ACTION_ROUNDABOUT_LEFT);
                 } else if (exitNum >= 3) {
-                    navInfo.setNextAction(NavigationInfoSpec.ACTION_ROUNDABOUT_RIGHT);
+                    navInfo.setNextAction(rightHandTraffic ? NavigationInfoSpec.ACTION_ROUNDABOUT_LEFT : NavigationInfoSpec.ACTION_ROUNDABOUT_RIGHT);
                 }
             }
 

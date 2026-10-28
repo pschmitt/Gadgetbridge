@@ -77,13 +77,13 @@ public class FemometerVinca2DeviceSupport extends AbstractBTLESingleDeviceSuppor
         super(LOG);
 
         /// Initialize Services
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
-        addSupportedService(GattService.UUID_SERVICE_BATTERY_SERVICE);
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION);
-        addSupportedService(GattService.UUID_SERVICE_HEALTH_THERMOMETER);
-        addSupportedService(GattService.UUID_SERVICE_CURRENT_TIME);
-        addSupportedService(GattService.UUID_SERVICE_REFERENCE_TIME_UPDATE);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
+        addSupportedService(GattService.SERVICE_BATTERY.uuid);
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
+        addSupportedService(GattService.SERVICE_HEALTH_THERMOMETER.uuid);
+        addSupportedService(GattService.SERVICE_CURRENT_TIME.uuid);
+        addSupportedService(GattService.SERVICE_REFERENCE_TIME_UPDATE.uuid);
         addSupportedService(UNKNOWN_SERVICE_UUID);
         addSupportedService(CONFIGURATION_SERVICE_UUID);
 
@@ -186,7 +186,7 @@ public class FemometerVinca2DeviceSupport extends AbstractBTLESingleDeviceSuppor
         // Same Code as in PineTime (without the local time)
         GregorianCalendar now = BLETypeConversions.createCalendar();
         byte[] bytesCurrentTime = BLETypeConversions.calendarToCurrentTime(now, 0);
-        builder.write(GattCharacteristic.UUID_CHARACTERISTIC_CURRENT_TIME, bytesCurrentTime);
+        builder.write(GattCharacteristic.CHARACTERISTIC_CURRENT_TIME.uuid, bytesCurrentTime);
     }
 
     @Override

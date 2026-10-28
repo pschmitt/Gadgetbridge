@@ -19,15 +19,15 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.communicator.
 public class CommunicatorV1 implements ICommunicator {
     private static final Logger LOG = LoggerFactory.getLogger(CommunicatorV1.class);
 
-    // Seen in Vivovit / Forerunner 620
-    public static final UUID UUID_SERVICE_GARMIN_GFDI_V0 = UUID.fromString("9B012401-BC30-CE9A-E111-0F67E491ABDE");
-    public static final UUID UUID_CHARACTERISTIC_GARMIN_GFDI_V0_SEND = UUID.fromString("DF334C80-E6A7-D082-274D-78FC66F85E16");
-    public static final UUID UUID_CHARACTERISTIC_GARMIN_GFDI_V0_RECEIVE = UUID.fromString("4ACBCD28-7425-868E-F447-915C8F00D0CB");
+    // Seen in Vivofit / Forerunner 620
+    public static final UUID UUID_SERVICE_GARMIN_GFDI_V0 = UUID.fromString("9b012401-bc30-ce9a-e111-0f67e491abde");
+    public static final UUID UUID_CHARACTERISTIC_GARMIN_GFDI_V0_SEND = UUID.fromString("df334c80-e6a7-d082-274d-78fc66f85e16");
+    public static final UUID UUID_CHARACTERISTIC_GARMIN_GFDI_V0_RECEIVE = UUID.fromString("4acbcd28-7425-868e-f447-915c8f00d0cb");
 
     // Seen in Vivomove HR
-    public static final UUID UUID_SERVICE_GARMIN_GFDI_V1 = UUID.fromString("6A4E2401-667B-11E3-949A-0800200C9A66");
-    public static final UUID UUID_CHARACTERISTIC_GARMIN_GFDI_V1_SEND = UUID.fromString("6A4E4C80-667B-11E3-949A-0800200C9A66");
-    public static final UUID UUID_CHARACTERISTIC_GARMIN_GFDI_V1_RECEIVE = UUID.fromString("6A4ECD28-667B-11E3-949A-0800200C9A66");
+    public static final UUID UUID_SERVICE_GARMIN_GFDI_V1 = UUID.fromString("6a4e2401-667b-11e3-949a-0800200c9a66");
+    public static final UUID UUID_CHARACTERISTIC_GARMIN_GFDI_V1_SEND = UUID.fromString("6a4e4c80-667b-11e3-949a-0800200c9a66");
+    public static final UUID UUID_CHARACTERISTIC_GARMIN_GFDI_V1_RECEIVE = UUID.fromString("6a4ecd28-667b-11e3-949a-0800200c9a66");
 
     private BluetoothGattCharacteristic characteristicSend;
     private BluetoothGattCharacteristic characteristicReceive;

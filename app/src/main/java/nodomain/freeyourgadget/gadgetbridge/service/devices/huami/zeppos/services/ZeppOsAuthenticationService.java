@@ -16,7 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.services;
 
-import android.widget.Toast;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,7 +149,7 @@ public class ZeppOsAuthenticationService extends AbstractZeppOsService {
 
     private void onAuthFailed() {
         LOG.error("Authentication failed, disconnecting");
-        GB.toast(getContext(), R.string.authentication_failed_check_key, Toast.LENGTH_LONG, GB.WARN);
+        getSupport().reportPairingError(getContext().getString(R.string.authentication_failed_check_key), true);
         final GBDevice device = getSupport().getDevice();
         if (device != null) {
             GBApplication.deviceService(device).disconnect();

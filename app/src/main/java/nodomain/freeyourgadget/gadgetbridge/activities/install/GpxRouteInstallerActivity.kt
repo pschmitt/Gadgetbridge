@@ -271,7 +271,10 @@ class GpxRouteInstallerActivity : AbstractGBActivity(), InstallActivity {
             GBApplication.deviceService(device)?.onInstallApp(currentUri, bundle)
         }
 
-        binding.closeButton.setOnClickListener { finish() }
+        binding.closeButton.setOnClickListener {
+            GB.removeNotification(GB.NOTIFICATION_ID_INSTALL, this)
+            finish()
+        }
 
         setInfoText(getString(R.string.installer_activity_wait_while_determining_status))
 

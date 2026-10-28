@@ -131,8 +131,8 @@ public class WatchXPlusDeviceSupport extends AbstractBTLESingleDeviceSupport {
 
     public WatchXPlusDeviceSupport() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
         addSupportedService(WatchXPlusConstants.UUID_SERVICE_WATCHXPLUS);
 
         LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(getContext());

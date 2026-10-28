@@ -21,14 +21,16 @@ import static nodomain.freeyourgadget.gadgetbridge.devices.banglejs.BangleJSCons
 import static nodomain.freeyourgadget.gadgetbridge.devices.banglejs.BangleJSConstants.PREF_BANGLEJS_ACTIVITY_FULL_SYNC_STOP;
 import static nodomain.freeyourgadget.gadgetbridge.devices.banglejs.BangleJSConstants.PREF_BANGLEJS_ACTIVITY_FULL_SYNC_TRIGGER;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Parcel;
+import android.widget.FrameLayout;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import java.util.Collections;
 import java.util.Set;
@@ -40,7 +42,7 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
 
 public class BangleJSSettingsCustomizer implements DeviceSpecificSettingsCustomizer {
-    private ProgressDialog activityFullSyncDialog;
+    private AlertDialog activityFullSyncDialog;
 
     final GBDevice device;
 
@@ -83,28 +85,32 @@ public class BangleJSSettingsCustomizer implements DeviceSpecificSettingsCustomi
 
                 final Context context = preference.getContext();
 
-                new AlertDialog.Builder(context)
-                        .setTitle(R.string.pref_activity_full_sync_trigger_title)
-                        .setMessage(R.string.pref_activity_full_sync_trigger_warning)
-                        .setIcon(R.drawable.ic_refresh)
-                        .setPositiveButton(R.string.start, (dialog, whichButton) -> {
-                            handler.notifyPreferenceChanged(PREF_BANGLEJS_ACTIVITY_FULL_SYNC_START);
+                new MaterialAlertDialogBuilder(context)
+                    .setTitle(R.string.pref_activity_full_sync_trigger_title)
+                    .setMessage(R.string.pref_activity_full_sync_trigger_warning)
+                    .setIcon(R.drawable.ic_refresh)
+                    .setPositiveButton(R.string.start, (dialog, whichButton) -> {
+                        handler.notifyPreferenceChanged(PREF_BANGLEJS_ACTIVITY_FULL_SYNC_START);
 
-                            activityFullSyncDialog = new ProgressDialog(context);
-                            activityFullSyncDialog.setCancelable(false);
-                            activityFullSyncDialog.setMessage(context.getString(R.string.sony_anc_optimizer_status_starting));
-                            activityFullSyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                            activityFullSyncDialog.setProgress(0);
-                            activityFullSyncDialog.setButton(DialogInterface.BUTTON_NEGATIVE, context.getString(R.string.cancel), (dialog1, which) -> {
-                                dialog1.dismiss();
+                        final LinearProgressIndicator progress = new LinearProgressIndicator(context);
+                        progress.setIndeterminate(true);
+                        final FrameLayout progressContainer = new FrameLayout(context);
+                        final int padding = context.getResources().getDimensionPixelSize(R.dimen.dialog_margin);
+                        progressContainer.setPadding(padding, padding, padding, 0);
+                        progressContainer.addView(progress);
+
+                        activityFullSyncDialog = new MaterialAlertDialogBuilder(context)
+                            .setCancelable(false)
+                            .setMessage(R.string.sony_anc_optimizer_status_starting)
+                            .setView(progressContainer)
+                            .setNegativeButton(R.string.cancel, (dialog1, which) -> {
                                 activityFullSyncDialog = null;
                                 handler.notifyPreferenceChanged(PREF_BANGLEJS_ACTIVITY_FULL_SYNC_STOP);
-                            });
-
-                            activityFullSyncDialog.show();
-                        })
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .show();
+                            })
+                            .show();
+                    })
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show();
 
                 return true;
             });

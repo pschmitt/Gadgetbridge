@@ -9,10 +9,10 @@ FitWorkoutStep{duration_type=CALORIES, duration_value=45, target_type=OPEN, targ
 FitWorkoutStep{duration_type=HR_GREATER_THAN, duration_value=220, target_type=HEART_RATE, target_value=4, intensity=ACTIVE, exercise_category=17, exercise_name=21, weight_display_unit=KILOGRAM, message_index=5},
 FitWorkoutStep{duration_type=TIME, duration_value=45000, target_type=OPEN, target_value=0, intensity=RECOVERY, weight_display_unit=KILOGRAM, message_index=6},
 FitWorkoutStep{duration_type=TIME, duration_value=45000, target_type=OPEN, target_value=0, intensity=REST, weight_display_unit=KILOGRAM, message_index=7},
-FitWorkoutStep{duration_type=TIME, duration_value=45000, target_type=OPEN, target_value=0, intensity=ACTIVE, weight_display_unit=KILOGRAM, message_index=8},
+FitWorkoutStep{duration_type=TIME, duration_value=45000, target_type=OPEN, target_value=0, intensity=ACTIVE, exercise_category=0, weight_display_unit=KILOGRAM, message_index=8},
 FitWorkoutStep{duration_type=TIME, duration_value=45000, target_type=OPEN, target_value=0, intensity=COOLDOWN, weight_display_unit=KILOGRAM, message_index=9},
-FitExerciseTitle{exercise_category=0, message_index=0},
-FitExerciseTitle{exercise_category=28, exercise_name=6, message_index=1},
-FitExerciseTitle{exercise_category=21, exercise_name=38, message_index=2},
-FitExerciseTitle{exercise_category=19, exercise_name=43, message_index=3},
-FitExerciseTitle{exercise_category=17, exercise_name=21, message_index=4}]
+FitExerciseTitle{exercise_category=0, wkt_step_name=Bench Press, message_index=0},
+FitExerciseTitle{exercise_category=28, exercise_name=6, wkt_step_name=Barbell Back Squat, message_index=1},
+FitExerciseTitle{exercise_category=21, exercise_name=38, wkt_step_name=Pull-up, message_index=2},
+FitExerciseTitle{exercise_category=19, exercise_name=43, wkt_step_name=Plank, message_index=3},
+FitExerciseTitle{exercise_category=17, exercise_name=21, wkt_step_name=Dumbbell Lunge, message_index=4}]

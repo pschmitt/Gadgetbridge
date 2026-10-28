@@ -504,7 +504,7 @@ public class XiaomiWidgetManager implements WidgetManager {
         try {
             return XiaomiSystem.WidgetScreens.parseFrom(GB.hexStringToByteArray(hex));
         } catch (final InvalidProtocolBufferException e) {
-            LOG.warn("failed to parse raw widget screns hex");
+            LOG.warn("failed to parse raw widget screens hex");
             return XiaomiSystem.WidgetScreens.newBuilder().build();
         }
     }

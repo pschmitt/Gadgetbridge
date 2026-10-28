@@ -40,7 +40,6 @@ public class SonyWFC500Coordinator extends SonyHeadphonesCoordinator {
     public Set<SonyHeadphonesCapabilities> getDefaultCapabilities() {
         return new HashSet<>(Arrays.asList(
                 SonyHeadphonesCapabilities.BatteryDual2,
-                SonyHeadphonesCapabilities.EqualizerSimple,
                 SonyHeadphonesCapabilities.EqualizerWithCustomBands,
                 SonyHeadphonesCapabilities.AudioUpsampling,
                 SonyHeadphonesCapabilities.VoiceNotifications,

@@ -28,7 +28,6 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 
-import net.e175.klaus.solarpositioning.DeltaT;
 import net.e175.klaus.solarpositioning.SolarEvents;
 
 import org.apache.commons.lang3.StringUtils;
@@ -40,8 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -392,13 +390,8 @@ public class GBWebClient extends WebViewClient {
 
 
     private static JSONObject sysObject(CurrentPosition currentPosition) throws JSONException {
-        final LocalDate today = LocalDate.now();
-        final SolarEvents.Day solarDay = SolarEvents.spa().forDate(
-                today,
-                ZoneId.systemDefault(),
-                currentPosition.getLatitude(),
-                currentPosition.getLongitude(),
-                DeltaT.estimate(today)
+        final SolarEvents.Day solarDay = WeatherSpec.solarDay(
+                ZonedDateTime.now(), currentPosition.getLatitude(), currentPosition.getLongitude()
         );
 
         long epochSunrise = 0;

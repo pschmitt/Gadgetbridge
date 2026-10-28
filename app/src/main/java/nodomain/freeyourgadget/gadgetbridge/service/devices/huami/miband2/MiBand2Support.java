@@ -16,7 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.service.devices.huami.miband2;
 
-import static nodomain.freeyourgadget.gadgetbridge.service.btle.GattCharacteristic.UUID_CHARACTERISTIC_ALERT_LEVEL;
+import static nodomain.freeyourgadget.gadgetbridge.service.btle.GattCharacteristic.CHARACTERISTIC_ALERT_LEVEL;
 
 import android.content.Context;
 import android.net.Uri;
@@ -68,7 +68,7 @@ public class MiBand2Support extends HuamiSupport {
 
     protected void onAlarmClock(NotificationSpec notificationSpec) {
         alarmClockRinging = true;
-        StopNotificationAction abortAction = new StopNotificationAction(getCharacteristic(UUID_CHARACTERISTIC_ALERT_LEVEL)) {
+        StopNotificationAction abortAction = new StopNotificationAction(getCharacteristic(CHARACTERISTIC_ALERT_LEVEL.uuid)) {
             @Override
             protected boolean shouldAbort() {
                 return !isAlarmClockRinging();

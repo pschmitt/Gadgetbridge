@@ -74,7 +74,7 @@ public class IGPSportRouteInstallHandler implements InstallHandler {
             try (ByteArrayInputStream bais = new ByteArrayInputStream(rawBytes)) {
 
             } catch (final IOException e) {
-                LOG.error("Failed to read xml", e);
+                LOG.error("Failed to read XML", e);
             }
 
         } catch (final Exception e) {

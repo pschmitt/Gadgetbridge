@@ -43,7 +43,7 @@ vendor's servers.
 [<img src="https://shields.rbtlog.dev/simple/nodomain.freeyourgadget.gadgetbridge" alt="RB Status">](https://shields.rbtlog.dev/nodomain.freeyourgadget.gadgetbridge)
 
 - [Nightly releases](https://freeyourgadget.codeberg.page/fdroid/repo?fingerprint=CD381ECCC465AB324E21BCC335895615E07E70EE11E9FD1DF3C020C5194F00B2)
-    - Nightly releases are updated more frequently and may be less stable than standard releases, and they are distributed by our F-Droid repository unlike standard releases. 
+    - Nightly releases are updated more frequently and may be less stable than standard releases, and they are distributed by our F-Droid repository unlike standard releases.
 - [List of changes](https://codeberg.org/Freeyourgadget/Gadgetbridge/src/master/CHANGELOG.md)
 
 ## Supported Devices
@@ -55,11 +55,17 @@ Please see the [Gadgets](https://gadgetbridge.org/gadgets/) page on the website 
 Please see the [Features](https://gadgetbridge.org/basics/features/) page on the website.
 
 ## Authors
+
 ### Core Team (in order of first code contribution)
 
 * Andreas Shimokawa
-* Carsten Pfeiffer
 * Daniele Gobbetti
+* José Rebelo
+* Arjan Schrijver
+
+### Former Core Contributors (currently inactive)
+
+* Carsten Pfeiffer
 * Petr Vaněk
 
 ### Additional contributors
@@ -81,8 +87,6 @@ Please see the [Features](https://gadgetbridge.org/basics/features/) page on the
 * Taavi Eomäe (iTag)
 * Erik Bloß (TLW64)
 * Yukai Li (Lefun)
-* José Rebelo (Roidmi, Sony Headphones, Miband 7)
-* Arjan Schrijver (Fossil Hybrid HR watchfaces)
 
 ## Contribute
 
@@ -111,7 +115,6 @@ Feel free to open an issue on our issue tracker, but please:
 
 ## Having problems?
 
-0. Phone crashing during device discovery? Disable Privacy Guard (or similarly named functionality) during discovery.
 1. Open Gadgetbridge's settings and check the option to write log files
 2. Reproduce the problem you encountered
 3. Check the logfile at /sdcard/Android/data/nodomain.freeyourgadget.gadgetbridge/files/gadgetbridge.log

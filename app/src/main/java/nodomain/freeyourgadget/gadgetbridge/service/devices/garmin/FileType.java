@@ -163,7 +163,7 @@ public class FileType {
         UNKNOWN_255_022(255, 22), // HRM Pro Plus
         ERROR_SHUTDOWN_REPORTS(255, 245, true, "ErrorShutdownReports"),
         IQ_ERROR_REPORTS(255, 244, true, "IQErrorReports"),
-        GOLF_SCORECARD(255, 246, true, "GOLF_SCORECARD"), // xml files, Garmin vívoactive 5 - #4522
+        GOLF_SCORECARD(255, 246, true, "GOLF_SCORECARD"), // XML files, Garmin vívoactive 5 - #4522
         ULF_LOGS(255, 247, true, "ULFLogs"),
         KPI(255, 248, true, "KPI"), // Garmin Instinct Solar Tactical Edition - #5803
 
@@ -195,7 +195,7 @@ public class FileType {
         IQWatchFaces("IQWatchFaces"), // prg files
         IQWidgets("IQWidgets"), // prg files
         LiveActivity("LiveActivity"), // JSON files
-        MEDIA_AUDIOBOOK("MEDIA_AUDIOBOOK"), // audio book upload: MP3, M4A, M4B, WAV, AAC, ADTS
+        MEDIA_AUDIOBOOK("MEDIA_AUDIOBOOK"), // audiobook upload: MP3, M4A, M4B, WAV, AAC, ADTS
         MEDIA_PLAYLIST("MEDIA_PLAYLIST"), // music playlist upload: M3U, M3U8
         MEDIA_PODCAST("MEDIA_PODCAST"), // podcast upload: MP3, M4A, M4B, WAV, AAC, ADTS
         MEDIA_TRACK("MEDIA_TRACK"), // music upload: MP3, M4A, M4B, WAV, AAC, ADTS

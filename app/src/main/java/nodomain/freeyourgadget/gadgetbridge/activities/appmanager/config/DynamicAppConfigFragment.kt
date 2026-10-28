@@ -81,6 +81,7 @@ class DynamicAppConfigFragment : AbstractPreferenceFragment() {
                         GBDeviceEventAppConfig.Event.APP_CONFIG_GET_FAILED -> {
                             GB.toast("Failed to get app configs", Toast.LENGTH_SHORT, GB.INFO)
                             requireActivity().finish()
+                            return
                         }
 
                         GBDeviceEventAppConfig.Event.APP_CONFIG_SET_SUCCESS -> {

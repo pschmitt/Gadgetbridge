@@ -14,6 +14,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutSyncStatus
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutTemplate
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.WorkoutTemplateSpec
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.WorkoutTemplateValidator
+import java.text.Collator
 
 data class WorkoutTemplateListItem(
     val template: WorkoutTemplate,
@@ -41,7 +42,9 @@ class WorkoutTemplateListViewModel : ViewModel() {
     fun refresh(device: GBDevice, spec: WorkoutTemplateSpec) {
         viewModelScope.launch {
             val loaded = withContext(Dispatchers.IO) {
+                val collator = Collator.getInstance()
                 WorkoutTemplateRepository.list(device)
+                    .sortedWith(compareBy(collator) { it.name })
                     .map { template ->
                         val status = WorkoutTemplateRepository.syncStatus(template, device)
                         val error = if (status == WorkoutSyncStatus.FAILED) template.syncError else null

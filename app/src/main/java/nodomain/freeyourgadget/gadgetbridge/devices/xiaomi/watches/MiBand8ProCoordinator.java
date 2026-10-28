@@ -16,8 +16,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.xiaomi.watches;
 
+import android.util.Size;
+
 import androidx.annotation.NonNull;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
@@ -55,5 +58,18 @@ public class MiBand8ProCoordinator extends XiaomiCoordinator {
     @Override
     public DeviceCoordinator.DeviceKind getDeviceKind(@NonNull GBDevice device) {
         return DeviceCoordinator.DeviceKind.FITNESS_BAND;
+    }
+
+    @Override
+    public List<Size> getWatchfacePreviewSizes() {
+        return List.of(
+            // Scaled-down screen resolution, seen in an unofficial watchface
+            new Size(230, 328)
+        );
+    }
+
+    @Override
+    public Size getScreenSize() {
+        return new Size(336, 480);
     }
 }

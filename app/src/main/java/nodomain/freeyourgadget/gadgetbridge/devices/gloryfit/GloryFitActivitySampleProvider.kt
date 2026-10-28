@@ -16,8 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.gloryfit
 
+import nodomain.freeyourgadget.gadgetbridge.devices.AbstractSampleProvider
 import nodomain.freeyourgadget.gadgetbridge.devices.GenericHeartRateSampleProvider
-import nodomain.freeyourgadget.gadgetbridge.devices.GenericSleepStageSampleProvider
 import nodomain.freeyourgadget.gadgetbridge.devices.GloryFitStepsSampleProvider
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession
@@ -25,20 +25,19 @@ import nodomain.freeyourgadget.gadgetbridge.entities.GenericActivitySample
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample
-import nodomain.freeyourgadget.gadgetbridge.util.RangeMap
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-open class GloryFitActivitySampleProvider(device: GBDevice, session: DaoSession) :
+open class GloryFitActivitySampleProvider(private val device: GBDevice, private val session: DaoSession) :
     SampleProvider<GenericActivitySample> {
 
     companion object {
         private val LOG: Logger = LoggerFactory.getLogger(GloryFitActivitySampleProvider::class.java)
+        private const val SLEEP_LOOK_BACK_SECONDS = 12 * 60 * 60
     }
 
     private val stepsProvider: GloryFitStepsSampleProvider = GloryFitStepsSampleProvider(device, session)
     private val heartRateProvider: GenericHeartRateSampleProvider = GenericHeartRateSampleProvider(device, session)
-    private val sleepStagesProvider: GenericSleepStageSampleProvider = GenericSleepStageSampleProvider(device, session)
 
     override fun normalizeType(rawType: Int): ActivityKind {
         return ActivityKind.fromCode(rawType)
@@ -63,7 +62,7 @@ open class GloryFitActivitySampleProvider(device: GBDevice, session: DaoSession)
             activitySample.timestamp = (stepsSample.timestamp / 1000L).toInt()
             activitySample.steps = stepsSample.totalSteps
             ret.add(activitySample)
-            byTimestamp.put(activitySample.timestamp, activitySample)
+            byTimestamp[activitySample.timestamp] = activitySample
         }
         val hrSamples = heartRateProvider.getAllSamples(timestampFrom * 1000L - 2 * 86400L, timestampTo * 1000L)
         for (hrSample in hrSamples) {
@@ -76,7 +75,7 @@ open class GloryFitActivitySampleProvider(device: GBDevice, session: DaoSession)
                 activitySample.timestamp = timestamp
                 activitySample.heartRate = hrSample.heartRate
                 ret.add(activitySample)
-                byTimestamp.put(activitySample.timestamp, activitySample)
+                byTimestamp[activitySample.timestamp] = activitySample
             }
         }
 
@@ -121,104 +120,42 @@ open class GloryFitActivitySampleProvider(device: GBDevice, session: DaoSession)
 
     override fun getLatestActivitySample(): GenericActivitySample? {
         // TODO getLatestActivitySample
-        LOG.warn("getLatestActivitySample not implemented");
+        LOG.warn("getLatestActivitySample not implemented")
         return null
     }
 
     override fun getLatestActivitySample(until: Int): GenericActivitySample? {
         // TODO getLatestActivitySample
-        LOG.warn("getLatestActivitySample(until) not implemented");
+        LOG.warn("getLatestActivitySample(until) not implemented")
         return null
     }
 
     override fun getFirstActivitySample(): GenericActivitySample? {
         // TODO getFirstActivitySample
-        LOG.warn("getFirstActivitySample not implemented");
+        LOG.warn("getFirstActivitySample not implemented")
         return null
     }
 
     override fun getFirstActivitySample(after: Int): GenericActivitySample? {
         // TODO getFirstActivitySample
-        LOG.warn("getFirstActivitySample(after) not implemented");
+        LOG.warn("getFirstActivitySample(after) not implemented")
         return null
     }
 
     fun overlaySleep(samples: MutableList<GenericActivitySample>, timestampFrom: Int, timestampTo: Int) {
-        val stagesMap = RangeMap<Long, ActivityKind?>(RangeMap.Mode.LOWER_BOUND)
+        val sleepSessionProvider = GloryFitSleepSessionProvider(device, session)
+        val sleepSessions = sleepSessionProvider.getSleepSessions(timestampFrom - SLEEP_LOOK_BACK_SECONDS, timestampTo)
 
-        // Retrieve the last stage before this time range, as the user could have been asleep during
-        // the range transition
-        val lastSleepStageBeforeRange = sleepStagesProvider.getLastSampleBefore(timestampFrom * 1000L)
-
-        if (lastSleepStageBeforeRange != null) {
-            LOG.debug(
-                "Last sleep stage before range: ts={}, stage={}",
-                lastSleepStageBeforeRange.timestamp,
-                lastSleepStageBeforeRange.stage
-            )
-            stagesMap.put(
-                lastSleepStageBeforeRange.timestamp,
-                sleepStageToActivityKind(lastSleepStageBeforeRange.stage)
-            )
-            stagesMap.put(
-                lastSleepStageBeforeRange.timestamp + lastSleepStageBeforeRange.duration * 60 * 1000L,
-                ActivityKind.UNKNOWN
-            )
+        if (sleepSessions.isEmpty()) {
+            return
         }
 
-        // Retrieve all sleep stage samples during the range
-        val sleepStagesInRange = sleepStagesProvider.getAllSamples(
-            timestampFrom * 1000L,
-            timestampTo * 1000L
-        )
-
-        if (!sleepStagesInRange.isEmpty()) {
-            // We got actual sleep stages
-            LOG.debug(
-                "Found {} sleep stage samples between {} and {}",
-                sleepStagesInRange.size,
-                timestampFrom,
-                timestampTo
-            )
-
-            for (stageSample in sleepStagesInRange) {
-                stagesMap.put(
-                    stageSample!!.timestamp,
-                    sleepStageToActivityKind(stageSample.stage)
-                )
-                stagesMap.put(
-                    stageSample.timestamp + stageSample.duration * 60 * 1000L,
-                    ActivityKind.UNKNOWN
-                )
+        for (sample in samples) {
+            val sleepType = AbstractSampleProvider.sleepKindAt(sleepSessions, sample.timestamp * 1000L)
+            if (sleepType != null) {
+                sample.rawKind = sleepType.code
+                sample.rawIntensity = ActivitySample.NOT_MEASURED
             }
-        }
-
-        if (!stagesMap.isEmpty) {
-            LOG.debug(
-                "Found {} sleep stage samples between {} and {}",
-                stagesMap.size(),
-                timestampFrom,
-                timestampTo
-            )
-
-            for (sample in samples) {
-                val ts = sample.timestamp * 1000L
-                val sleepType = stagesMap.get(ts)
-                if (sleepType != null && sleepType != ActivityKind.UNKNOWN) {
-                    sample.rawKind = sleepType.code
-                    sample.rawIntensity = ActivitySample.NOT_MEASURED
-                }
-            }
-        }
-    }
-
-    fun sleepStageToActivityKind(stage: Int): ActivityKind {
-        return when (stage) {
-            1 -> ActivityKind.DEEP_SLEEP
-            2 -> ActivityKind.LIGHT_SLEEP
-            3 -> ActivityKind.AWAKE_SLEEP
-            4 -> ActivityKind.REM_SLEEP
-            else -> ActivityKind.UNKNOWN
         }
     }
 }

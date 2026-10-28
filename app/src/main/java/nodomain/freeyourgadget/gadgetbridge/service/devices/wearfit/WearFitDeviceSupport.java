@@ -83,6 +83,7 @@ import nodomain.freeyourgadget.gadgetbridge.service.serial.GBDeviceProtocol;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
 import nodomain.freeyourgadget.gadgetbridge.util.preferences.DevicePrefs;
+import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
 
 public class WearFitDeviceSupport extends AbstractBTLESingleDeviceSupport implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -248,7 +249,7 @@ public class WearFitDeviceSupport extends AbstractBTLESingleDeviceSupport implem
             message += (notificationSpec.getTitle() + ": ");
         }
 
-        message += notificationSpec.getBody();
+        message += StringUtils.ensureNotNull(notificationSpec.getBody());
 
         this.sendNotification(transactionBuilder,
                 sender, message);

@@ -119,9 +119,9 @@ class UnaDeviceSupport : AbstractBTLESingleDeviceSupport(LOG) {
     private var currentHrHour: Calendar? = null
 
     init {
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION)
-        addSupportedService(GattService.UUID_SERVICE_BATTERY_SERVICE)
-        addSupportedService(GattService.UUID_SERVICE_CURRENT_TIME)
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid)
+        addSupportedService(GattService.SERVICE_BATTERY.uuid)
+        addSupportedService(GattService.SERVICE_CURRENT_TIME.uuid)
         addSupportedService(UnaConstants.UUID_SERVICE_FTS)
         addSupportedService(UnaConstants.UUID_SERVICE_CCS)
         addSupportedService(UnaConstants.UUID_SERVICE_CANS)
@@ -192,8 +192,8 @@ class UnaDeviceSupport : AbstractBTLESingleDeviceSupport(LOG) {
 
     private fun writeCurrentTime(builder: TransactionBuilder) {
         val now = GregorianCalendar()
-        builder.write(GattCharacteristic.UUID_CHARACTERISTIC_CURRENT_TIME, *BLETypeConversions.calendarToCurrentTime(now, 0))
-        builder.write(GattCharacteristic.UUID_CHARACTERISTIC_LOCAL_TIME, *BLETypeConversions.calendarToLocalTime(now))
+        builder.write(GattCharacteristic.CHARACTERISTIC_CURRENT_TIME.uuid, *BLETypeConversions.calendarToCurrentTime(now, 0))
+        builder.write(GattCharacteristic.CHARACTERISTIC_LOCAL_TIME_INFORMATION.uuid, *BLETypeConversions.calendarToLocalTime(now))
     }
 
     private fun handleDeviceInfo(info: DeviceInfo) {

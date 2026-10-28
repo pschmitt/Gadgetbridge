@@ -16,31 +16,32 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.widgets.impl
 
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.TextView
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
-import nodomain.freeyourgadget.gadgetbridge.model.WeightUnit
 import nodomain.freeyourgadget.gadgetbridge.test.TestBase
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetInstance
+import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetVariant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class WeightWidgetTest : TestBase() {
     private fun render(data: WeightWidget.Data): String {
-        val instance = WidgetInstance("test-weight", WeightWidget.id, 1)
+        val instance = WidgetInstance("test-weight", WeightWidget.id)
         val config = WidgetConfig(instance, Prefs(GBApplication.getWidgetSharedPrefs(instance.instanceId)), true, emptySet())
-        val view = WeightWidget.createView(LayoutInflater.from(context), FrameLayout(context))
-        WeightWidget.bind(view, config, data)
+        val themed = ContextThemeWrapper(context, R.style.GadgetbridgeTheme)
+        val view = WeightWidget.createView(LayoutInflater.from(themed), FrameLayout(themed), WidgetVariant.GAUGE)
+        WeightWidget.bind(view, WidgetVariant.GAUGE, config, data)
         return view.findViewById<TextView>(R.id.gauge_value).text.toString()
     }
 
-    private fun expected(kg: Double): String =
-        WeightUnit.formatWeight(context, kg, GBApplication.getPrefs().weightUnit)
+    private fun expected(kg: Double): String = WeightWidget.formatWeight(context, kg)
 
     @Test
     fun noMeasurementShowsEmptyValue() {
@@ -52,6 +53,11 @@ class WeightWidgetTest : TestBase() {
         val text = render(WeightWidget.Data(80.0, 0))
         assertEquals(expected(80.0), text)
         assertTrue("expected the value in '$text'", text.contains("80"))
+    }
+
+    @Test
+    fun weightShownWithOneDecimal() {
+        assertEquals("80.3 kg", render(WeightWidget.Data(80.26, 180)))
     }
 
     @Test

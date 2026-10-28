@@ -1,101 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/appmanager_item_card_view"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="?attr/materialCardViewFilledStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    android:foreground="?android:attr/selectableItemBackground"
-    app:cardBackgroundColor="?attr/cardview_background_color"
-    app:cardElevation="3dp"
-    app:contentPadding="8dp">
-
+    android:layout_marginHorizontal="6dp"
+    android:layout_marginVertical="6dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="?attr/device_card_bg"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="0dp"
+    app:strokeColor="?attr/stat_tile_border"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <ImageView
             android:id="@+id/item_preview_image"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="12dp"
+            android:adjustViewBounds="true"
+            android:maxHeight="160dp"
+            android:importantForAccessibility="no"
+            android:visibility="gone" />
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?android:attr/activatedBackgroundIndicator"
-            android:minHeight="60dp">
+            android:gravity="center_vertical"
+            android:minHeight="64dp"
+            android:orientation="horizontal"
+            android:paddingVertical="12dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="8dp">
 
             <ImageView
                 android:id="@+id/item_image"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_centerVertical="true"
-                android:contentDescription="@string/candidate_item_device_image" />
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/device_card_icon_bg"
+                android:contentDescription="@string/candidate_item_device_image"
+                android:paddingLeft="2dp"
+                android:paddingTop="2dp"
+                android:scaleType="fitCenter"
+                android:theme="@style/ThemeOverlay.App.DropdownDeviceIcon"
+                tools:ignore="RtlHardcoded" />
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignWithParentIfMissing="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:layout_toEndOf="@+id/item_image"
-                android:layout_toStartOf="@+id/drag_handle"
-                android:orientation="vertical"
-                android:paddingBottom="8dp"
-                android:paddingTop="8dp">
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/item_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
                     android:maxLines="1"
-                    android:scrollHorizontally="false"
-                    android:text="Item Name"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    tools:text="Item Name" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
+
                     <TextView
                         android:id="@+id/item_details"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Item Description"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?android:attr/textColorSecondary"
+                        tools:text="Item Description" />
+
                     <TextView
                         android:id="@+id/item_watchapp_outdated"
-                        android:visibility="gone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
+                        android:layout_marginStart="6dp"
+                        android:maxLines="1"
                         android:text="@string/appmanager_item_outdated"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                        android:textColor="@android:color/holo_red_dark" />
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorError"
+                        android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
 
-
             <ImageView
                 android:id="@+id/drag_handle"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_alignParentEnd="true"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_centerVertical="true"
-                android:contentDescription="drag handle"
-                app:tint="?attr/textColorSecondary"
-                app:srcCompat="@drawable/ic_drag_handle" />
-
-        </RelativeLayout>
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/drag_handle"
+                android:padding="8dp"
+                android:src="@drawable/ic_drag_handle"
+                app:tint="?android:attr/textColorSecondary" />
+        </LinearLayout>
     </LinearLayout>
+
 </com.google.android.material.card.MaterialCardView>

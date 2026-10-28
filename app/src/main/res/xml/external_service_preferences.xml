@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shared by every online fitness tracker: the titles naming the service, and the auto-upload
+     switch whose key is the service's own, are set in ExternalServiceSettingsFragment. Anything a
+     service owns beyond these rows is added by its ExternalService.onSettingsScreenCreated. -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:icon="@drawable/ic_info"
+        android:key="pref_key_external_service_status"
+        android:persistent="false"
+        android:selectable="false" />
+    <Preference
+        android:icon="@drawable/ic_language"
+        android:key="pref_key_external_service_log_in"
+        android:persistent="false" />
+    <Preference
+        android:icon="@drawable/ic_language"
+        android:key="pref_key_external_service_log_out"
+        android:persistent="false"
+        android:summary="@string/pref_service_log_out_summary" />
+</PreferenceScreen>

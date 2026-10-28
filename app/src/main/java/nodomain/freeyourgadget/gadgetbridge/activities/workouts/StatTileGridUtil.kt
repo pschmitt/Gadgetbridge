@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.TextViewCompat
@@ -112,20 +113,25 @@ fun addStatTileGrid(container: LinearLayout, context: Context, stats: List<StatT
     container.addView(grid)
 }
 
+fun applyStatTileStyle(card: MaterialCardView, @ColorInt borderColor: Int? = null) {
+    val context = card.context
+    card.radius = dpToPx(context, CARD_CORNER_RADIUS_DP).toFloat()
+    card.cardElevation = 0f
+    // A colored border identifies one series/zone among several tiles, so it stays thicker
+    // to remain visible; the neutral border is a thin outline.
+    card.strokeWidth = dpToPx(context, if (borderColor != null) 2 else 1)
+    card.strokeColor = borderColor ?: MaterialColors.getColor(context, R.attr.stat_tile_border, "StatTile")
+    card.setCardBackgroundColor(
+        ElevationOverlayProvider(context).compositeOverlayIfNeeded(
+            MaterialColors.getColor(context, R.attr.stat_tile_bg, "StatTile"),
+            3 * context.resources.displayMetrics.density
+        )
+    )
+}
+
 private fun buildStatTile(context: Context, stat: StatTileData): MaterialCardView {
     return MaterialCardView(context).apply {
-        radius = dpToPx(context, CARD_CORNER_RADIUS_DP).toFloat()
-        cardElevation = 0f
-        // A colored border identifies one series/zone among several tiles, so it stays thicker
-        // to remain visible; the neutral border is a thin outline.
-        strokeWidth = dpToPx(context, if (stat.borderColor != null) 2 else 1)
-        setStrokeColor(stat.borderColor ?: MaterialColors.getColor(context, R.attr.stat_tile_border, "StatTile"))
-        setCardBackgroundColor(
-            ElevationOverlayProvider(context).compositeOverlayIfNeeded(
-                MaterialColors.getColor(context, R.attr.stat_tile_bg, "StatTile"),
-                3 * context.resources.displayMetrics.density
-            )
-        )
+        applyStatTileStyle(this, stat.borderColor)
 
         val content = if (stat.icon != null) {
             buildIconTileContent(context, stat, stat.icon)
@@ -145,7 +151,11 @@ private fun buildStatTile(context: Context, stat: StatTileData): MaterialCardVie
 }
 
 private fun buildIconTileContent(context: Context, stat: StatTileData, @DrawableRes icon: Int): LinearLayout {
-    val mutedColor = MaterialColors.getColor(context, com.google.android.material.R.attr.colorOnSurfaceVariant, "StatTile")
+    val mutedColor = MaterialColors.getColor(
+        context,
+        com.google.android.material.R.attr.colorOnSurfaceVariant,
+        "StatTile"
+    )
     return LinearLayout(context).apply {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
@@ -230,8 +240,7 @@ private fun buildCenteredTileContent(context: Context, stat: StatTileData): Line
                 val color = stat.subtextColor ?: MaterialColors.getColor(context, R.attr.textColorPrimary, "StatTile")
                 setTextColor(color)
                 if (stat.subtextIcon != null) {
-                    TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                        this,
+                    setCompoundDrawablesRelativeWithIntrinsicBounds(
                         ResourcesCompat.getDrawable(resources, stat.subtextIcon, context.theme),
                         null,
                         null,
@@ -253,7 +262,13 @@ private fun buildCenteredTileContent(context: Context, stat: StatTileData): Line
             textSize = 12f
             maxLines = 2
             gravity = Gravity.CENTER_HORIZONTAL
-            setTextColor(MaterialColors.getColor(context, com.google.android.material.R.attr.colorOnSurfaceVariant, "StatTile"))
+            setTextColor(
+                MaterialColors.getColor(
+                    context,
+                    com.google.android.material.R.attr.colorOnSurfaceVariant,
+                    "StatTile"
+                )
+            )
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT

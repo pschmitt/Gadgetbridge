@@ -32,10 +32,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,11 +68,11 @@ public class XiaomiVibrationPatternsActivity extends AbstractGBActivity {
     private boolean showIds;
 
     private final SharedPreferences.OnSharedPreferenceChangeListener prefsListener =
-            (prefs, key) -> {
-                if (XiaomiVibrationManager.PREF_PATTERNS.equals(key)) {
-                    reload();
-                }
-            };
+        (prefs, key) -> {
+            if (XiaomiVibrationManager.PREF_PATTERNS.equals(key)) {
+                reload();
+            }
+        };
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -111,7 +112,7 @@ public class XiaomiVibrationPatternsActivity extends AbstractGBActivity {
     protected void onResume() {
         super.onResume();
         GBApplication.getDeviceSpecificSharedPrefs(gbDevice.getAddress())
-                .registerOnSharedPreferenceChangeListener(prefsListener);
+            .registerOnSharedPreferenceChangeListener(prefsListener);
         reload();
         requestPatternsFromDevice();
     }
@@ -119,7 +120,7 @@ public class XiaomiVibrationPatternsActivity extends AbstractGBActivity {
     @Override
     protected void onPause() {
         GBApplication.getDeviceSpecificSharedPrefs(gbDevice.getAddress())
-                .unregisterOnSharedPreferenceChangeListener(prefsListener);
+            .unregisterOnSharedPreferenceChangeListener(prefsListener);
         super.onPause();
     }
 
@@ -142,9 +143,9 @@ public class XiaomiVibrationPatternsActivity extends AbstractGBActivity {
             rows.add(Row.header(getString(R.string.xiaomi_vibration_section_types)));
             for (final VibrationPatternData.TypeEntry t : data.typeMappings) {
                 rows.add(Row.item(
-                        t.typeName,
-                        withId(t.patternName, t.patternId),
-                        -1
+                    t.typeName,
+                    withId(t.patternName, t.patternId),
+                    -1
                 ));
             }
         }
@@ -154,9 +155,9 @@ public class XiaomiVibrationPatternsActivity extends AbstractGBActivity {
             for (final VibrationPatternData.PatternEntry p : data.customPatterns) {
                 final boolean deletable = writable && p.canDelete;
                 rows.add(Row.item(
-                        withId(p.name, p.id),
-                        p.typeName,
-                        deletable ? p.id : -1
+                    withId(p.name, p.id),
+                    p.typeName,
+                    deletable ? p.id : -1
                 ));
             }
         }
@@ -215,21 +216,21 @@ public class XiaomiVibrationPatternsActivity extends AbstractGBActivity {
 
         view.findViewById(R.id.vibration_add_segment).setOnClickListener(v -> addSegmentRow(segments, null));
 
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.xiaomi_vibration_add_title)
-                .setView(view)
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                    final String name = nameField.getText().toString().trim();
-                    final int type = typeIds.get(typeSpinner.getSelectedItemPosition());
-                    final List<VibrationPatternData.Segment> segs = collectSegments(segments);
-                    if (segs.isEmpty()) {
-                        GB.toast(this, getString(R.string.xiaomi_vibration_no_segments), Toast.LENGTH_SHORT, GB.WARN);
-                        return;
-                    }
-                    sendAddPattern(name, type, segs);
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
+        new MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.xiaomi_vibration_add_title)
+            .setView(view)
+            .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                final String name = nameField.getText().toString().trim();
+                final int type = typeIds.get(typeSpinner.getSelectedItemPosition());
+                final List<VibrationPatternData.Segment> segs = collectSegments(segments);
+                if (segs.isEmpty()) {
+                    GB.toast(this, getString(R.string.xiaomi_vibration_no_segments), Toast.LENGTH_SHORT, GB.WARN);
+                    return;
+                }
+                sendAddPattern(name, type, segs);
+            })
+            .setNegativeButton(android.R.string.cancel, null)
+            .show();
     }
 
     private static int parseIntOrZero(final String text) {
@@ -242,7 +243,7 @@ public class XiaomiVibrationPatternsActivity extends AbstractGBActivity {
 
     private void addSegmentRow(final LinearLayout container, final VibrationPatternData.Segment segment) {
         final View row = LayoutInflater.from(this)
-                .inflate(R.layout.item_xiaomi_vibration_segment_edit, container, false);
+            .inflate(R.layout.item_xiaomi_vibration_segment_edit, container, false);
         final SwitchCompat onSwitch = row.findViewById(R.id.segment_on);
         final EditText strengthField = row.findViewById(R.id.segment_strength);
 
@@ -282,12 +283,12 @@ public class XiaomiVibrationPatternsActivity extends AbstractGBActivity {
     }
 
     private void confirmDelete(final int id, final String name) {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.xiaomi_vibration_delete_title)
-                .setMessage(getString(R.string.xiaomi_vibration_delete_message, name))
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> deletePattern(id))
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
+        new MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.xiaomi_vibration_delete_title)
+            .setMessage(getString(R.string.xiaomi_vibration_delete_message, name))
+            .setPositiveButton(android.R.string.ok, (dialog, which) -> deletePattern(id))
+            .setNegativeButton(android.R.string.cancel, null)
+            .show();
     }
 
     private void deletePattern(final int id) {

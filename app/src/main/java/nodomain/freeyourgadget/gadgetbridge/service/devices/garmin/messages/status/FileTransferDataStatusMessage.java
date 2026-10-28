@@ -23,8 +23,9 @@ public class FileTransferDataStatusMessage extends GFDIStatusMessage {
     public static FileTransferDataStatusMessage parseIncoming(MessageReader reader, GarminMessage garminMessage) {
         final Status status = Status.fromCode(reader.readByte());
 
-        if (!status.equals(Status.ACK)) {
-            return null;
+        if (!Status.ACK.equals(status)) {
+            LOG.warn("Received {} for message {}", status, garminMessage);
+            return new FileTransferDataStatusMessage(garminMessage, status, null, 0, false);
         }
         final TransferStatus transferStatus = TransferStatus.fromId(reader.readByte());
         final int dataOffset = reader.readInt();
@@ -42,11 +43,14 @@ public class FileTransferDataStatusMessage extends GFDIStatusMessage {
     }
 
     public boolean canProceed() {
-        return status.equals(Status.ACK) && transferStatus.equals(TransferStatus.OK);
+        return Status.ACK.equals(status) && TransferStatus.OK.equals(transferStatus);
     }
 
     @Override
     protected boolean generateOutgoing() {
+        if (!sendOutgoing) {
+            return false;
+        }
         final MessageWriter writer = new MessageWriter(response);
         writer.writeShort(0); // packet size will be filled below
         writer.writeShort(GarminMessage.RESPONSE.getId());
@@ -55,7 +59,7 @@ public class FileTransferDataStatusMessage extends GFDIStatusMessage {
         writer.writeByte(transferStatus.ordinal());
         writer.writeInt(dataOffset);
 
-        return sendOutgoing;
+        return true;
     }
 
     public enum TransferStatus {

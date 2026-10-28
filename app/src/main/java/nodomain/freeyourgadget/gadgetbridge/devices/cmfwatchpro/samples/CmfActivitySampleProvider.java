@@ -34,15 +34,12 @@ import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.CmfHeartRateSampleProvider;
-import nodomain.freeyourgadget.gadgetbridge.devices.CmfSleepStageSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.CmfActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.entities.CmfActivitySampleDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.CmfHeartRateSample;
-import nodomain.freeyourgadget.gadgetbridge.entities.CmfSleepStageSample;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
-import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 
 public class CmfActivitySampleProvider extends AbstractSampleProvider<CmfActivitySample> {
     private static final Logger LOG = LoggerFactory.getLogger(CmfActivitySampleProvider.class);
@@ -113,7 +110,8 @@ public class CmfActivitySampleProvider extends AbstractSampleProvider<CmfActivit
         final Map<Integer, CmfActivitySample> sampleByTs = getActivitySampleMapByTimestamp(samples);
 
         overlayHeartRate(sampleByTs, timestamp_from, timestamp_to);
-        overlaySleep(sampleByTs, timestamp_from, timestamp_to);
+        final CmfSleepSessionProvider sleepStageSampleProvider = new CmfSleepSessionProvider(getDevice(), getSession());
+        overlaySleep(sleepStageSampleProvider, sampleByTs, timestamp_from, timestamp_to);
 
         final List<CmfActivitySample> finalSamples = new ArrayList<>(sampleByTs.values());
         Collections.sort(finalSamples, Comparator.comparingInt(CmfActivitySample::getTimestamp));
@@ -166,38 +164,5 @@ public class CmfActivitySampleProvider extends AbstractSampleProvider<CmfActivit
 
             sample.setHeartRate(hrSample.getHeartRate());
         }
-    }
-
-    private void overlaySleep(final Map<Integer, CmfActivitySample> sampleByTs, final int timestamp_from, final int timestamp_to) {
-        final CmfSleepStageSampleProvider sleepStageSampleProvider = new CmfSleepStageSampleProvider(getDevice(), getSession());
-        final List<CmfSleepStageSample> sleepStageSamples = sleepStageSampleProvider.getAllSamples(timestamp_from * 1000L, timestamp_to * 1000L);
-
-        for (final CmfSleepStageSample sleepStageSample : sleepStageSamples) {
-            // round to the nearest minute, we don't need per-second granularity
-            final int tsSeconds = (int) ((sleepStageSample.getTimestamp() / 1000) / 60) * 60;
-            for (int i = tsSeconds; i < tsSeconds + sleepStageSample.getDuration(); i += 60) {
-                CmfActivitySample sample = sampleByTs.get(i);
-                if (sample == null) {
-                    //LOG.debug("Adding dummy sample at {} for sleep", i);
-                    sample = new CmfActivitySample();
-                    sample.setTimestamp(i);
-                    sample.setProvider(this);
-                    sampleByTs.put(i, sample);
-                }
-
-                final ActivityKind sleepRawKind = sleepStageToActivityKind(sleepStageSample.getStage());
-                sample.setRawKind(sleepRawKind.getCode());
-                sample.setRawIntensity(ActivitySample.NOT_MEASURED);
-            }
-        }
-    }
-
-    final ActivityKind sleepStageToActivityKind(final int sleepStage) {
-        return switch (sleepStage) {
-            case 1 -> ActivityKind.DEEP_SLEEP;
-            case 2 -> ActivityKind.LIGHT_SLEEP;
-            case 3 -> ActivityKind.REM_SLEEP;
-            default -> ActivityKind.UNKNOWN;
-        };
     }
 }

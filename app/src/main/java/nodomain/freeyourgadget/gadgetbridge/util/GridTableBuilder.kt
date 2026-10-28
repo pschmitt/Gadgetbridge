@@ -88,7 +88,7 @@ class GridTableBuilder @JvmOverloads constructor(
         if (pendingTable.isEmpty()) {
             return
         }
-        val spec = TableSpec.from(pendingTable.map { it.entry })
+        val spec = TableSpec.from(pendingTable.map { it.entry }, workoutValueFormatter)
         pendingTable.forEachIndexed { index, row ->
             row.entry.populate(row.layout, workoutValueFormatter, spec, index == pendingTable.lastIndex)
         }

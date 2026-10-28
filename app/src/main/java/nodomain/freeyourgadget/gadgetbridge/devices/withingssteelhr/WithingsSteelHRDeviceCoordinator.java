@@ -18,17 +18,12 @@ package nodomain.freeyourgadget.gadgetbridge.devices.withingssteelhr;
 
 import androidx.annotation.NonNull;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
-import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.Property;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
-import nodomain.freeyourgadget.gadgetbridge.entities.WithingsSteelHRActivitySampleDao;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceCandidate;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
@@ -36,13 +31,6 @@ import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.withingssteelhr.WithingsSteelHRDeviceSupport;
 
 public class WithingsSteelHRDeviceCoordinator extends AbstractBLEDeviceCoordinator {
-
-    @Override
-    public Map<AbstractDao<?, ?>, Property> getAllDeviceDao(@NonNull final DaoSession session) {
-        Map<AbstractDao<?, ?>, Property> map = new HashMap<>(1);
-        map.put(session.getWithingsSteelHRActivitySampleDao(), WithingsSteelHRActivitySampleDao.Properties.DeviceId);
-        return map;
-    }
 
     @Override
     public boolean supports(GBDeviceCandidate candidate) {
@@ -153,5 +141,15 @@ public class WithingsSteelHRDeviceCoordinator extends AbstractBLEDeviceCoordinat
     @Override
     public DeviceKind getDeviceKind(@NonNull GBDevice device) {
         return DeviceKind.WATCH;
+    }
+
+    @Override
+    public boolean supportsAppNotifications(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsPhoneCalls(@NonNull final GBDevice device) {
+        return true;
     }
 }

@@ -1,0 +1,30 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="45sp"
+    android:height="45sp"
+    android:viewportWidth="30"
+    android:viewportHeight="30">
+    <path
+        android:fillColor="?attr/deviceIconLight"
+        android:pathData="M3.871 3.877h20.925a0.947 0.947 0 0 1 0.948 0.947v20.01a0.947 0.947 0 0 1-0.948 0.948H3.871a0.947 0.947 0 0 1-0.947-0.948V4.824a0.947 0.947 0 0 1 0.947-0.947z" />
+    <path
+        android:fillColor="?attr/deviceIconDark"
+        android:pathData="M3.879 3.035h20.925a0.947 0.947 0 0 1 0.947 0.947v20.01a0.947 0.947 0 0 1-0.947 0.948H3.88a0.947 0.947 0 0 1-0.947-0.948V3.982A0.947 0.947 0 0 1 3.88 3.035z" />
+    <path
+        android:fillColor="?attr/deviceIconPrimary"
+        android:pathData="M3.871 3.413h20.925a0.947 0.947 0 0 1 0.948 0.947v20.01a0.947 0.947 0 0 1-0.948 0.948H3.871a0.947 0.947 0 0 1-0.947-0.948V4.36A0.947 0.947 0 0 1 3.87 3.413z" />
+    <!-- monitor housing -->
+    <path
+        android:pathData="M8.6 7.4h11.4a1 1 0 0 1 1 1v8.6a1 1 0 0 1-1 1H8.6a1 1 0 0 1-1-1V8.4a1 1 0 0 1 1-1z"
+        android:strokeWidth="1.3"
+        android:strokeColor="?attr/deviceIconOnPrimary" />
+    <!-- readouts -->
+    <path
+        android:pathData="M10 10.3h8.6M10 12.7h5.6M10 15.1h7.2"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:strokeColor="?attr/deviceIconOnPrimary" />
+    <!-- mounting arm -->
+    <path
+        android:fillColor="?attr/deviceIconOnPrimary"
+        android:pathData="M13.5 18h1.6v3.2h-1.6zM10.8 21h7v1.4h-7z" />
+</vector>

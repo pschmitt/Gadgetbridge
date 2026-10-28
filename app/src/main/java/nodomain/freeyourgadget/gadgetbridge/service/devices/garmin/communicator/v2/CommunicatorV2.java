@@ -1,3 +1,19 @@
+/*  Copyright (C) 2024-2026 Daniele Gobbetti, José Rebelo, Thomas Kuehne
+
+    This file is part of Gadgetbridge.
+
+    Gadgetbridge is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Gadgetbridge is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.communicator.v2;
 
 import static nodomain.freeyourgadget.gadgetbridge.service.btle.AbstractBTLEDeviceSupport.calcMaxWriteChunk;
@@ -48,8 +64,23 @@ import nodomain.freeyourgadget.gadgetbridge.util.GB;
 public class CommunicatorV2 implements ICommunicator {
     private static final Logger LOG = LoggerFactory.getLogger(CommunicatorV2.class);
 
-    public static final String BASE_UUID = "6A4E%04X-667B-11E3-949A-0800200C9A66";
-    public static final UUID UUID_SERVICE_GARMIN_ML_GFDI = UUID.fromString(String.format(BASE_UUID, 0x2800));
+    public static final UUID UUID_SERVICE_GARMIN_ML_GFDI = UUID.fromString("6a4e2800-667b-11e3-949a-0800200c9a66");
+
+    public static final UUID[] UUID_CHARACTERISITC_GARMIN_ML_RX = {
+        UUID.fromString("6a4e2810-667b-11e3-949a-0800200c9a66"),
+        UUID.fromString("6a4e2811-667b-11e3-949a-0800200c9a66"),
+        UUID.fromString("6a4e2812-667b-11e3-949a-0800200c9a66"),
+        UUID.fromString("6a4e2813-667b-11e3-949a-0800200c9a66"),
+        UUID.fromString("6a4e2814-667b-11e3-949a-0800200c9a66")
+    };
+
+    public static final UUID[] UUID_CHARACTERISITC_GARMIN_ML_TX = {
+        UUID.fromString("6a4e2820-667b-11e3-949a-0800200c9a66"),
+        UUID.fromString("6a4e2821-667b-11e3-949a-0800200c9a66"),
+        UUID.fromString("6a4e2822-667b-11e3-949a-0800200c9a66"),
+        UUID.fromString("6a4e2823-667b-11e3-949a-0800200c9a66"),
+        UUID.fromString("6a4e2824-667b-11e3-949a-0800200c9a66")
+    };
 
     private static final long GADGETBRIDGE_CLIENT_ID = 2L;
 
@@ -91,9 +122,9 @@ public class CommunicatorV2 implements ICommunicator {
     public boolean initializeDevice(final TransactionBuilder builder) {
         // Iterate through the known ML characteristics until we find a known pair
         // send characteristic = read characteristic + 0x10 (eg. 2810 / 2820)
-        for (int i = 0x2810; i <= 0x2814; i++) {
-            characteristicReceive = mSupport.getCharacteristic(UUID.fromString(String.format(BASE_UUID, i)));
-            characteristicSend = mSupport.getCharacteristic(UUID.fromString(String.format(BASE_UUID, i + 0x10)));
+        for (int i = 0; i < UUID_CHARACTERISITC_GARMIN_ML_RX.length; i++) {
+            characteristicReceive = mSupport.getCharacteristic(UUID_CHARACTERISITC_GARMIN_ML_RX[i]);
+            characteristicSend = mSupport.getCharacteristic(UUID_CHARACTERISITC_GARMIN_ML_TX[i]);
 
             if (characteristicSend != null && characteristicReceive != null) {
                 LOG.debug("Using characteristics receive/send = {}/{}", characteristicReceive.getUuid(), characteristicSend.getUuid());
@@ -133,7 +164,7 @@ public class CommunicatorV2 implements ICommunicator {
             return;
         final Integer gfdiHandle = handleByService.get(Service.GFDI);
         if (gfdiHandle == null) {
-            LOG.error("CANNOT SENT GFDI MESSAGE, HANDLE NOT YET SET. MESSAGE {}", message);
+            LOG.error("CANNOT SEND GFDI MESSAGE, HANDLE NOT YET SET. MESSAGE {}", message);
             return;
         }
         final byte[] payload = CobsCoDec.encode(message);
@@ -211,21 +242,28 @@ public class CommunicatorV2 implements ICommunicator {
         return true;
     }
 
+    private static final Service[] FILE_TRANSFER_SERVICES = {
+            Service.FILE_TRANSFER_2,
+            Service.FILE_TRANSFER_4,
+            Service.FILE_TRANSFER_6,
+            Service.FILE_TRANSFER_A,
+            Service.FILE_TRANSFER_C,
+            Service.FILE_TRANSFER_E,
+    };
+
     public void startTransfer(final ServiceCallback callback) {
-        final Service service;
-        if (!handleByService.containsKey(Service.FILE_TRANSFER_2)) {
-            service = Service.FILE_TRANSFER_2;
-        } else if (!handleByService.containsKey(Service.FILE_TRANSFER_4)) {
-            service = Service.FILE_TRANSFER_4;
-        } else if (!handleByService.containsKey(Service.FILE_TRANSFER_6)) {
-            service = Service.FILE_TRANSFER_6;
-        } else if (!handleByService.containsKey(Service.FILE_TRANSFER_A)) {
-            service = Service.FILE_TRANSFER_A;
-        } else if (!handleByService.containsKey(Service.FILE_TRANSFER_C)) {
-            service = Service.FILE_TRANSFER_C;
-        } else if (!handleByService.containsKey(Service.FILE_TRANSFER_E)) {
-            service = Service.FILE_TRANSFER_E;
-        } else {
+        startTransfer(callback, mSupport.mlrEnabled());
+    }
+
+    public void startTransfer(final ServiceCallback callback, final boolean reliable) {
+        Service service = null;
+        for (final Service candidate : FILE_TRANSFER_SERVICES) {
+            if (!handleByService.containsKey(candidate)) {
+                service = candidate;
+                break;
+            }
+        }
+        if (service == null) {
             LOG.error("No file transfer services available");
             callback.onClose();
             return;
@@ -233,7 +271,7 @@ public class CommunicatorV2 implements ICommunicator {
 
         serviceCallbacks.put(service, callback);
         mSupport.createTransactionBuilder("start file transfer")
-                .write(characteristicSend, registerService(service, mSupport.mlrEnabled()))
+                .write(characteristicSend, registerService(service, reliable))
                 .queue();
     }
 
@@ -341,10 +379,14 @@ public class CommunicatorV2 implements ICommunicator {
                         yield new RealtimeHeartRateCallback();
                     case REALTIME_STEPS:
                         yield new RealtimeStepsCallback();
+                    case REALTIME_FLOORS:
+                        yield new RealtimeFloorsCallback();
                     case REALTIME_ACCELEROMETER:
                         yield new RealtimeAccelerometerCallback();
                     case REALTIME_SPO2:
                         yield new RealtimeSpo2Callback();
+                    case REALTIME_BODY_BATTERY:
+                        yield new RealtimeBodyBatteryCallback();
                     case REALTIME_RESPIRATION:
                         yield new RealtimeRespirationCallback();
                     case REALTIME_HRV:
@@ -379,7 +421,7 @@ public class CommunicatorV2 implements ICommunicator {
                     }
                     final MlrCommunicator mlrComm = createMlrCommunicator(handle, serviceCallback);
                     mlrCommunicators.put(handle, mlrComm);
-                    serviceCallback.onConnect(new MlrServiceWriter(mlrComm));
+                    serviceCallback.onConnect(new MlrServiceWriter(registeredService, mlrComm));
                 } else {
                     // Regular ML mode
                     serviceCallback.onConnect(new MlServiceWriter(handle));
@@ -661,8 +703,8 @@ public class CommunicatorV2 implements ICommunicator {
             final GarminActivitySampleProvider provider = new GarminActivitySampleProvider(gbDevice, session);
             sample = provider.createActivitySample();
 
-            sample.setDeviceId(device.getId());
-            sample.setUserId(user.getId());
+            sample.setDeviceId(Objects.requireNonNull(device.getId()));
+            sample.setUserId(Objects.requireNonNull(user.getId()));
             sample.setTimestamp((int) (System.currentTimeMillis() / 1000));
             sample.setHeartRate(hr);
             sample.setSteps(steps);
@@ -709,6 +751,7 @@ public class CommunicatorV2 implements ICommunicator {
         REALTIME_HR(6),
         REALTIME_STEPS(7),
         REALTIME_CALORIES(8),
+        REALTIME_FLOORS(9),
         REALTIME_INTENSITY(10),
         REALTIME_HRV(12),
         REALTIME_STRESS(13),
@@ -760,6 +803,18 @@ public class CommunicatorV2 implements ICommunicator {
 
     public interface ServiceWriter {
         void write(String taskName, byte[] value);
+
+        /**
+         * Set the listener for the acknowledgements of written data. Only called by MLR writers.
+         */
+        default void setAckListener(MlrCommunicator.AckListener listener) {
+        }
+
+        /**
+         * Close this service's handle. Wait until all data is acknowledged first, else the transfer is truncated.
+         */
+        default void close() {
+        }
     }
 
     public class MlServiceWriter implements ServiceWriter {
@@ -797,16 +852,35 @@ public class CommunicatorV2 implements ICommunicator {
         return new MlrCommunicator(handle, maxWriteSize, messageSender, callback::onMessage);
     }
 
-    public static class MlrServiceWriter implements ServiceWriter {
+    public class MlrServiceWriter implements ServiceWriter {
+        private final Service service;
         private final MlrCommunicator mlrComm;
 
-        private MlrServiceWriter(final MlrCommunicator mlrComm) {
+        private MlrServiceWriter(final Service service, final MlrCommunicator mlrComm) {
+            this.service = service;
             this.mlrComm = mlrComm;
         }
 
         @Override
         public void write(final String taskName, final byte[] value) {
             mlrComm.sendMessage(taskName, value);
+        }
+
+        @Override
+        public void setAckListener(final MlrCommunicator.AckListener listener) {
+            mlrComm.setAckListener(listener);
+        }
+
+        @Override
+        public void close() {
+            final Integer handle = handleByService.get(service);
+            if (handle == null) {
+                LOG.warn("Unable to {}, it is not currently registered", service);
+                return;
+            }
+            mSupport.createTransactionBuilder("close " + service)
+                    .write(characteristicSend, closeService(service, handle))
+                    .queue();
         }
     }
 }

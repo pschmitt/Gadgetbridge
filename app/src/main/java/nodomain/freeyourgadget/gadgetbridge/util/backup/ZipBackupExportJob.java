@@ -147,7 +147,8 @@ public class ZipBackupExportJob extends AbstractZipBackupJob {
             throw new IOException("Failed to export device preferences", e);
         }
 
-        for (final WidgetInstance widgetInstance : WidgetLayoutStore.INSTANCE.load()) {
+        final List<WidgetInstance> widgetInstances = WidgetLayoutStore.INSTANCE.instances();
+        for (final WidgetInstance widgetInstance : widgetInstances) {
             LOG.debug("Exporting widget preferences for {}", widgetInstance.getInstanceId());
             final SharedPreferences widgetPrefs = GBApplication.getWidgetSharedPrefs(widgetInstance.getInstanceId());
             if (widgetPrefs != null) {

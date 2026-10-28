@@ -44,7 +44,7 @@ public class CommuteActionsListAdapter extends RecyclerView.Adapter<CommuteActio
         this.parentActivity = (CommuteActionsActivity) context;
     }
 
-    // inflates the row layout from xml when needed
+    // inflates the row layout from XML when needed
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.fossil_hr_row_commute_action, parent, false);

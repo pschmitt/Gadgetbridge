@@ -10,6 +10,10 @@
         android:paddingHorizontal="@dimen/activity_horizontal_margin"
         android:paddingVertical="@dimen/activity_vertical_margin">
 
+        <include
+            android:id="@+id/mapPreview"
+            layout="@layout/send_waypoint_map_preview" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -107,6 +111,13 @@
                 android:text="@string/activity_send_waypoint_to_device"
                 app:icon="@drawable/ic_add_location_alt_24px" />
         </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/about_margin"
+            android:text="@string/activity_send_waypoint_paste_hint"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <TextView
             android:id="@+id/waypoint_info_0"

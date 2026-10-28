@@ -128,6 +128,7 @@ public abstract class GBDeviceEvent {
 
             if (!notificationManager.isNotificationPolicyAccessGranted()) {
                 LOG.warn("Do not disturb permissions not granted");
+                return;
             }
 
             notificationManager.setInterruptionFilter(interruptionFilter);

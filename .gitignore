@@ -33,12 +33,14 @@ proguard/
 *.cer
 *.crt
 *.env
+*.gpg
 *.jks
 *.key
 *.keystore
 *.p12
 *.pem
 *.pfx
+*.ppk
 *.secret
 *.token
 .DS_Store
@@ -47,9 +49,11 @@ proguard/
 config.json
 credentials.json
 google-services.json
+id_dsa
 id_ed25519
 id_rsa
 key.properties
+keys/
 kubeconfig
 local.properties
 local.settings.json

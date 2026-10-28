@@ -30,6 +30,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -39,6 +40,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -61,7 +63,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.DeviceService;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.kotlin.FloatingActionButtonExtensionsKt;
 
-public class DevicesFragment extends Fragment {
+public class DevicesFragment extends Fragment implements HeaderShadePage {
 
     private DeviceManager deviceManager;
     private GBDeviceAdapterv2 mGBDeviceAdapter;
@@ -122,6 +124,9 @@ public class DevicesFragment extends Fragment {
         deviceList = deviceManager.getDevices();
         mGBDeviceAdapter = new GBDeviceAdapterv2(currentView.getContext(), deviceList, deviceActivityHashMap);
         mGBDeviceAdapter.setHasStableIds(true);
+        if (savedInstanceState != null) {
+            mGBDeviceAdapter.restoreInstanceState(savedInstanceState);
+        }
 
         deviceListView.setAdapter(this.mGBDeviceAdapter);
 
@@ -195,6 +200,13 @@ public class DevicesFragment extends Fragment {
         return currentView;
     }
 
+    @Nullable
+    @Override
+    public View getHeaderShade() {
+        final View view = getView();
+        return view != null ? view.findViewById(R.id.devices_top_shade) : null;
+    }
+
     private void launchDiscoveryActivity() {
         startActivity(new Intent(getActivity(), DiscoveryActivityV2.class));
     }
@@ -212,10 +224,26 @@ public class DevicesFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (mGBDeviceAdapter != null) {
+            mGBDeviceAdapter.onResume();
+        }
+    }
+
+    @Override
     public void onDestroy() {
         if (deviceListView != null) unregisterForContextMenu(deviceListView);
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(mReceiver);
         super.onDestroy();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mGBDeviceAdapter != null) {
+            mGBDeviceAdapter.saveInstanceState(outState);
+        }
     }
 
     private DailyTotals getSteps(GBDevice device, DBHandler db) {
@@ -243,10 +271,13 @@ public class DevicesFragment extends Fragment {
 
     public class RefreshTask extends DBAccess {
         private final GBDevice device;
+        private final List<GBDevice> devices;
 
         public RefreshTask(final String task, final Context context, final GBDevice device) {
             super(task, context, false);
             this.device = device;
+            // The DeviceManager updates the device list on the main thread
+            this.devices = new ArrayList<>(deviceList);
         }
 
         @Override
@@ -254,7 +285,7 @@ public class DevicesFragment extends Fragment {
             if (device != null) {
                 updateDevice(db, device);
             } else {
-                for (GBDevice gbDevice : deviceList) {
+                for (final GBDevice gbDevice : devices) {
                     updateDevice(db, gbDevice);
                 }
             }

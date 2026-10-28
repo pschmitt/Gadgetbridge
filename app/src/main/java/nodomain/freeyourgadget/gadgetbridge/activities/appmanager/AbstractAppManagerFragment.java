@@ -50,6 +50,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -105,6 +106,7 @@ public abstract class AbstractAppManagerFragment extends Fragment {
 
     protected final List<GBDeviceApp> appList = new ArrayList<>();
     private GBDeviceAppAdapter mGBDeviceAppAdapter;
+    private CircularProgressIndicator appListLoading;
     protected GBDevice mGBDevice = null;
     protected DeviceCoordinator mCoordinator = null;
     private Class<? extends Activity> watchfaceDesignerActivity;
@@ -162,9 +164,10 @@ public abstract class AbstractAppManagerFragment extends Fragment {
                             continue;
                         }
                         LOG.debug("Searching update for Pebble app {} in appstore", app.getName());
+                        final String appStoreDomain = ((PebbleCoordinator) mGBDevice.getDeviceCoordinator()).getAppStoreDomain(mGBDevice);
                         try {
                             JSONObject appstoreEntry = InternetUtils.Companion.doJsonRequest(
-                                    Uri.parse("https://appstore-api.rebble.io/api/v1/apps/id/" + appstoreIdEntry.getAppstoreId()),
+                                    Uri.parse("https://appstore-api." + appStoreDomain + "/api/v1/apps/id/" + appstoreIdEntry.getAppstoreId()),
                                     "GET",
                                     Collections.emptyMap(),
                                     null,
@@ -266,6 +269,7 @@ public abstract class AbstractAppManagerFragment extends Fragment {
             }
             switch (action) {
                 case ACTION_REFRESH_APPLIST: {
+                    appListLoading.setVisibility(View.GONE);
                     if (intent.hasExtra(EXTRA_APP_LIST)) {
                         LOG.info("got app info from device");
                         if (!isCacheManager()) {
@@ -463,6 +467,8 @@ public abstract class AbstractAppManagerFragment extends Fragment {
             GBApplication.deviceService(mGBDevice).onAppInfoReq();
             if (isCacheManager()) {
                 refreshList();
+            } else if (mGBDevice.isInitialized()) {
+                appListLoading.setVisibility(View.VISIBLE);
             }
         } else {
             refreshList();
@@ -494,6 +500,7 @@ public abstract class AbstractAppManagerFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.activity_appmanager, container, false);
 
         RecyclerView appListView = rootView.findViewById(R.id.appListView);
+        appListLoading = rootView.findViewById(R.id.appListLoading);
 
         appListView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -726,9 +733,10 @@ public abstract class AbstractAppManagerFragment extends Fragment {
             return true;
         } else if (itemId == R.id.appmanager_app_openinstore) {
             boolean appStoreAllowed = GBApplication.getPrefs().getBoolean("pref_key_internethelper_allow_pebble_appstore", false);
-            final String url = "https://apps.rebble.io/en_US/search/" + ((selectedApp.getType() == GBDeviceApp.Type.WATCHFACE) ? "watchfaces" : "watchapps") + "/1/?native=true&dev_settings=true&query=" +  Uri.encode(selectedApp.getUUID().toString());
+            final String appStoreDomain = ((PebbleCoordinator) mGBDevice.getDeviceCoordinator()).getAppStoreDomain(mGBDevice);
+            final String url = "https://apps." + appStoreDomain + "/en_US/search/" + ((selectedApp.getType() == GBDeviceApp.Type.WATCHFACE) ? "watchfaces" : "watchapps") + "/1/?native=true&dev_settings=true&query=" +  Uri.encode(selectedApp.getUUID().toString());
             if (GBApplication.hasDirectInternetAccess() || (appStoreAllowed && InternetHelperSingleton.INSTANCE.ensureInternetHelperBound())) {
-                final Intent startIntent = new Intent(getContext().getApplicationContext(), RebbleAppStoreActivity.class);
+                final Intent startIntent = new Intent(getContext().getApplicationContext(), PebbleAppStoreActivity.class);
                 startIntent.putExtra(DeviceService.EXTRA_URI, url);
                 startIntent.putExtra(GBDevice.EXTRA_DEVICE, mGBDevice);
                 startActivity(startIntent);

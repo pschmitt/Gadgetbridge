@@ -37,9 +37,4 @@ public class GarminEdge25Coordinator extends GarminBikeComputerCoordinator {
     public boolean supportsWeather(@NonNull final GBDevice device) {
         return false;
     }
-
-    @Override
-    public boolean supportsMusicInfo(@NonNull GBDevice device) {
-        return false;
-    }
 }

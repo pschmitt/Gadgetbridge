@@ -70,6 +70,7 @@ public class FitActivityTrackProvider implements ActivityTrackProvider {
     public ActivityTrack getActivityTrack(@NonNull final BaseActivitySummary summary, @NonNull final FitFile fitFile) {
         final ActivityTrack activityTrack = new ActivityTrack();
         activityTrack.setName(summary.getName());
+        final ActivityKind activityKind = ActivityKind.fromCode(summary.getActivityKind());
 
         final Iterator<FitRecord> records = fitFile.getRecords().stream()
                 .filter(r -> r instanceof FitRecord)
@@ -103,7 +104,9 @@ public class FitActivityTrackProvider implements ActivityTrackProvider {
                 activityTrack.startNewSegment();
                 nextLapStart = (lapStarts.hasNext() ? lapStarts.next() : Long.MAX_VALUE);
             }
-            activityTrack.addTrackPoint(record.toActivityPoint());
+            final ActivityPoint point = record.toActivityPoint();
+            normalizeStepCadence(point, activityKind);
+            activityTrack.addTrackPoint(point);
         }
 
         // Per-length / per-split / per-set metadata — kept on the track so the
@@ -159,5 +162,15 @@ public class FitActivityTrackProvider implements ActivityTrackProvider {
         }
 
         return activityTrack;
+    }
+
+    /**
+     * FIT record cadence counts one leg (strides/min) for step-based activities, while
+     * {@link ActivityPoint} cadence is steps/min. Doubles a set cadence for those activities.
+     */
+    public static void normalizeStepCadence(@NonNull final ActivityPoint point, @NonNull final ActivityKind activityKind) {
+        if (ActivityKind.getCycleUnit(activityKind) == ActivityKind.CycleUnit.STEPS && point.getCadence() > 0) {
+            point.setCadence(point.getCadence() * 2);
+        }
     }
 }

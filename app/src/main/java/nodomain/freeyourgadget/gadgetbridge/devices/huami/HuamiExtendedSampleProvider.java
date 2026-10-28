@@ -29,7 +29,7 @@ import nodomain.freeyourgadget.gadgetbridge.entities.HuamiExtendedActivitySample
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
-import nodomain.freeyourgadget.gadgetbridge.util.RangeMap;
+import nodomain.freeyourgadget.gadgetbridge.model.SleepSession;
 
 public class HuamiExtendedSampleProvider extends AbstractSampleProvider<HuamiExtendedActivitySample> {
     public static final int TYPE_CUSTOM_UNSET = -1;
@@ -89,18 +89,15 @@ public class HuamiExtendedSampleProvider extends AbstractSampleProvider<HuamiExt
             return;
         }
 
-        final HuamiSleepSessionSampleProvider sleepSessionSampleProvider = new HuamiSleepSessionSampleProvider(getDevice(), getSession());
-        final RangeMap<Long, ActivityKind> sleepStages = sleepSessionSampleProvider.getSleepStages(
-                timestamp_from * 1000L,
-                timestamp_to * 1000L
-        );
+        final HuamiSleepSessionProvider sleepSessionProvider = new HuamiSleepSessionProvider(getDevice(), getSession());
+        final List<SleepSession> sleepSessions = sleepSessionProvider.getSleepSessions(timestamp_from - 24 * 3600, timestamp_to);
 
-        if (!sleepStages.isEmpty()) {
+        if (!sleepSessions.isEmpty()) {
             // The device reports the sleep stage durations - overlay them
             for (final HuamiExtendedActivitySample sample : samples) {
                 final long ts = sample.getTimestamp() * 1000L;
-                final ActivityKind sleepType = sleepStages.get(ts);
-                if (sleepType != null && !sleepType.equals(ActivityKind.UNKNOWN)) {
+                final ActivityKind sleepType = sleepKindAt(sleepSessions, ts);
+                if (sleepType != null) {
                     switch (sleepType) {
                         case DEEP_SLEEP:
                             sample.setRawKind(TYPE_CUSTOM_DEEP_SLEEP);
@@ -121,7 +118,7 @@ public class HuamiExtendedSampleProvider extends AbstractSampleProvider<HuamiExt
                     sample.setRawIntensity(ActivitySample.NOT_MEASURED);
                 } else if (sample.getRawKind() == TYPE_SLEEP) {
                     // Unset sleep, as it might sometimes be set out of the actual sleep times
-                    sample.setRawIntensity(TYPE_CUSTOM_UNSET);
+                    sample.setRawKind(TYPE_CUSTOM_UNSET);
                 }
             }
         } else {

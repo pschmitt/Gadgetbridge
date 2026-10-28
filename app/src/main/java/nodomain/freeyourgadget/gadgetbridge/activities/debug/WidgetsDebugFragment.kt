@@ -12,9 +12,12 @@ import androidx.preference.PreferenceCategory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.Widget
+import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.WidgetInstanceSettingsActivity
 import nodomain.freeyourgadget.gadgetbridge.adapter.SimpleIconListAdapter
 import nodomain.freeyourgadget.gadgetbridge.model.RunnableListIconItem
 import nodomain.freeyourgadget.gadgetbridge.util.WidgetPreferenceStorage
+import nodomain.freeyourgadget.gadgetbridge.widgets.launcher.LauncherWidgetStore
+import nodomain.freeyourgadget.gadgetbridge.widgets.launcher.LauncherWidgets
 
 class WidgetsDebugFragment : AbstractDebugFragment() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -23,11 +26,12 @@ class WidgetsDebugFragment : AbstractDebugFragment() {
         onClick(PREF_DEBUG_WIDGETS_PREFS_SHOW) { showAppWidgetsPrefs() }
         onClick(PREF_DEBUG_WIDGETS_PREFS_DELETE) { deleteWidgetsPrefs() }
 
-        reloadWidgets()
+        reloadLegacyWidgets()
+        reloadDashboardWidgets()
     }
 
-    private fun reloadWidgets() {
-        val widgetsHeader: PreferenceCategory = findPreference(PREF_HEADER_WIDGETS)!!
+    private fun reloadLegacyWidgets() {
+        val widgetsHeader: PreferenceCategory = findPreference(PREF_HEADER_LAUNCHER_WIDGETS_LEGACY)!!
         removeDynamicPrefs(widgetsHeader)
 
         // https://stackoverflow.com/questions/17387191/check-if-a-widget-is-exists-on-homescreen-using-appwidgetid
@@ -46,7 +50,7 @@ class WidgetsDebugFragment : AbstractDebugFragment() {
                 items.add(
                     RunnableListIconItem(getString(R.string.delete), R.drawable.ic_delete_forever) {
                         appWidgetHost.deleteAppWidgetId(appWidgetID)
-                        reloadWidgets()
+                        reloadLegacyWidgets()
                     }
                 )
 
@@ -55,6 +59,56 @@ class WidgetsDebugFragment : AbstractDebugFragment() {
                 MaterialAlertDialogBuilder(requireContext())
                     .setAdapter(adapter) { _: DialogInterface?, i1: Int -> items[i1]!!.action.run() }
                     .setTitle("Widget $i / id=$appWidgetID")
+                    .setNegativeButton(android.R.string.cancel) { _: DialogInterface?, _: Int -> }
+                    .create()
+                    .show()
+            }
+        }
+    }
+
+    private fun reloadDashboardWidgets() {
+        val header: PreferenceCategory = findPreference(PREF_HEADER_LAUNCHER_WIDGETS_DASHBOARD)!!
+        removeDynamicPrefs(header)
+
+        val appWidgetHost = AppWidgetHost(requireContext(), 1) // for removing phantoms
+        val appWidgetIds = LauncherWidgets.appWidgetIds(requireContext())
+        if (appWidgetIds.isEmpty()) {
+            addDynamicPref(header, "", "No widgets found")
+            return
+        }
+
+        for (appWidgetId in appWidgetIds) {
+            val launcherWidget = LauncherWidgetStore.get(appWidgetId)
+            val title = launcherWidget?.instance?.typeId ?: "Not configured"
+            val summary = "id = $appWidgetId, variant = ${launcherWidget?.variantId ?: "automatic"}"
+            addDynamicPref(header, title, summary, R.drawable.ic_widgets) {
+                val items: MutableList<RunnableListIconItem?> = ArrayList(3)
+
+                if (launcherWidget != null) {
+                    items.add(
+                        RunnableListIconItem(getString(R.string.pref_dashboard_widget_settings), R.drawable.ic_settings) {
+                            WidgetInstanceSettingsActivity.startForLauncherWidget(requireContext(), appWidgetId, launcherWidget)
+                        }
+                    )
+                }
+                items.add(
+                    RunnableListIconItem("Update", R.drawable.ic_refresh) {
+                        LauncherWidgets.update(requireContext(), intArrayOf(appWidgetId))
+                    }
+                )
+                items.add(
+                    RunnableListIconItem(getString(R.string.delete), R.drawable.ic_delete_forever) {
+                        appWidgetHost.deleteAppWidgetId(appWidgetId)
+                        LauncherWidgetStore.delete(intArrayOf(appWidgetId))
+                        reloadDashboardWidgets()
+                    }
+                )
+
+                val adapter = SimpleIconListAdapter(context, items)
+
+                MaterialAlertDialogBuilder(requireContext())
+                    .setAdapter(adapter) { _: DialogInterface?, i: Int -> items[i]!!.action.run() }
+                    .setTitle("$title / id=$appWidgetId")
                     .setNegativeButton(android.R.string.cancel) { _: DialogInterface?, _: Int -> }
                     .create()
                     .show()
@@ -93,6 +147,7 @@ class WidgetsDebugFragment : AbstractDebugFragment() {
     companion object {
         private const val PREF_DEBUG_WIDGETS_PREFS_SHOW = "pref_debug_widgets_prefs_show"
         private const val PREF_DEBUG_WIDGETS_PREFS_DELETE = "pref_debug_widgets_prefs_delete"
-        private const val PREF_HEADER_WIDGETS = "pref_header_widgets"
+        private const val PREF_HEADER_LAUNCHER_WIDGETS_LEGACY = "pref_header_launcher_widgets_legacy"
+        private const val PREF_HEADER_LAUNCHER_WIDGETS_DASHBOARD = "pref_header_launcher_widgets_dashboard"
     }
 }

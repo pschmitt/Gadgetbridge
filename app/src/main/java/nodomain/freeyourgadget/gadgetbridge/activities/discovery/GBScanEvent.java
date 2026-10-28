@@ -35,14 +35,19 @@ public class GBScanEvent {
 
     private final SparseArray<byte[]> manufacturerSpecificData;
 
+    @Nullable
+    private final byte[] scanRecord;
+
     public GBScanEvent(final BluetoothDevice device,
                        final short rssi,
                        @Nullable final ParcelUuid[] serviceUuids,
-                       SparseArray<byte[]> manufacturerSpecificData) {
+                       final SparseArray<byte[]> manufacturerSpecificData,
+                       @Nullable final byte[] scanRecord) {
         this.device = device;
         this.rssi = rssi;
         this.serviceUuids = serviceUuids;
         this.manufacturerSpecificData = manufacturerSpecificData;
+        this.scanRecord = scanRecord;
     }
 
     public BluetoothDevice getDevice() {
@@ -61,5 +66,10 @@ public class GBScanEvent {
     @Nullable
     public SparseArray<byte[]> getManufacturerSpecificData() {
         return manufacturerSpecificData;
+    }
+
+    @Nullable
+    public byte[] getScanRecord() {
+        return scanRecord;
     }
 }

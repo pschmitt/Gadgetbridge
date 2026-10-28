@@ -37,4 +37,12 @@ public interface InstallActivity {
 
     void setInstallItem(ItemWithDetails item);
 
+    /**
+     * Displays a checkbox with the text. The install button is enabled only when the checkbox is checked.
+     * A null text removes the checkbox.
+     */
+    default void setInstallConfirmation(@Nullable final String text) {
+        throw new UnsupportedOperationException("Install confirmation not supported by " + getClass().getSimpleName());
+    }
+
 }

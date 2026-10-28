@@ -26,14 +26,20 @@ import androidx.annotation.NonNull;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettings;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsScreen;
 import nodomain.freeyourgadget.gadgetbridge.devices.InstallHandler;
+import nodomain.freeyourgadget.gadgetbridge.devices.SleepSessionProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.huami.HuamiCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.huami.HuamiEstimatedSleepSessionProvider;
+import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.amazfitbip.AmazfitBipSupport;
+
+import static nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst.PREF_SLEEP_STAGE_ESTIMATION;
 
 public class AmazfitBipCoordinator extends HuamiCoordinator {
     @Override
@@ -54,17 +60,22 @@ public class AmazfitBipCoordinator extends HuamiCoordinator {
     }
 
     @Override
-    public boolean supportsHeartRateMeasurement(final GBDevice device) {
+    public boolean supportsHeartRateMeasurement(@NonNull final GBDevice device) {
         return true;
     }
 
     @Override
-    public boolean supportsRecordedActivities(final GBDevice device) {
+    public boolean supportsRecordedActivities(@NonNull final GBDevice device) {
         return true;
     }
 
     @Override
-    public boolean supportsWeather(final GBDevice device) {
+    public boolean supportsWeather(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsPhoneSilentMode(@NonNull final GBDevice device) {
         return true;
     }
 
@@ -104,26 +115,40 @@ public class AmazfitBipCoordinator extends HuamiCoordinator {
     }
 
     @Override
+    public int[] getSupportedDeviceSpecificExperimentalSettings(final GBDevice device) {
+        return new int[]{R.xml.devicesettings_sleep_stage_estimation};
+    }
+
+    @Override
     public String[] getSupportedLanguageSettings(final GBDevice device) {
         return new String[]{
-                "auto",
-                "zh_CN",
-                "zh_TW",
-                "en_US",
-                "es_ES",
-                "de_DE",
-                "it_IT",
-                "fr_FR",
-                "pt_BR",
-                "tr_TR",
-                "cs_CZ",
-                "ru_RU",
+            "auto",
+            "zh_CN",
+            "zh_TW",
+            "en_US",
+            "es_ES",
+            "de_DE",
+            "it_IT",
+            "fr_FR",
+            "pt_BR",
+            "tr_TR",
+            "cs_CZ",
+            "ru_RU",
         };
     }
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
+    public SleepSessionProvider getSleepSessionProvider(@NonNull final GBDevice device, @NonNull final DaoSession session) {
+        if (GBApplication.getPrefs().experimentalSettings() && GBApplication.getDevicePrefs(device).getBoolean(PREF_SLEEP_STAGE_ESTIMATION, false)) {
+            return new HuamiEstimatedSleepSessionProvider(device, session);
+        }
+        return super.getSleepSessionProvider(device, session);
+    }
+
+    @NonNull
+    @Override
+    public Class<? extends DeviceSupport> getDeviceSupportClass(@NonNull final GBDevice device) {
         return AmazfitBipSupport.class;
     }
 

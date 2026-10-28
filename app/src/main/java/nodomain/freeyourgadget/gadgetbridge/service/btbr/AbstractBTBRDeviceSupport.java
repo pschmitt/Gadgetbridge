@@ -85,7 +85,7 @@ public abstract class AbstractBTBRDeviceSupport extends AbstractBluetoothDeviceS
                     for (ParcelUuid uuid : uuids) {
                         logger.debug(
                                 "discovered service: {}: {}",
-                                BleNamesResolver.resolveServiceName(uuid.toString()),
+                                BleNamesResolver.resolveServiceName(uuid.getUuid()),
                                 uuid
                         );
                     }
@@ -121,6 +121,18 @@ public abstract class AbstractBTBRDeviceSupport extends AbstractBluetoothDeviceS
             closeAllAuxChannels();
             if (mQueue != null) {
                 mQueue.disconnect();
+            }
+        }
+    }
+
+    /**
+     * Drops the primary connection the way a lost link does, so the device goes through the
+     * regular reconnect path. {@link #disconnect()} marks the device as not connected instead.
+     */
+    public void dropConnection() {
+        synchronized (ConnectionMonitor) {
+            if (mQueue != null) {
+                mQueue.closeSocket();
             }
         }
     }

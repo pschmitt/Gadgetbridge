@@ -18,6 +18,8 @@ package nodomain.freeyourgadget.gadgetbridge.devices.xiaomi.watches;
 
 import static nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst.PREF_XIAOMI_DEVICE_ID;
 
+import android.util.Size;
+
 import androidx.annotation.NonNull;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -121,5 +123,10 @@ public class XiaomiWatch5Coordinator extends XiaomiCoordinator {
     @Override
     public boolean supportsAppListFetching(@NonNull final GBDevice device) {
         return false;
+    }
+
+    @Override
+    public Size getScreenSize() {
+        return new Size(480, 480);
     }
 }

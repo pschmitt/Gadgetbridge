@@ -48,7 +48,7 @@ public class VescCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
+    public Class<? extends DeviceSupport> getDeviceSupportClass(@NonNull final GBDevice device) {
         return VescDeviceSupport.class;
     }
 
@@ -69,11 +69,6 @@ public class VescCoordinator extends AbstractBLEDeviceCoordinator {
     }
 
     @Override
-    public Class<? extends Activity> getPairingActivity() {
-        return null;
-    }
-
-    @Override
     public boolean supportsDataFetching(@NonNull final GBDevice device) {
         return true;
     }
@@ -89,7 +84,7 @@ public class VescCoordinator extends AbstractBLEDeviceCoordinator {
     }
 
     @Override
-    public boolean supportsAppsManagement(final GBDevice device) {
+    public boolean supportsAppsManagement(@NonNull final GBDevice device) {
         return true;
     }
 

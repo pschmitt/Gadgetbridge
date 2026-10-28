@@ -167,8 +167,8 @@ public class LaxasFitDeviceSupport extends AbstractBTLESingleDeviceSupport {
 
     public LaxasFitDeviceSupport() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION);
-        addSupportedService(GattService.UUID_SERVICE_BATTERY_SERVICE);
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
+        addSupportedService(GattService.SERVICE_BATTERY.uuid);
 
         IntentListener mListener = new IntentListener() {
             @Override
@@ -200,7 +200,7 @@ public class LaxasFitDeviceSupport extends AbstractBTLESingleDeviceSupport {
         writeCharacteristic = getCharacteristic(UUID_CHARACTERISTIC_TX);
 
         builder.notify(UUID_CHARACTERISTIC_RX, true);
-        builder.notify(GattService.UUID_SERVICE_BATTERY_SERVICE, true);
+        builder.notify(GattService.SERVICE_BATTERY.uuid, true);
         builder.setCallback(this);
 
         deviceInfoProfile.requestDeviceInfo(builder);
@@ -659,7 +659,7 @@ public class LaxasFitDeviceSupport extends AbstractBTLESingleDeviceSupport {
                 languageCode = LaxasFitConstants.LANG.GERMAN;
                 break;
             case "pt":
-                languageCode = LaxasFitConstants.LANG.PORTUGESE;
+                languageCode = LaxasFitConstants.LANG.PORTUGUESE;
                 break;
 
             default:

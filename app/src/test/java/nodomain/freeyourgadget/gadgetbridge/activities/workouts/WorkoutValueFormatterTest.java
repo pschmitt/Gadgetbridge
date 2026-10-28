@@ -1,11 +1,14 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.workouts;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.UNIT_CELSIUS;
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.UNIT_FAHRENHEIT;
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.UNIT_FOOT;
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.UNIT_JUMPS;
+import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.UNIT_KG;
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.UNIT_KILOMETERS;
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.UNIT_KMPH;
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.UNIT_KNOTS;
@@ -213,5 +216,18 @@ public class WorkoutValueFormatterTest extends TestBase {
         WorkoutValueFormatter.Converted knots = sailing.convert(10, UNIT_METERS_PER_SECOND, true);
         assertEquals(UNIT_KNOTS, knots.unit);
         assertEquals(19.43844, knots.value, 1e-4);
+    }
+
+    // --- Weight ---
+
+    @Test
+    public void wholeKilograms() {
+        assertTrue(metric.isWholeKilograms(20.0, UNIT_KG));
+        assertTrue(metric.isWholeKilograms(0.0, UNIT_KG));
+        assertFalse(metric.isWholeKilograms(22.5, UNIT_KG));
+        assertFalse(metric.isWholeKilograms(0.5, UNIT_KG));
+        assertFalse(new WorkoutValueFormatter(ActivityKind.UNKNOWN, DistanceUnit.METRIC, WeightUnit.POUND, false).isWholeKilograms(20.0, UNIT_KG));
+        assertEquals("20 kg", metric.formatWholeKilograms(20.0, UNIT_KG, true));
+        assertEquals("20", metric.formatWholeKilograms(20.0, UNIT_KG, false));
     }
 }

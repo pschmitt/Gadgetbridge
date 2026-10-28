@@ -45,7 +45,7 @@ public class BaseTypeInt implements BaseTypeInterface {
         // Use doubleValue() rather than longValue() so that fractional inputs survive the
         // multiply by scale instead of being truncated first. For Integer/Long inputs the
         // result is identical.
-        long l = (long) ((((Number) o).doubleValue() + offset) * scale);
+        long l = Math.round((((Number) o).doubleValue() + offset) * scale);
         if (l < min || l > max) {
             invalidate(byteBuffer);
             return;

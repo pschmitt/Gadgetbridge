@@ -40,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="300sp">
 
-            <com.github.mikephil.charting.charts.LineChart
+            <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView
                 android:id="@+id/generic_metric_chart"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"

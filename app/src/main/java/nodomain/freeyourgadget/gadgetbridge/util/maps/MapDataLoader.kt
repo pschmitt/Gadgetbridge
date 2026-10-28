@@ -7,10 +7,13 @@ import androidx.documentfile.provider.DocumentFile
 import org.mapsforge.map.datastore.MultiMapDataStore
 import org.mapsforge.map.reader.MapFile
 import org.mapsforge.map.rendertheme.XmlRenderTheme
+import org.mapsforge.map.rendertheme.ZipRenderTheme
+import org.mapsforge.map.rendertheme.ZipXmlThemeResourceProvider
 import org.slf4j.LoggerFactory
 import java.io.FileInputStream
 import java.io.IOException
 import java.util.Locale
+import java.util.zip.ZipInputStream
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 
@@ -52,13 +55,53 @@ class MapDataLoader(private val context: Context) {
 
     fun resolveTheme(): XmlRenderTheme {
         val prefs = GBApplication.getPrefs()
-        val themePrefValue = prefs.getString(MapsManager.PREF_MAP_THEME, "default").uppercase(Locale.ROOT)
+        val dark = GBApplication.isDarkThemeEnabled()
+        val themePrefValue = if (dark) {
+            prefs.getString(MapsManager.PREF_MAP_THEME_DARK, "dark_low_contrast")
+        } else {
+            prefs.getString(MapsManager.PREF_MAP_THEME, "default")
+        }
+
+        if (MapsManager.MAP_THEME_VALUE_CUSTOM.equals(themePrefValue, ignoreCase = true)) {
+            return resolveCustomTheme(
+                if (dark) MapsManager.PREF_MAP_THEME_DARK_CUSTOM_URI else MapsManager.PREF_MAP_THEME_CUSTOM_URI
+            )
+        }
+
         return try {
-            MapTheme.valueOf(themePrefValue)
+            MapTheme.valueOf(themePrefValue.uppercase(Locale.ROOT))
         } catch (e: Exception) {
             LOG.error("Failed to find theme {}", themePrefValue, e)
             MapTheme.DEFAULT
         }
+    }
+
+    /**
+     * Custom themes are zip archives picked in the maps settings. Anything unexpected falls back
+     * to the default theme instead of leaving the map blank.
+     */
+    private fun resolveCustomTheme(uriPrefKey: String): XmlRenderTheme {
+        val uriString = GBApplication.getPrefs().getString(uriPrefKey, "") ?: ""
+        if (uriString.isEmpty()) {
+            LOG.warn("Custom map theme selected, but no theme file has been picked yet")
+            return MapTheme.DEFAULT
+        }
+
+        return try {
+            resolveZipTheme(Uri.parse(uriString))
+        } catch (e: Exception) {
+            LOG.error("Failed to load custom map theme {}", uriString, e)
+            MapTheme.DEFAULT
+        }
+    }
+
+    private fun resolveZipTheme(uri: Uri): XmlRenderTheme {
+        val stream = context.contentResolver.openInputStream(uri)
+            ?: throw IOException("Could not open $uri")
+        val provider = ZipXmlThemeResourceProvider(ZipInputStream(stream))
+        val xmlTheme = provider.xmlThemes.firstOrNull()
+            ?: throw IOException("No rendertheme inside $uri")
+        return ZipRenderTheme(xmlTheme, provider)
     }
 
     fun resolveTrackColor(): Int {

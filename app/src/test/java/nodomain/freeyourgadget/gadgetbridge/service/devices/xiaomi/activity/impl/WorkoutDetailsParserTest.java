@@ -1077,6 +1077,37 @@ public class WorkoutDetailsParserTest {
         return buf.array();
     }
 
+    // ---- Mi Watch Color Sport v1 (12-byte segment header: float height | int32 nr | int32 ts) ----
+
+    /** Build a v1 DETAILS payload, one segment per entry of {@code segments} ({ts, records}),
+     *  ending with the truncated empty-segment trailer the watch appends. */
+    private static byte[] buildV1Bytes(final byte[] signature, final int recordSize, final Segment... segments) {
+        int dataSize = 7 + 1 + signature.length + 8 + 4;
+        for (final Segment segment : segments) {
+            dataSize += 12 + segment.records.length * recordSize;
+        }
+        final ByteBuffer buf = ByteBuffer.allocate(dataSize).order(ByteOrder.LITTLE_ENDIAN);
+        buf.put(new byte[7]);  // fileId placeholder
+        buf.put((byte) 0);     // padding
+        buf.put(signature);
+        for (final Segment segment : segments) {
+            buf.putFloat(304.4f);
+            buf.putInt(segment.records.length);
+            buf.putInt(segment.startTs);
+            for (final int[] record : segment.records) {
+                for (int i = 0; i < recordSize; i++) {
+                    buf.put((byte) record[i]);
+                }
+            }
+        }
+        buf.putFloat(304.4f);  // trailer: height + nr = 0, no timestamp
+        buf.putInt(0);
+
+        final byte[] arr = buf.array();
+        buf.putInt(CheckSums.getCRC32(arr, 0, arr.length - 4));
+        return buf.array();
+    }
+
     /// Mi Band 9 Active outdoor run: the bitmap flags only HR, distance, cadence and pace, so
     /// each record is 5 bytes. Records taken from the run in #6875.
     @Test
@@ -1298,5 +1329,40 @@ public class WorkoutDetailsParserTest {
                 "79 10");
 
         assertNull(WorkoutDetailsParser.parseBytes(makeFileId(SUBTYPE_OUTDOOR_WALKING_V2, 5), bytes));
+    }
+
+    @Test
+    public void testV1OutdoorCycling() {
+        final byte[] bytes = buildV1Bytes(new byte[]{(byte) 0xCC, (byte) 0xF0}, 3,
+                new Segment(1791113889, new int[][]{{0, 120, 0x00}, {1, 117, 0x41}}),
+                new Segment(1791116387, new int[][]{{0, 130, 0x02}}));
+
+        final List<WorkoutDetailRecord> records = WorkoutDetailsParser.parseBytes(makeFileId(1), bytes);
+
+        assertNotNull(records);
+        assertEquals(3, records.size());
+        assertEquals(1791113889, records.get(0).ts);
+        assertEquals(120, records.get(0).hr);
+        assertEquals(1791113890, records.get(1).ts);
+        assertEquals(117, records.get(1).hr);
+        // a pause starts a new segment with its own timestamp
+        assertEquals(1791116387, records.get(2).ts);
+        assertEquals(130, records.get(2).hr);
+    }
+
+    @Test
+    public void testV1OutdoorWalking() {
+        final byte[] bytes = buildV1Bytes(new byte[]{(byte) 0xEC, (byte) 0xFC}, 4,
+                new Segment(1791041316, new int[][]{{0x00, 92, 0x00, 0x00}, {0x12, 90, 0x41, 0x0d}}));
+
+        final List<WorkoutDetailRecord> records = WorkoutDetailsParser.parseBytes(makeFileId(1), bytes);
+
+        assertNotNull(records);
+        assertEquals(2, records.size());
+        assertEquals(92, records.get(0).hr);
+        assertEquals(0, records.get(0).steps.intValue());
+        assertEquals(90, records.get(1).hr);
+        // low nibble = steps, high nibble = calories
+        assertEquals(2, records.get(1).steps.intValue());
     }
 }

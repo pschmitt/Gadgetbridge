@@ -32,6 +32,7 @@
         <item name="actionBarStyle">@style/GadgetbridgeTheme.ActionBar</item>
         <item name="actionOverflowMenuStyle">@style/GadgetbridgeTheme.OverflowMenuStyle</item>
         <item name="actionModeStyle">@style/GadgetbridgeTheme.ActionMode</item>
+        <item name="windowActionModeOverlay">true</item>
         <item name="actionModeCloseButtonStyle">@style/GadgetbridgeTheme.ActionModeCloseButton</item>
         <item name="preferenceTheme">@style/AppPreferenceThemeOverlay</item>
 
@@ -50,7 +51,11 @@
         <item name="alternate_row_background">?attr/colorSecondaryContainer</item>
         <item name="row_separator">@color/row_separator_light</item>
         <item name="stat_tile_bg">?attr/colorSurface</item>
+        <item name="grid_tile_bg">?android:attr/windowBackground</item>
+        <item name="device_card_bg">?attr/stat_tile_bg</item>
+        <item name="bottom_bar_divider">@null</item>
         <item name="stat_tile_border">?attr/colorOutlineVariant</item>
+        <item name="chart_marker_bg">?attr/colorSurfaceContainerLow</item>
         <item name="activity_icon_bg">?attr/colorSurfaceContainerHigh</item>
         <item name="table_header_rule">@color/table_header_rule_light</item>
 
@@ -90,6 +95,9 @@
         <item name="deviceIconOnPrimary">#ffffff</item>
         <item name="deviceIconLight">#1f7fdb</item>
         <item name="deviceIconDark">#4dabf5</item>
+        <item name="deviceIconBackground">?attr/deviceIconPrimary</item>
+        <item name="deviceIconBackgroundLight">?attr/deviceIconLight</item>
+        <item name="deviceIconBackgroundDark">?attr/deviceIconDark</item>
 
         <item name="android:windowBackground">@color/window_background_light</item>
         <item name="android:colorBackground">@color/window_background_light</item>
@@ -135,6 +143,7 @@
         <item name="actionBarStyle">@style/GadgetbridgeTheme.ActionBar</item>
         <item name="actionOverflowMenuStyle">@style/GadgetbridgeTheme.OverflowMenuStyle</item>
         <item name="actionModeStyle">@style/GadgetbridgeTheme.ActionMode</item>
+        <item name="windowActionModeOverlay">true</item>
         <item name="actionModeCloseButtonStyle">@style/GadgetbridgeTheme.ActionModeCloseButton</item>
         <item name="preferenceTheme">@style/AppPreferenceThemeOverlay</item>
 
@@ -153,7 +162,11 @@
         <item name="alternate_row_background">?attr/colorSecondaryContainer</item>
         <item name="row_separator">@color/row_separator_dark</item>
         <item name="stat_tile_bg">?attr/colorSurface</item>
+        <item name="grid_tile_bg">?android:attr/windowBackground</item>
+        <item name="device_card_bg">?attr/stat_tile_bg</item>
+        <item name="bottom_bar_divider">@null</item>
         <item name="stat_tile_border">?attr/colorOutlineVariant</item>
+        <item name="chart_marker_bg">?attr/colorSurfaceContainerHigh</item>
         <item name="activity_icon_bg">?attr/colorSurfaceContainerHigh</item>
         <item name="table_header_rule">@color/table_header_rule_dark</item>
 
@@ -195,6 +208,9 @@
         <item name="deviceIconOnPrimary">#ffffff</item>
         <item name="deviceIconLight">#1f7fdb</item>
         <item name="deviceIconDark">#4dabf5</item>
+        <item name="deviceIconBackground">?attr/deviceIconPrimary</item>
+        <item name="deviceIconBackgroundLight">?attr/deviceIconLight</item>
+        <item name="deviceIconBackgroundDark">?attr/deviceIconDark</item>
 
         <item name="android:windowBackground">@color/window_background_dark</item>
         <item name="android:colorBackground">@color/window_background_dark</item>
@@ -219,8 +235,12 @@
     <style name="GadgetbridgeThemeDynamicLight" parent="Theme.Material3.DynamicColors.Light">
         <item name="textColorPrimary">?attr/colorOnSurface</item>
         <item name="textColorSecondary">?attr/colorOnSurfaceVariant</item>
+        <item name="elevationOverlayEnabled">false</item>
         <item name="actionBarStyle">@style/GadgetbridgeTheme.ActionBar</item>
         <item name="actionOverflowMenuStyle">@style/GadgetbridgeTheme.OverflowMenuStyle</item>
+        <item name="actionModeStyle">@style/GadgetbridgeTheme.ActionMode</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeCloseButtonStyle">@style/GadgetbridgeTheme.ActionModeCloseButton</item>
         <item name="android:statusBarColor">?attr/toolbar_bg</item>
         <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
         <item name="android:colorControlHighlight">?attr/colorPrimary</item>
@@ -231,7 +251,11 @@
         <item name="alternate_row_background">?attr/colorSecondaryContainer</item>
         <item name="row_separator">@color/row_separator_light</item>
         <item name="stat_tile_bg">?attr/colorSurface</item>
+        <item name="grid_tile_bg">?android:attr/windowBackground</item>
+        <item name="device_card_bg">?attr/stat_tile_bg</item>
+        <item name="bottom_bar_divider">@null</item>
         <item name="stat_tile_border">?attr/colorOutlineVariant</item>
+        <item name="chart_marker_bg">?attr/colorSurfaceContainerHigh</item>
         <item name="activity_icon_bg">?attr/colorSurfaceContainerHigh</item>
         <item name="table_header_rule">@color/table_header_rule_light</item>
         <item name="preferenceTheme">@style/AppPreferenceThemeOverlay</item>
@@ -243,6 +267,9 @@
         <item name="deviceIconOnPrimary">?attr/colorOnPrimary</item>
         <item name="deviceIconLight">?attr/colorPrimaryVariant</item>
         <item name="deviceIconDark">?attr/colorPrimaryDark</item>
+        <item name="deviceIconBackground">?attr/deviceIconPrimary</item>
+        <item name="deviceIconBackgroundLight">?attr/deviceIconLight</item>
+        <item name="deviceIconBackgroundDark">?attr/deviceIconDark</item>
         <item name="spo2_avg_color">@color/spo2_avg_color_light</item>
         <item name="training_acute_load">@color/training_load</item>
 
@@ -280,8 +307,12 @@
     <style name="GadgetbridgeThemeDynamicDark" parent="Theme.Material3.DynamicColors.Dark">
         <item name="textColorPrimary">?attr/colorOnSurface</item>
         <item name="textColorSecondary">?attr/colorOnSurfaceVariant</item>
+        <item name="elevationOverlayEnabled">false</item>
         <item name="actionBarStyle">@style/GadgetbridgeTheme.ActionBar</item>
         <item name="actionOverflowMenuStyle">@style/GadgetbridgeTheme.OverflowMenuStyle</item>
+        <item name="actionModeStyle">@style/GadgetbridgeTheme.ActionMode</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeCloseButtonStyle">@style/GadgetbridgeTheme.ActionModeCloseButton</item>
         <item name="android:statusBarColor">?attr/toolbar_bg</item>
         <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
         <item name="android:colorControlHighlight">?attr/colorPrimary</item>
@@ -292,7 +323,11 @@
         <item name="alternate_row_background">?attr/colorSecondaryContainer</item>
         <item name="row_separator">@color/row_separator_dark</item>
         <item name="stat_tile_bg">?attr/colorSurface</item>
+        <item name="grid_tile_bg">?android:attr/windowBackground</item>
+        <item name="device_card_bg">?attr/stat_tile_bg</item>
+        <item name="bottom_bar_divider">@null</item>
         <item name="stat_tile_border">?attr/colorOutlineVariant</item>
+        <item name="chart_marker_bg">?attr/colorSurfaceContainerHigh</item>
         <item name="activity_icon_bg">?attr/colorSurfaceContainerHigh</item>
         <item name="table_header_rule">@color/table_header_rule_dark</item>
         <item name="preferenceTheme">@style/AppPreferenceThemeOverlay</item>
@@ -303,6 +338,9 @@
         <item name="deviceIconOnPrimary">?attr/colorOnPrimary</item>
         <item name="deviceIconLight">?attr/colorPrimaryVariant</item>
         <item name="deviceIconDark">?attr/colorPrimaryDark</item>
+        <item name="deviceIconBackground">?attr/deviceIconPrimary</item>
+        <item name="deviceIconBackgroundLight">?attr/deviceIconLight</item>
+        <item name="deviceIconBackgroundDark">?attr/deviceIconDark</item>
         <item name="spo2_avg_color">@color/spo2_avg_color_dark</item>
         <item name="training_acute_load">@color/training_load_dark</item>
 
@@ -395,6 +433,56 @@
         <item name="cornerSize">14dp</item>
     </style>
 
+    <!-- device list: device cards -->
+    <style name="ThemeOverlay.App.DeviceCardIcon" parent="">
+        <item name="deviceIconPrimary">?attr/colorSurfaceContainerHighest</item>
+        <item name="deviceIconLight">?attr/colorSurfaceContainerHighest</item>
+        <item name="deviceIconDark">?attr/colorSurfaceContainerHighest</item>
+        <item name="deviceIconOnPrimary">?attr/colorOnSurfaceVariant</item>
+        <item name="deviceIconBackground">@android:color/transparent</item>
+        <item name="deviceIconBackgroundLight">@android:color/transparent</item>
+        <item name="deviceIconBackgroundDark">@android:color/transparent</item>
+        <item name="deviceCardIconTile">?attr/colorSurfaceContainerHighest</item>
+    </style>
+    <style name="ThemeOverlay.App.DeviceCardIcon.Connected">
+        <item name="deviceIconPrimary">?attr/colorPrimaryContainer</item>
+        <item name="deviceIconLight">?attr/colorPrimaryContainer</item>
+        <item name="deviceIconDark">?attr/colorPrimaryContainer</item>
+        <item name="deviceIconOnPrimary">?attr/colorOnPrimaryContainer</item>
+        <item name="deviceCardIconTile">?attr/colorPrimaryContainer</item>
+    </style>
+    <style name="ThemeOverlay.App.DropdownDeviceIcon" parent="ThemeOverlay.App.DeviceCardIcon" />
+    <style name="DeviceCardActionIcon">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:padding">3dp</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="tint">?attr/textColorSecondary</item>
+    </style>
+    <style name="DeviceCardActionButton" parent="DeviceCardActionIcon">
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+    <style name="DeviceCardActionBox">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:minWidth">40dp</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+    </style>
+    <style name="DeviceCardActionLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">-6dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelSmall</item>
+        <item name="android:textColor">?attr/textColorSecondary</item>
+    </style>
+
     <style name="GadgetbridgeTheme.ToolbarIconOverlay" parent="">
         <item name="colorControlNormal">?attr/toolbar_icon</item>
         <item name="actionMenuTextColor">?attr/toolbar_icon</item>
@@ -410,29 +498,32 @@
         <item name="android:theme">@style/GadgetbridgeTheme.ToolbarIconOverlay</item>
     </style>
     <style name="GadgetbridgeTheme.ActionMode" parent="Widget.AppCompat.ActionMode">
-        <item name="background">?attr/colorPrimary</item>
+        <item name="background">?attr/toolbar_bg</item>
         <item name="titleTextStyle">@style/GadgetbridgeTheme.ActionModeTitleStyle</item>
         <item name="subtitleTextStyle">@style/GadgetbridgeTheme.ActionModeTitleStyle</item>
         <item name="android:theme">@style/GadgetbridgeTheme.ActionModeOverlay</item>
     </style>
     <style name="GadgetbridgeTheme.ActionModeOverlay" parent="">
-        <item name="colorControlNormal">?attr/colorOnPrimary</item>
-        <item name="actionmenu_icon_color">?attr/colorOnPrimary</item>
+        <item name="colorControlNormal">?attr/toolbar_icon</item>
+        <item name="actionmenu_icon_color">?attr/toolbar_icon</item>
     </style>
     <style name="GadgetbridgeTheme.ActionModeCloseButton" parent="Widget.AppCompat.ActionButton">
-        <item name="android:tint">?attr/colorOnPrimary</item>
+        <item name="android:tint">?attr/toolbar_icon</item>
     </style>
     <style name="GadgetbridgeTheme.ActionModeTitleStyle" parent="TextAppearance.Material3.ActionBar.Title">
-        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:textColor">?attr/toolbar_title</item>
     </style>
     <style name="GadgetbridgeTheme.OverflowMenuStyle" parent="Widget.Material3.PopupMenu.Overflow" />
 
     <!-- splash screen -->
-    <style name="SplashTheme" parent="GadgetbridgeTheme.NoActionBar">
-        <item name="android:statusBarColor">@color/primarydark_dark</item>
-        <item name="android:navigationBarColor">@color/primarydark_dark</item>
-        <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
-        <item name="android:windowBackground">@drawable/splash</item>
+    <style name="SplashTheme" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/window_background_light</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+        <item name="postSplashScreenTheme">@style/GadgetbridgeTheme.NoActionBar</item>
+        <item name="android:statusBarColor">@color/window_background_light</item>
+        <item name="android:navigationBarColor">@color/window_background_light</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
     </style>
 
     <!-- preferences screens -->
@@ -443,7 +534,7 @@
         <item name="widgetLayout">@layout/preference_material_switch</item>
     </style>
     <style name="GridTile">
-        <item name="android:background">?android:attr/windowBackground</item>
+        <item name="android:background">?attr/grid_tile_bg</item>
         <item name="android:padding">15dp</item>
         <item name="android:gravity">center</item>
         <item name="android:orientation">vertical</item>
@@ -458,7 +549,8 @@
          text (descenders cut off), so it's brought back down close to the text size. -->
     <style name="TextAppearance.App.Tab" parent="TextAppearance.Material3.TitleSmall">
         <item name="android:textSize">14sp</item>
-        <item name="android:lineHeight">16sp</item>
+        <item name="lineHeight">16sp</item>
+        <item name="android:lineHeight" tools:targetApi="28">16sp</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:letterSpacing">0</item>
@@ -466,7 +558,8 @@
 
     <style name="TextAppearance.App.TabSmall" parent="TextAppearance.App.Tab">
         <item name="android:textSize">13sp</item>
-        <item name="android:lineHeight">15sp</item>
+        <item name="lineHeight">15sp</item>
+        <item name="android:lineHeight" tools:targetApi="28">15sp</item>
     </style>
 
     <!-- Top row: category tabs (charts tabs, workout Overview/Laps/Charts/Details) -->
@@ -527,6 +620,107 @@
         <item name="android:textColor">@color/chart_chip_text</item>
         <item name="chipIconTint">@color/chart_chip_text</item>
         <item name="rippleColor">?attr/subtab_pill</item>
+    </style>
+
+    <style name="Widget.App.Chip.Weekday" parent="Widget.App.Chip.Chart">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:textAlignment">center</item>
+        <item name="chipMinHeight">40dp</item>
+        <item name="chipCornerRadius">20dp</item>
+        <item name="chipStartPadding">0dp</item>
+        <item name="chipEndPadding">0dp</item>
+        <item name="textStartPadding">0dp</item>
+        <item name="textEndPadding">0dp</item>
+        <item name="ensureMinTouchTargetSize">false</item>
+    </style>
+
+    <style name="Widget.App.Chip.Tag" parent="Widget.Material3.Chip.Assist">
+        <item name="chipMinHeight">24dp</item>
+        <item name="chipCornerRadius">8dp</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="chipBackgroundColor">?attr/colorSurfaceContainerHighest</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelSmall</item>
+        <item name="chipStartPadding">6dp</item>
+        <item name="chipEndPadding">6dp</item>
+        <item name="textStartPadding">2dp</item>
+        <item name="textEndPadding">2dp</item>
+        <item name="ensureMinTouchTargetSize">false</item>
+        <item name="android:clickable">false</item>
+        <item name="android:focusable">false</item>
+    </style>
+
+    <!-- Single-select metric chips above the sport statistics chart: a solid on-surface fill when
+         selected, an outline otherwise -->
+    <style name="ThemeOverlay.App.ChartConfigSheet" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.App.ChartConfigSheet</item>
+        <item name="android:backgroundDimAmount">0.6</item>
+    </style>
+
+    <style name="Widget.App.ChartConfigSheet" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">?attr/colorSurfaceContainerLow</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.ChartConfigSheet</item>
+    </style>
+
+    <style name="ShapeAppearance.App.ChartConfigSheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">28dp</item>
+        <item name="cornerSizeTopRight">28dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <style name="Widget.App.ChartTypeSegment" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:padding">0dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconSize">20dp</item>
+        <item name="iconTint">@color/chart_type_segment_icon</item>
+        <item name="backgroundTint">@color/chart_type_segment_bg</item>
+        <item name="strokeColor">?attr/colorOutline</item>
+        <item name="strokeWidth">1.5dp</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
+
+    <!-- Plain chevron buttons either side of a period label -->
+    <style name="Widget.App.PeriodStep" parent="Widget.Material3.Button.IconButton">
+        <item name="iconSize">24dp</item>
+        <item name="iconTint">@color/period_step_icon</item>
+    </style>
+
+    <!-- A 32dp circle in a 48dp touch area -->
+    <style name="Widget.App.WidgetEditButton" parent="Widget.Material3.Button.IconButton.Filled.Tonal">
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:insetLeft">8dp</item>
+        <item name="android:insetTop">8dp</item>
+        <item name="android:insetRight">8dp</item>
+        <item name="android:insetBottom">8dp</item>
+        <item name="android:padding">0dp</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconSize">18dp</item>
+        <item name="cornerRadius">16dp</item>
+    </style>
+
+    <!-- Bottom bar actions with an icon above the label -->
+    <style name="Widget.App.EditBarItem" parent="Widget.Material3.Button.TextButton.Icon">
+        <item name="android:minWidth">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:maxLines">2</item>
+        <item name="cornerRadius">0dp</item>
+        <item name="iconGravity">top</item>
+        <item name="iconPadding">4dp</item>
+        <item name="iconSize">24dp</item>
+        <item name="iconTint">@color/period_step_icon</item>
+        <item name="android:textColor">@color/period_step_icon</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelMedium</item>
     </style>
 
     <!-- Date-step pill buttons (charts date bar, dashboard day arrows) -->
@@ -751,5 +945,76 @@
         <item name="subtab_pill_on">#000000</item>
         <item name="subtab_active">#000000</item>
         <item name="chip_text_off">#48484A</item>
+    </style>
+
+    <style name="ThemeOverlay.App.ContrastingSurfaces.Light" parent="">
+        <item name="toolbar_bg">?attr/stat_tile_bg</item>
+        <item name="stat_tile_bg">@color/surface_contrasting_light</item>
+        <item name="chart_marker_bg">?attr/stat_tile_bg</item>
+        <item name="grid_tile_bg">@color/surface_contrasting_light</item>
+        <item name="activity_icon_bg">@color/surface_contrasting_light</item>
+        <item name="toolbar_divider">@color/toolbar_divider_contrasting_light</item>
+        <item name="bottom_bar_divider">@drawable/bottom_bar_divider</item>
+        <item name="bar_shade">@null</item>
+    </style>
+    <style name="ThemeOverlay.App.ContrastingSurfaces.Dark" parent="">
+        <item name="toolbar_bg">?attr/stat_tile_bg</item>
+        <item name="stat_tile_bg">@color/stat_tile_bg_contrasting_dark</item>
+        <item name="grid_tile_bg">@color/stat_tile_bg_contrasting_dark</item>
+    </style>
+    <style name="ThemeOverlay.App.ContrastingSurfaces.Black" parent="">
+        <item name="toolbar_bg">?attr/stat_tile_bg</item>
+        <item name="grid_tile_bg">@color/stat_tile_bg_amoled</item>
+        <item name="bar_shade">@drawable/bar_shade_amoled</item>
+    </style>
+    <style name="ThemeOverlay.App.ContrastingSurfaces.Dynamic" parent="">
+        <item name="stat_tile_bg">?attr/colorSurfaceContainer</item>
+        <item name="grid_tile_bg">?attr/colorSurfaceContainer</item>
+    </style>
+    <style name="ThemeOverlay.App.ContrastingSurfaces.Dynamic.Black" parent="">
+        <item name="grid_tile_bg">@color/stat_tile_bg_amoled</item>
+    </style>
+
+    <style name="ThemeOverlay.App.MaterialAlertDialog.WindowBackground" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.App.WindowBackground</item>
+    </style>
+    <style name="MaterialAlertDialog.App.WindowBackground" parent="MaterialAlertDialog.Material3">
+        <item name="backgroundTint">?android:attr/colorBackground</item>
+    </style>
+
+    <style name="GalleryViewerTheme" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:statusBarColor">@android:color/black</item>
+        <item name="android:navigationBarColor">@android:color/black</item>
+    </style>
+
+    <style name="GalleryViewerAction" parent="Widget.Material3.Button.TextButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelMedium</item>
+        <item name="android:textColor">@color/gallery_viewer_action</item>
+        <item name="iconGravity">top</item>
+        <item name="iconPadding">4dp</item>
+        <item name="iconTint">@color/gallery_viewer_action</item>
+    </style>
+
+    <style name="Theme.App.Translucent" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <style name="ThemeOverlay.App.Translucent" parent="">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:backgroundDimEnabled">false</item>
     </style>
 </resources>

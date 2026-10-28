@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        android:key="pref_header_elevation_correction"
+        android:title="@string/elevation_correction"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:key="elevation_correction_about"
+            android:persistent="false"
+            android:selectable="false"
+            android:summary="@string/elevation_correction_summary"
+            app:iconSpaceReserved="false" />
+
+        <Preference
+            android:icon="@drawable/ic_altitude_24px"
+            android:key="elevation_correction_per_device"
+            android:persistent="false"
+            android:selectable="false"
+            android:summary="@string/elevation_correction_per_device_summary"
+            android:title="@string/pref_elevation_correction_enabled_title" />
+
+        <Preference
+            android:icon="@drawable/ic_download"
+            android:key="elevation_tiles_download"
+            android:persistent="false"
+            android:summary="@string/elevation_tiles_download_summary"
+            android:title="@string/elevation_tiles_download_title" />
+
+        <Preference
+            android:icon="@drawable/ic_file_upload"
+            android:key="elevation_tiles_import"
+            android:persistent="false"
+            android:summary="@string/elevation_tiles_import_summary"
+            android:title="@string/elevation_tiles_import_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="pref_category_elevation_tiles"
+        android:title="@string/elevation_tiles"
+        app:iconSpaceReserved="false" />
+
+</PreferenceScreen>

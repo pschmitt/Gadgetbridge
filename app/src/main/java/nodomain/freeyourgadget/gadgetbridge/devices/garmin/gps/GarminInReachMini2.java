@@ -55,7 +55,7 @@ public class GarminInReachMini2 extends GarminCoordinator {
 
     @Override
     public DeviceKind getDeviceKind(@NonNull GBDevice device) {
-        // sattelite messenger with GPS support
+        // satellite messenger with GPS support
         return DeviceKind.PHONE;
     }
 }

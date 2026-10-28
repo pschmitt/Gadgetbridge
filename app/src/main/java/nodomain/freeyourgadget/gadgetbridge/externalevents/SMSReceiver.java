@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.provider.Telephony;
 import android.telephony.SmsMessage;
 
 import java.util.ArrayList;
@@ -32,6 +33,10 @@ import java.util.Map;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.CompiledNotificationAppConfig;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationAppConfig;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationAppRepository;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationAppRules;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationType;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
@@ -69,10 +74,18 @@ public class SMSReceiver extends BroadcastReceiver {
                     }
                     messageMap.get(originatingAddress).append(messages[i].getMessageBody());
                 }
+                final String smsPackage = Telephony.Sms.getDefaultSmsPackage(context);
+                notificationSpec.setSourceAppId(smsPackage);
+                final CompiledNotificationAppConfig appConfig = NotificationAppRepository.INSTANCE.get(smsPackage);
+                final CompiledNotificationAppConfig allAppsConfig = NotificationAppRepository.INSTANCE.get(NotificationAppConfig.ALL_APPS);
                 for (Map.Entry<String, StringBuilder> entry : messageMap.entrySet()) {
                     String originatingAddress = entry.getKey();
                     if (originatingAddress != null) {
-                        notificationSpec.setBody(entry.getValue().toString());
+                        final String body = entry.getValue().toString();
+                        if (!NotificationAppRules.INSTANCE.passesFilters(allAppsConfig, appConfig, null, body)) {
+                            continue;
+                        }
+                        notificationSpec.setBody(NotificationAppRules.INSTANCE.applyReplacements(allAppsConfig, appConfig, null, body).getBody());
                         notificationSpec.setPhoneNumber(originatingAddress);
                         notificationSpec.setAttachedActions(new ArrayList<>());
 

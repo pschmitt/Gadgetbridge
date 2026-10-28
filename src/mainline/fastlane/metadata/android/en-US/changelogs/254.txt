@@ -1,0 +1,10 @@
+• Support for 15 new + 8 experimental devices
+• Refreshed design for charts, workout details, device list
+• Navigation instructions on more devices
+• Dashboard: New widgets, faster calendar
+• Garmin: Hydration, workout templates
+• Workouts: Edit type, bulk export
+• Zepp OS: Wi-Fi file transfer (music, maps, voice memos), workout templates, V6 weather
+• Multiple fixes for Health Connect, Huawei, MoYoung, Oppo, Realme, Xiaomi, and more
+
+Read the full changelog in the project repository.

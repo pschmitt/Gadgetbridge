@@ -116,6 +116,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Date;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
@@ -145,13 +146,17 @@ public class WorkoutSummaryParser extends XiaomiActivityParser implements Activi
         summary.setActivityKind(ActivityKind.UNKNOWN.getCode());
         summary.setRawSummaryData(bytes);
 
+        // A summary that fails to parse is still stored, so its raw bytes can be shared
+        boolean parsed = true;
         try {
             final ByteBuffer buf = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
             updateSummaryFromData(summary, buf, true);
         } catch (final Exception e) {
             LOG.error("Failed to parse workout summary", e);
             GB.toast(context, "Failed to parse workout summary", Toast.LENGTH_LONG, GB.ERROR, e);
-            return false;
+            parsed = false;
+            summary.setEndTime(fileId.getTimestamp());
+            summary.setActivityKind(ActivityKind.UNKNOWN.getCode());
         }
 
         summary.setSummaryData(null); // remove json before saving to database
@@ -173,7 +178,7 @@ public class WorkoutSummaryParser extends XiaomiActivityParser implements Activi
             return false;
         }
 
-        return true;
+        return parsed;
     }
 
     @Override
@@ -183,7 +188,17 @@ public class WorkoutSummaryParser extends XiaomiActivityParser implements Activi
             return summary;
         }
 
-        return updateSummaryFromData(summary, fixAndWrap(data), forDetails);
+        // The stored summaries include ones that failed to parse when fetched, see parse
+        final Date endTime = summary.getEndTime();
+        final int activityKind = summary.getActivityKind();
+        try {
+            return updateSummaryFromData(summary, fixAndWrap(data), forDetails);
+        } catch (final Exception e) {
+            LOG.error("Failed to parse workout summary {}", summary.getId(), e);
+            summary.setEndTime(endTime);
+            summary.setActivityKind(activityKind);
+            return summary;
+        }
     }
 
     private BaseActivitySummary updateSummaryFromData(final BaseActivitySummary summary,
@@ -415,6 +430,8 @@ public class WorkoutSummaryParser extends XiaomiActivityParser implements Activi
         final int version = fileId.getVersion();
         final int headerSize;
         switch (version) {
+            case 3:   // Mi Watch Color Sport
+                return getOutdoorV3Parser(true);
             case 4:
                 headerSize = 4;
                 break;
@@ -669,6 +686,10 @@ public class WorkoutSummaryParser extends XiaomiActivityParser implements Activi
         final int headerSize;
         switch (version) {
             case 5:
+            case 6:
+                // v6 (e.g. Smart Band 10): identical layout to v5, headerSize 4.
+                // Verified against a captured ~57-min HIIT: start/end give a 3408 s
+                // duration matching ACTIVE_SECONDS, calories 286, HR 126/153/78 avg/max/min.
                 headerSize = 4;
                 break;
             default:
@@ -1010,6 +1031,8 @@ public class WorkoutSummaryParser extends XiaomiActivityParser implements Activi
         final int version = fileId.getVersion();
         final int headerSize;
         switch (version) {
+            case 3:   // Mi Watch Color Sport
+                return getOutdoorV3Parser(false);
             case 4:
                 headerSize = 5;
                 break;
@@ -1039,6 +1062,51 @@ public class WorkoutSummaryParser extends XiaomiActivityParser implements Activi
         builder.addUnknown(18);
         builder.addUnknown(2); // configuredTimeGoal, UNIT_SECONDS
         builder.addUnknown(6);
+
+        return builder.build();
+    }
+
+    /**
+     * Version 3 of the outdoor walking v1 and outdoor cycling v2 summaries, as sent by the
+     * Mi Watch Color Sport. Both share one layout; walking adds the steps and max cadence.
+     * Field order and sizes follow the official app's report tables for these sports, which
+     * decode the captured files byte for byte.
+     */
+    private XiaomiSimpleActivityParser getOutdoorV3Parser(final boolean withSteps) {
+        final XiaomiSimpleActivityParser.Builder builder = new XiaomiSimpleActivityParser.Builder();
+        builder.setHeaderSize(4);
+        builder.addInt(TIME_START, UNIT_UNIX_EPOCH_SECONDS);
+        builder.addInt(TIME_END, UNIT_UNIX_EPOCH_SECONDS);
+        builder.addInt(ACTIVE_SECONDS, UNIT_SECONDS);
+        builder.addInt(DISTANCE_METERS, UNIT_METERS);
+        builder.addShort(CALORIES_BURNT, UNIT_KCAL);
+        builder.addInt(PACE_MAX, UNIT_SECONDS_PER_KM);
+        builder.addInt(PACE_MIN, UNIT_SECONDS_PER_KM);
+        builder.addFloat(SPEED_MAX, UNIT_KMPH);
+        if (withSteps) {
+            builder.addInt(STEPS, UNIT_STEPS);
+            builder.addShort(CADENCE_MAX, UNIT_SPM);
+        }
+        builder.addByte(HR_AVG, UNIT_BPM);
+        builder.addByte(HR_MAX, UNIT_BPM);
+        builder.addByte(HR_MIN, UNIT_BPM);
+        builder.addFloat(ELEVATION_GAIN, UNIT_METERS);
+        builder.addFloat(ELEVATION_LOSS, UNIT_METERS);
+        builder.addFloat(ALTITUDE_AVG, UNIT_METERS);
+        builder.addFloat(ALTITUDE_MAX, UNIT_METERS);
+        builder.addFloat(ALTITUDE_MIN, UNIT_METERS);
+        builder.addFloat(TRAINING_EFFECT_AEROBIC, UNIT_NONE);
+        builder.addByte(MAXIMUM_OXYGEN_UPTAKE, UNIT_ML_KG_MIN);
+        builder.addUnknown(1); // energy consumed
+        builder.addShort(RECOVERY_TIME, UNIT_HOURS);
+        builder.addInt(HR_ZONE_EXTREME, UNIT_SECONDS);
+        builder.addInt(HR_ZONE_ANAEROBIC, UNIT_SECONDS);
+        builder.addInt(HR_ZONE_AEROBIC, UNIT_SECONDS);
+        builder.addInt(HR_ZONE_FAT_BURN, UNIT_SECONDS);
+        builder.addInt(HR_ZONE_WARM_UP, UNIT_SECONDS);
+        builder.addShort(CALORIES_TOTAL, UNIT_KCAL);
+        builder.addUnknown(4); // valid duration - marked invalid in the header, always 0
+        builder.addFloat(TRAINING_EFFECT_ANAEROBIC, UNIT_NONE);
 
         return builder.build();
     }

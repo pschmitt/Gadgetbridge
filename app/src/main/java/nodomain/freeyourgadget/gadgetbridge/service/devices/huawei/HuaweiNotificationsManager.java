@@ -158,7 +158,8 @@ public class HuaweiNotificationsManager {
         deviceEvtNotificationControl.handle = notificationSpec.getId();
         deviceEvtNotificationControl.event = GBDeviceEventNotificationControl.Event.REPLY;
         deviceEvtNotificationControl.reply = response.text;
-        if (notificationSpec.getType().equals(NotificationType.GENERIC_PHONE) || notificationSpec.getType().equals(NotificationType.GENERIC_SMS)) {
+        if (notificationSpec.getType().equals(NotificationType.GENERIC_PHONE) ||
+                (notificationSpec.getType().equals(NotificationType.GENERIC_SMS) && notificationSpec.getPhoneNumber() != null)) {
             deviceEvtNotificationControl.phoneNumber = notificationSpec.getPhoneNumber();
         } else {
             final boolean hasActions = (null != notificationSpec.getAttachedActions() && !notificationSpec.getAttachedActions().isEmpty());

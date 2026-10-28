@@ -54,8 +54,8 @@ public class SMAQ2OSSSupport extends AbstractBTLESingleDeviceSupport {
 
     public SMAQ2OSSSupport() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
         addSupportedService(SMAQ2OSSConstants.UUID_SERVICE_SMAQ2OSS);
     }
 

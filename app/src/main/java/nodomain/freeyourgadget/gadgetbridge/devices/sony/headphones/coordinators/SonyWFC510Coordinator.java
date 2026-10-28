@@ -44,7 +44,6 @@ public class SonyWFC510Coordinator extends SonyHeadphonesCoordinator {
                 SonyHeadphonesCapabilities.BatteryCase,
                 SonyHeadphonesCapabilities.AmbientSoundControl2,
                 SonyHeadphonesCapabilities.NoNoiseCancelling,
-                SonyHeadphonesCapabilities.EqualizerSimple,
                 SonyHeadphonesCapabilities.EqualizerWithCustomBands,
                 SonyHeadphonesCapabilities.AudioUpsampling,
                 SonyHeadphonesCapabilities.ButtonModesLeftRight,

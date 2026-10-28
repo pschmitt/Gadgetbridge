@@ -4,8 +4,11 @@
     android:layout_height="match_parent">
 
     <ScrollView
+        android:id="@+id/bp_scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="88dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -17,21 +20,32 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:layout_marginBottom="20dp"
+                android:layout_marginBottom="@dimen/chart_section_spacing"
                 android:gravity="center"
                 android:textColor="?attr/textColorPrimary"
                 android:textSize="20sp" />
 
+            <nodomain.freeyourgadget.gadgetbridge.activities.workouts.SectionHeaderView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:sectionTitle="@string/day_timeline" />
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="300sp">
+                android:layout_height="250sp">
 
-                <com.github.mikephil.charting.charts.LineChart
+                <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView
                     android:id="@+id/blood_pressure_line_chart"
                     android:layout_width="0dp"
                     android:layout_height="fill_parent"
                     android:layout_weight="2" />
             </LinearLayout>
+
+            <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartLegendView
+                android:id="@+id/blood_pressure_chart_legend"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
 
             <LinearLayout
                 android:id="@+id/bp_stats_container"

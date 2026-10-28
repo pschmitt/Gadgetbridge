@@ -1192,13 +1192,13 @@ public class DeviceConfig {
                             .put("groupName", "health_group_name")
                             .put("groupOp", 2)
                             .put("groupType", 256)
-                            .put("peerDeviceId", new String(selfAuthId, StandardCharsets.UTF_8)) 
+                            .put("peerDeviceId", new String(selfAuthId, StandardCharsets.UTF_8))
                             .put("connDeviceId", new String(selfAuthId, StandardCharsets.UTF_8))
                             .put("appId", "com.huawei.health")
                             .put("ownerName", "");
                     }
                 } catch (JSONException e) {
-                    throw new HuaweiPacket.SerializeException("Create json Exception", e);
+                    throw new HuaweiPacket.SerializeException("Create JSON Exception", e);
                 }
             }
         }
@@ -1404,7 +1404,7 @@ public class DeviceConfig {
             }
 
             // TODO: enum?
-            // 0 is json?
+            // 0 is JSON?
             // 2 is raw string?
             public byte type;
 
@@ -1766,7 +1766,7 @@ public class DeviceConfig {
                         .put(0x81, tlvList);
             }
         }
-        
+
     }
 
 

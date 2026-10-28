@@ -73,7 +73,7 @@ public class DevicePrefs extends Prefs {
     }
 
     public boolean getFetchUnknownFiles() {
-        return getBoolean("fetch_unknown_files", false);
+        return getBoolean(PREF_FETCH_UNKNOWN_FILES, false);
     }
 
     @NonNull

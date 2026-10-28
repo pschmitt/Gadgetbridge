@@ -1,0 +1,275 @@
+syntax = "proto2";
+
+package GDI.Proto.InReachContactSync;
+option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin";
+option java_outer_classname = "GdiInReachContactSync";
+
+import "garmin/gdi_data_types.proto";
+import "garmin/gdi_generic_item_transfer.proto";
+
+message Contact {
+    required GDI.Proto.DataTypes.UUID uuid = 1;
+    optional bool read_only = 2;
+    optional fixed32 name_edit_time = 3;
+    optional string first_name = 4;
+    optional string last_name = 5;
+    optional string organization = 6;
+    optional fixed32 email_edit_time = 7;
+    optional string email = 8;
+    optional fixed32 mobile_edit_time = 9;
+    optional string mobile = 10;
+    optional fixed32 inreach_edit_time = 11;
+    optional string inreach = 12;
+    optional fixed32 imei_edit_time = 13;
+    optional string imei = 14;
+}
+
+message ContactLocation {
+    enum Type {
+        UNKNOWN_TYPE = 1;
+        MESSENGER_APP = 2;
+        GARMINOS_APP = 3;
+        INREACH = 4;
+    }
+
+    optional GDI.Proto.InReachContactSync.ContactLocation.Type type = 1;
+    optional GDI.Proto.InReachContactSync.UserIdentifier user = 2;
+    optional GDI.Proto.DataTypes.ScPoint location = 3;
+    optional fixed32 updated_time = 4;
+    optional string imei = 5;
+    optional uint64 unit_id = 6;
+    optional GDI.Proto.DataTypes.UUID instance_id = 7;
+    optional bool has_service_suspended = 8;
+}
+
+message ContactLocationsUpdatedNotification {
+    repeated GDI.Proto.InReachContactSync.ContactLocation contact_locations = 1 [packed = false];
+}
+
+message ContactUpdatedNotification {
+    optional GDI.Proto.DataTypes.UUID uuid = 1;
+    optional bool deleted = 2;
+}
+
+message DataTypeConfigExt {
+    optional GDI.Proto.InReachContactSync.SyncRequestInfo request_info = 1;
+    optional uint32 min_transaction_id = 2;
+    optional uint32 max_transaction_id = 3;
+    optional fixed32 low_watermark_timestamp = 4;
+    optional fixed32 high_watermark_timestamp = 5;
+}
+
+message DataTypeStatusExt {
+    enum Status {
+        UNSUPPORTED_PROTOCOL_VERSION = 1;
+        UNSUPPORTED_DATA_TYPE = 2;
+        MISSING_INFO = 3;
+        UP_TO_DATE = 4;
+    }
+
+    optional GDI.Proto.InReachContactSync.DataTypeStatusExt.Status status = 1;
+    optional fixed32 timestamp = 2;
+}
+
+message GenericItemExt {
+    optional GDI.Proto.InReachContactSync.Contact contact = 1;
+    optional GDI.Proto.InReachContactSync.PresetMessage preset_message = 2;
+    optional GDI.Proto.InReachContactSync.MessengerAccount messenger_account = 3;
+    optional GDI.Proto.InReachContactSync.TrustedContact trusted_contact = 4;
+    optional GDI.Proto.InReachContactSync.TrustingContact trusting_contact = 5;
+    optional GDI.Proto.InReachContactSync.ContactLocation contact_location = 6;
+}
+
+message GenericItemReferenceExt {
+    message ContactLocationReference {
+        optional GDI.Proto.InReachContactSync.UserIdentifier user = 1;
+        optional fixed32 updated_time = 2;
+    }
+
+    message ContactReference {
+        required GDI.Proto.DataTypes.UUID uuid = 1;
+        optional bool deleted = 2;
+        optional bool read_only = 3;
+        optional fixed32 name_edit_time = 4;
+        optional fixed32 email_edit_time = 5;
+        optional fixed32 mobile_edit_time = 6;
+        optional fixed32 inreach_edit_time = 7;
+        optional fixed32 imei_edit_time = 8;
+    }
+
+    message MessengerAccountReference {
+        optional string phone_number = 1;
+        optional fixed32 modified_time = 2;
+    }
+
+    message TrustedContactReference {
+        optional GDI.Proto.InReachContactSync.UserIdentifier user = 1;
+        optional fixed32 updated_time = 2;
+    }
+
+    message TrustingContactReference {
+        optional GDI.Proto.InReachContactSync.UserIdentifier user = 1;
+        optional fixed32 updated_time = 2;
+    }
+
+    optional GDI.Proto.InReachContactSync.GenericItemReferenceExt.ContactReference contact_ref = 1;
+    optional uint32 preset_code = 2;
+    optional GDI.Proto.InReachContactSync.QuickText quick_text = 3;
+    optional GDI.Proto.InReachContactSync.GenericItemReferenceExt.MessengerAccountReference messenger_account_ref = 4;
+    optional GDI.Proto.InReachContactSync.GenericItemReferenceExt.TrustedContactReference trusted_contact_ref = 5;
+    optional GDI.Proto.InReachContactSync.GenericItemReferenceExt.TrustingContactReference trusting_contact_ref = 6;
+    optional GDI.Proto.InReachContactSync.GenericItemReferenceExt.ContactLocationReference contact_location_ref = 7;
+}
+
+message InReachContactSyncService {
+    optional GDI.Proto.InReachContactSync.SyncRequest sync_request = 1;
+    optional GDI.Proto.InReachContactSync.SyncResponse sync_response = 2;
+    optional GDI.Proto.InReachContactSync.SubscribeRequest subscribe_request = 3;
+    optional GDI.Proto.InReachContactSync.SubscribeResponse subscribe_response = 4;
+    optional GDI.Proto.InReachContactSync.ContactUpdatedNotification contact_updated_notification = 5;
+    optional GDI.Proto.InReachContactSync.PresetsUpdatedNotification presets_updated_notification = 6;
+    optional GDI.Proto.InReachContactSync.QuickTextsUpdatedNotification quicktexts_updated_notification = 7;
+    optional GDI.Proto.InReachContactSync.MessengerAccountsUpdatedNotification messenger_accounts_updated_notification = 8;
+    optional GDI.Proto.InReachContactSync.TrustedContactsUpdatedNotification trusted_contacts_updated_notification = 9;
+    optional GDI.Proto.InReachContactSync.TrustingContactsUpdatedNotification trusting_contacts_updated_notification = 10;
+    optional GDI.Proto.InReachContactSync.ContactLocationsUpdatedNotification contact_locations_updated_notification = 11;
+}
+
+message MessengerAccount {
+    optional string phone_number = 1;
+    optional bool is_hermes_registered = 2;
+    optional string sip_address = 3;
+    optional fixed32 modified_time = 4;
+}
+
+message MessengerAccountsUpdatedNotification {
+    optional string phone_number = 1;
+}
+
+message PresetMessage {
+    enum SpecialAddress {
+        MAPSHARE = 1;
+        FACEBOOK = 2;
+        TWITTER = 3;
+    }
+
+    optional uint32 code = 1;
+    repeated string addresses = 2 [packed = false];
+    repeated GDI.Proto.InReachContactSync.PresetMessage.SpecialAddress special_addresses = 3 [packed = false];
+    optional string text = 4;
+}
+
+message PresetsUpdatedNotification {
+    optional fixed32 timestamp = 1;
+}
+
+message QuickText {
+    optional string text = 1;
+}
+
+message QuickTextsUpdatedNotification {
+    optional fixed32 timestamp = 1;
+}
+
+message SubscribeRequest {
+    optional bool want_contact_updated = 1;
+    optional bool want_presets_updated = 2;
+    optional bool want_quicktexts_updated = 3;
+    optional bool want_messenger_accounts_updated = 4;
+    optional bool want_trusted_contacts_updated = 5;
+    optional bool want_trusting_contacts_updated = 6;
+    optional bool want_contact_locations_updated = 7;
+}
+
+message SubscribeResponse {
+    enum Status {
+        OK = 1;
+        GENERIC_ERROR = 2;
+    }
+
+    required GDI.Proto.InReachContactSync.SubscribeResponse.Status status = 1;
+}
+
+message SyncRequest {
+    optional GDI.Proto.InReachContactSync.SyncRequestInfo request_info = 1;
+    optional uint32 ending_transaction_id = 2;
+    optional fixed32 timestamp = 3;
+}
+
+message SyncRequestInfo {
+    enum SyncDataType {
+        CONTACT = 1;
+        PRESET_MESSAGE = 2;
+        QUICK_TEXT = 3;
+        MESSENGER_ACCOUNT = 4;
+        TRUSTED_CONTACT = 5;
+        TRUSTING_CONTACT = 6;
+        CONTACT_LOCATION = 7;
+    }
+
+    enum SyncType {
+        FULL = 1;
+        INCREMENTAL = 2;
+    }
+
+    optional uint32 protocol_version = 1;
+    optional GDI.Proto.DataTypes.UUID app_uuid = 2;
+    optional GDI.Proto.InReachContactSync.SyncRequestInfo.SyncType sync_type = 3;
+    optional GDI.Proto.InReachContactSync.SyncRequestInfo.SyncDataType data_type = 4;
+}
+
+message SyncResponse {
+    enum Status {
+        OK = 1;
+        UP_TO_DATE = 2;
+        GENERIC_ERROR = 3;
+        BUSY = 4;
+        UNSUPPORTED_PROTOCOL_VERSION = 5;
+        UNSUPPORTED_DATA_TYPE = 6;
+        MISSING_INFO = 7;
+    }
+
+    required GDI.Proto.InReachContactSync.SyncResponse.Status status = 1;
+}
+
+message TrustedContact {
+    optional GDI.Proto.InReachContactSync.UserIdentifier user = 1;
+    optional fixed32 updated_time = 2;
+    optional bool is_trusted = 3;
+}
+
+message TrustedContactsUpdatedNotification {
+    repeated GDI.Proto.InReachContactSync.TrustedContact trusted_contacts = 1 [packed = false];
+}
+
+message TrustingContact {
+    optional GDI.Proto.InReachContactSync.UserIdentifier user = 1;
+    optional fixed32 updated_time = 2;
+    optional bool is_trusting = 3;
+    optional bool has_service_suspended = 4;
+}
+
+message TrustingContactsUpdatedNotification {
+    repeated GDI.Proto.InReachContactSync.TrustingContact trusting_contacts = 1 [packed = false];
+}
+
+message UserIdentifier {
+    optional GDI.Proto.DataTypes.UUID user_id = 1;
+    optional string address = 2;
+}
+
+extend GDI.Proto.GenericItemTransfer.DataTypeConfig {
+    optional GDI.Proto.InReachContactSync.DataTypeConfigExt config_ext = 102;
+}
+
+extend GDI.Proto.GenericItemTransfer.DataTypeStatus {
+    optional GDI.Proto.InReachContactSync.DataTypeStatusExt status_ext = 102;
+}
+
+extend GDI.Proto.GenericItemTransfer.GenericItemReference {
+    optional GDI.Proto.InReachContactSync.GenericItemReferenceExt item_ref_ext = 102;
+}
+
+extend GDI.Proto.GenericItemTransfer.GenericItem {
+    optional GDI.Proto.InReachContactSync.GenericItemExt item_ext = 102;
+}

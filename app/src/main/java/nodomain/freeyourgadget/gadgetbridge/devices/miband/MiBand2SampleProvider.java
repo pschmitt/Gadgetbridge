@@ -20,18 +20,26 @@ package nodomain.freeyourgadget.gadgetbridge.devices.miband;
 import java.util.List;
 
 import de.greenrobot.dao.query.QueryBuilder;
+import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.devices.huami.HuamiConst;
+import nodomain.freeyourgadget.gadgetbridge.devices.huami.HuamiEstimatedSleepSessionProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.MiBandActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.entities.MiBandActivitySampleDao;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
 
+import static nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst.PREF_SLEEP_STAGE_ESTIMATION;
+import static nodomain.freeyourgadget.gadgetbridge.devices.huami.HuamiConst.TYPE_DEEP_SLEEP;
 import static nodomain.freeyourgadget.gadgetbridge.devices.huami.HuamiConst.TYPE_IGNORE;
+import static nodomain.freeyourgadget.gadgetbridge.devices.huami.HuamiConst.TYPE_LIGHT_SLEEP;
 import static nodomain.freeyourgadget.gadgetbridge.devices.huami.HuamiConst.TYPE_NO_CHANGE;
 import static nodomain.freeyourgadget.gadgetbridge.devices.huami.HuamiConst.TYPE_UNSET;
 
 public class MiBand2SampleProvider extends AbstractMiBandSampleProvider {
+    // Only in-memory, from HuamiEstimatedSleepSessionProvider. The device never reports these.
+    private static final int TYPE_CUSTOM_REM_SLEEP = 0x100;
+    private static final int TYPE_CUSTOM_AWAKE_SLEEP = 0x101;
 
     public MiBand2SampleProvider(GBDevice device, DaoSession session) {
         super(device, session);
@@ -39,13 +47,30 @@ public class MiBand2SampleProvider extends AbstractMiBandSampleProvider {
 
     @Override
     protected List<MiBandActivitySample> getGBActivitySamples(int timestamp_from, int timestamp_to) {
-        List<MiBandActivitySample> samples = super.getGBActivitySamples(timestamp_from, timestamp_to);
+        final List<MiBandActivitySample> samples = getDeviceSamples(timestamp_from, timestamp_to);
+        if (GBApplication.getPrefs().experimentalSettings() && GBApplication.getDevicePrefs(getDevice()).getBoolean(PREF_SLEEP_STAGE_ESTIMATION, false)) {
+            // If sleep estimation is enabled, remove device-reported sleep and replace it with the estimates
+            for (final MiBandActivitySample sample : samples) {
+                if (sample.getRawKind() == TYPE_LIGHT_SLEEP || sample.getRawKind() == TYPE_DEEP_SLEEP) {
+                    sample.setRawKind(TYPE_UNSET);
+                }
+            }
+            overlaySleep(new HuamiEstimatedSleepSessionProvider(getDevice(), getSession()), samples, timestamp_from, timestamp_to, true);
+        }
+        return samples;
+    }
+
+    /**
+     * The samples with the activity kinds reported by the device, without the overlay of estimated sleep.
+     */
+    public List<MiBandActivitySample> getDeviceSamples(final int timestamp_from, final int timestamp_to) {
+        final List<MiBandActivitySample> samples = super.getGBActivitySamples(timestamp_from, timestamp_to);
         postprocess(samples);
         return samples;
     }
 
     /**
-     * "Temporary" runtime post processing of activity kinds.
+     * "Temporary" runtime post-processing of activity kinds.
      */
     private void postprocess(List<MiBandActivitySample> samples) {
         if (samples.isEmpty()) {
@@ -91,11 +116,19 @@ public class MiBand2SampleProvider extends AbstractMiBandSampleProvider {
 
     @Override
     public ActivityKind normalizeType(int rawType) {
-        return HuamiConst.toActivityKind(rawType);
+        return switch (rawType) {
+            case TYPE_CUSTOM_REM_SLEEP -> ActivityKind.REM_SLEEP;
+            case TYPE_CUSTOM_AWAKE_SLEEP -> ActivityKind.AWAKE_SLEEP;
+            default -> HuamiConst.toActivityKind(rawType);
+        };
     }
 
     @Override
     public int toRawActivityKind(ActivityKind activityKind) {
-        return HuamiConst.toRawActivityType(activityKind);
+        return switch (activityKind) {
+            case REM_SLEEP -> TYPE_CUSTOM_REM_SLEEP;
+            case AWAKE_SLEEP -> TYPE_CUSTOM_AWAKE_SLEEP;
+            default -> HuamiConst.toRawActivityType(activityKind);
+        };
     }
 }

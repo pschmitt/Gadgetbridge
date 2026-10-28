@@ -1,0 +1,9 @@
+Bruk smartklokken, aktivitetsmåleren og andre Bluetooth-enheter uten leverandørens proprietære applikasjon, og uten å måtte opprette en konto eller sende dataene dine til leverandørens servere.
+For en fullstendig liste over støttede enheter, vennligst se vår Gadgets-side: https://gadgetbridge.org/gadgets/.
+
+Du kan motta varsler på håndleddet og (avhengig av enheten):
+
+- Samle inn data fra enhetens sensorer.
+- Styre musikkavspilling på Android-enheten din.
+- Se værmeldingen.
+- Få veibeskrivelser.

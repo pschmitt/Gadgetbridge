@@ -6,49 +6,10 @@
     android:orientation="vertical"
     tools:context="nodomain.freeyourgadget.gadgetbridge.activities.workouts.templates.WorkoutTemplateEditActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="16dp">
-
-        <!-- The name/note fields are added here programmatically. -->
-        <LinearLayout
-            android:id="@+id/workout_template_header_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-
-        <!-- The pool length field is added here programmatically. -->
-        <LinearLayout
-            android:id="@+id/workout_template_pool_length_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone" />
-
-        <LinearLayout
-            android:id="@+id/workout_template_pool_length_custom_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone" />
-
-        <CheckBox
-            android:id="@+id/workout_template_transitions_checkbox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/workout_template_transitions_between_multisport_legs"
-            android:visibility="gone" />
-    </LinearLayout>
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/workout_template_step_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
         android:layout_weight="1"
         android:clipToPadding="false"
         android:paddingBottom="16dp" />

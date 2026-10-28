@@ -24,14 +24,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.Chart;
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.LegendEntry;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.LineData;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,15 +34,19 @@ import java.util.List;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.HeartRateUtils;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartLegendView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSeries;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSpec;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 
-
-public class ActivitySleepChartFragment extends AbstractActivityChartFragment<DefaultChartsData<LineData>> {
+public class ActivitySleepChartFragment extends AbstractActivityChartFragment<AbstractActivityChartFragment.StageSamples> {
     protected static final Logger LOG = LoggerFactory.getLogger(ActivitySleepChartFragment.class);
 
-    private LineChart mChart;
+    private GbChartView mChart;
+    private ChartLegendView mLegend;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -57,8 +54,12 @@ public class ActivitySleepChartFragment extends AbstractActivityChartFragment<De
         View rootView = inflater.inflate(R.layout.fragment_charts, container, false);
 
         mChart = rootView.findViewById(R.id.activitysleepchart);
+        mLegend = rootView.findViewById(R.id.activitysleepchart_legend);
+        mChart.setZoomable(true);
+        mChart.dismissSelectionOnTapOutside(rootView);
 
-        setupChart();
+        // refresh immediately instead of use refreshIfVisible(), for perceived performance
+        refresh();
 
         return rootView;
     }
@@ -66,44 +67,6 @@ public class ActivitySleepChartFragment extends AbstractActivityChartFragment<De
     @Override
     public String getTitle() {
         return getString(R.string.activity_sleepchart_activity_and_sleep);
-    }
-
-    private void setupChart() {
-        mChart.setBackgroundColor(BACKGROUND_COLOR);
-        mChart.getDescription().setTextColor(DESCRIPTION_COLOR);
-        configureBarLineChartDefaults(mChart);
-
-
-        XAxis x = mChart.getXAxis();
-        x.setDrawLabels(true);
-        x.setDrawGridLines(false);
-        x.setEnabled(true);
-        x.setTextColor(CHART_TEXT_COLOR);
-        x.setDrawLimitLinesBehindData(true);
-
-        YAxis y = mChart.getAxisLeft();
-        y.setDrawGridLines(false);
-//        y.setDrawLabels(false);
-        // TODO: make fixed max value optional
-        y.setAxisMaximum(1f);
-        y.setAxisMinimum(0);
-        y.setDrawTopYLabelEntry(false);
-        y.setTextColor(CHART_TEXT_COLOR);
-
-//        y.setLabelCount(5);
-        y.setEnabled(true);
-
-        YAxis yAxisRight = mChart.getAxisRight();
-        yAxisRight.setDrawGridLines(false);
-        yAxisRight.setEnabled(supportsHeartrate(getChartsHost().getDevice()));
-        yAxisRight.setDrawLabels(true);
-        yAxisRight.setDrawTopYLabelEntry(true);
-        yAxisRight.setTextColor(CHART_TEXT_COLOR);
-        yAxisRight.setAxisMaximum(HeartRateUtils.getInstance().getMaxHeartRate());
-        yAxisRight.setAxisMinimum(HeartRateUtils.getInstance().getMinHeartRate());
-
-        // refresh immediately instead of use refreshIfVisible(), for perceived performance
-        refresh();
     }
 
     @Override
@@ -117,68 +80,42 @@ public class ActivitySleepChartFragment extends AbstractActivityChartFragment<De
     }
 
     @Override
-    protected DefaultChartsData<LineData> refreshInBackground(ChartsHost chartsHost, DBHandler db, GBDevice device) {
+    protected StageSamples refreshInBackground(ChartsHost chartsHost, DBHandler db, GBDevice device) {
         List<? extends ActivitySample> samples = getSamples(db, device);
         List<? extends ActivitySample> highResSamples = getSamplesHighRes(db, device);
-        if (highResSamples == null)
-            return refresh(device, samples);
-        return refresh(device, samples, highResSamples);
+        return stageSamples(device, samples, highResSamples != null ? highResSamples : samples);
     }
 
     @Override
-    protected void updateChartsnUIThread(DefaultChartsData<LineData> dcd) {
-        mChart.getLegend().setTextColor(LEGEND_TEXT_COLOR);
-        mChart.setData(null); // workaround for https://github.com/PhilJay/MPAndroidChart/issues/2317
-        mChart.getXAxis().setValueFormatter(dcd.getXValueFormatter());
-        mChart.setData(dcd.getData());
+    protected void updateChartsnUIThread(StageSamples samples) {
+        final HeartRateUtils heartRateUtils = HeartRateUtils.getInstance();
+        final ChartSpec spec = stagesSpec(samples, 0, false, heartRateUtils.getMinHeartRate(), heartRateUtils.getMaxHeartRate());
+        mChart.setSelectionContent(stagesSelection(samples));
+        mChart.setSpec(spec);
+
+        final List<ChartSeries> legend = new ArrayList<>();
+        if (!spec.isEmpty()) {
+            legend.add(ChartLegendView.squareItem(akActivity.label, akActivity.color));
+            legend.add(ChartLegendView.squareItem(akLightSleep.label, akLightSleep.color));
+            legend.add(ChartLegendView.squareItem(akDeepSleep.label, akDeepSleep.color));
+            if (supportsRemSleep(getChartsHost().getDevice())) {
+                legend.add(ChartLegendView.squareItem(akRemSleep.label, akRemSleep.color));
+            }
+            legend.add(ChartLegendView.squareItem(akNotWorn.label, akNotWorn.color));
+            if (spec.getEndYAxis() != null) {
+                legend.add(ChartLegendView.lineItem(HEARTRATE_LABEL, HEARTRATE_COLOR));
+            }
+        }
+        mLegend.setSeries(legend);
     }
 
     @Override
     protected void renderCharts() {
-        mChart.animateX(ANIM_TIME, Easing.EaseInOutQuart);
-//        mChart.invalidate();
+        mChart.invalidate();
     }
 
     @Override
     protected void setupLegend(Chart<?> chart) {
-        List<LegendEntry> legendEntries = new ArrayList<>(5);
-
-        LegendEntry activityEntry = new LegendEntry();
-        activityEntry.label = akActivity.label;
-        activityEntry.formColor = akActivity.color;
-        legendEntries.add(activityEntry);
-
-        LegendEntry lightSleepEntry = new LegendEntry();
-        lightSleepEntry.label = akLightSleep.label;
-        lightSleepEntry.formColor = akLightSleep.color;
-        legendEntries.add(lightSleepEntry);
-
-        LegendEntry deepSleepEntry = new LegendEntry();
-        deepSleepEntry.label = akDeepSleep.label;
-        deepSleepEntry.formColor = akDeepSleep.color;
-        legendEntries.add(deepSleepEntry);
-
-        if (supportsRemSleep(getChartsHost().getDevice())) {
-            LegendEntry remSleepEntry = new LegendEntry();
-            remSleepEntry.label = akRemSleep.label;
-            remSleepEntry.formColor = akRemSleep.color;
-            legendEntries.add(remSleepEntry);
-        }
-
-        LegendEntry notWornEntry = new LegendEntry();
-        notWornEntry.label = akNotWorn.label;
-        notWornEntry.formColor = akNotWorn.color;
-        legendEntries.add(notWornEntry);
-
-        if (supportsHeartrate(getChartsHost().getDevice())) {
-            LegendEntry hrEntry = new LegendEntry();
-            hrEntry.label = HEARTRATE_LABEL;
-            hrEntry.formColor = HEARTRATE_COLOR;
-            legendEntries.add(hrEntry);
-        }
-        chart.getLegend().setCustom(legendEntries);
-        chart.getLegend().setWordWrapEnabled(true);
-        chart.getLegend().setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
     }
 
     @Override

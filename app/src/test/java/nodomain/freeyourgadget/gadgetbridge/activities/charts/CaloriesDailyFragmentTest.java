@@ -2,14 +2,13 @@ package nodomain.freeyourgadget.gadgetbridge.activities.charts;
 
 import static org.junit.Assert.assertEquals;
 
-import com.github.mikephil.charting.data.Entry;
-
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartPoint;
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
@@ -18,15 +17,15 @@ public class CaloriesDailyFragmentTest {
     private static final int START_TS = 1_000_000;
 
     @Test
-    public void createsZeroEntryForEmptyDay() {
+    public void createsZeroPointForEmptyDay() {
         final CaloriesDailyFragment.ActiveCaloriesDailyData data = CaloriesDailyFragment.createActiveCaloriesDailyData(
                 Collections.emptyList(),
                 START_TS
         );
 
         assertEquals(0, data.activeCalories);
-        assertEquals(1, data.entries.size());
-        assertEntry(data.entries.get(0), 0f, 0f);
+        assertEquals(1, data.points.size());
+        assertPoint(data.points.get(0), START_TS, 0);
     }
 
     @Test
@@ -44,18 +43,18 @@ public class CaloriesDailyFragmentTest {
         );
 
         assertEquals(3, data.activeCalories);
-        final List<Entry> entries = data.entries;
-        assertEquals(5, entries.size());
-        assertEntry(entries.get(0), 0f, 0f);
-        assertEntry(entries.get(1), 60f, 1f);
-        assertEntry(entries.get(2), 120f, 1f);
-        assertEntry(entries.get(3), 180f, 1f);
-        assertEntry(entries.get(4), 240f, 3f);
+        final List<ChartPoint> points = data.points;
+        assertEquals(5, points.size());
+        assertPoint(points.get(0), START_TS, 0);
+        assertPoint(points.get(1), START_TS + 60, 1);
+        assertPoint(points.get(2), START_TS + 120, 1);
+        assertPoint(points.get(3), START_TS + 180, 1);
+        assertPoint(points.get(4), START_TS + 240, 3);
     }
 
-    private static void assertEntry(final Entry entry, final float x, final float y) {
-        assertEquals(x, entry.getX(), 0.001f);
-        assertEquals(y, entry.getY(), 0.001f);
+    private static void assertPoint(final ChartPoint point, final double x, final double y) {
+        assertEquals(x, point.getX(), 0.001);
+        assertEquals(y, point.getY(), 0.001);
     }
 
     private static ActivitySample sample(final int timestamp, final int activeCalories) {

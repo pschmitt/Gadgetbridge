@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StyleRes;
 import androidx.fragment.app.DialogFragment;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -31,11 +32,19 @@ public class MaterialDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity(), getThemeOverlay());
         theDialogView = onCreateView(getLayoutInflater(), null, savedInstanceState);
         builder.setView(theDialogView);
 
         return builder.create();
+    }
+
+    /**
+     * The theme overlay of the dialog, or 0 for the default theme.
+     */
+    @StyleRes
+    protected int getThemeOverlay() {
+        return 0;
     }
 
     @Override

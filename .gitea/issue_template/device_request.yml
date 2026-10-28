@@ -44,6 +44,31 @@ body:
       description: >
         If the gadget you request support for has similarities to other gadgets that we currently support,
         it is more likely for us (still, not guaranteed) to add support for your gadget too.
+  - type: input
+    id: purchaselink
+    attributes:
+      label: Link to purchase device or show product information
+      description: >-
+        Some devices are not that well known, so to ensure that all of us refer to the same device,
+        please share a link where you did purchase the device, or an official product page to get more information details.
+  - type: input
+    id: app
+    attributes:
+      label: What is the official application used?
+      description: >-
+        Provide a link to Play Store or Apple App Store to know how does this device communicates.
+        Different gadget brands may use the same application, so this helps identify compatibility quicker.
+    validations:
+      required: true
+  - type: input
+    id: btname
+    attributes:
+      label: What is the Bluetooth name of the device?
+      description: |
+        Please include the exact bluetooth name, as displayed while searching for the device.
+        We use the Bluetooth name to set the matching of the device and model.
+    validations:
+      required: true
   - type: textarea
     id: info
     attributes:
@@ -51,9 +76,8 @@ body:
       description: >
         Include all details about the gadget that will be useful to us when implementing a support for this gadget. 
 
-        If possible, please include the exact bluetooth name, as displayed while searching for the device.
-
-        Ideally, use an Android Bluetooth scanner app like nRF Connect or BLExplorer and provide screenshots 
+        Ideally, use an [Android Bluetooth scanner](https://gadgetbridge.org/internals/development/bluetooth/) 
+        app like nRF Connect or BLExplorer and provide screenshots 
         of the scanned gadget from that app. This provides a name and some available UUIDs, which are needed 
         for implementation. You may want to blur MAC addresses for privacy reasons.
       placeholder: If you want to include logs, don't include it here. Use the next text field for that.
@@ -77,3 +101,11 @@ body:
         - No, I don't have the gadget or/and I'm not able to help during the development.
     validations:
       required: true
+  - type: markdown
+    attributes:
+      value: >
+        To help with the device implementation, please [check our guide](https://gadgetbridge.org/internals/development/bluetooth/#androids-bluetooth-logging)
+        on how to [perform Bluetooth capture logs](https://gadgetbridge.org/internals/development/bluetooth/#androids-bluetooth-logging) (btsnoop logs).
+        
+        Note that the captured content may contain sensible information, so if unsure how to handle it
+        please ask in Matrix at [`#gadgetbridge:matrix.org`](https://matrix.to/#/#gadgetbridge:matrix.org)

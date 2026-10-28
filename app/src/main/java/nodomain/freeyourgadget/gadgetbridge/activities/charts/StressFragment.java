@@ -5,10 +5,6 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import com.github.mikephil.charting.charts.Chart;
-import com.github.mikephil.charting.components.LegendEntry;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,19 +61,6 @@ public abstract class StressFragment<D extends ChartsData> extends AbstractChart
         if (firstSample.getTimestamp() > tsStartMillis) {
             samples.add(0, new EmptyStressSample(tsStartMillis));
         }
-    }
-
-    protected List<LegendEntry> createLegendEntries(Chart<?> chart) {
-        List<LegendEntry> legendEntries = new ArrayList<>(StressType.values().length);
-
-        for (final StressType stressType : StressType.values()) {
-            final LegendEntry entry = new LegendEntry();
-            entry.label = stressType.getLabel(requireContext());
-            entry.formColor = stressType.getColor(requireContext());
-            legendEntries.add(entry);
-        }
-
-        return legendEntries;
     }
 
     protected Map<StressType, Integer> calculateStressTotals(Iterable<? extends StressSample> samples, int[] stressRanges, int sampleRate) {

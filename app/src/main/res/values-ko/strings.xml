@@ -2569,10 +2569,10 @@
     <string name="pref_ambient_sound_tone">주변 소리 톤</string>
     <string name="pref_ambient_sound_tone_summary">부드러움에서 선명함으로</string>
     <string name="pref_balance">균형</string>
-    <string name="pref_switch_controls_anc_ambient">노이즈 캔슬링 ←→ 주변 소리</string>
-    <string name="pref_switch_controls_anc_off">노이즈 캔슬링 ←→ 끄기</string>
-    <string name="pref_switch_controls_ambient_off">주변 소리 ←→ 끄기</string>
-    <string name="pref_switch_controls_anc_ambient_off">노이즈 캔슬링 ←→ 주변 소리 ←→ 끄기</string>
+    <string name="pref_switch_controls_anc_ambient">노이즈 캔슬링 ↔ 주변 소리</string>
+    <string name="pref_switch_controls_anc_off">노이즈 캔슬링 ↔ 끄기</string>
+    <string name="pref_switch_controls_ambient_off">주변 소리 ↔ 끄기</string>
+    <string name="pref_switch_controls_anc_ambient_off">노이즈 캔슬링 ↔ 주변 소리 ↔ 끄기</string>
     <string name="prefs_noise_control">소음 제어</string>
     <string name="prefs_voice_detect">음성 감지</string>
     <string name="prefs_voice_detect_summary">음성이 감지되면 자동으로 주변 소리를 활성화하고 재생 볼륨을 낮춥니다.</string>

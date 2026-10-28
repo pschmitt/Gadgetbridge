@@ -16,9 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities.charts;
 
-import static nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutValueFormatter.getUnitString;
-
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,15 +30,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.Chart;
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,8 +40,10 @@ import java.util.Set;
 
 import com.google.android.material.color.MaterialColors;
 
-import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.metric.GenericMetricChartData;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartSelection;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileData;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileGridUtilKt;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutValueFormatter;
@@ -66,15 +59,12 @@ public class GenericMetricChartFragment extends AbstractChartFragment<GenericMet
     private static final int DEFAULT_TOTAL_DAYS = 30;
     private static final String STATE_SELECTED_METRIC = "selectedMetric";
 
-    private LineChart chart;
+    private GbChartView chart;
     private Spinner metricSpinner;
     private TextView timeSpanText;
     private LinearLayout statsContainer;
 
-    private int chartTextColor;
     private int lineColor;
-    private int textColor;
-    private int backgroundColor;
 
     private int totalDays;
     private List<MetricSample.Metric> metrics = Collections.emptyList();
@@ -97,9 +87,6 @@ public class GenericMetricChartFragment extends AbstractChartFragment<GenericMet
     @Override
     protected void init() {
         totalDays = getArguments() != null ? getArguments().getInt(ARG_TOTAL_DAYS, DEFAULT_TOTAL_DAYS) : DEFAULT_TOTAL_DAYS;
-        chartTextColor = GBApplication.getSecondaryTextColor(requireContext());
-        textColor = GBApplication.getTextColor(requireContext());
-        backgroundColor = GBApplication.getBackgroundColor(requireContext());
         lineColor = MaterialColors.getColor(requireContext(), R.attr.accent_color, getResources().getColor(R.color.accent));
         valueFormatter = new WorkoutValueFormatter();
     }
@@ -116,7 +103,7 @@ public class GenericMetricChartFragment extends AbstractChartFragment<GenericMet
         final Date rangeEnd = DateTimeUtils.dayEnd(new Date(getTSEnd() * 1000L));
 
         if (metric == null) {
-            return GenericMetricChartsData.empty(null, createXValueFormatter(rangeStart), rangeEnd);
+            return GenericMetricChartsData.empty(null, rangeStart, rangeEnd);
         }
 
         final List<? extends MetricSample> samples = GenericMetricSampleProvider.getMetricSamples(
@@ -131,13 +118,11 @@ public class GenericMetricChartFragment extends AbstractChartFragment<GenericMet
 
     @Override
     protected void renderCharts() {
-        chart.animateX(ANIM_TIME, Easing.EaseInOutQuart);
+        chart.invalidate();
     }
 
     @Override
     protected void setupLegend(final Chart<?> chart) {
-        chart.getLegend().setTextColor(textColor);
-        chart.getLegend().setWordWrapEnabled(true);
     }
 
     @Override
@@ -152,26 +137,37 @@ public class GenericMetricChartFragment extends AbstractChartFragment<GenericMet
             timeSpanText.setText(DateTimeUtils.formatDaysUntil(totalDays, getTSEnd()));
         }
 
-        final XAxis xAxis = chart.getXAxis();
-        xAxis.setValueFormatter(chartsData.xValueFormatter);
-        xAxis.setAxisMinimum(chartsData.xMin);
-        xAxis.setAxisMaximum(chartsData.xMax);
-
-        chart.setData(null); // workaround for https://github.com/PhilJay/MPAndroidChart/issues/2317
+        final String label = getMetricLabel(chartsData.metric);
+        chart.setSelectionContent(x -> {
+            final long time = Math.round(x);
+            final String title = totalDays == 1
+                    ? DateFormat.getTimeFormat(requireContext()).format(new Date(time * 1000L))
+                    : DateTimeUtils.formatDateTime(new Date(time * 1000L));
+            for (int i = 0; i < chartsData.seconds.length; i++) {
+                if (chartsData.seconds[i] == time) {
+                    final String text = formatMetricValue(chartsData.metric, chartsData.values[i], true);
+                    return new ChartSelection(
+                            title,
+                            Collections.singletonList(new ChartSelection.Row(lineColor, text)),
+                            title + ". " + label + " " + text + "."
+                    );
+                }
+            }
+            return new ChartSelection(title, Collections.emptyList(), title + ".");
+        });
+        chart.setSpec(GenericMetricChartData.spec(
+                chartsData.startTs, chartsData.endTs, totalDays == 1, chartsData.seconds, chartsData.values, label, lineColor
+        ));
 
         final String emptyValue = getString(R.string.stats_empty_value);
         final String minimumValue;
         final String maximumValue;
         final String averageValue;
         if (chartsData.hasData()) {
-            setYAxisRange(chartsData.yMin, chartsData.yMax);
-            chart.setData(chartsData.lineData);
             minimumValue = formatMetricValue(chartsData.metric, chartsData.yMin, false);
             maximumValue = formatMetricValue(chartsData.metric, chartsData.yMax, false);
             averageValue = formatMetricValue(chartsData.metric, chartsData.averageValue, false);
         } else {
-            chart.getAxisLeft().setAxisMinimum(0f);
-            chart.getAxisLeft().setAxisMaximum(1f);
             minimumValue = emptyValue;
             maximumValue = emptyValue;
             averageValue = emptyValue;
@@ -208,7 +204,8 @@ public class GenericMetricChartFragment extends AbstractChartFragment<GenericMet
         selectedMetric = getInitialMetric(savedInstanceState);
 
         setupMetricSpinner();
-        setupChart();
+        chart.setZoomable(true);
+        chart.dismissSelectionOnTapOutside(rootView);
 
         refresh();
 
@@ -289,111 +286,29 @@ public class GenericMetricChartFragment extends AbstractChartFragment<GenericMet
         });
     }
 
-    private void setupChart() {
-        configureBarLineChartDefaults(chart);
-        chart.setBackgroundColor(backgroundColor);
-        chart.getDescription().setEnabled(false);
-        chart.getAxisRight().setEnabled(false);
-        chart.setDoubleTapToZoomEnabled(false);
-
-        final XAxis xAxis = chart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setTextColor(chartTextColor);
-        xAxis.setDrawGridLines(false);
-        xAxis.setDrawLabels(true);
-        xAxis.setAvoidFirstLastClipping(true);
-
-        final YAxis yAxis = chart.getAxisLeft();
-        yAxis.setTextColor(chartTextColor);
-        yAxis.setDrawGridLines(true);
-        yAxis.setAxisMinimum(0f);
-        yAxis.setAxisMaximum(1f);
-    }
-
     private GenericMetricChartsData createChartsData(final MetricSample.Metric metric, final List<? extends MetricSample> samples, final Date rangeStart, final Date rangeEnd) {
-        final List<Entry> entries = new ArrayList<>();
-        final SampleXLabelFormatter formatter = createXValueFormatter(rangeStart);
-        final TimestampTranslation tsTranslation = formatter.getTsTranslation();
-        float yMin = Float.MAX_VALUE;
-        float yMax = -Float.MAX_VALUE;
-        float totalValue = 0f;
-
-        for (final MetricSample sample : samples) {
-            final int tsSeconds = (int) (sample.getTimestamp() / 1000L);
-            final float score = (float) sample.getMetricScore();
-            entries.add(new Entry(tsTranslation.shorten(tsSeconds), score));
-            yMin = Math.min(yMin, score);
-            yMax = Math.max(yMax, score);
-            totalValue += score;
+        if (samples.isEmpty()) {
+            return GenericMetricChartsData.empty(metric, rangeStart, rangeEnd);
         }
 
-        if (entries.isEmpty()) {
-            return GenericMetricChartsData.empty(metric, formatter, rangeEnd);
+        final long[] seconds = new long[samples.size()];
+        final double[] values = new double[samples.size()];
+        double yMin = Double.MAX_VALUE;
+        double yMax = -Double.MAX_VALUE;
+        double totalValue = 0;
+        for (int i = 0; i < samples.size(); i++) {
+            final MetricSample sample = samples.get(i);
+            seconds[i] = sample.getTimestamp() / 1000L;
+            values[i] = sample.getMetricScore();
+            yMin = Math.min(yMin, values[i]);
+            yMax = Math.max(yMax, values[i]);
+            totalValue += values[i];
         }
 
-        final LineDataSet dataSet = createDataSet(metric, entries);
-        final float averageValue = totalValue / entries.size();
-        return new GenericMetricChartsData(metric, new LineData(dataSet), formatter, getXMin(), getXMax(formatter, rangeEnd), yMin, yMax, averageValue, entries.size());
-    }
-
-    private SampleXLabelFormatter createXValueFormatter(final Date rangeStart) {
-        final TimestampTranslation tsTranslation = new TimestampTranslation();
-        tsTranslation.shorten((int) (rangeStart.getTime() / 1000L));
-        return new SampleXLabelFormatter(tsTranslation, getXAxisDatePattern());
-    }
-
-    private float getXMin() {
-        return 0f;
-    }
-
-    private float getXMax(final SampleXLabelFormatter formatter, final Date rangeEnd) {
-        return formatter.getTsTranslation().shorten((int) (rangeEnd.getTime() / 1000L));
-    }
-
-    private String getXAxisDatePattern() {
-        if (totalDays == 1) {
-            return "HH:mm";
-        }
-        if (totalDays <= 7) {
-            return "EEE";
-        }
-        return "dd";
-    }
-
-    private LineDataSet createDataSet(final MetricSample.Metric metric, final List<Entry> entries) {
-        final LineDataSet dataSet = new LineDataSet(entries, getMetricLabelWithUnit(metric));
-        dataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-        dataSet.setColor(lineColor);
-        dataSet.setCircleColor(lineColor);
-        dataSet.setDrawCircleHole(false);
-        dataSet.setCircleRadius(entries.size() > 30 ? 2.5f : 4f);
-        dataSet.setDrawCircles(entries.size() <= 60);
-        dataSet.setDrawValues(entries.size() <= 12);
-        dataSet.setLineWidth(2f);
-        dataSet.setValueTextColor(textColor);
-        dataSet.setValueTextSize(10f);
-        dataSet.setValueFormatter(new ValueFormatter() {
-            @Override
-            public String getPointLabel(final Entry entry) {
-                return formatMetricValue(metric, entry.getY(), false);
-            }
-        });
-        return dataSet;
-    }
-
-    private void setYAxisRange(final float min, final float max) {
-        final float range = max - min;
-        final float padding = range == 0f ? Math.max(1f, Math.abs(max) * 0.1f) : range * 0.1f;
-        chart.getAxisLeft().setAxisMinimum(Math.max(0f, min - padding));
-        chart.getAxisLeft().setAxisMaximum(max + padding);
-    }
-
-    private String getMetricLabelWithUnit(final MetricSample.Metric metric) {
-        final String unit = getUnitString(requireContext(), metric.uomKey);
-        if (unit.isEmpty()) {
-            return getMetricLabel(metric);
-        }
-        return getString(R.string.generic_metric_chart_label_with_unit, getMetricLabel(metric), unit);
+        return new GenericMetricChartsData(
+                metric, seconds, values, rangeStart.getTime() / 1000L, rangeEnd.getTime() / 1000L,
+                yMin, yMax, totalValue / samples.size()
+        );
     }
 
     private String formatMetricValue(final MetricSample.Metric metric, final double value, final boolean showUnit) {
@@ -409,34 +324,33 @@ public class GenericMetricChartFragment extends AbstractChartFragment<GenericMet
 
     protected static class GenericMetricChartsData extends ChartsData {
         private final MetricSample.Metric metric;
-        private final LineData lineData;
-        private final ValueFormatter xValueFormatter;
-        private final float xMin;
-        private final float xMax;
-        private final float yMin;
-        private final float yMax;
-        private final float averageValue;
+        private final long[] seconds;
+        private final double[] values;
+        private final long startTs;
+        private final long endTs;
+        private final double yMin;
+        private final double yMax;
+        private final double averageValue;
         private final int sampleCount;
 
-        private GenericMetricChartsData(final MetricSample.Metric metric, final LineData lineData, final ValueFormatter xValueFormatter, final float xMin, final float xMax, final float yMin, final float yMax, final float averageValue, final int sampleCount) {
+        private GenericMetricChartsData(final MetricSample.Metric metric, final long[] seconds, final double[] values, final long startTs, final long endTs, final double yMin, final double yMax, final double averageValue) {
             this.metric = metric;
-            this.lineData = lineData;
-            this.xValueFormatter = xValueFormatter;
-            this.xMin = xMin;
-            this.xMax = xMax;
+            this.seconds = seconds;
+            this.values = values;
+            this.startTs = startTs;
+            this.endTs = endTs;
             this.yMin = yMin;
             this.yMax = yMax;
             this.averageValue = averageValue;
-            this.sampleCount = sampleCount;
+            this.sampleCount = seconds.length;
         }
 
-        private static GenericMetricChartsData empty(final MetricSample.Metric metric, final SampleXLabelFormatter formatter, final Date rangeEnd) {
-            final TimestampTranslation tsTranslation = formatter.getTsTranslation();
-            return new GenericMetricChartsData(metric, null, formatter, 0f, tsTranslation.shorten((int) (rangeEnd.getTime() / 1000L)), 0f, 1f, 0f, 0);
+        private static GenericMetricChartsData empty(final MetricSample.Metric metric, final Date rangeStart, final Date rangeEnd) {
+            return new GenericMetricChartsData(metric, new long[0], new double[0], rangeStart.getTime() / 1000L, rangeEnd.getTime() / 1000L, 0, 1, 0);
         }
 
         private boolean hasData() {
-            return lineData != null && lineData.getEntryCount() > 0;
+            return sampleCount > 0;
         }
     }
 

@@ -17,8 +17,6 @@
 package nodomain.freeyourgadget.gadgetbridge.devices.una
 
 import androidx.core.content.edit
-import de.greenrobot.dao.AbstractDao
-import de.greenrobot.dao.Property
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst
@@ -27,7 +25,6 @@ import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider
 import nodomain.freeyourgadget.gadgetbridge.entities.AbstractActivitySample
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession
-import nodomain.freeyourgadget.gadgetbridge.entities.UnaDailySampleDao
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceCandidate
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceType
@@ -84,11 +81,5 @@ class UnaDeviceCoordinator : AbstractBLEDeviceCoordinator() {
     override fun getSampleProvider(device: GBDevice, session: DaoSession): SampleProvider<out AbstractActivitySample> =
         UnaDailySampleProvider(device, session)
 
-    override fun getAllDeviceDao(session: DaoSession): MutableMap<AbstractDao<*, *>, Property> {
-        return object : HashMap<AbstractDao<*, *>, Property>() {
-            init {
-                put(session.unaDailySampleDao, UnaDailySampleDao.Properties.DeviceId)
-            }
-        }
-    }
+    override fun supportsAppNotifications(device: GBDevice): Boolean = true
 }

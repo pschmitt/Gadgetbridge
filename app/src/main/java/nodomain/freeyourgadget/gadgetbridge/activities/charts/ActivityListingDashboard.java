@@ -16,33 +16,40 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities.charts;
 
-import android.app.DatePickerDialog;
 import android.content.Context;
+import android.graphics.RenderEffect;
+import android.graphics.Shader;
+import android.os.Build;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentActivity;
+
+import com.google.android.material.color.MaterialColors;
+import com.google.android.material.datepicker.MaterialDatePicker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import de.greenrobot.dao.query.QueryBuilder;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileGridUtilKt;
 import nodomain.freeyourgadget.gadgetbridge.database.DBAccess;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
@@ -85,6 +92,11 @@ public class ActivityListingDashboard extends MaterialDialogFragment {
     }
 
     @Override
+    protected int getThemeOverlay() {
+        return R.style.ThemeOverlay_App_MaterialAlertDialog_WindowBackground;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
 
                              Bundle savedInstanceState) {
@@ -112,6 +124,9 @@ public class ActivityListingDashboard extends MaterialDialogFragment {
         }
         stepListAdapter = new ActivityListingAdapter(getContext());
 
+        StatTileGridUtilKt.applyStatTileStyle(getView().findViewById(R.id.activity_list_summary_date_from_card), null);
+        StatTileGridUtilKt.applyStatTileStyle(getView().findViewById(R.id.activity_list_summary_time_span_card), null);
+        StatTileGridUtilKt.applyStatTileStyle(getView().findViewById(R.id.activity_list_summary_date_to_card), null);
         final TextView battery_status_date_from_text = getView().findViewById(R.id.battery_status_date_from_text);
         final TextView battery_status_date_to_text = getView().findViewById(R.id.battery_status_date_to_text);
         LinearLayout battery_status_date_to_layout = getView().findViewById(R.id.battery_status_date_to_layout);
@@ -122,6 +137,7 @@ public class ActivityListingDashboard extends MaterialDialogFragment {
         if (!activity_list_debug_extra_time_range_value) {
             battery_status_time_span_seekbar.setMax(3);
         }
+        addStopLabels(getView().findViewById(R.id.activity_list_summary_slider_layout), battery_status_time_span_seekbar);
         final TextView battery_status_time_span_text = getView().findViewById(R.id.battery_status_time_span_text);
 
         battery_status_time_span_seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -181,24 +197,20 @@ public class ActivityListingDashboard extends MaterialDialogFragment {
             }
         });
         battery_status_date_to_layout.setOnClickListener(v -> {
-            final Calendar currentDate = Calendar.getInstance();
-            currentDate.setTimeInMillis(timeTo * 1000L);
-
-            new DatePickerDialog(requireContext(), (view1, year, monthOfYear, dayOfMonth) -> {
-                Calendar date = Calendar.getInstance();
-                date.set(year, monthOfYear, dayOfMonth);
-                int time1 = (int) (date.getTimeInMillis() / 1000);
-                Calendar day1 = Calendar.getInstance();
-                day1.setTimeInMillis(time1 * 1000L);
-                day1.set(Calendar.HOUR_OF_DAY, 23);
-                day1.set(Calendar.MINUTE, 59);
-                day1.set(Calendar.SECOND, 59);
-                timeTo = (int) (day1.getTimeInMillis() / 1000);
+            final MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
+                    .setSelection(DateTimeUtils.toUtcDayStartMillis(timeTo * 1000L))
+                    .build();
+            datePicker.addOnPositiveButtonClickListener(selection -> {
+                final LocalDate selectedDate = DateTimeUtils.utcMillisToLocalDate(selection);
+                final Calendar selectedDay = Calendar.getInstance();
+                selectedDay.set(selectedDate.getYear(), selectedDate.getMonthValue() - 1, selectedDate.getDayOfMonth(), 23, 59, 59);
+                timeTo = (int) (selectedDay.getTimeInMillis() / 1000);
 
                 battery_status_date_to_text.setText(DateTimeUtils.formatDate(new Date(timeTo * 1000L)));
                 battery_status_time_span_seekbar.setProgress(0);
                 battery_status_time_span_seekbar.setProgress(1);
-            }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
+            });
+            datePicker.show(getChildFragmentManager(), "ACTIVITY_LISTING_DATE_PICKER");
         });
         battery_status_time_span_seekbar.setProgress(2);
     }
@@ -251,20 +263,49 @@ public class ActivityListingDashboard extends MaterialDialogFragment {
         return summaries;
     }
 
+    private void addStopLabels(final ConstraintLayout layout, final SeekBar seekBar) {
+        final int max = seekBar.getMax();
+        final int[] labels = {
+            R.string.duration_short_day,
+            R.string.duration_short_week,
+            R.string.duration_short_two_weeks,
+            R.string.duration_short_month,
+            R.string.duration_short_three_months,
+            R.string.duration_short_six_months,
+            R.string.duration_short_year,
+        };
+        final float density = getResources().getDisplayMetrics().density;
+        for (int i = 0; i <= max; i++) {
+            final TextView label = new TextView(requireContext());
+            label.setText(labels[i]);
+            label.setGravity(Gravity.CENTER_HORIZONTAL);
+            label.setMaxLines(2);
+            label.setTextSize(11);
+            label.setTextColor(MaterialColors.getColor(layout, R.attr.textColorSecondary));
+            label.setTranslationY(-14 * density);
+            // A label as wide as the slider's two side paddings, with a bias of stop / max, centres on its tick
+            final ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(seekBar.getPaddingStart() + seekBar.getPaddingEnd(), ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+            params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+            params.topToBottom = seekBar.getId();
+            params.horizontalBias = (float) i / max;
+            layout.addView(label, params);
+        }
+    }
+
     void indicate_progress(boolean inProgress) {
         View view = getView();
         if (view == null) {
             return;
         }
-        LinearLayout activity_list_dashboard_results_layout = view.findViewById(R.id.activity_list_dashboard_results_layout);
-        RelativeLayout activity_list_dashboard_loading_layout = view.findViewById(R.id.activity_list_dashboard_loading_layout);
-        if (inProgress) {
-            activity_list_dashboard_results_layout.setVisibility(View.GONE);
-            activity_list_dashboard_loading_layout.setVisibility(View.VISIBLE);
+        final View results = view.findViewById(R.id.activity_list_dashboard_results_layout);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            final float radius = 8 * getResources().getDisplayMetrics().density;
+            results.setRenderEffect(inProgress ? RenderEffect.createBlurEffect(radius, radius, Shader.TileMode.DECAL) : null);
         } else {
-            activity_list_dashboard_results_layout.setVisibility(View.VISIBLE);
-            activity_list_dashboard_loading_layout.setVisibility(View.GONE);
+            results.setAlpha(inProgress ? 0.35f : 1f);
         }
+        view.findViewById(R.id.activity_list_dashboard_loading_layout).setVisibility(inProgress ? View.VISIBLE : View.GONE);
     }
 
     void populateData(ActivitySession item) {
@@ -273,45 +314,13 @@ public class ActivityListingDashboard extends MaterialDialogFragment {
             return;
         }
 
-        TextView stepLabel = view.findViewById(R.id.line_layout_step_label);
-        TextView stepTotalLabel = view.findViewById(R.id.line_layout_total_step_label);
-        TextView distanceLabel = view.findViewById(R.id.line_layout_distance_label);
-        TextView durationLabel = view.findViewById(R.id.line_layout_duration_label);
-        TextView sessionCountLabel = view.findViewById(R.id.line_layout_count_label);
-        LinearLayout durationLayout = view.findViewById(R.id.line_layout_duration);
-        LinearLayout countLayout = view.findViewById(R.id.line_layout_count);
-        LinearLayout stepsLayout = view.findViewById(R.id.line_layout_step);
-        LinearLayout stepsTotalLayout = view.findViewById(R.id.line_layout_total_step);
-        LinearLayout distanceLayout = view.findViewById(R.id.line_layout_distance);
-
-        final long duration = item.getEndTime().getTime() - item.getStartTime().getTime();
-        durationLabel.setText(DateTimeUtils.formatDurationHoursMinutes(duration, TimeUnit.MILLISECONDS));
-        sessionCountLabel.setText(String.valueOf(item.getSessionCount()));
-
-        if (item.getDistance() > 0) {
-            distanceLabel.setText(FormatUtils.getFormattedDistanceLabel(item.getDistance()));
-            distanceLayout.setVisibility(View.VISIBLE);
-        } else {
-            distanceLayout.setVisibility(View.GONE);
-        }
-
-        if (item.getActiveSteps() > 0) {
-            stepLabel.setText(String.valueOf(item.getActiveSteps()));
-            stepsLayout.setVisibility(View.VISIBLE);
-        } else {
-            stepsLayout.setVisibility(View.GONE);
-        }
-
-        if (item.getTotalDaySteps() > 0) {
-            stepTotalLabel.setText(String.valueOf(item.getTotalDaySteps()));
-            stepsTotalLayout.setVisibility(View.VISIBLE);
-            countLayout.setVisibility(View.VISIBLE);
-            durationLayout.setVisibility(View.VISIBLE);
-        } else {
-            stepsTotalLayout.setVisibility(View.GONE);
-            countLayout.setVisibility(View.GONE);
-            durationLayout.setVisibility(View.GONE);
-        }
+        ActivityListingViews.fillTile(view.findViewById(R.id.activity_list_summary_active_steps), R.drawable.ic_footprint, String.valueOf(item.getActiveSteps()), R.string.activity_list_summary_active_steps);
+        ActivityListingViews.fillTile(view.findViewById(R.id.activity_list_summary_total_steps), R.drawable.ic_steps, String.valueOf(item.getTotalDaySteps()), R.string.live_activity_total_steps);
+        final View distanceTile = view.findViewById(R.id.activity_list_summary_distance);
+        ActivityListingViews.fillTile(distanceTile, R.drawable.ic_distance, FormatUtils.getFormattedDistanceLabel(item.getDistance()), R.string.distance);
+        distanceTile.setVisibility(item.getDistance() > 0 ? View.VISIBLE : View.GONE);
+        ActivityListingViews.fillTile(view.findViewById(R.id.activity_list_summary_active_time), R.drawable.ic_access_time, ActivityListingViews.formatDuration(item), R.string.activity_list_summary_active_time);
+        ActivityListingViews.fillTile(view.findViewById(R.id.activity_list_summary_activities), R.drawable.ic_list_numbered, String.valueOf(item.getSessionCount()), R.string.activity_list_summary_activities);
     }
 
     public class RefreshTask extends DBAccess {

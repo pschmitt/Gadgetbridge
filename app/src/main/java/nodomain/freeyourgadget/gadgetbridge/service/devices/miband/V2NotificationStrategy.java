@@ -45,7 +45,7 @@ public class V2NotificationStrategy<T extends AbstractBTLESingleDeviceSupport> i
 
     protected void sendCustomNotification(VibrationProfile vibrationProfile, @Nullable SimpleNotification simpleNotification, BtLEAction extraAction, TransactionBuilder builder) {
         //use the new alert characteristic
-        BluetoothGattCharacteristic alert = support.getCharacteristic(GattCharacteristic.UUID_CHARACTERISTIC_ALERT_LEVEL);
+        BluetoothGattCharacteristic alert = support.getCharacteristic(GattCharacteristic.CHARACTERISTIC_ALERT_LEVEL.uuid);
         for (short i = 0; i < vibrationProfile.getRepeat(); i++) {
             int[] onOffSequence = vibrationProfile.getOnOffSequence();
             for (int j = 0; j < onOffSequence.length; j++) {
@@ -77,6 +77,6 @@ public class V2NotificationStrategy<T extends AbstractBTLESingleDeviceSupport> i
 
     @Override
     public void stopCurrentNotification(TransactionBuilder builder) {
-        builder.write(GattCharacteristic.UUID_CHARACTERISTIC_ALERT_LEVEL, new byte[]{GattCharacteristic.NO_ALERT});
+        builder.write(GattCharacteristic.CHARACTERISTIC_ALERT_LEVEL.uuid, new byte[]{GattCharacteristic.NO_ALERT});
     }
 }

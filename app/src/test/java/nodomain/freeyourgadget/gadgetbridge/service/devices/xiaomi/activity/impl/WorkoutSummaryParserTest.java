@@ -387,4 +387,74 @@ public class WorkoutSummaryParserTest {
         assertEquals(156d, num(data, ActivitySummaryEntries.HR_MAX), 0.001);
         assertEquals(147d, num(data, ActivitySummaryEntries.HR_AVG), 0.001);
     }
+
+    /** Outdoor cycling v2 v3 (Mi Watch Color Sport), 4 Oct 2026, 18.09 km ride. */
+    private static final String OUTDOOR_CYCLING_V2_V3_04OCT =
+            "oTrCaggDmQD////AoTrCavBgwmpmGQAAqkYAAEoCxwAAAMwCAACLKwtCesY7nNnmQzUz4kPZ5u5DZmYYRGaml0MA"
+                    + "AEBAMhceAFUAAAAiAQAAEwYAAFQHAACnBwAA2QIAAAAAAAAAAOyp/+M=";
+
+    /** Outdoor walking v1 v3 (Mi Watch Color Sport), 3 Oct 2026, 1.48 km downhill walk. */
+    private static final String OUTDOOR_WALKING_V1_V3_03OCT =
+            "JB/BaggDiQD////wJB/Bah8nwWr4BwAAzAUAAFIALwMAAAAAAAD877RAsAgAAJYAVm1HAAAAQDAzW0KVU55DM7Ox"
+                    + "QzMzlUOamZk+MgEAAAAAAAAAAAAAAAAAAAAAAACPAQAAfwAAAAAAAAAAAOU1xJ8=";
+
+    /** The active calories match the paired DETAILS calorie sum (585). */
+    @Test
+    public void outdoorCyclingV2V3_extractsStatsAltitudeZones() {
+        final BaseActivitySummary summary = new BaseActivitySummary();
+        summary.setRawSummaryData(Base64.getDecoder().decode(OUTDOOR_CYCLING_V2_V3_04OCT));
+        new WorkoutSummaryParser().parseBinaryData(summary, true);
+        assertEquals(ActivityKind.OUTDOOR_CYCLING.getCode(), summary.getActivityKind());
+        assertEquals(1791123696000L, summary.getEndTime().getTime());
+
+        final ActivitySummaryData data = ActivitySummaryData.fromJson(summary.getSummaryData());
+        assertEquals(6502, num(data, ActivitySummaryEntries.ACTIVE_SECONDS), 0.001);
+        assertEquals(18090, num(data, ActivitySummaryEntries.DISTANCE_METERS), 0.001);
+        assertEquals(586, num(data, ActivitySummaryEntries.CALORIES_BURNT), 0.001);
+        assertEquals(199, num(data, ActivitySummaryEntries.PACE_MAX), 0.001);
+        assertEquals(716, num(data, ActivitySummaryEntries.PACE_MIN), 0.001);
+        assertEquals(34.79, num(data, ActivitySummaryEntries.SPEED_MAX), 0.01);
+        assertEquals(122, num(data, ActivitySummaryEntries.HR_AVG), 0.001);
+        assertEquals(198, num(data, ActivitySummaryEntries.HR_MAX), 0.001);
+        assertEquals(59, num(data, ActivitySummaryEntries.HR_MIN), 0.001);
+        assertEquals(461.7, num(data, ActivitySummaryEntries.ELEVATION_GAIN), 0.1);
+        assertEquals(452.4, num(data, ActivitySummaryEntries.ELEVATION_LOSS), 0.1);
+        assertEquals(477.8, num(data, ActivitySummaryEntries.ALTITUDE_AVG), 0.1);
+        assertEquals(609.6, num(data, ActivitySummaryEntries.ALTITUDE_MAX), 0.1);
+        assertEquals(303.3, num(data, ActivitySummaryEntries.ALTITUDE_MIN), 0.1);
+        assertEquals(3.0, num(data, ActivitySummaryEntries.TRAINING_EFFECT_AEROBIC), 0.01);
+        assertEquals(50, num(data, ActivitySummaryEntries.MAXIMUM_OXYGEN_UPTAKE), 0.001);
+        assertEquals(30, num(data, ActivitySummaryEntries.RECOVERY_TIME), 0.001);
+        assertEquals(729, num(data, ActivitySummaryEntries.CALORIES_TOTAL), 0.001);
+        assertEquals(85, num(data, ActivitySummaryEntries.HR_ZONE_EXTREME), 0.001);
+        assertEquals(1959, num(data, ActivitySummaryEntries.HR_ZONE_WARM_UP), 0.001);
+    }
+
+    /** Steps and calories match the paired DETAILS sums (2224 steps, 82 kcal). The walk went
+     *  downhill from near the maximum altitude, so the loss outweighs the gain. */
+    @Test
+    public void outdoorWalkingV1V3_extractsStatsAltitude() {
+        final BaseActivitySummary summary = new BaseActivitySummary();
+        summary.setRawSummaryData(Base64.getDecoder().decode(OUTDOOR_WALKING_V1_V3_03OCT));
+        new WorkoutSummaryParser().parseBinaryData(summary, true);
+        assertEquals(ActivityKind.WALKING.getCode(), summary.getActivityKind());
+
+        final ActivitySummaryData data = ActivitySummaryData.fromJson(summary.getSummaryData());
+        assertEquals(2040, num(data, ActivitySummaryEntries.ACTIVE_SECONDS), 0.001);
+        assertEquals(1484, num(data, ActivitySummaryEntries.DISTANCE_METERS), 0.001);
+        assertEquals(82, num(data, ActivitySummaryEntries.CALORIES_BURNT), 0.001);
+        assertEquals(815, num(data, ActivitySummaryEntries.PACE_MAX), 0.001);
+        assertEquals(5.65, num(data, ActivitySummaryEntries.SPEED_MAX), 0.01);
+        assertEquals(2224, num(data, ActivitySummaryEntries.STEPS), 0.001);
+        assertEquals(150, num(data, ActivitySummaryEntries.CADENCE_MAX), 0.001);
+        assertEquals(86, num(data, ActivitySummaryEntries.HR_AVG), 0.001);
+        assertEquals(109, num(data, ActivitySummaryEntries.HR_MAX), 0.001);
+        assertEquals(71, num(data, ActivitySummaryEntries.HR_MIN), 0.001);
+        assertEquals(2.0, num(data, ActivitySummaryEntries.ELEVATION_GAIN), 0.1);
+        assertEquals(54.8, num(data, ActivitySummaryEntries.ELEVATION_LOSS), 0.1);
+        assertEquals(355.4, num(data, ActivitySummaryEntries.ALTITUDE_MAX), 0.1);
+        assertEquals(298.4, num(data, ActivitySummaryEntries.ALTITUDE_MIN), 0.1);
+        assertEquals(0.3, num(data, ActivitySummaryEntries.TRAINING_EFFECT_AEROBIC), 0.01);
+        assertEquals(127, num(data, ActivitySummaryEntries.CALORIES_TOTAL), 0.001);
+    }
 }

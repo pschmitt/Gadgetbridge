@@ -73,7 +73,7 @@ public class WeightScaleProfile<T extends AbstractBTLESingleDeviceSupport> exten
 
     @Override
     public void enableNotify(TransactionBuilder builder, boolean enable) {
-        builder.notify(GattCharacteristic.UUID_CHARACTERISTIC_WEIGHT_MEASUREMENT, enable);
+        builder.notify(GattCharacteristic.CHARACTERISTIC_WEIGHT_MEASUREMENT.uuid, enable);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class WeightScaleProfile<T extends AbstractBTLESingleDeviceSupport> exten
 
     private boolean process(BluetoothGattCharacteristic characteristic, byte[] value) {
         UUID uuid = characteristic.getUuid();
-        if (GattCharacteristic.UUID_CHARACTERISTIC_WEIGHT_MEASUREMENT.equals(uuid)) {
+        if (GattCharacteristic.CHARACTERISTIC_WEIGHT_MEASUREMENT.uuid.equals(uuid)) {
             return processWeightMeasurement(value);
         }
         return false;
@@ -169,11 +169,11 @@ public class WeightScaleProfile<T extends AbstractBTLESingleDeviceSupport> exten
     public void setTime(@NonNull TransactionBuilder builder) {
         GregorianCalendar now = BLETypeConversions.createCalendar();
         byte[] time = BLETypeConversions.calendarToCurrentTime(now, 0);
-        builder.write(GattCharacteristic.UUID_CHARACTERISTIC_CURRENT_TIME, time);
+        builder.write(GattCharacteristic.CHARACTERISTIC_CURRENT_TIME.uuid, time);
     }
 
     public void readWeight(@NonNull TransactionBuilder builder) {
-        builder.read(GattCharacteristic.UUID_CHARACTERISTIC_WEIGHT_MEASUREMENT);
+        builder.read(GattCharacteristic.CHARACTERISTIC_WEIGHT_MEASUREMENT.uuid);
     }
 
     protected Intent createIntent(final WeightScaleMeasurement measurement) {

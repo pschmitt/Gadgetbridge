@@ -17,12 +17,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.sony.headphones
 
-import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsCustomizer
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.DeviceSettingsSpec
+import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.getOverriddenFeatures
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLClassicDeviceCoordinator
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControl
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.BatteryConfig
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport
@@ -33,10 +32,6 @@ import org.slf4j.LoggerFactory
 abstract class SonyHeadphonesCoordinator : AbstractBLClassicDeviceCoordinator() {
     override fun getManufacturer(): String {
         return "Sony"
-    }
-
-    override fun getDeviceSpecificSettingsCustomizer(device: GBDevice): DeviceSpecificSettingsCustomizer {
-        return SonyHeadphonesSettingsCustomizer(device)
     }
 
     override fun suggestUnbindBeforePair(): Boolean {
@@ -135,25 +130,16 @@ abstract class SonyHeadphonesCoordinator : AbstractBLClassicDeviceCoordinator() 
     }
 
     override fun getDeviceSettings(device: GBDevice): DeviceSettingsSpec =
-        sonyHeadphonesDeviceSettings(device, getCapabilities(device))
+        sonyHeadphonesDeviceSettings(device, getCapabilities(device), defaultCapabilities)
+
+    override fun getQuickControls(device: GBDevice): List<QuickControl> =
+        sonyHeadphonesQuickControls(getCapabilities(device))
 
     open val defaultCapabilities: Set<SonyHeadphonesCapabilities>
         get() = mutableSetOf()
 
-    open fun getCapabilities(device: GBDevice): Set<SonyHeadphonesCapabilities> {
-        val devicePrefs = GBApplication.getDevicePrefs(device)
-        val overrideFeatures =
-            devicePrefs.getBoolean(DeviceSettingsPreferenceConst.PREF_OVERRIDE_FEATURES_ENABLED, false)
-        if (overrideFeatures) {
-            val stringList = devicePrefs.getStringSet(
-                DeviceSettingsPreferenceConst.PREF_OVERRIDE_FEATURES_LIST,
-                mutableSetOf<String>()
-            )
-
-            return stringList.mapTo(mutableSetOf()) { SonyHeadphonesCapabilities.valueOf(it) }
-        }
-        return this.defaultCapabilities
-    }
+    open fun getCapabilities(device: GBDevice): Set<SonyHeadphonesCapabilities> =
+        getOverriddenFeatures(device, defaultCapabilities)
 
     open fun preferServiceV2(): Boolean {
         return false
@@ -166,6 +152,12 @@ abstract class SonyHeadphonesCoordinator : AbstractBLClassicDeviceCoordinator() 
     override fun getDefaultIconResource(): Int {
         return R.drawable.ic_device_sony_overhead
     }
+
+    override fun supportsAppNotifications(device: GBDevice): Boolean = true
+
+    override fun supportsPhoneCalls(device: GBDevice): Boolean = true
+
+    override fun supportsCallControl(device: GBDevice): Boolean = true
 
     companion object {
         private val LOG: Logger = LoggerFactory.getLogger(SonyHeadphonesCoordinator::class.java)

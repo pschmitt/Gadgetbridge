@@ -23,10 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import de.greenrobot.dao.query.QueryBuilder;
+
 import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.XiaomiDailySummarySampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiDailySummarySample;
+import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiDailySummarySampleDao;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.HeartRateSample;
 
@@ -34,7 +37,13 @@ public class XiaomiHeartRateRestingSampleProvider implements TimeSampleProvider<
     private final XiaomiDailySummarySampleProvider dailySummarySampleProvider;
 
     public XiaomiHeartRateRestingSampleProvider(final GBDevice device, final DaoSession session) {
-        this.dailySummarySampleProvider = new XiaomiDailySummarySampleProvider(device, session);
+        // The band stores a daily summary before it has computed that day's resting heart rate
+        this.dailySummarySampleProvider = new XiaomiDailySummarySampleProvider(device, session) {
+            @Override
+            protected void applyAdditionalFilters(final QueryBuilder<XiaomiDailySummarySample> qb) {
+                qb.where(XiaomiDailySummarySampleDao.Properties.HrResting.isNotNull());
+            }
+        };
     }
 
     @NonNull
@@ -43,9 +52,7 @@ public class XiaomiHeartRateRestingSampleProvider implements TimeSampleProvider<
         final List<XiaomiDailySummarySample> allSamples = dailySummarySampleProvider.getAllSamples(timestampFrom, timestampTo);
         final List<HeartRateSample> ret = new ArrayList<>(allSamples.size());
         for (final XiaomiDailySummarySample sample : allSamples) {
-            if (sample.getHrResting() != null) {
-                ret.add(new XiaomiHeartRateRestingSample(sample));
-            }
+            ret.add(new XiaomiHeartRateRestingSample(sample));
         }
         return ret;
     }
@@ -69,7 +76,7 @@ public class XiaomiHeartRateRestingSampleProvider implements TimeSampleProvider<
     @Override
     public HeartRateSample getLatestSample() {
         final XiaomiDailySummarySample sample = dailySummarySampleProvider.getLatestSample();
-        if (sample != null && sample.getHrResting() != null) {
+        if (sample != null) {
             return new XiaomiHeartRateRestingSample(sample);
         }
         return null;
@@ -79,7 +86,7 @@ public class XiaomiHeartRateRestingSampleProvider implements TimeSampleProvider<
     @Override
     public HeartRateSample getLatestSample(final long until) {
         final XiaomiDailySummarySample sample = dailySummarySampleProvider.getLatestSample(until);
-        if (sample != null && sample.getHrResting() != null) {
+        if (sample != null) {
             return new XiaomiHeartRateRestingSample(sample);
         }
         return null;
@@ -89,7 +96,7 @@ public class XiaomiHeartRateRestingSampleProvider implements TimeSampleProvider<
     @Override
     public HeartRateSample getFirstSample() {
         final XiaomiDailySummarySample sample = dailySummarySampleProvider.getFirstSample();
-        if (sample != null && sample.getHrResting() != null) {
+        if (sample != null) {
             return new XiaomiHeartRateRestingSample(sample);
         }
         return null;

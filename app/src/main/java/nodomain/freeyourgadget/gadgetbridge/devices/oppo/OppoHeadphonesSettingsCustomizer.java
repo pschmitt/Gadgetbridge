@@ -17,12 +17,8 @@
 package nodomain.freeyourgadget.gadgetbridge.devices.oppo;
 
 import android.os.Parcel;
-import android.content.Context;
 
 import androidx.preference.Preference;
-import androidx.preference.MultiSelectListPreference;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.Collections;
 import java.util.Set;
@@ -49,22 +45,6 @@ public class OppoHeadphonesSettingsCustomizer implements DeviceSpecificSettingsC
 
     @Override
     public void onPreferenceChange(final Preference preference, final DeviceSpecificSettingsHandler handler) {
-        if (OppoHeadphonesPreferences.ANC_TOUCH_CYCLE_MODES.equals(preference.getKey())) {
-            if (preference instanceof MultiSelectListPreference) {
-                final MultiSelectListPreference ancCycleModesPref = (MultiSelectListPreference) preference;
-                final Set<String> selectedValues = ancCycleModesPref.getValues();
-
-                if (selectedValues == null || selectedValues.size() < 2) {
-                    final Context context = preference.getContext();
-                    final String message = context.getString(nodomain.freeyourgadget.gadgetbridge.R.string.select_at_least_option, 2);
-                    new MaterialAlertDialogBuilder(context)
-                        .setTitle(nodomain.freeyourgadget.gadgetbridge.R.string.warning)
-                        .setMessage(message)
-                        .setPositiveButton(android.R.string.ok, null)
-                        .show();
-                }
-            }
-        }
     }
 
     @Override

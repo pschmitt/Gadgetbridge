@@ -36,7 +36,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.GarminPreferences;
 import nodomain.freeyourgadget.gadgetbridge.devices.huami.HuamiConst;
@@ -126,12 +125,9 @@ public class ImportExportSharedPreferences {
                         // FIXME: We can only deserialize values that are guaranteed to not contain commas,
                         // spaces at the end or start, square brackets
                         switch (key) {
+                            // package names
                             case GBPrefs.PACKAGE_BLACKLIST:
-                                GBApplication.setAppsNotifBlackList(stringToSet(text), editor);
-                                break;
                             case GBPrefs.PACKAGE_PEBBLEMSG_BLACKLIST:
-                                GBApplication.setAppsPebbleBlackList(stringToSet(text), editor);
-                                break;
                             // @array/device_action_values
                             case DeviceSettingsPreferenceConst.PREF_DEVICE_ACTION_FELL_SLEEP_SELECTIONS:
                             case DeviceSettingsPreferenceConst.PREF_DEVICE_ACTION_START_NON_WEAR_SELECTIONS:
@@ -140,6 +136,8 @@ public class ImportExportSharedPreferences {
                             case DeviceSettingsPreferenceConst.PREF_DEVICE_ACTION_WORKOUT_STOP_SELECTIONS:
                             // GarminCapability enum
                             case GarminPreferences.PREF_GARMIN_CAPABILITIES:
+                            // UUIDs
+                            case GarminPreferences.PREF_GARMIN_INSTALLED_APPS:
                             // mac addresses
                             case "dashboard_devices_multiselect":
                             case GBPrefs.LAST_DEVICE_ADDRESSES:

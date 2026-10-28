@@ -13,17 +13,31 @@ import androidx.core.content.ContextCompat
 import nodomain.freeyourgadget.gadgetbridge.BuildConfig
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
+import nodomain.freeyourgadget.gadgetbridge.activities.discovery.PickDeviceType
 import nodomain.freeyourgadget.gadgetbridge.databinding.ActivityUsbConnectBinding
-import nodomain.freeyourgadget.gadgetbridge.devices.AbstractUsbDeviceCoordinator
+import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.util.DeviceHelper
-import nodomain.freeyourgadget.gadgetbridge.util.DeviceTypeDialog
 import nodomain.freeyourgadget.gadgetbridge.util.kotlin.getParcelableCompat
 import org.slf4j.LoggerFactory
 
 class UsbAccessoryConnectActivity : AbstractGBActivity() {
 
     private lateinit var accessory: UsbAccessory
+
+    private val pickUsbDeviceType = registerForActivityResult(PickDeviceType()) { selection ->
+        if (selection == null) return@registerForActivityResult
+        DeviceHelper.getInstance().setForcedDeviceType(selection.address, selection.deviceType)
+        connectAndFinish(
+            GBDevice(
+                selection.address,
+                accessory.description ?: selection.deviceType.name,
+                null,
+                null,
+                selection.deviceType
+            )
+        )
+    }
 
     private val permissionReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -118,23 +132,13 @@ class UsbAccessoryConnectActivity : AbstractGBActivity() {
         if (!resolvedType.isSupported) {
             // Unsupported device, allow user to select an USB DeviceType
             LOG.warn("Unsupported usb accessory {}", accessory)
-            DeviceTypeDialog(
-                this,
-                R.string.usb_connect_select_device_type,
-                address
-            ) { it.deviceCoordinator is AbstractUsbDeviceCoordinator }
-                .show(null) { selectedAddress, selectedType ->
-                    DeviceHelper.getInstance().setForcedDeviceType(selectedAddress, selectedType)
-                    connectAndFinish(
-                        GBDevice(
-                            selectedAddress,
-                            accessory.description ?: selectedType.name,
-                            null,
-                            null,
-                            selectedType
-                        )
-                    )
-                }
+            pickUsbDeviceType.launch(
+                PickDeviceType.Input(
+                    R.string.usb_connect_select_device_type,
+                    address,
+                    setOf(DeviceCoordinator.ConnectionType.USB)
+                )
+            )
             return
         }
 

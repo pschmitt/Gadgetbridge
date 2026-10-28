@@ -63,23 +63,7 @@ import nodomain.freeyourgadget.gadgetbridge.activities.AbstractPreferenceFragmen
 import nodomain.freeyourgadget.gadgetbridge.adapter.SimpleIconListAdapter;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.RunnableListIconItem;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.ChangeRequest;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.ChangeResponse;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.Date;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.EntryState;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.MenuEntry;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.RowType;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.ScreenDefinition;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.ScreenEntry;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.ScreenState;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.SettingsService;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.SortEntry;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.Summary;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.TargetOptionEntry;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.ValueFloat;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.ValueList;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.ValueInteger;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.ValueDuration;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiRealtimeSettings;
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSmartProto.Smart;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
@@ -100,8 +84,8 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
     private GBDevice device;
     private int screenId = ROOT_SCREEN_ID;
 
-    private ScreenDefinition screenDefinition;
-    private ScreenState screenState;
+    private GdiRealtimeSettings.ScreenDefinition screenDefinition;
+    private GdiRealtimeSettings.ScreenState screenState;
 
     public static final String EXTRA_PROTOBUF = "protobuf";
 
@@ -120,9 +104,9 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
 
             switch (action) {
                 case ACTION_SCREEN_DEFINITION:
-                    final ScreenDefinition incomingScreen;
+                    final GdiRealtimeSettings.ScreenDefinition incomingScreen;
                     try {
-                        incomingScreen = ScreenDefinition.parseFrom(intent.getByteArrayExtra(EXTRA_PROTOBUF));
+                        incomingScreen = GdiRealtimeSettings.ScreenDefinition.parseFrom(intent.getByteArrayExtra(EXTRA_PROTOBUF));
                     } catch (final InvalidProtocolBufferException e) {
                         // should never happen
                         LOG.error("Failed to parse protobuf for screen definition on {}", screenId, e);
@@ -135,9 +119,9 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
                     screenDefinition = incomingScreen;
                     break;
                 case ACTION_SCREEN_STATE:
-                    final ScreenState incomingState;
+                    final GdiRealtimeSettings.ScreenState incomingState;
                     try {
-                        incomingState = ScreenState.parseFrom(intent.getByteArrayExtra(EXTRA_PROTOBUF));
+                        incomingState = GdiRealtimeSettings.ScreenState.parseFrom(intent.getByteArrayExtra(EXTRA_PROTOBUF));
                     } catch (final InvalidProtocolBufferException e) {
                         // should never happen
                         LOG.error("Failed to parse protobuf for screen state on {}", screenId, e);
@@ -150,9 +134,9 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
                     screenState = incomingState;
                     break;
                 case ACTION_CHANGE:
-                    final ChangeResponse incomingChange;
+                    final GdiRealtimeSettings.ChangeResponse incomingChange;
                     try {
-                        incomingChange = ChangeResponse.parseFrom(intent.getByteArrayExtra(EXTRA_PROTOBUF));
+                        incomingChange = GdiRealtimeSettings.ChangeResponse.parseFrom(intent.getByteArrayExtra(EXTRA_PROTOBUF));
                     } catch (final InvalidProtocolBufferException e) {
                         // should never happen
                         LOG.error("Failed to parse protobuf for change", e);
@@ -296,13 +280,13 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
             ((GarminRealtimeSettingsActivity) activity).setActionBarTitle(title);
         }
 
-        final Map<Integer, EntryState> stateById = new HashMap<>();
-        for (final EntryState state : screenState.getStateList()) {
+        final Map<Integer, GdiRealtimeSettings.EntryState> stateById = new HashMap<>();
+        for (final GdiRealtimeSettings.EntryState state : screenState.getStateList()) {
             stateById.put(state.getId(), state);
         }
 
-        for (final ScreenEntry entry : screenDefinition.getEntryList()) {
-            final EntryState state = stateById.get(entry.getId());
+        for (final GdiRealtimeSettings.ScreenEntry entry : screenDefinition.getEntryList()) {
+            final GdiRealtimeSettings.EntryState state = stateById.get(entry.getId());
 
             final Preference pref;
             boolean supported = true;
@@ -324,7 +308,7 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
                         pref = new ListPreference(activity);
                         final CharSequence[] values = new String[entry.getTarget().getOptions().getOptionList().size()];
                         int optionIndex = 0;
-                        for (final TargetOptionEntry option : entry.getTarget().getOptions().getOptionList()) {
+                        for (final GdiRealtimeSettings.TargetOptionEntry option : entry.getTarget().getOptions().getOptionList()) {
                             values[optionIndex] = option.getTitle().getText();
                             optionIndex++;
                         }
@@ -332,10 +316,10 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
                         listPreference.setEntries(values); // replacing % -> %% will display "%%" and not "%"
                         listPreference.setEntryValues(values);
 
-                        Summary summary = Objects.requireNonNull(state).getSummary();
+                        GdiRealtimeSettings.Summary summary = Objects.requireNonNull(state).getSummary();
                         if (summary.hasValueList()) {
                             // max+1 is used to encode that no list value has yet been set
-                            ValueList summaryList = summary.getValueList();
+                            GdiRealtimeSettings.ValueList summaryList = summary.getValueList();
                             if (summaryList.hasIndex()) {
                                 int index = summaryList.getIndex();
                                 if (0 <= index && index < values.length) {
@@ -361,10 +345,10 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
 
                             pref.setEnabled(false);
                             sendChangeRequest(
-                                    ChangeRequest.newBuilder()
+                                    GdiRealtimeSettings.ChangeRequest.newBuilder()
                                             .setScreenId(screenId)
                                             .setEntryId(entry.getId())
-                                            .setOption(ChangeRequest.Option.newBuilder()
+                                            .setOption(GdiRealtimeSettings.ChangeRequest.Option.newBuilder()
                                                     .setIndex(newValueIdx)
                                             )
                             );
@@ -398,10 +382,10 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
 
                             pref.setEnabled(false);
                             sendChangeRequest(
-                                    ChangeRequest.newBuilder()
+                                    GdiRealtimeSettings.ChangeRequest.newBuilder()
                                             .setScreenId(screenId)
                                             .setEntryId(entry.getId())
-                                            .setTimeOfDay(ChangeRequest.Time.newBuilder()
+                                            .setTimeOfDay(GdiRealtimeSettings.ChangeRequest.Time.newBuilder()
                                                     .setSeconds(hour * 3600 + minute * 60)
                                             )
                             );
@@ -483,11 +467,11 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
 
                             pref.setEnabled(false);
                             sendChangeRequest(
-                                    ChangeRequest.newBuilder()
+                                    GdiRealtimeSettings.ChangeRequest.newBuilder()
                                             .setScreenId(screenId)
                                             .setEntryId(entry.getId())
-                                            .setNewDate(ChangeRequest.NewDate.newBuilder()
-                                                    .setValue(Date.newBuilder()
+                                            .setNewDate(GdiRealtimeSettings.ChangeRequest.NewDate.newBuilder()
+                                                    .setValue(GdiRealtimeSettings.Date.newBuilder()
                                                             .setYear(year).setMonth(month).setDay(day)
                                                     )
                                             )
@@ -522,10 +506,10 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
 
                             pref.setEnabled(false);
                             sendChangeRequest(
-                                    ChangeRequest.newBuilder()
+                                    GdiRealtimeSettings.ChangeRequest.newBuilder()
                                             .setScreenId(screenId)
                                             .setEntryId(entry.getId())
-                                            .setHeight(ChangeRequest.Height.newBuilder()
+                                            .setHeight(GdiRealtimeSettings.ChangeRequest.Height.newBuilder()
                                                     .setValue(newValueInt)
                                                     .setUnit(state.getSummary().getValueHeight().getUnit())
                                             )
@@ -559,10 +543,10 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
                         pref.setOnPreferenceChangeListener((preference, newValue) -> {
                             pref.setEnabled(false);
                             sendChangeRequest(
-                                    ChangeRequest.newBuilder()
+                                    GdiRealtimeSettings.ChangeRequest.newBuilder()
                                             .setScreenId(screenId)
                                             .setEntryId(entry.getId())
-                                            .setSwitch(ChangeRequest.Switch.newBuilder()
+                                            .setSwitch(GdiRealtimeSettings.ChangeRequest.Switch.newBuilder()
                                                     .setValue((Boolean) newValue)
                                             )
                             );
@@ -580,7 +564,7 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
                         pref.setOnPreferenceClickListener(preference -> {
                             pref.setEnabled(false);
                             sendChangeRequest(
-                                    ChangeRequest.newBuilder()
+                                    GdiRealtimeSettings.ChangeRequest.newBuilder()
                                             .setScreenId(screenId)
                                             .setEntryId(entry.getId())
                             );
@@ -597,10 +581,10 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
                         pref.setVisible(debug);
                         pref.setEnabled(false);
                         break;
-                    case ROW_SORTABLE_AND_DELETEABLE: // sortable + delete
+                    case ROW_SORTABLE_AND_DELETABLE: // sortable + delete
                         // Add all sortable items and then continue
                         for (int i = 0; i < entry.getSortOptions().getEntriesCount(); i++) {
-                            final SortEntry sortEntry = entry.getSortOptions().getEntries(i);
+                            final GdiRealtimeSettings.SortEntry sortEntry = entry.getSortOptions().getEntries(i);
                             final Preference sortPref = new Preference(activity);
                             final int iFinal = i;
 
@@ -609,10 +593,10 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
                                 sortableOptions.add(new RunnableListIconItem(activity.getString(R.string.widget_move_up), R.drawable.ic_arrow_upward, () -> {
                                     sortPref.setEnabled(false);
                                     sendChangeRequest(
-                                            ChangeRequest.newBuilder()
+                                            GdiRealtimeSettings.ChangeRequest.newBuilder()
                                                     .setScreenId(screenId)
                                                     .setEntryId(sortEntry.getId())
-                                                    .setPosition(ChangeRequest.Position.newBuilder()
+                                                    .setPosition(GdiRealtimeSettings.ChangeRequest.Position.newBuilder()
                                                             .setIndex(iFinal - 1)
                                                     )
                                     );
@@ -622,10 +606,10 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
                                 sortableOptions.add(new RunnableListIconItem(activity.getString(R.string.widget_move_down), R.drawable.ic_arrow_downward, () -> {
                                     sortPref.setEnabled(false);
                                     sendChangeRequest(
-                                            ChangeRequest.newBuilder()
+                                            GdiRealtimeSettings.ChangeRequest.newBuilder()
                                                     .setScreenId(screenId)
                                                     .setEntryId(sortEntry.getId())
-                                                    .setPosition(ChangeRequest.Position.newBuilder()
+                                                    .setPosition(GdiRealtimeSettings.ChangeRequest.Position.newBuilder()
                                                             .setIndex(iFinal + 1)
                                                     )
                                     );
@@ -634,10 +618,10 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
                             sortableOptions.add(new RunnableListIconItem(activity.getString(R.string.appmananger_app_delete), R.drawable.ic_delete, () -> {
                                 sortPref.setEnabled(false);
                                 sendChangeRequest(
-                                        ChangeRequest.newBuilder()
+                                    GdiRealtimeSettings.ChangeRequest.newBuilder()
                                                 .setScreenId(screenId)
                                                 .setEntryId(sortEntry.getId())
-                                                .setPosition(ChangeRequest.Position.newBuilder()
+                                                .setPosition(GdiRealtimeSettings.ChangeRequest.Position.newBuilder()
                                                         .setDelete(true)
                                                 )
                                 );
@@ -675,10 +659,10 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
                             }
                             pref.setEnabled(false);
                             sendChangeRequest(
-                                    ChangeRequest.newBuilder()
+                                GdiRealtimeSettings.ChangeRequest.newBuilder()
                                             .setScreenId(screenId)
                                             .setEntryId(entry.getId())
-                                            .setText(ChangeRequest.Text.newBuilder()
+                                            .setText(GdiRealtimeSettings.ChangeRequest.Text.newBuilder()
                                                     .setValue(newValue.toString())
                                             )
                             );
@@ -693,8 +677,8 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
             }
 
             if (StringUtils.isNullOrEmpty(pref.getTitle())
-                    && entry.getRowType() != RowType.ROW_NOTICE
-                    && entry.getRowType() != RowType.ROW_SPACE) {
+                    && entry.getRowType() != GdiRealtimeSettings.RowType.ROW_NOTICE
+                    && entry.getRowType() != GdiRealtimeSettings.RowType.ROW_SPACE) {
                 pref.setTitle(!StringUtils.isEmpty(entry.getTitle().getText()) ? entry.getTitle().getText() : activity.getString(R.string.unknown));
 
                 if (pref instanceof DialogPreference) {
@@ -798,7 +782,7 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
 
         final boolean debug = GBApplication.getDevicePrefs(device).getBoolean(PREF_DEBUG, BuildConfig.DEBUG);
 
-        for (final MenuEntry menuEntry : screenDefinition.getMenuEntryList()) {
+        for (final GdiRealtimeSettings.MenuEntry menuEntry : screenDefinition.getMenuEntryList()) {
             final MenuItem menuItem = menu.add(Menu.NONE, Menu.NONE, Menu.NONE, menuEntry.getLabel().getText());
             menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
 
@@ -834,10 +818,10 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
     }
 
     private final class IntegerPicker implements EditTextPreference.OnBindEditTextListener, Preference.OnPreferenceChangeListener {
-        private final ScreenEntry integerEntry;
+        private final GdiRealtimeSettings.ScreenEntry integerEntry;
         private final int integerScreenId;
 
-        private IntegerPicker(@NonNull ScreenEntry integerEntry, int integerScreenId) {
+        private IntegerPicker(@NonNull GdiRealtimeSettings.ScreenEntry integerEntry, int integerScreenId) {
             this.integerEntry = integerEntry;
             this.integerScreenId = integerScreenId;
         }
@@ -863,19 +847,19 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
 
             preference.setEnabled(false);
             sendChangeRequest(
-                    ChangeRequest.newBuilder()
+                GdiRealtimeSettings.ChangeRequest.newBuilder()
                             .setScreenId(integerScreenId)
                             .setEntryId(integerEntry.getId())
-                            .setIntegerValue(ChangeRequest.IntegerValue.newBuilder()
+                            .setIntegerValue(GdiRealtimeSettings.ChangeRequest.IntegerValue.newBuilder()
                                     .setValue(newValueInt)
                             )
             );
             return true;
         }
 
-        Preference createPreference(FragmentActivity activity, EntryState state) {
+        Preference createPreference(FragmentActivity activity, GdiRealtimeSettings.EntryState state) {
             final EditTextPreference preference = new EditTextPreference(activity);
-            final ValueInteger summaryValue = state.getSummary().getValueInteger();
+            final GdiRealtimeSettings.ValueInteger summaryValue = state.getSummary().getValueInteger();
             preference.setText(String.valueOf(summaryValue.getValue()));
             preference.setSummary(summaryValue.getFormatted().getText());
             preference.setOnBindEditTextListener(this);
@@ -885,10 +869,10 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
     }
 
     private final class DurationPicker implements EditTextPreference.OnBindEditTextListener, Preference.OnPreferenceChangeListener {
-        private final ScreenEntry durationEntry;
+        private final GdiRealtimeSettings.ScreenEntry durationEntry;
         private final int durationScreenId;
 
-        private DurationPicker(@NonNull ScreenEntry durationEntry, int durationScreenId) {
+        private DurationPicker(@NonNull GdiRealtimeSettings.ScreenEntry durationEntry, int durationScreenId) {
             this.durationEntry = durationEntry;
             this.durationScreenId = durationScreenId;
         }
@@ -914,19 +898,19 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
 
             preference.setEnabled(false);
             sendChangeRequest(
-                    ChangeRequest.newBuilder()
+                GdiRealtimeSettings.ChangeRequest.newBuilder()
                             .setScreenId(durationScreenId)
                             .setEntryId(durationEntry.getId())
-                            .setDuration(ChangeRequest.Time.newBuilder()
+                            .setDuration(GdiRealtimeSettings.ChangeRequest.Time.newBuilder()
                                     .setSeconds(newSeconds)
                             )
             );
             return true;
         }
 
-        Preference createPreference(FragmentActivity activity, EntryState state) {
+        Preference createPreference(FragmentActivity activity, GdiRealtimeSettings.EntryState state) {
             final EditTextPreference preference = new EditTextPreference(activity);
-            final ValueDuration summaryValue = state.getSummary().getValueDuration();
+            final GdiRealtimeSettings.ValueDuration summaryValue = state.getSummary().getValueDuration();
             preference.setText(String.valueOf(summaryValue.getSeconds()));
             preference.setSummary(summaryValue.getFormatted().getText());
             preference.setOnBindEditTextListener(this);
@@ -936,10 +920,10 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
     }
 
     private final class FloatPicker implements EditTextPreference.OnBindEditTextListener, Preference.OnPreferenceChangeListener {
-        private final ScreenEntry floatEntry;
+        private final GdiRealtimeSettings.ScreenEntry floatEntry;
         private final int floatScreenId;
 
-        private FloatPicker(@NonNull ScreenEntry floatEntry, int floatScreenId) {
+        private FloatPicker(@NonNull GdiRealtimeSettings.ScreenEntry floatEntry, int floatScreenId) {
             this.floatEntry = floatEntry;
             this.floatScreenId = floatScreenId;
         }
@@ -965,19 +949,19 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
 
             preference.setEnabled(false);
             sendChangeRequest(
-                    ChangeRequest.newBuilder()
+                GdiRealtimeSettings.ChangeRequest.newBuilder()
                             .setScreenId(floatScreenId)
                             .setEntryId(floatEntry.getId())
-                            .setFloatValue(ChangeRequest.FloatValue.newBuilder()
+                            .setFloatValue(GdiRealtimeSettings.ChangeRequest.FloatValue.newBuilder()
                                     .setValue(newFloat)
                             )
             );
             return true;
         }
 
-        EditTextPreference createPreference(FragmentActivity activity, EntryState state) {
+        EditTextPreference createPreference(FragmentActivity activity, GdiRealtimeSettings.EntryState state) {
             final EditTextPreference preference = new EditTextPreference(activity);
-            final ValueFloat summaryValue = state.getSummary().getValueFloat();
+            final GdiRealtimeSettings.ValueFloat summaryValue = state.getSummary().getValueFloat();
             preference.setText(String.valueOf(summaryValue.getValue()));
             preference.setSummary(summaryValue.getFormatted().getText());
             preference.setOnBindEditTextListener(this);
@@ -987,7 +971,7 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
     }
 
     @DrawableRes
-    private int getIcon(final ScreenEntry entry) {
+    private int getIcon(final GdiRealtimeSettings.ScreenEntry entry) {
         if (entry.hasIcon()) {
             switch (entry.getIcon()) {
                 //
@@ -1120,11 +1104,11 @@ public class GarminRealtimeSettingsFragment extends AbstractPreferenceFragment {
         }
     }
 
-    private void sendChangeRequest(final ChangeRequest.Builder changeRequest) {
+    private void sendChangeRequest(final GdiRealtimeSettings.ChangeRequest.Builder changeRequest) {
         screenDefinition = null;
         screenState = null;
         final Smart smart = Smart.newBuilder()
-                .setSettingsService(SettingsService.newBuilder()
+                .setRealtimeSettingsService(GdiRealtimeSettings.RealtimeSettingsService.newBuilder()
                         .setChangeRequest(changeRequest)
                 ).build();
         GBApplication.deviceService(device).onSendConfiguration("protobuf:" + GB.hexdump(smart.toByteArray()));

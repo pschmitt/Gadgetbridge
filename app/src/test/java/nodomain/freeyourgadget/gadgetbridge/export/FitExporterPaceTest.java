@@ -103,8 +103,8 @@ public class FitExporterPaceTest {
             sumLapDistanceMeters += lap.getTotalDistance();
             assertNotNull("lap cycles", lap.getTotalCycles());
             assertNotNull("lap avgStrokeDistance", lap.getAvgStrokeDistance());
-            // FIT lap.avg_stroke_distance is Integer cm-scaled (600 = 6.0 m)
-            assertEquals(600, lap.getAvgStrokeDistance().intValue());
+            // FIT lap.avg_stroke_distance is Float meter-scaled
+            assertEquals(6.0f, lap.getAvgStrokeDistance().floatValue(), 0.001f);
             // avg_speed must be set on every lap including rest laps (≈0 there).
             assertNotNull("lap avgSpeed", lap.getAvgSpeed());
         }
@@ -142,7 +142,7 @@ public class FitExporterPaceTest {
 
         for (final FitLap lap : laps) {
             assertNotNull("lap avgStrokeDistance", lap.getAvgStrokeDistance());
-            assertEquals(900, lap.getAvgStrokeDistance().intValue());
+            assertEquals(9.0f, lap.getAvgStrokeDistance().floatValue(), 0.0001f);
         }
     }
 

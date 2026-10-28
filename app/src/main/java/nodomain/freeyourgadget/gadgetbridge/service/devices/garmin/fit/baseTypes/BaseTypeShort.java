@@ -46,7 +46,7 @@ public class BaseTypeShort implements BaseTypeInterface {
         // physical values like 2.5 m/s on a scale=1000 field) survive the multiply by
         // scale instead of being truncated to 2 first. For Integer/Long inputs the result
         // is identical.
-        int i = (int) ((((Number) o).doubleValue() + offset) * scale);
+        long i = Math.round((((Number) o).doubleValue() + offset) * scale);
         if (i < min || i > max) {
             invalidate(byteBuffer);
             return;

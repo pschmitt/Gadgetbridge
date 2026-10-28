@@ -16,6 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.service.devices.garmin;
 
+import static nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.messages.FilterMessage.FilterType.ONLY_NEW_3;
+
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
@@ -33,9 +35,6 @@ import java.nio.ByteOrder;
 import java.util.ArrayDeque;
 import java.util.Date;
 import java.util.Deque;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Consumer;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
@@ -133,20 +132,20 @@ public class FileTransferHandler implements MessageHandler {
         if (!message.shouldProceed())
             return null;
         if (upload.isIdle())
-            return new FilterMessage();
+            return new FilterMessage(ONLY_NEW_3);
         // defer reply until upload idle
-        runWhenUploadIdle(() -> deviceSupport.sendOutgoingMessage("send filter (deferred)", new FilterMessage()));
+        runWhenUploadIdle(() -> deviceSupport.sendOutgoingMessage("send filter (deferred)", new FilterMessage(ONLY_NEW_3)));
         return null;
     }
 
     public DownloadRequestMessage downloadDirectoryEntry(DirectoryEntry directoryEntry) {
         download.setCurrentlyDownloading(new FileFragment(directoryEntry));
-        return new DownloadRequestMessage(directoryEntry.getFileIndex(), 0, DownloadRequestMessage.REQUEST_TYPE.NEW, 0, 0);
+        return new DownloadRequestMessage(directoryEntry.getFileIndex(), 0, DownloadRequestMessage.REQUEST_TYPE.NEW, 0, 0, 0);
     }
 
     public DownloadRequestMessage initiateDownload() {
         download.setCurrentlyDownloading(new FileFragment(new DirectoryEntry(0, FileType.FILETYPE.DIRECTORY, 0, 0, 0, 0, null)));
-        return new DownloadRequestMessage(0, 0, DownloadRequestMessage.REQUEST_TYPE.NEW, 0, 0);
+        return new DownloadRequestMessage(0, 0, DownloadRequestMessage.REQUEST_TYPE.NEW, 0, 0, 0);
     }
 
     public DirectoryEntry getDeviceXmlDirectoryEntry() {
@@ -163,12 +162,17 @@ public class FileTransferHandler implements MessageHandler {
     }
 
     /**
-     * Uploads a file to the device.
-     *
-     * @param completionCallback called once with the outcome of this upload, if not null
+     * Uploads a file to the device. An upload with a listener does not show the install notification.
      */
-    public CreateFileMessage initiateUpload(byte[] fileAsByteArray, FileType.FILETYPE filetype, @Nullable Consumer<Boolean> completionCallback) {
-        return upload.startOrQueue(new FileFragment(new DirectoryEntry(0, filetype, 0, 0, 0, fileAsByteArray.length, null), fileAsByteArray, completionCallback));
+    public CreateFileMessage initiateUpload(byte[] fileAsByteArray, FileType.FILETYPE filetype, @Nullable UploadListener listener) {
+        return upload.startOrQueue(new FileFragment(new DirectoryEntry(0, filetype, 0, 0, 0, fileAsByteArray.length, null), fileAsByteArray, listener));
+    }
+
+    public interface UploadListener {
+        default void onProgress(final int percentage) {
+        }
+
+        void onComplete(boolean success);
     }
 
 
@@ -387,6 +391,8 @@ public class FileTransferHandler implements MessageHandler {
                 LOG.info("SENDING UPLOAD FILE");
                 if (currentlyUploading.shouldShowProgressNotification()) {
                     updateUploadProgress(0);
+                } else {
+                    currentlyUploading.notifyProgress(0);
                 }
                 return new UploadRequestMessage(createFileStatusMessage.getFileIndex(), currentlyUploading.getDataSize());
             } else {
@@ -427,8 +433,11 @@ public class FileTransferHandler implements MessageHandler {
             } else {
                 if (fileTransferDataStatusMessage.canProceed()) {
                     LOG.info("SENDING NEXT CHUNK!!!");
+                    final int percentage = (100 * currentlyUploading.dataHolder.position()) / currentlyUploading.dataHolder.limit();
                     if (showNotification) {
-                        updateUploadProgress((100 * currentlyUploading.dataHolder.position()) / currentlyUploading.dataHolder.limit());
+                        updateUploadProgress(percentage);
+                    } else {
+                        currentlyUploading.notifyProgress(percentage);
                     }
                     if (fileTransferDataStatusMessage.getDataOffset() != currentlyUploading.dataHolder.position())
                         throw new IllegalStateException("Received file transfer status with unaligned offset");
@@ -454,20 +463,20 @@ public class FileTransferHandler implements MessageHandler {
     public class FileFragment {
         private final DirectoryEntry directoryEntry;
         @Nullable
-        private final Consumer<Boolean> completionCallback;
+        private final UploadListener listener;
         private int dataSize;
         private ByteBuffer dataHolder;
         private int runningCrc;
 
         FileFragment(DirectoryEntry directoryEntry) {
             this.directoryEntry = directoryEntry;
-            this.completionCallback = null;
+            this.listener = null;
             this.setRunningCrc(0);
         }
 
-        FileFragment(DirectoryEntry directoryEntry, byte[] contents, @Nullable Consumer<Boolean> completionCallback) {
+        FileFragment(DirectoryEntry directoryEntry, byte[] contents, @Nullable UploadListener listener) {
             this.directoryEntry = directoryEntry;
-            this.completionCallback = completionCallback;
+            this.listener = listener;
             this.setDataSize(contents.length);
             this.dataHolder = ByteBuffer.wrap(contents);
             this.dataHolder.flip(); //we'll be only reading from here on
@@ -477,23 +486,31 @@ public class FileTransferHandler implements MessageHandler {
 
         /**
          * Whether this upload reports its progress in the install notification. An upload with a
-         * completion callback does not.
+         * listener does not.
          */
         private boolean shouldShowProgressNotification() {
-            return directoryEntry.getFiletype() != FileType.FILETYPE.SETTINGS && completionCallback == null;
+            return directoryEntry.getFiletype() != FileType.FILETYPE.SETTINGS && listener == null;
         }
 
-        /**
-         * Reports the outcome of this upload to its completion callback.
-         */
-        private void notifyCompletion(final boolean success) {
-            if (completionCallback == null) {
+        private void notifyProgress(final int percentage) {
+            if (listener == null) {
                 return;
             }
             try {
-                completionCallback.accept(success);
+                listener.onProgress(percentage);
             } catch (final Exception e) {
-                LOG.error("Upload completion callback failed", e);
+                LOG.error("Upload progress listener failed", e);
+            }
+        }
+
+        private void notifyCompletion(final boolean success) {
+            if (listener == null) {
+                return;
+            }
+            try {
+                listener.onComplete(success);
+            } catch (final Exception e) {
+                LOG.error("Upload completion listener failed", e);
             }
         }
 

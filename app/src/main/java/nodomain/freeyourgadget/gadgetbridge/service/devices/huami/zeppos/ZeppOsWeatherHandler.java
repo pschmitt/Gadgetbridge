@@ -27,7 +27,6 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import net.e175.klaus.solarpositioning.DeltaT;
 import net.e175.klaus.solarpositioning.SolarEvents;
 
 import org.slf4j.Logger;
@@ -36,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -256,14 +254,7 @@ public class ZeppOsWeatherHandler {
         }
 
         private Range getSunriseSunset(final GregorianCalendar date, final Location location, final boolean utc) {
-            final ZonedDateTime zonedDate = date.toZonedDateTime();
-            final SolarEvents.Day solarDay = SolarEvents.spa().forDate(
-                    zonedDate.toLocalDate(),
-                    zonedDate.getZone(),
-                    location.getLatitude(),
-                    location.getLongitude(),
-                    DeltaT.estimate(zonedDate.toLocalDate())
-            );
+            final SolarEvents.Day solarDay = WeatherSpec.solarDay(date, location);
 
             if (!solarDay.rises().isEmpty() && !solarDay.sets().isEmpty()) {
                 return getSunriseSunset(

@@ -1,5 +1,7 @@
 package nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.http;
 
+import androidx.annotation.Nullable;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -33,6 +35,19 @@ public class GarminHttpResponse {
 
     public Map<String, String> getHeaders() {
         return headers;
+    }
+
+    /**
+     * Returns the value of a header, using a case-insensitive name.
+     */
+    @Nullable
+    public String getHeader(final String name) {
+        for (final Map.Entry<String, String> header : headers.entrySet()) {
+            if (header.getKey().equalsIgnoreCase(name)) {
+                return header.getValue();
+            }
+        }
+        return null;
     }
 
     public byte[] getBody() {

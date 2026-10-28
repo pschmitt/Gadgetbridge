@@ -51,7 +51,7 @@ public abstract class AbstractSettingsActivityV2 extends AbstractGBActivity impl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && !isFinishing()) {
             PreferenceFragmentCompat fragment = (PreferenceFragmentCompat) getSupportFragmentManager().findFragmentByTag(AbstractPreferenceFragment.FRAGMENT_TAG);
             if (fragment == null) {
                 fragment = newFragment();

@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.devices.huawei.HuaweiBRCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.huawei.HuaweiConstants;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 
 public class HuaweiWatchGT7ProCoordinator extends HuaweiBRCoordinator {
@@ -33,7 +34,7 @@ public class HuaweiWatchGT7ProCoordinator extends HuaweiBRCoordinator {
 
     @Override
     protected Pattern getSupportedDeviceName() {
-        return Pattern.compile("huawei watch gt 7 pro-.+", Pattern.CASE_INSENSITIVE);
+        return Pattern.compile("(" + HuaweiConstants.HU_WATCHGT7PRO_NAME + ").*", Pattern.CASE_INSENSITIVE);
     }
 
     @Override

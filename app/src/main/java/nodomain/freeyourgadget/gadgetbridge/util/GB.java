@@ -93,6 +93,10 @@ public class GB {
     public static final int NOTIFICATION_ID_GPS = 7;
     public static final int NOTIFICATION_ID_SCAN = 8;
     public static final int NOTIFICATION_ID_PEBBLE_JS = 10;
+    public static final int NOTIFICATION_ID_WIFI_SESSION = 11;
+    public static final int NOTIFICATION_ID_GALLERY_DOWNLOAD = 12;
+    public static final int NOTIFICATION_ID_VENDOR_IMPORT = 13;
+    public static final int NOTIFICATION_ID_VENDOR_IMPORT_RESULT = 14;
     public static final int NOTIFICATION_ID_ERROR = 42;
 
     private static final Logger LOG = LoggerFactory.getLogger(GB.class);
@@ -394,17 +398,25 @@ public class GB {
     }
 
     public static void notify(int id, @NonNull Notification notification, Context context) {
+        notify(null, id, notification, context);
+    }
+
+    public static void notify(@Nullable final String tag, final int id, @NonNull final Notification notification, final Context context) {
         createNotificationChannels(context);
 
         try {
-            NotificationManagerCompat.from(context).notify(id, notification);
+            NotificationManagerCompat.from(context).notify(tag, id, notification);
         } catch (SecurityException e) {
             toast(context.getString(R.string.warning_missing_notification_permission), Toast.LENGTH_SHORT, WARN, e);
         }
     }
 
     public static void removeNotification(int id, Context context) {
-        NotificationManagerCompat.from(context).cancel(id);
+        removeNotification(null, id, context);
+    }
+
+    public static void removeNotification(@Nullable final String tag, final int id, final Context context) {
+        NotificationManagerCompat.from(context).cancel(tag, id);
     }
 
     public static boolean isBluetoothEnabled() {

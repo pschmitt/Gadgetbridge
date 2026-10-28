@@ -26,6 +26,8 @@ import android.os.Parcel;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
+import androidx.preference.ListPreference;
 import androidx.preference.MultiSelectListPreference;
 import androidx.preference.Preference;
 
@@ -137,6 +139,17 @@ public class XiaomiSettingsCustomizer implements DeviceSpecificSettingsCustomize
             hrAlertActivePref.setVisible(false);
         }
 
+        final Preference irregularRhythmAlertPref = handler.findPreference(DeviceSettingsPreferenceConst.PREF_HEARTRATE_ALERT_IRREGULAR_RHYTHM);
+        if (irregularRhythmAlertPref != null) {
+            irregularRhythmAlertPref.setVisible(prefs.getBoolean(XiaomiPreferences.FEAT_IRREGULAR_RHYTHM_ALERT, false));
+        }
+
+        final Preference sleepRespiratoryRatePref = handler.findPreference(DeviceSettingsPreferenceConst.PREF_HEARTRATE_SLEEP_RESPIRATORY_RATE_MONITORING);
+        if (sleepRespiratoryRatePref != null) {
+            sleepRespiratoryRatePref.setVisible(prefs.getBoolean(XiaomiPreferences.FEAT_SLEEP_RESPIRATORY_RATE, false));
+        }
+        customizeSpo2Mode(handler, prefs);
+
         populateOrHideListPreference(HuamiConst.PREF_DISPLAY_ITEMS_SORTABLE, handler, prefs);
 
         hidePrefIfNoneVisible(handler, DeviceSettingsPreferenceConst.PREF_HEADER_DISPLAY, Arrays.asList(
@@ -149,6 +162,33 @@ public class XiaomiSettingsCustomizer implements DeviceSpecificSettingsCustomize
                 "screen_events_forwarding",
                 "phone_silent_mode"
         ));
+    }
+
+    private static void customizeSpo2Mode(final DeviceSpecificSettingsHandler handler, final Prefs prefs) {
+        final ListPreference modePref = handler.findPreference(DeviceSettingsPreferenceConst.PREF_SPO2_MONITORING_MODE);
+        if (modePref == null || !prefs.getBoolean(XiaomiPreferences.FEAT_SPO2_MODE_CHOICE, false)) {
+            return;
+        }
+
+        modePref.setVisible(true);
+        if (!prefs.getBoolean(XiaomiPreferences.FEAT_SPO2_ALL_DAY, false)) {
+            // all-day is the last entry
+            final CharSequence[] entries = modePref.getEntries();
+            final CharSequence[] values = modePref.getEntryValues();
+            modePref.setEntries(Arrays.copyOf(entries, entries.length - 1));
+            modePref.setEntryValues(Arrays.copyOf(values, values.length - 1));
+        }
+
+        final Preference allDayPref = handler.findPreference(DeviceSettingsPreferenceConst.PREF_SPO2_ALL_DAY_MONITORING);
+        if (allDayPref != null) {
+            allDayPref.setVisible(false);
+        }
+
+        // the low alert applies in sleep-only mode as well, not just all-day
+        final Preference lowAlertPref = handler.findPreference(DeviceSettingsPreferenceConst.PREF_SPO2_LOW_ALERT_THRESHOLD);
+        if (lowAlertPref != null) {
+            lowAlertPref.setDependency(null);
+        }
     }
 
     @Override
@@ -217,6 +257,7 @@ public class XiaomiSettingsCustomizer implements DeviceSpecificSettingsCustomize
             if (!exportDir.exists() || !exportDir.isDirectory()) {
                 LOG.error("export directory {} not found", exportDir);
                 GB.toast(context, "export directory " + exportDir + " not found", Toast.LENGTH_LONG, GB.ERROR);
+                PARSING_FROM_STORAGE.set(false);
                 return;
             }
 
@@ -224,11 +265,13 @@ public class XiaomiSettingsCustomizer implements DeviceSpecificSettingsCustomize
             if (activityFiles.isEmpty()) {
                 LOG.error("No activity files found in {}", exportDir);
                 GB.toast(context, "No activity files found in " + exportDir, Toast.LENGTH_LONG, GB.ERROR);
+                PARSING_FROM_STORAGE.set(false);
                 return;
             }
         } catch (final Exception e) {
             LOG.error("Failed to parse from storage", e);
             GB.toast(context, "Failed to parse from storage", Toast.LENGTH_LONG, GB.ERROR, e);
+            PARSING_FROM_STORAGE.set(false);
             return;
         }
 
@@ -259,43 +302,7 @@ public class XiaomiSettingsCustomizer implements DeviceSpecificSettingsCustomize
                         });
                     }
 
-                    // The logic below just replicates XiaomiActivityFileFetcher
-
-                    final byte[] data;
-                    try (InputStream in = new FileInputStream(activityFile)) {
-                        data = FileUtils.readAll(in, 999999);
-                    } catch (final IOException ioe) {
-                        LOG.error("Failed to read {}", activityFile, ioe);
-                        continue;
-                    }
-
-                    final XiaomiActivityFileId fileId = XiaomiActivityFileId.from(data);
-
-                    final XiaomiActivityParser activityParser = XiaomiActivityParser.create(fileId);
-                    if (activityParser == null) {
-                        LOG.warn("Failed to find parser for {}", fileId);
-                        continue;
-                    }
-
-                    try {
-                        // Some files may have been wrongly written, see javadoc for fixAndWrap
-                        final byte[] fixedData = XiaomiActivityParser.fixAndWrap(data).array();
-                        if (activityParser.parse(context, device, fileId, fixedData)) {
-                            LOG.info("Successfully parsed {}", fileId);
-                            // Mirror the registry write that XiaomiActivityFileFetcher does
-                            // during initial fetch — needed after DB import / restore so
-                            // XiaomiActivityTrackProvider can resolve the raw file on demand.
-                            XiaomiActivityFileFetcher.registerActivityFile(device, fileId, activityFile);
-                        } else if (fixedData.length <= 16) {
-                            // Placeholder file (e.g. indoor GPS_TRACK with no fix) — logged
-                            // separately inside the parser. Avoid the WARN-level "Failed to parse".
-                            LOG.info("Skipped empty placeholder {}", fileId);
-                        } else {
-                            LOG.warn("Failed to parse {}", fileId);
-                        }
-                    } catch (final Exception ex) {
-                        LOG.error("Exception while parsing {}", fileId, ex);
-                    }
+                    reprocessActivityFile(context, device, activityFile);
                 }
             } catch (final Exception e) {
                 LOG.error("Failed to parse from storage", e);
@@ -307,5 +314,47 @@ public class XiaomiSettingsCustomizer implements DeviceSpecificSettingsCustomize
                 GB.signalActivityDataFinish(device);
             });
         }, "XiaomiReprocessThread").start();
+    }
+
+    /**
+     * Replicates XiaomiActivityFileFetcher for one file read back from storage. The file is
+     * registered whether or not it parses, so its raw bytes stay shareable from the workout
+     * even when no parser understands them yet.
+     */
+    @VisibleForTesting
+    static void reprocessActivityFile(final Context context, final GBDevice device, final File activityFile) {
+        final byte[] data;
+        try (InputStream in = new FileInputStream(activityFile)) {
+            data = FileUtils.readAll(in, 999999);
+        } catch (final IOException ioe) {
+            LOG.error("Failed to read {}", activityFile, ioe);
+            return;
+        }
+
+        final XiaomiActivityFileId fileId = XiaomiActivityFileId.from(data);
+
+        XiaomiActivityFileFetcher.registerActivityFile(device, fileId, activityFile);
+
+        final XiaomiActivityParser activityParser = XiaomiActivityParser.create(fileId);
+        if (activityParser == null) {
+            LOG.warn("Failed to find parser for {}", fileId);
+            return;
+        }
+
+        try {
+            // Some files may have been wrongly written, see Javadoc for fixAndWrap
+            final byte[] fixedData = XiaomiActivityParser.fixAndWrap(data).array();
+            if (activityParser.parse(context, device, fileId, fixedData)) {
+                LOG.info("Successfully parsed {}", fileId);
+            } else if (fixedData.length <= 16) {
+                // Placeholder file (e.g. indoor GPS_TRACK with no fix), logged
+                // separately inside the parser. Avoid the WARN-level "Failed to parse".
+                LOG.info("Skipped empty placeholder {}", fileId);
+            } else {
+                LOG.warn("Failed to parse {}", fileId);
+            }
+        } catch (final Exception ex) {
+            LOG.error("Exception while parsing {}", fileId, ex);
+        }
     }
 }

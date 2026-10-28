@@ -412,4 +412,10 @@ abstract class AbstractRedmiBudsCoordinator : AbstractBLClassicDeviceCoordinator
         val fallbackValue = fallback.name.lowercase(Locale.ROOT)
         return { prefs -> prefs.getString(key, fallbackValue) == expectedValue }
     }
+
+    override fun supportsAppNotifications(device: GBDevice): Boolean = true
+
+    override fun supportsPhoneCalls(device: GBDevice): Boolean = true
+
+    override fun supportsCallControl(device: GBDevice): Boolean = true
 }

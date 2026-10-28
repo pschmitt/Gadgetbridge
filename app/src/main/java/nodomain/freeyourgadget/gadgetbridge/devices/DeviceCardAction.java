@@ -19,6 +19,7 @@ package nodomain.freeyourgadget.gadgetbridge.devices;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,6 +32,12 @@ import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventCameraRemo
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 
 public interface DeviceCardAction {
+    /**
+     * A stable identifier, used to persist the order of the device card items.
+     */
+    @NonNull
+    String getId();
+
     @DrawableRes
     int getIcon(@NonNull final GBDevice device);
 
@@ -39,6 +46,16 @@ public interface DeviceCardAction {
 
     @Nullable
     default String getLabel(@NonNull final GBDevice device, @NonNull final Context context) {
+        return null;
+    }
+
+    /**
+     * Colour for the icon, or {@code null} to keep the card's default tint. The card tints every
+     * action icon, so a colour drawn into the drawable itself never shows.
+     */
+    @Nullable
+    @ColorInt
+    default Integer getIconTint(@NonNull final GBDevice device, @NonNull final Context context) {
         return null;
     }
 
@@ -83,6 +100,12 @@ public interface DeviceCardAction {
             this.activityClass = activityClass;
         }
 
+        @NonNull
+        @Override
+        public String getId() {
+            return "activity:" + activityClass.getName();
+        }
+
         @Override
         public int getIcon(@NonNull final GBDevice device) {
             return icon;
@@ -115,6 +138,12 @@ public interface DeviceCardAction {
             this.icon = icon;
             this.description = description;
             this.intentAction = intentAction;
+        }
+
+        @NonNull
+        @Override
+        public String getId() {
+            return "broadcast:" + intentAction;
         }
 
         @Override
@@ -152,6 +181,12 @@ public interface DeviceCardAction {
             this.configKey = configKey;
         }
 
+        @NonNull
+        @Override
+        public String getId() {
+            return "config:" + configKey;
+        }
+
         @Override
         public int getIcon(@NonNull final GBDevice device) {
             return icon;
@@ -172,6 +207,12 @@ public interface DeviceCardAction {
     }
 
     class CameraAction implements DeviceCardAction {
+        @NonNull
+        @Override
+        public String getId() {
+            return "camera";
+        }
+
         @Override
         public int getIcon(@NonNull GBDevice device) {
             return R.drawable.ic_camera_remote;

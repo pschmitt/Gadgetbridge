@@ -35,15 +35,13 @@ import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.listener.ChartTouchListener
 import com.github.mikephil.charting.listener.OnChartGestureListener
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.formatter.IAxisValueFormatter
 import com.github.mikephil.charting.highlight.Highlight
-import com.github.mikephil.charting.utils.MPPointF
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity
@@ -279,10 +277,11 @@ class XiaomiHipeeP1HistoryActivity : AbstractGBActivity() {
     private fun setupChart() {
         chart.description.isEnabled = false
         chart.legend.textColor = GBApplication.getTextColor(this)
-        chart.setNoDataText("")
-        chart.setTouchEnabled(true)
-        chart.setPinchZoom(false)
-        chart.setScaleEnabled(false)
+        chart.noDataText = ""
+        chart.isNoDataIconEnabled = false
+        chart.isTouchEnabled = true
+        chart.isPinchZoomEnabled = false
+        chart.isScaleEnabled = false
         chart.axisRight.isEnabled = false
         chart.axisLeft.apply {
             axisMinimum = 0f
@@ -291,18 +290,16 @@ class XiaomiHipeeP1HistoryActivity : AbstractGBActivity() {
         }
         chart.xAxis.apply {
             position = XAxis.XAxisPosition.BOTTOM
-            setDrawGridLines(false)
+            isDrawGridLinesEnabled = false
             granularity = 1f
             labelCount = 12
             textColor = GBApplication.getSecondaryTextColor(this@XiaomiHipeeP1HistoryActivity)
-            valueFormatter = object : ValueFormatter() {
-                override fun getFormattedValue(value: Float): String =
-                    if (value.toInt() in 0..23) String.format(Locale.getDefault(), "%02d", value.toInt()) else ""
+            valueFormatter = IAxisValueFormatter { value, _ ->
+                if (value.toInt() in 0..23) String.format(Locale.getDefault(), "%02d", value.toInt()) else ""
             }
         }
         chart.onChartGestureListener = object : OnChartGestureListener {
-            override fun onChartSingleTapped(me: MotionEvent?) {
-                me ?: return
+            override fun onChartSingleTapped(me: MotionEvent) {
                 val x = chart.getTransformer(YAxis.AxisDependency.LEFT)
                     .getValuesByTouchPoint(me.x, me.y).x
                 val hour = x.roundToInt()
@@ -314,14 +311,6 @@ class XiaomiHipeeP1HistoryActivity : AbstractGBActivity() {
                     chart.highlightValue(Highlight(hour.toFloat(), 0f, 0))
                 }
             }
-
-            override fun onChartGestureStart(me: MotionEvent?, lastPerformedGesture: ChartTouchListener.ChartGesture?) = Unit
-            override fun onChartGestureEnd(me: MotionEvent?, lastPerformedGesture: ChartTouchListener.ChartGesture?) = Unit
-            override fun onChartLongPressed(me: MotionEvent?) = Unit
-            override fun onChartDoubleTapped(me: MotionEvent?) = Unit
-            override fun onChartFling(me1: MotionEvent?, me2: MotionEvent?, velocityX: Float, velocityY: Float) = Unit
-            override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) = Unit
-            override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) = Unit
         }
     }
 
@@ -368,17 +357,17 @@ class XiaomiHipeeP1HistoryActivity : AbstractGBActivity() {
     private fun updateChart(data: DayData) {
         chartHours = data.hours
         val entries = data.hours.mapIndexed { hour, counts ->
-            BarEntry(hour.toFloat(), floatArrayOf(counts.forward.toFloat(), counts.left.toFloat(), counts.right.toFloat()))
+            BarEntry(hour.toFloat(), listOf(counts.forward.toFloat(), counts.left.toFloat(), counts.right.toFloat()))
         }
         val set = BarDataSet(entries, "").apply {
-            setDrawValues(false)
+            isDrawValuesEnabled = false
             axisDependency = YAxis.AxisDependency.LEFT
             setColors(
                 ContextCompat.getColor(this@XiaomiHipeeP1HistoryActivity, R.color.chart_stress_high),
                 ContextCompat.getColor(this@XiaomiHipeeP1HistoryActivity, R.color.chart_stress_moderate),
                 ContextCompat.getColor(this@XiaomiHipeeP1HistoryActivity, R.color.chart_stress_mild),
             )
-            stackLabels = arrayOf(
+            stackLabels = listOf(
                 getString(R.string.mi_hipee_p1_history_forward),
                 getString(R.string.mi_hipee_p1_history_leftward),
                 getString(R.string.mi_hipee_p1_history_rightward),
@@ -410,8 +399,8 @@ class XiaomiHipeeP1HistoryActivity : AbstractGBActivity() {
     private inner class P1HistoryMarker(private val hours: Array<HourCounts>) : MarkerView(this@XiaomiHipeeP1HistoryActivity, R.layout.value_marker) {
         private val markerContent: TextView = findViewById(R.id.marker_content)
 
-        override fun refreshContent(entry: Entry, highlight: Highlight) {
-            val hour = entry.x.toInt()
+        override fun refreshContent(e: Entry<*>, highlight: Highlight) {
+            val hour = e.x.toInt()
             val counts = hours.getOrNull(hour)
             markerContent.text = buildString {
                 append(String.format(Locale.getDefault(), "%02d:00", hour))
@@ -424,10 +413,9 @@ class XiaomiHipeeP1HistoryActivity : AbstractGBActivity() {
                     }
                 }
             }
-            super.refreshContent(entry, highlight)
+            super.refreshContent(e, highlight)
+            setOffset(-(width / 2f), -height.toFloat())
         }
-
-        override fun getOffset(): MPPointF = MPPointF(-(width / 2f), -height.toFloat())
     }
 
     private fun Calendar.clearTime() {

@@ -43,7 +43,6 @@ public class SonyWFC700NCoordinator extends SonyHeadphonesCoordinator {
                 SonyHeadphonesCapabilities.BatteryDual2,
                 SonyHeadphonesCapabilities.BatteryCase,
                 SonyHeadphonesCapabilities.AmbientSoundControl2,
-                SonyHeadphonesCapabilities.EqualizerSimple,
                 SonyHeadphonesCapabilities.EqualizerWithCustomBands,
                 SonyHeadphonesCapabilities.AudioUpsampling,
                 SonyHeadphonesCapabilities.ButtonModesLeftRight,

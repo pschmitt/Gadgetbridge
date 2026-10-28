@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 public enum AncConfigType {
     MODE(0x01),
     TOUCH_CYCLE_MODES(0x02),
+    DYNAMIC_LEVEL(0x04)
     ;
 
     private final int code;

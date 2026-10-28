@@ -44,7 +44,6 @@ import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.GarminActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.export.GPXExporter;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
-import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityPoint;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryData;
@@ -54,23 +53,23 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrack;
 import nodomain.freeyourgadget.gadgetbridge.model.GPSCoordinate;
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSmartProto.Smart;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.GarminSport;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.ExploreSyncService;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.Line;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.LineDataReadyRequest;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.LineDataReadyResponse;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.LineDataRequestOp;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.LineDigest;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.LineDigestReadResponse;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.LineDigestWriteRequest;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.LineDigestWriteResponse;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.LinePart;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.LineReadResponse;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.LineType;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.ReadStatus;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.StartSyncStatus;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.SyncFinishedStatus;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.WriteStatus;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.ExploreSyncService;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.Line;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.LineDataReadyRequest;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.LineDataReadyResponse;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.LineDataRequestOp;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.LineDigest;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.LineDigestReadResponse;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.LineDigestWriteRequest;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.LineDigestWriteResponse;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.LinePart;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.LineReadResponse;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.LineType;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.ReadStatus;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.StartSyncStatus;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.SyncFinishedStatus;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.WriteStatus;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.notifications.GBProgressNotification;
 
@@ -172,56 +171,56 @@ class ExploreSyncHandler {
     private static final ExploreSyncService COLLECTION_LIST_WRITE_ACK
             = ExploreSyncService.newBuilder()
                     .setCollectionListWriteResponse(
-                            GdiExploreSyncService.CollectionListWriteResponse.newBuilder()
+                            GdiExploreSync.CollectionListWriteResponse.newBuilder()
                                     .setStatus(WriteStatus.WRITE_STATUS_SUCCESS))
                     .build();
     private static final ExploreSyncService COLLECTION_DIGEST_WRITE_ACK
             = ExploreSyncService.newBuilder()
                     .setCollectionDigestWriteResponse(
-                            GdiExploreSyncService.CollectionDigestWriteResponse.newBuilder()
+                            GdiExploreSync.CollectionDigestWriteResponse.newBuilder()
                                     .setStatus(WriteStatus.WRITE_STATUS_SUCCESS))
                     .build();
     private static final ExploreSyncService COLLECTION_DIGEST_READ_ACK
             = ExploreSyncService.newBuilder()
                     .setCollectionDigestReadResponse(
-                            GdiExploreSyncService.CollectionDigestReadResponse.newBuilder()
+                            GdiExploreSync.CollectionDigestReadResponse.newBuilder()
                                     .setStatus(ReadStatus.READ_STATUS_SUCCESS))
                     .build();
     private static final ExploreSyncService COLLECTION_READ_ACK
             = ExploreSyncService.newBuilder()
                     .setCollectionReadResponse(
-                            GdiExploreSyncService.CollectionReadResponse.newBuilder()
+                            GdiExploreSync.CollectionReadResponse.newBuilder()
                                     .setStatus(ReadStatus.READ_STATUS_SUCCESS))
                     .build();
     private static final ExploreSyncService WAYPOINT_DIGEST_WRITE_ACK
             = ExploreSyncService.newBuilder()
                     .setWaypointDigestWriteResponse(
-                            GdiExploreSyncService.WaypointDigestWriteResponse.newBuilder()
+                            GdiExploreSync.WaypointDigestWriteResponse.newBuilder()
                                     .setStatus(WriteStatus.WRITE_STATUS_SUCCESS))
                     .build();
     private static final ExploreSyncService WAYPOINT_DIGEST_READ_ACK
             = ExploreSyncService.newBuilder()
                     .setWaypointDigestReadResponse(
-                            GdiExploreSyncService.WaypointDigestReadResponse.newBuilder()
+                            GdiExploreSync.WaypointDigestReadResponse.newBuilder()
                                     .setStatus(ReadStatus.READ_STATUS_SUCCESS))
                     .build();
     private static final ExploreSyncService WAYPOINT_READ_ACK
             = ExploreSyncService.newBuilder()
                     .setWaypointReadResponse(
-                            GdiExploreSyncService.WaypointReadResponse.newBuilder()
+                            GdiExploreSync.WaypointReadResponse.newBuilder()
                                     .setStatus(ReadStatus.READ_STATUS_SUCCESS))
                     .build();
     private static final ExploreSyncService ACTIVE_LINE_DIGEST_WRITE_ACK
             = ExploreSyncService.newBuilder()
                     .setActiveLineDigestWriteResponse(
-                            GdiExploreSyncService.ActiveLineDigestWriteResponse.newBuilder()
+                            GdiExploreSync.ActiveLineDigestWriteResponse.newBuilder()
                                     .setStatus(WriteStatus.WRITE_STATUS_SUCCESS))
                     .build();
     /** Read-only client; we never have line changes to report. */
     private static final ExploreSyncService CHANGE_SUMMARY_ACK
             = ExploreSyncService.newBuilder()
                     .setChangeSummaryResponse(
-                            GdiExploreSyncService.ChangeSummaryResponse.getDefaultInstance())
+                            GdiExploreSync.ChangeSummaryResponse.getDefaultInstance())
                     .build();
 
     /**
@@ -343,7 +342,7 @@ class ExploreSyncHandler {
          */
         @Nullable
         private ExploreSyncService handleStartSyncResponse(
-                final GdiExploreSyncService.StartSyncResponse resp) {
+                final GdiExploreSync.StartSyncResponse resp) {
             final StartSyncStatus status = resp.getStatus();
             if (status != StartSyncStatus.START_SYNC_ACCEPTED) {
                 LOG.warn("ExploreSync: watch rejected our StartSyncRequest with {}, disposing session",
@@ -360,7 +359,7 @@ class ExploreSyncHandler {
          */
         @Nullable
         private ExploreSyncService handleSyncFinishedNotification(
-                final GdiExploreSyncService.SyncFinishedNotification notif) {
+                final GdiExploreSync.SyncFinishedNotification notif) {
             final SyncFinishedStatus status = notif.getStatus();
             LOG.info("ExploreSync session ended: {}", status);
             if (status == SyncFinishedStatus.SYNC_FINISHED_OK && needsFullSync) {
@@ -769,14 +768,14 @@ class ExploreSyncHandler {
         if (!replaceSession()) {
             return;
         }
-        final GdiExploreSyncService.SyncType syncType = state.needsFullSync
-                ? GdiExploreSyncService.SyncType.SYNC_TYPE_FULL
-                : GdiExploreSyncService.SyncType.SYNC_TYPE_INCREMENTAL;
+        final GdiExploreSync.SyncType syncType = state.needsFullSync
+                ? GdiExploreSync.SyncType.SYNC_TYPE_FULL
+                : GdiExploreSync.SyncType.SYNC_TYPE_INCREMENTAL;
         deviceSupport.sendProtobufRequest("explore-sync start",
                 Smart.newBuilder()
                         .setExploreSyncService(ExploreSyncService.newBuilder()
                                 .setStartSyncRequest(
-                                        GdiExploreSyncService.StartSyncRequest.newBuilder()
+                                        GdiExploreSync.StartSyncRequest.newBuilder()
                                                 .setSyncType(syncType)
                                                 .setProtocolVersion(PROTOCOL_VERSION)
                                                 .setAppUuid(APP_UUID)))
@@ -795,7 +794,7 @@ class ExploreSyncHandler {
             // Watch-initiated session. The watch rejects the response
             // (SYNC_FINISHED_FAILED) without an echoed app_uuid.
             return ExploreSyncService.newBuilder()
-                    .setStartSyncResponse(GdiExploreSyncService.StartSyncResponse.newBuilder()
+                    .setStartSyncResponse(GdiExploreSync.StartSyncResponse.newBuilder()
                             .setSupportedProtocolVersion(PROTOCOL_VERSION)
                             .setAppUuid(APP_UUID)
                             .setStatus(replaceSession()

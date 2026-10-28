@@ -1,3 +1,19 @@
+/*  Copyright (C) 2025-2026 José Rebelo, Thomas Kuehne
+
+    This file is part of Gadgetbridge.
+
+    Gadgetbridge is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Gadgetbridge is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.http;
 
 import com.google.gson.Gson;
@@ -5,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -68,6 +85,63 @@ public class GarminJsonTest {
             "030000002f0b00000002030000003801000000010b00000002030000003c0100" +
             "00002a03000000470b0000000103000000500300000056030000005c03000000" +
             "6203000000680300000071";
+
+    final String communicationsTransmitHex = "ABCDABCD00000159000B4172726179456D7074790000084E756D6265723600000A446F75626C654D617800000A446F75626C654D696E00000544656570000006436861724100000B43686172547572746C65000008446F75626C653600000B4279746541727261793100000A4E756D6265724D617800000B4279746541727261793600000C537472696E674D6978656400000836E282ACE9BE9F000008537472696E673600000236000009466C6F61744D6178000009466C6F61744D696E0000084C6F6E674D61780000084C6F6E674D696E00000A44696374456D70747900000C426F6F6C65616E5472756500000F427974654172726179456D70747900000D426F6F6C65616E46616C736500000C537472696E67456D707479000001000007466C6F61743600000A4E756D6265724D696E0000064C6F6E673600000B537472696E674575726F000004E282AC0000094469637453776170000002620000026300DA7ADA7A0000018A0B0000001B03000000000500000000030000000D010000000603000000170F7FEFFFFFFFFFFFFF03000000230F0010000000000000030000002F050000000203000000361300000061030000003E1300009F9F030000004B0F401800000000000003000000551400000001010300000062017FFFFFFF030000006E140000000680FF0001027F030000007B03000000890300000093030000009D03000000A1027F7FFFFF03000000AC020000000103000000B70E7FFFFFFFFFFFFFFF03000000C10E800000000000000003000000CB0B0000000003000000D7090103000000E5140000000003000000F609000300000105030000011303000001160240C00000030000011F0180000000030000012B0E00000000000000060300000133030000014003000001460B0000000201000000010B00000001010000000C010000000D010000000D010000000C0300000151050000000202400000000B000000030E0000000000000006130000003803000001550E0000000000000003090105000000010F4010000000000000";
+
+    @Test
+    public void testDecodeCommunicationsTransmit() throws Exception {
+        final byte[] bytes = GB.hexStringToByteArray(communicationsTransmitHex);
+        final JsonObject root = (JsonObject) GarminJson.decode(bytes);
+
+        Assert.assertEquals(new JsonPrimitive(6), root.get("Number6"));
+        Assert.assertEquals(new JsonPrimitive(2147483647), root.get("NumberMax"));
+        Assert.assertEquals(new JsonPrimitive(-2147483648), root.get("NumberMin"));
+
+        Assert.assertEquals(new JsonPrimitive(6.0f), root.get("Float6"));
+        Assert.assertEquals(new JsonPrimitive(3.4028235e+38f), root.get("FloatMax"));
+        Assert.assertEquals(new JsonPrimitive(1.4e-45f), root.get("FloatMin"));
+
+        Assert.assertEquals(new JsonPrimitive(6L), root.get("Long6"));
+        Assert.assertEquals(new JsonPrimitive(9223372036854775807L), root.get("LongMax"));
+        Assert.assertEquals(new JsonPrimitive(-9223372036854775808L), root.get("LongMin"));
+
+        Assert.assertEquals(new JsonPrimitive(6.0), root.get("Double6"));
+        //Assert.assertEquals(new JsonPrimitive(1.7976931348623157E308d), root.get("DoubleMax"));
+        //Assert.assertEquals(new JsonPrimitive(2.2250738585072014E-308d), root.get("DoubleMin"));
+
+        Assert.assertEquals(new JsonPrimitive(""), root.get("StringEmpty"));
+        Assert.assertEquals(new JsonPrimitive("6"), root.get("String6"));
+        Assert.assertEquals(new JsonPrimitive("€"), root.get("StringEuro"));
+        Assert.assertEquals(new JsonPrimitive("6€龟"), root.get("StringMixed"));
+
+        Assert.assertEquals(new JsonPrimitive(true), root.get("BooleanTrue"));
+        Assert.assertEquals(new JsonPrimitive(false), root.get("BooleanFalse"));
+
+        Assert.assertEquals(new JsonPrimitive('a'), root.get("CharA"));
+        Assert.assertEquals(new JsonPrimitive('龟'), root.get("CharTurtle"));
+
+        Assert.assertEquals(new JsonArray(), root.get("ByteArrayEmpty"));
+        var byteArray1 = new JsonArray(1);
+        byteArray1.add((byte) 1);
+        Assert.assertEquals(byteArray1, root.get("ByteArray1"));
+        var byteArray6 = new JsonArray(6);
+        byteArray6.add(new JsonPrimitive((byte) -128));
+        byteArray6.add(new JsonPrimitive((byte) -1));
+        byteArray6.add(new JsonPrimitive((byte) 0));
+        byteArray6.add(new JsonPrimitive((byte) 1));
+        byteArray6.add(new JsonPrimitive((byte) 2));
+        byteArray6.add(new JsonPrimitive((byte) 127));
+        Assert.assertEquals(byteArray6, root.get("ByteArray6"));
+
+        Assert.assertEquals(new JsonObject(), root.get("DictEmpty"));
+
+        var dictSwap = new JsonObject();
+        dictSwap.addProperty("12", 13);
+        dictSwap.addProperty("13", 12);
+        Assert.assertEquals(dictSwap, root.get("DictSwap"));
+
+        Assert.assertEquals(new JsonArray(), root.get("ArrayEmpty"));
+    }
 
     @Test
     public void testDecodeExample1() throws Exception {

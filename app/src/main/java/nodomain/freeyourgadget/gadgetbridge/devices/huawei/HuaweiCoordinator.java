@@ -32,7 +32,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import de.greenrobot.dao.query.QueryBuilder;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettings;
@@ -40,34 +39,16 @@ import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpec
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsScreen;
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractDeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.ComputedHrvSummarySampleProvider;
+import nodomain.freeyourgadget.gadgetbridge.devices.DefaultSleepSessionProvider;
+import nodomain.freeyourgadget.gadgetbridge.devices.FallbackSleepSessionProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.HuaweiStressSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.InstallHandler;
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider;
+import nodomain.freeyourgadget.gadgetbridge.devices.SleepSessionProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.AbstractActivitySample;
-import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummaryDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.Device;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiActivitySampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiDictData;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiDictDataDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiDictDataValuesDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiEcgDataSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiEcgSummarySample;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiEcgSummarySampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiEmotionsSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiHrvValueSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiSleepStageSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiSleepStatsSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiStressSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiTemperatureSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiWorkoutDataSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiWorkoutPaceSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiWorkoutSpO2SampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiWorkoutSummaryAdditionalValuesSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiWorkoutSummarySample;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiWorkoutSummarySampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiWorkoutSwimSegmentsSampleDao;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryParser;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrackProvider;
@@ -183,45 +164,6 @@ public abstract class HuaweiCoordinator extends AbstractDeviceCoordinator {
         GBApplication.getContext().getSharedPreferences(HuaweiState.getCapabilitiesSharedPreferencesName(gbDevice.getAddress()), Context.MODE_PRIVATE).edit().clear().apply();
         // Before #5629, we would persist capabilities per device type, so clear those as well if they exist
         GBApplication.getContext().getSharedPreferences("huawei_coordinator_capatilities" + gbDevice.getType().name(), Context.MODE_PRIVATE).edit().clear().apply();
-
-        final long deviceId = device.getId();
-
-        deleteBy(session.getHuaweiActivitySampleDao(), HuaweiActivitySampleDao.Properties.DeviceId, deviceId);
-        deleteBy(session.getHuaweiSleepStageSampleDao(), HuaweiSleepStageSampleDao.Properties.DeviceId, deviceId);
-        deleteBy(session.getHuaweiSleepStatsSampleDao(), HuaweiSleepStatsSampleDao.Properties.DeviceId, deviceId);
-        deleteBy(session.getHuaweiStressSampleDao(), HuaweiStressSampleDao.Properties.DeviceId, deviceId);
-        deleteBy(session.getHuaweiHrvValueSampleDao(), HuaweiHrvValueSampleDao.Properties.DeviceId, deviceId);
-        deleteBy(session.getHuaweiTemperatureSampleDao(), HuaweiTemperatureSampleDao.Properties.DeviceId, deviceId);
-        deleteBy(session.getHuaweiEmotionsSampleDao(), HuaweiEmotionsSampleDao.Properties.DeviceId, deviceId);
-
-        final QueryBuilder<HuaweiWorkoutSummarySample> qbWorkoutSummarySample = session.getHuaweiWorkoutSummarySampleDao().queryBuilder();
-        final List<HuaweiWorkoutSummarySample> workouts = qbWorkoutSummarySample.where(HuaweiWorkoutSummarySampleDao.Properties.DeviceId.eq(deviceId)).build().list();
-
-        for (HuaweiWorkoutSummarySample sample : workouts) {
-            deleteBy(session.getHuaweiWorkoutSummaryAdditionalValuesSampleDao(), HuaweiWorkoutSummaryAdditionalValuesSampleDao.Properties.WorkoutId, sample.getWorkoutId());
-            deleteBy(session.getHuaweiWorkoutDataSampleDao(), HuaweiWorkoutDataSampleDao.Properties.WorkoutId, sample.getWorkoutId());
-            deleteBy(session.getHuaweiWorkoutPaceSampleDao(), HuaweiWorkoutPaceSampleDao.Properties.WorkoutId, sample.getWorkoutId());
-            deleteBy(session.getHuaweiWorkoutSwimSegmentsSampleDao(), HuaweiWorkoutSwimSegmentsSampleDao.Properties.WorkoutId, sample.getWorkoutId());
-            deleteBy(session.getHuaweiWorkoutSpO2SampleDao(), HuaweiWorkoutSpO2SampleDao.Properties.WorkoutId, sample.getWorkoutId());
-        }
-
-        deleteBy(session.getHuaweiWorkoutSummarySampleDao(), HuaweiWorkoutSummarySampleDao.Properties.DeviceId, deviceId);
-        deleteBy(session.getBaseActivitySummaryDao(), BaseActivitySummaryDao.Properties.DeviceId, deviceId);
-
-        final QueryBuilder<HuaweiDictData> qbDictData = session.getHuaweiDictDataDao().queryBuilder();
-        final List<HuaweiDictData> dictData = qbDictData.where(HuaweiDictDataDao.Properties.DeviceId.eq(deviceId)).build().list();
-        for (HuaweiDictData data : dictData) {
-            deleteBy(session.getHuaweiDictDataValuesDao(), HuaweiDictDataValuesDao.Properties.DictId, data.getDictId());
-        }
-
-        deleteBy(session.getHuaweiDictDataDao(), HuaweiDictDataDao.Properties.DeviceId, deviceId);
-
-        final QueryBuilder<HuaweiEcgSummarySample> qbEcgSummary = session.getHuaweiEcgSummarySampleDao().queryBuilder();
-        final List<HuaweiEcgSummarySample> ecgSummary = qbEcgSummary.where(HuaweiEcgSummarySampleDao.Properties.DeviceId.eq(deviceId)).build().list();
-        for (HuaweiEcgSummarySample sample : ecgSummary) {
-            deleteBy(session.getHuaweiEcgDataSampleDao(), HuaweiEcgDataSampleDao.Properties.EcgId, sample.getEcgId());
-        }
-        deleteBy(session.getHuaweiEcgSummarySampleDao(), HuaweiEcgSummarySampleDao.Properties.DeviceId, deviceId);
     }
 
     @Override
@@ -420,6 +362,16 @@ public abstract class HuaweiCoordinator extends AbstractDeviceCoordinator {
         return new HuaweiSampleProvider(device, session);
     }
 
+    @NonNull
+    @Override
+    public SleepSessionProvider getSleepSessionProvider(@NonNull final GBDevice device, @NonNull final DaoSession session) {
+        return new FallbackSleepSessionProvider(
+            new HuaweiSleepSessionProvider(device, session),
+            // For non-TruSleep watches
+            new DefaultSleepSessionProvider(device, session)
+        );
+    }
+
     @Override
     public TimeSampleProvider<? extends Spo2Sample> getSpo2SampleProvider(GBDevice device, DaoSession session) {
         return new HuaweiSpo2SampleProvider(device, session);
@@ -479,7 +431,7 @@ public abstract class HuaweiCoordinator extends AbstractDeviceCoordinator {
         // Health
         if (deviceState.supportsInactivityWarnings())
             deviceSpecificSettings.addRootScreen(DeviceSpecificSettingsScreen.HEALTH, R.xml.devicesettings_inactivity_sheduled);
-        if (deviceState.supportsTruSleep())
+        if (deviceState.supportsTruSleep() || deviceState.supportsSleepBreath() || deviceState.supportsSleepApnea())
             deviceSpecificSettings.addRootScreen(DeviceSpecificSettingsScreen.HEALTH, R.xml.devicesettings_trusleep);
         if (deviceState.supportsHeartRate()) {
             deviceSpecificSettings.addRootScreen(DeviceSpecificSettingsScreen.HEALTH, R.xml.devicesettings_heartrate_automatic_enable);
@@ -615,5 +567,30 @@ public abstract class HuaweiCoordinator extends AbstractDeviceCoordinator {
     @Override
     public boolean supportsNavigation(@NonNull final GBDevice device) {
         return HuaweiDeviceStateManager.get(device).supportsNavigation();
+    }
+
+    @Override
+    public boolean supportsAppNotifications(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsPhoneCalls(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsCallControl(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsSmsReply(@NonNull final GBDevice device) {
+        return HuaweiDeviceStateManager.get(device).supportsNotificationsReplyActions();
+    }
+
+    @Override
+    public boolean supportsGpsSharing(@NonNull final GBDevice device) {
+        return HuaweiDeviceStateManager.get(device).supportsSendingGps();
     }
 }

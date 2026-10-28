@@ -48,7 +48,6 @@ import nodomain.freeyourgadget.gadgetbridge.service.btle.GattService;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.TransactionBuilder;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.profiles.deviceinfo.DeviceInfo;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.profiles.deviceinfo.DeviceInfoProfile;
-import nodomain.freeyourgadget.gadgetbridge.service.serial.GBDeviceProtocol;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 
 import static nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst.*;
@@ -103,10 +102,10 @@ public class MiSmartScaleDeviceSupport extends AbstractBTLESingleDeviceSupport {
             handleGBDeviceEvent(event);
         });
 
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION);
-        addSupportedService(GattService.UUID_SERVICE_WEIGHT_SCALE);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
+        addSupportedService(GattService.SERVICE_WEIGHT_SCALE.uuid);
         addSupportedService(UUID.fromString(MiBandService.UUID_SERVICE_WEIGHT_SERVICE));
         addSupportedProfile(deviceInfoProfile);
     }
@@ -120,7 +119,7 @@ public class MiSmartScaleDeviceSupport extends AbstractBTLESingleDeviceSupport {
         if (GBApplication.getPrefs().syncTime())
             setTime(builder);
 
-        builder.notify(GattCharacteristic.UUID_CHARACTERISTIC_WEIGHT_MEASUREMENT, true);
+        builder.notify(GattCharacteristic.CHARACTERISTIC_WEIGHT_MEASUREMENT.uuid, true);
 
         fetchWeightHistory(builder);
 
@@ -136,7 +135,7 @@ public class MiSmartScaleDeviceSupport extends AbstractBTLESingleDeviceSupport {
 
         UUID uuid = characteristic.getUuid();
 
-        if (!uuid.equals(GattCharacteristic.UUID_CHARACTERISTIC_WEIGHT_MEASUREMENT) &&
+        if (!uuid.equals(GattCharacteristic.CHARACTERISTIC_WEIGHT_MEASUREMENT.uuid) &&
             !uuid.equals(UUID_CHARACTERISTIC_WEIGHT_HISTORY))
             return false;
 
@@ -240,7 +239,7 @@ public class MiSmartScaleDeviceSupport extends AbstractBTLESingleDeviceSupport {
         GregorianCalendar now = BLETypeConversions.createCalendar();
         byte[] time = BLETypeConversions.calendarToCurrentTime(now, 0);
 
-        builder.write(GattCharacteristic.UUID_CHARACTERISTIC_CURRENT_TIME, time);
+        builder.write(GattCharacteristic.CHARACTERISTIC_CURRENT_TIME.uuid, time);
     }
 
     private void setConfigValue(TransactionBuilder builder, byte config, byte value) {

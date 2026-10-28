@@ -21,6 +21,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -69,19 +70,13 @@ public class GBContactListAdapter extends RecyclerView.Adapter<GBContactListAdap
 
         holder.container.setOnClickListener(v -> ((ConfigureContacts) mContext).configureContact(contact));
 
-        holder.container.setOnLongClickListener(v -> {
-            new MaterialAlertDialogBuilder(v.getContext())
-                    .setTitle(R.string.contact_delete_confirm_title)
-                    .setMessage(mContext.getString(R.string.contact_delete_confirm_description, contact.getName()))
-                    .setIcon(R.drawable.ic_warning)
-                    .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {
-                        ((ConfigureContacts) mContext).deleteContact(contact);
-                    })
-                    .setNegativeButton(android.R.string.no, null)
-                    .show();
-
-            return true;
-        });
+        holder.delete.setOnClickListener(v -> new MaterialAlertDialogBuilder(v.getContext())
+                .setTitle(R.string.contact_delete_confirm_title)
+                .setMessage(mContext.getString(R.string.contact_delete_confirm_description, contact.getName()))
+                .setIcon(R.drawable.ic_warning)
+                .setPositiveButton(R.string.delete, (dialog, whichButton) -> ((ConfigureContacts) mContext).deleteContact(contact))
+                .setNegativeButton(android.R.string.cancel, null)
+                .show());
 
         holder.contactName.setText(contact.getName());
         holder.contactNumber.setText(contact.getNumber());
@@ -97,14 +92,16 @@ public class GBContactListAdapter extends RecyclerView.Adapter<GBContactListAdap
 
         final TextView contactName;
         final TextView contactNumber;
+        final ImageButton delete;
 
-        ViewHolder(View view) {
+        ViewHolder(final View view) {
             super(view);
 
             container = view.findViewById(R.id.card_contact);
 
             contactName = view.findViewById(R.id.contact_item_name);
             contactNumber = view.findViewById(R.id.contact_item_phone_number);
+            delete = view.findViewById(R.id.contact_item_delete);
         }
     }
 }

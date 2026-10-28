@@ -1,18 +1,12 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.workouts
 
 import android.os.Bundle
-import android.util.TypedValue
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.distinctUntilChanged
-import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.entries.ActivitySummaryEntry
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.entries.ActivitySummaryGroup
@@ -151,60 +145,6 @@ class WorkoutTabDetailsFragment : Fragment(), WorkoutTabScreenshotProvider {
     }
 
     private fun addGroupContent(rows: List<kotlin.Pair<String, String>>) {
-        for ((index, row) in rows.withIndex()) {
-            val (label, formattedValue) = row
-            binding.summaryDetails.addView(buildDetailRow(label, formattedValue))
-            if (index < rows.size - 1) {
-                binding.summaryDetails.addView(createSeparator())
-            }
-        }
-    }
-
-    private fun buildDetailRow(label: String, formattedValue: String): View {
-        return LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            setPaddingRelative(dpToPx(16), dpToPx(10), dpToPx(16), dpToPx(10))
-
-            addView(TextView(context).apply {
-                text = label
-                textSize = 14f
-                setTextColor(GBApplication.getSecondaryTextColor(context))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            })
-            addView(TextView(context).apply {
-                text = formattedValue
-                textSize = 16f
-                setTextColor(GBApplication.getTextColor(context))
-                gravity = Gravity.END
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-            })
-        }
-    }
-
-    private fun createSeparator(): View {
-        return View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                (1 * resources.displayMetrics.density).toInt()
-            )
-
-            val typedValue = TypedValue()
-            context?.theme?.resolveAttribute(R.attr.row_separator, typedValue, true)
-            setBackgroundColor(ContextCompat.getColor(requireContext(), typedValue.resourceId))
-        }
-    }
-
-    @Suppress("SameParameterValue")
-    private fun dpToPx(dp: Int): Int {
-        val density = resources.displayMetrics.density
-        return (dp * density).toInt()
+        addDetailRows(binding.summaryDetails, requireContext(), rows)
     }
 }

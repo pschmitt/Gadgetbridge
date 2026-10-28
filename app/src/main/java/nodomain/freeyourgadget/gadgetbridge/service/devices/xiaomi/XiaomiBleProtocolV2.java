@@ -332,7 +332,7 @@ public class XiaomiBleProtocolV2 extends AbstractXiaomiBleProtocol {
                     LOG.debug("receive ack for packet {}", decodedPacket.getSequenceNumber());
                     break;
                 case PACKET_TYPE_NACK:
-                    LOG.warn("receive nack for packet {}, watch rejected it", decodedPacket.getSequenceNumber());
+                    LOG.warn("receive nack, watch expects packet {}", decodedPacket.getSequenceNumber());
                     break;
                 default:
                     LOG.warn("Unhandled packet with type {} (decoded type {})", decodedPacket.getPacketType(), decodedPacket.getClass().getSimpleName());

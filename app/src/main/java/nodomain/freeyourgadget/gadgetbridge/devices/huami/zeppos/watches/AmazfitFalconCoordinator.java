@@ -42,7 +42,7 @@ public class AmazfitFalconCoordinator extends ZeppOsCoordinator {
     @Override
     public Set<Integer> getDeviceSources() {
         return new HashSet<>(Arrays.asList(
-                414, // chinese mainland version
+                414, // Chinese mainland version
                 415
         ));
     }

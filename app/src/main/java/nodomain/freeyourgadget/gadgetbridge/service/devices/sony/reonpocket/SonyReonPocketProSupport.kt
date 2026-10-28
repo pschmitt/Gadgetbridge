@@ -41,6 +41,7 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.BatteryState
 import nodomain.freeyourgadget.gadgetbridge.service.btle.AbstractBTLESingleDeviceSupport
 import nodomain.freeyourgadget.gadgetbridge.service.btle.BLETypeConversions
+import nodomain.freeyourgadget.gadgetbridge.service.btle.BleNamesResolver
 import nodomain.freeyourgadget.gadgetbridge.service.btle.BluetoothCompanyIdentifiers
 import nodomain.freeyourgadget.gadgetbridge.service.btle.GattCharacteristic
 import nodomain.freeyourgadget.gadgetbridge.service.btle.GattService
@@ -63,9 +64,9 @@ class SonyReonPocketProSupport : AbstractBTLESingleDeviceSupport(LOG) {
     private var tagScanTimeout: Runnable? = null
 
     init {
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS)
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE)
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION)
+        addSupportedService(GattService.SERVICE_GAP.uuid)
+        addSupportedService(GattService.SERVICE_GATT.uuid)
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid)
         addSupportedService(SonyReonPocketConstants.SERVICE_UUID)
     }
 
@@ -84,9 +85,9 @@ class SonyReonPocketProSupport : AbstractBTLESingleDeviceSupport(LOG) {
         builder.write(SonyReonPocketConstants.UUID_CHARACTERISTIC_TAG_AUTHENTICATION, *SonyReonPocketConstants.commandFeature())
         builder.write(SonyReonPocketConstants.UUID_CHARACTERISTIC_CURRENT_TIME, *buildTimeSyncCommand())
 
-        builder.read(GattCharacteristic.UUID_CHARACTERISTIC_MODEL_NUMBER_STRING)
-        builder.read(GattCharacteristic.UUID_CHARACTERISTIC_SERIAL_NUMBER_STRING)
-        builder.read(GattCharacteristic.UUID_CHARACTERISTIC_FIRMWARE_REVISION_STRING)
+        builder.read(GattCharacteristic.CHARACTERISTIC_MODEL_NUMBER_STRING.uuid)
+        builder.read(GattCharacteristic.CHARACTERISTIC_SERIAL_NUMBER_STRING.uuid)
+        builder.read(GattCharacteristic.CHARACTERISTIC_FIRMWARE_REVISION_STRING.uuid)
 
         // The Reon Pocket Pro does not expose the standard Battery Service. Battery (as a percentage)
         // and the temperature telemetry are custom characteristics that notify after the handshake.
@@ -210,7 +211,7 @@ class SonyReonPocketProSupport : AbstractBTLESingleDeviceSupport(LOG) {
         }
 
         if (status != BluetoothGatt.GATT_SUCCESS) {
-            LOG.warn("Error reading {}: status={}", GattCharacteristic.toString(characteristic), status)
+            LOG.warn("Error reading {}: status={}", BleNamesResolver.toString(characteristic), status)
             return isDeviceInfoCharacteristic(characteristic.uuid)
         }
 
@@ -219,19 +220,19 @@ class SonyReonPocketProSupport : AbstractBTLESingleDeviceSupport(LOG) {
             SonyReonPocketConstants.UUID_CHARACTERISTIC_TEMPERATURE_HUMIDITY -> { handleTelemetry(value); true }
             SonyReonPocketConstants.UUID_CHARACTERISTIC_DEVICE_MODE -> { handleCoolingMode(value); true }
             SonyReonPocketConstants.UUID_CHARACTERISTIC_AUTO_START_STOP -> { handleAutoStartStopStatus(value); true }
-            GattCharacteristic.UUID_CHARACTERISTIC_MODEL_NUMBER_STRING -> {
+            GattCharacteristic.CHARACTERISTIC_MODEL_NUMBER_STRING.uuid -> {
                 val model = stringValue(value)
                 LOG.debug("Sony Reon Pocket Pro model: {}", model)
                 updateVersionInfo(null, model)
                 true
             }
-            GattCharacteristic.UUID_CHARACTERISTIC_SERIAL_NUMBER_STRING -> {
+            GattCharacteristic.CHARACTERISTIC_SERIAL_NUMBER_STRING.uuid -> {
                 val serialNumber = stringValue(value)
                 LOG.debug("Sony Reon Pocket Pro serial number: {}", serialNumber)
                 handleGBDeviceEvent(GBDeviceEventUpdateDeviceInfo("SERIAL: ", serialNumber))
                 true
             }
-            GattCharacteristic.UUID_CHARACTERISTIC_FIRMWARE_REVISION_STRING -> {
+            GattCharacteristic.CHARACTERISTIC_FIRMWARE_REVISION_STRING.uuid -> {
                 val firmwareVersion = stringValue(value)
                 LOG.debug("Sony Reon Pocket Pro firmware: {}", firmwareVersion)
                 updateVersionInfo(firmwareVersion, null)
@@ -506,9 +507,9 @@ class SonyReonPocketProSupport : AbstractBTLESingleDeviceSupport(LOG) {
     }
 
     private fun isDeviceInfoCharacteristic(characteristicUuid: UUID): Boolean {
-        return GattCharacteristic.UUID_CHARACTERISTIC_MODEL_NUMBER_STRING == characteristicUuid ||
-                GattCharacteristic.UUID_CHARACTERISTIC_SERIAL_NUMBER_STRING == characteristicUuid ||
-                GattCharacteristic.UUID_CHARACTERISTIC_FIRMWARE_REVISION_STRING == characteristicUuid
+        return GattCharacteristic.CHARACTERISTIC_MODEL_NUMBER_STRING.uuid == characteristicUuid ||
+                GattCharacteristic.CHARACTERISTIC_SERIAL_NUMBER_STRING.uuid == characteristicUuid ||
+                GattCharacteristic.CHARACTERISTIC_FIRMWARE_REVISION_STRING.uuid == characteristicUuid
     }
 
     private fun stringValue(value: ByteArray): String {

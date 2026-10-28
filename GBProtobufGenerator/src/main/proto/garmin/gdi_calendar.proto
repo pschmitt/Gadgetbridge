@@ -1,0 +1,129 @@
+syntax = "proto2";
+
+package GDI.Proto.Calendar;
+option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin";
+option java_outer_classname = "GdiCalendar";
+import "garmin/gdi_data_types.proto";
+
+message Attendee {
+    enum AttendeeStatus {
+        ACCEPTED = 0;
+        DECLINED = 1;
+        TENTATIVE = 2;
+        PENDING = 3;
+    }
+
+    optional string name = 1;
+    optional GDI.Proto.Calendar.Attendee.AttendeeStatus status = 2;
+}
+
+message Calendar {
+    optional bytes hash = 1;
+    optional string name = 2;
+    optional string calendar_id = 3;
+    optional uint32 color = 4;
+}
+
+message CalendarEvent {
+    optional string organizer = 1;
+    optional string title = 2;
+    optional string location = 3 [default = ""];
+    optional string description = 4 [default = ""];
+    optional uint64 start_date = 5;
+    optional uint64 end_date = 6;
+    optional bool all_day = 7;
+    repeated uint32 reminder_time_in_secs = 8;
+}
+
+message CalendarEventsRequest {
+    optional uint64 start_date = 1;
+    optional uint64 end_date = 2;
+    optional bool include_organizer = 3 [default = false];
+    optional bool include_title = 4 [default = true];
+    optional bool include_location = 5 [default = true];
+    optional bool include_description = 6 [default = false];
+    optional bool include_start_date = 7 [default = true];
+    optional bool include_end_date = 8 [default = false];
+    optional bool include_all_day = 9 [default = false];
+    optional uint32 max_organizer_length = 10 [default = 0];
+    optional uint32 max_title_length = 11 [default = 0];
+    optional uint32 max_location_length = 12 [default = 0];
+    optional uint32 max_description_length = 13 [default = 0];
+    optional uint32 max_events = 14 [default = 100];
+}
+
+message CalendarEventsResponse {
+    enum ResponseStatus {
+        UNKNOWN_RESPONSE_STATUS = 0;
+        OK = 1;
+        INVALID_DATE_RANGE = 2;
+    }
+
+    optional GDI.Proto.Calendar.CalendarEventsResponse.ResponseStatus status = 1;
+    repeated GDI.Proto.Calendar.CalendarEvent events = 2 [packed = false];
+}
+
+message CalendarFile {
+    repeated bytes deleted_cal_hashes = 1 [packed = false];
+    repeated bytes deleted_event_hashes = 2 [packed = false];
+    repeated GDI.Proto.Calendar.Calendar calendars = 3 [packed = false];
+    repeated GDI.Proto.Calendar.Event events = 4 [packed = false];
+}
+
+message CalendarRequest {
+    optional uint64 start_date = 1;
+    optional uint64 end_date = 2;
+    optional bool include_title = 3;
+    optional bool include_location = 4;
+    optional bool include_description = 5;
+    optional bool include_attendees = 6;
+    optional uint32 max_events = 7;
+    optional uint32 max_calendars = 8;
+    optional uint32 max_attendees = 9;
+    optional uint32 max_title_length = 10;
+    optional uint32 max_location_length = 11;
+    optional uint32 max_description_length = 12;
+    repeated bytes cal_hashes = 13 [packed = false];
+    repeated bytes event_hashes = 14 [packed = false];
+}
+
+message CalendarResponse {
+    enum ResponseStatus {
+        UNKNOWN_RESPONSE_STATUS = 0;
+        OK = 1;
+        INVALID_DATE_RANGE = 2;
+        PERMISSION_REQUIRED = 3;
+    }
+
+    optional GDI.Proto.Calendar.CalendarResponse.ResponseStatus status = 1;
+    optional GDI.Proto.DataTypes.DataTransferItem xfer_data = 2;
+}
+
+message CalendarService {
+    optional GDI.Proto.Calendar.CalendarEventsRequest calendar_events_request = 1;
+    optional GDI.Proto.Calendar.CalendarEventsResponse calendar_events_response = 2;
+    optional GDI.Proto.Calendar.CalendarRequest calendar_request = 3;
+    optional GDI.Proto.Calendar.CalendarResponse calendar_response = 4;
+}
+
+message CapabilitiesRequest {
+    optional uint32 calendar_features_version = 1;
+}
+
+message CapabilitiesResponse {
+    optional uint32 calendar_features_version = 1;
+}
+
+message Event {
+    optional bytes hash = 1;
+    optional string calendar_id = 2;
+    optional uint64 start_date = 3;
+    optional uint64 end_date = 4;
+    optional bool all_day = 5;
+    optional string title = 6;
+    optional string location = 7;
+    optional string description = 8;
+    optional float pos_lat = 9;
+    optional float pos_lon = 10;
+    repeated GDI.Proto.Calendar.Attendee attendees = 11 [packed = false];
+}

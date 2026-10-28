@@ -45,7 +45,7 @@ public class AmazfitTRexUltra2Coordinator extends ZeppOsCoordinator {
     @Override
     public Set<Integer> getDeviceSources() {
         return new HashSet<>(Arrays.asList(
-                10879232, // chinese mainland version
+                10879232, // Chinese mainland version
                 10879233,
                 10879235
         ));

@@ -48,6 +48,7 @@ import com.google.android.material.color.DynamicColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
+import com.jaredrummler.android.colorpicker.MaterialColorPickerDialog;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,8 @@ import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.automations.AutomationsSettingsActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.charts.ChartsPreferencesActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.discovery.DiscoveryPairingPreferenceActivity;
-import nodomain.freeyourgadget.gadgetbridge.activities.endurain.OnlineFitnessTrackersPreferencesActivity;
+import nodomain.freeyourgadget.gadgetbridge.activities.elevation.ElevationSettingsActivity;
+import nodomain.freeyourgadget.gadgetbridge.activities.externalservices.OnlineFitnessTrackersPreferencesActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.maps.MapsSettingsActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.preferences.HealthConnectPreferencesActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.quicksettings.QuickSettingsPreferencesActivity;
@@ -110,6 +112,8 @@ public class SettingsActivity extends AbstractSettingsActivityV2 implements Acti
             open(NotificationManagementActivity.class, result);
         } else if (result.getResourceFile() == R.xml.map_settings) {
             open(MapsSettingsActivity.class, result);
+        } else if (result.getResourceFile() == R.xml.elevation_settings) {
+            open(ElevationSettingsActivity.class, result);
         } else if (result.getResourceFile() == R.xml.automations_settings) {
             open(AutomationsSettingsActivity.class, result);
         } else if (result.getResourceFile() == R.xml.internethelper_preferences) {
@@ -138,7 +142,7 @@ public class SettingsActivity extends AbstractSettingsActivityV2 implements Acti
     public static class SettingsFragment extends AbstractPreferenceFragment {
         private static final Logger LOG = LoggerFactory.getLogger(SettingsActivity.class);
 
-        /** Must stay in sync with GBApplication#getAccentColorOverlay() and the ThemeOverlay.App.Accent.* styles. */
+        /** Must stay in sync with GBApplication#getAccentColorOverlay(boolean) and the ThemeOverlay.App.Accent.* styles. */
         private static final String[] ACCENT_COLOR_KEYS = {
                 "red", "coral", "orange", "amber", "lime", "green",
                 "teal", "cyan", "blue", "indigo", "violet", "pink", "white",
@@ -185,6 +189,7 @@ public class SettingsActivity extends AbstractSettingsActivityV2 implements Acti
             index(R.xml.discovery_pairing_preferences, R.string.activity_prefs_discovery_pairing);
             index(R.xml.notifications_preferences, R.string.pref_header_notifications);
             index(R.xml.map_settings, R.string.maps_settings);
+            index(R.xml.elevation_settings, R.string.elevation_correction);
             index(R.xml.automations_settings, R.string.pref_header_automations);
             if (!GBApplication.hasDirectInternetAccess())
                 index(R.xml.internethelper_preferences, R.string.prefs_internet_helper_title);
@@ -458,6 +463,14 @@ public class SettingsActivity extends AbstractSettingsActivityV2 implements Acti
                 });
             }
 
+            pref = findPreference("pref_category_elevation_correction");
+            if (pref != null) {
+                pref.setOnPreferenceClickListener(preference -> {
+                    startActivity(new Intent(requireContext(), ElevationSettingsActivity.class));
+                    return true;
+                });
+            }
+
             pref = findPreference("pref_screen_automations");
             if (pref != null) {
                 pref.setOnPreferenceClickListener(preference -> {
@@ -532,6 +545,7 @@ public class SettingsActivity extends AbstractSettingsActivityV2 implements Acti
             final Preference theme = findPreference("pref_key_theme");
             final Preference amoled_black = findPreference("pref_key_theme_amoled_black");
             final Preference accentColor = findPreference("pref_key_accent_color");
+            final SwitchPreferenceCompat contrastingSurfaces = findPreference(GBApplication.PREF_CONTRASTING_SURFACES);
 
             if (amoled_black != null) {
                 String selectedTheme = prefs.getString("pref_key_theme", requireContext().getString(R.string.pref_theme_value_system));
@@ -553,6 +567,17 @@ public class SettingsActivity extends AbstractSettingsActivityV2 implements Acti
                 updateAccentColorSummary(accentColor);
                 accentColor.setOnPreferenceClickListener(preference -> {
                     showAccentColorPicker(accentColor);
+                    return true;
+                });
+            }
+
+            if (contrastingSurfaces != null) {
+                contrastingSurfaces.setChecked(GBApplication.areContrastingSurfacesEnabled(GBApplication.isDarkThemeEnabled()));
+                contrastingSurfaces.setOnPreferenceChangeListener((preference, newVal) -> {
+                    GBApplication.getPrefs().getPreferences().edit()
+                            .putBoolean(GBApplication.PREF_CONTRASTING_SURFACES, (Boolean) newVal)
+                            .apply();
+                    sendThemeChangeIntent();
                     return true;
                 });
             }
@@ -663,6 +688,17 @@ public class SettingsActivity extends AbstractSettingsActivityV2 implements Acti
                     return neededPermissions.size() < allPermissions.size();
                 });
             }
+
+            pref = findPreference(GBPrefs.DEPRECATED_SMS_RECEIVER);
+            if (pref != null) {
+                pref.setOnPreferenceChangeListener((preference, newValue) -> {
+                    if ((boolean) newValue && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.RECEIVE_SMS}, 0);
+                        return false;
+                    }
+                    return true;
+                });
+            }
         }
 
         /*
@@ -719,7 +755,7 @@ public class SettingsActivity extends AbstractSettingsActivityV2 implements Acti
             builder.setAllowPresets(true);
             builder.setPresets(swatches);
 
-            final ColorPickerDialog dialog = builder.create();
+            final ColorPickerDialog dialog = MaterialColorPickerDialog.create(builder);
             dialog.setColorPickerDialogListener(new ColorPickerDialogListener() {
                 @Override
                 public void onColorSelected(int dialogId, int color) {

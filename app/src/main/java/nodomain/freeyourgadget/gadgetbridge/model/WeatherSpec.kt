@@ -26,6 +26,7 @@ import nodomain.freeyourgadget.gadgetbridge.util.kotlin.readListCompat
 import nodomain.freeyourgadget.gadgetbridge.util.kotlin.readParcelableCompat
 import net.e175.klaus.solarpositioning.DeltaT
 import net.e175.klaus.solarpositioning.SolarEvents
+import java.time.ZonedDateTime
 import java.util.Date
 import java.util.GregorianCalendar
 import kotlin.math.floor
@@ -799,18 +800,32 @@ class WeatherSpec() : Parcelable {
             return floor((normalized / 360.0) * synodicMonth).toInt() + 1
         }
 
+        @JvmStatic
+        @JvmOverloads
         fun solarDay(
             date: GregorianCalendar,
             location: Location,
             horizon: SolarEvents.Horizon = SolarEvents.Horizon.SUNRISE_SUNSET,
+        ): SolarEvents.Day = solarDay(date.toZonedDateTime(), location.latitude, location.longitude, horizon)
+
+        @JvmStatic
+        @JvmOverloads
+        fun solarDay(
+            date: ZonedDateTime,
+            latitude: Double,
+            longitude: Double,
+            horizon: SolarEvents.Horizon = SolarEvents.Horizon.SUNRISE_SUNSET,
         ): SolarEvents.Day {
-            val zonedDate = date.toZonedDateTime()
-            return SolarEvents.spa().forDate(
-                zonedDate.toLocalDate(),
-                zonedDate.zone,
-                location.latitude,
-                location.longitude,
-                DeltaT.estimate(zonedDate.toLocalDate()),
+            val localDate = date.toLocalDate()
+            // Grena3 avoids the expensive Math.fma fallback on Android. Its supported years are
+            // 2010–2110; keep SPA at the boundaries to cover time zone and delta-T offsets.
+            val calculator = if (localDate.year in 2011..2109) SolarEvents.grena3() else SolarEvents.spa()
+            return calculator.forDate(
+                localDate,
+                date.zone,
+                latitude,
+                longitude,
+                DeltaT.estimate(localDate),
                 horizon
             )
         }

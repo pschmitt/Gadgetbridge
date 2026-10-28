@@ -27,10 +27,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.databinding.ActivityDeviceDeleteBinding
+import nodomain.freeyourgadget.gadgetbridge.devices.DeviceDeletionProgress
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceManager
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.util.BondingUtil
@@ -43,6 +46,11 @@ class DeviceDeleteActivity : AbstractGBActivity() {
     private lateinit var binding: ActivityDeviceDeleteBinding
     private lateinit var device: GBDevice
     private var deleteFiles by Delegates.notNull<Boolean>()
+
+    // The deletion runs on a background thread, the flow keeps only the latest value
+    private val progress = MutableStateFlow<DeleteProgress?>(null)
+
+    private data class DeleteProgress(val stage: DeviceDeletionProgress.Stage, val done: Int, val total: Int)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,8 +74,13 @@ class DeviceDeleteActivity : AbstractGBActivity() {
         binding.deleteProgressBar.visibility = View.VISIBLE
         binding.deleteProgressBar.keepScreenOn = true
 
+        val progressJob = lifecycleScope.launch {
+            progress.filterNotNull().collect { showProgress(it) }
+        }
+
         lifecycleScope.launch {
             val exception = performDeviceDelete()
+            progressJob.cancel()
             handleDeleteResult(exception)
         }
     }
@@ -79,7 +92,9 @@ class DeviceDeleteActivity : AbstractGBActivity() {
             val coordinator = device.deviceCoordinator
 
             // Delete device and files
-            coordinator.deleteDevice(device, deleteFiles)
+            coordinator.deleteDevice(device, deleteFiles) { stage, done, total ->
+                progress.value = DeleteProgress(stage, done, total)
+            }
 
             // Unpair Bluetooth device
             BondingUtil.Unpair(this@DeviceDeleteActivity, device.address)
@@ -103,6 +118,28 @@ class DeviceDeleteActivity : AbstractGBActivity() {
         }
 
         return@withContext null
+    }
+
+    private fun showProgress(progress: DeleteProgress) {
+        binding.deleteStatusText.setText(
+            when (progress.stage) {
+                DeviceDeletionProgress.Stage.DATABASE -> R.string.device_delete_stage_database
+                DeviceDeletionProgress.Stage.FILES -> R.string.device_delete_stage_files
+            }
+        )
+        // Each stage fills half of the bar
+        val stageStart = when (progress.stage) {
+            DeviceDeletionProgress.Stage.DATABASE -> 0
+            DeviceDeletionProgress.Stage.FILES -> PROGRESS_MAX / 2
+        }
+        val stageProgress = if (progress.total == 0) {
+            PROGRESS_MAX / 2
+        } else {
+            progress.done * (PROGRESS_MAX / 2) / progress.total
+        }
+        binding.deleteProgressBar.isIndeterminate = false
+        binding.deleteProgressBar.max = PROGRESS_MAX
+        binding.deleteProgressBar.setProgressCompat(stageStart + stageProgress, true)
     }
 
     @RequiresApi(api = Build.VERSION_CODES.R)
@@ -142,6 +179,8 @@ class DeviceDeleteActivity : AbstractGBActivity() {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(DeviceDeleteActivity::class.java)
+
+        private const val PROGRESS_MAX = 1000
 
         const val EXTRA_DEVICE = "device"
         const val EXTRA_DELETE_FILES = "delete_files"

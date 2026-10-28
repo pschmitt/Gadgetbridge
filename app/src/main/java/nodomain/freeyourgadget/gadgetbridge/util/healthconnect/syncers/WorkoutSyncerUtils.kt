@@ -16,13 +16,72 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.util.healthconnect.syncers
 
+import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
+import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
+import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.ElevationGainedRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.PowerRecord
+import androidx.health.connect.client.records.Record
+import androidx.health.connect.client.records.SpeedRecord
+import androidx.health.connect.client.records.StepsCadenceRecord
+import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
+import androidx.health.connect.client.records.metadata.Metadata
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind
+import kotlin.reflect.KClass
 
 /**
  * Shared utilities for workout syncing.
  */
 internal object WorkoutSyncerUtils {
+    const val RECORD_TYPE_SESSION = "session"
+    const val RECORD_TYPE_HEART_RATE = "heart-rate"
+    const val RECORD_TYPE_SPEED = "speed"
+    const val RECORD_TYPE_POWER = "power"
+    const val RECORD_TYPE_DISTANCE = "distance"
+    const val RECORD_TYPE_ACTIVE_CALORIES = "active-calories"
+    const val RECORD_TYPE_TOTAL_CALORIES = "total-calories"
+    const val RECORD_TYPE_ELEVATION = "elevation"
+    const val RECORD_TYPE_STEPS_CADENCE = "steps-cadence"
+    const val RECORD_TYPE_CYCLING_CADENCE = "cycling-cadence"
+
+    data class WorkoutRecordType(
+        val key: String,
+        val recordClass: KClass<out Record>
+    )
+
+    val WORKOUT_RECORD_TYPES = listOf(
+        WorkoutRecordType(RECORD_TYPE_SESSION, ExerciseSessionRecord::class),
+        WorkoutRecordType(RECORD_TYPE_HEART_RATE, HeartRateRecord::class),
+        WorkoutRecordType(RECORD_TYPE_SPEED, SpeedRecord::class),
+        WorkoutRecordType(RECORD_TYPE_POWER, PowerRecord::class),
+        WorkoutRecordType(RECORD_TYPE_DISTANCE, DistanceRecord::class),
+        WorkoutRecordType(RECORD_TYPE_ACTIVE_CALORIES, ActiveCaloriesBurnedRecord::class),
+        WorkoutRecordType(RECORD_TYPE_TOTAL_CALORIES, TotalCaloriesBurnedRecord::class),
+        WorkoutRecordType(RECORD_TYPE_ELEVATION, ElevationGainedRecord::class),
+        WorkoutRecordType(RECORD_TYPE_STEPS_CADENCE, StepsCadenceRecord::class),
+        WorkoutRecordType(RECORD_TYPE_CYCLING_CADENCE, CyclingPedalingCadenceRecord::class)
+    )
+
+    fun workoutClientRecordId(recordTypeKey: String, summaryId: Long): String {
+        return "gb-workout-$recordTypeKey-$summaryId"
+    }
+
+    fun workoutRecordMetadata(
+        base: Metadata,
+        recordTypeKey: String,
+        summaryId: Long,
+        version: Long
+    ): Metadata {
+        val device = base.device ?: return base
+        val id = workoutClientRecordId(recordTypeKey, summaryId)
+        return when (base.recordingMethod) {
+            Metadata.RECORDING_METHOD_ACTIVELY_RECORDED -> Metadata.activelyRecorded(device, id, version)
+            else -> Metadata.autoRecorded(device, id, version)
+        }
+    }
+
     /**
      * Maps Gadgetbridge ActivityKind to Health Connect ExerciseSessionRecord type.
      */
@@ -66,7 +125,8 @@ internal object WorkoutSyncerUtils {
             ActivityKind.AMERICAN_FOOTBALL -> ExerciseSessionRecord.EXERCISE_TYPE_FOOTBALL_AMERICAN
             ActivityKind.AUSTRALIAN_FOOTBALL -> ExerciseSessionRecord.EXERCISE_TYPE_FOOTBALL_AUSTRALIAN
             ActivityKind.RUGBY -> ExerciseSessionRecord.EXERCISE_TYPE_RUGBY
-            ActivityKind.CARDIO, ActivityKind.AEROBICS, ActivityKind.AEROBIC_EXERCISE, ActivityKind.AEROBIC_COMBO, ActivityKind.STEP_AEROBICS -> ExerciseSessionRecord.EXERCISE_TYPE_DANCING
+            ActivityKind.CARDIO -> ExerciseSessionRecord.EXERCISE_TYPE_DANCING
+            ActivityKind.AEROBICS, ActivityKind.AEROBIC_EXERCISE, ActivityKind.AEROBIC_COMBO, ActivityKind.STEP_AEROBICS -> ExerciseSessionRecord.EXERCISE_TYPE_EXERCISE_CLASS
             ActivityKind.BREATHWORK -> ExerciseSessionRecord.EXERCISE_TYPE_GUIDED_BREATHING
             ActivityKind.MEDITATION, ActivityKind.MIND_AND_BODY -> ExerciseSessionRecord.EXERCISE_TYPE_GUIDED_BREATHING
             ActivityKind.INDOOR_WALKING -> ExerciseSessionRecord.EXERCISE_TYPE_WALKING
@@ -94,8 +154,9 @@ internal object WorkoutSyncerUtils {
             ActivityKind.MIXED_MARTIAL_ARTS, ActivityKind.FREE_SPARRING, ActivityKind.BODY_COMBAT, ActivityKind.CARDIO_COMBAT, ActivityKind.MMA_HIIT -> ExerciseSessionRecord.EXERCISE_TYPE_MARTIAL_ARTS
             ActivityKind.DANCE, ActivityKind.BELLY_DANCE, ActivityKind.JAZZ_DANCE, ActivityKind.LATIN_DANCE, ActivityKind.BALLET, ActivityKind.STREET_DANCE, ActivityKind.ZUMBA, ActivityKind.BALLROOM_DANCE, ActivityKind.BREAKING, ActivityKind.FOLK_DANCE, ActivityKind.HIP_HOP, ActivityKind.MODERN_DANCE, ActivityKind.POLE_DANCE, ActivityKind.SQUARE_DANCE, ActivityKind.PLAZA_DANCING -> ExerciseSessionRecord.EXERCISE_TYPE_DANCING
             ActivityKind.KICKBOXING, ActivityKind.TAE_BO -> ExerciseSessionRecord.EXERCISE_TYPE_BOXING
-            ActivityKind.CROSSFIT, ActivityKind.FUNCTIONAL_TRAINING, ActivityKind.PHYSICAL_TRAINING, ActivityKind.FREE_TRAINING, ActivityKind.FITNESS_EXERCISES -> ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING
+            ActivityKind.FUNCTIONAL_TRAINING, ActivityKind.PHYSICAL_TRAINING, ActivityKind.FREE_TRAINING, ActivityKind.FITNESS_EXERCISES -> ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING
             ActivityKind.TAEKWONDO, ActivityKind.KARATE, ActivityKind.JUDO, ActivityKind.JUJITSU, ActivityKind.KENDO, ActivityKind.MUAY_THAI, ActivityKind.MARTIAL_ARTS -> ExerciseSessionRecord.EXERCISE_TYPE_MARTIAL_ARTS
+            ActivityKind.CROSSFIT -> ExerciseSessionRecord.EXERCISE_TYPE_BOOT_CAMP
             ActivityKind.FENCING -> ExerciseSessionRecord.EXERCISE_TYPE_FENCING
             ActivityKind.CORE_TRAINING -> ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING
             ActivityKind.HORIZONTAL_BAR, ActivityKind.PARALLEL_BAR, ActivityKind.PARALLEL_BARS, ActivityKind.MASS_GYMNASTICS -> ExerciseSessionRecord.EXERCISE_TYPE_GYMNASTICS

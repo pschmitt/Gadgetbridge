@@ -16,8 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.gloryfit
 
-import de.greenrobot.dao.AbstractDao
-import de.greenrobot.dao.Property
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.CameraActivity
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettings
@@ -29,13 +27,10 @@ import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCardAction
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.devices.GenericSpo2SampleProvider
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider
+import nodomain.freeyourgadget.gadgetbridge.devices.SleepSessionProvider
 import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider
 import nodomain.freeyourgadget.gadgetbridge.entities.AbstractActivitySample
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession
-import nodomain.freeyourgadget.gadgetbridge.entities.GenericHeartRateSampleDao
-import nodomain.freeyourgadget.gadgetbridge.entities.GenericSleepStageSampleDao
-import nodomain.freeyourgadget.gadgetbridge.entities.GenericSpo2SampleDao
-import nodomain.freeyourgadget.gadgetbridge.entities.GloryFitStepsSampleDao
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.AbstractNotificationPattern
 import nodomain.freeyourgadget.gadgetbridge.model.Spo2Sample
@@ -58,22 +53,18 @@ abstract class GloryFitCoordinator : AbstractBLEDeviceCoordinator() {
         return GloryFitSupport::class.java
     }
 
-    override fun getAllDeviceDao(session: DaoSession): MutableMap<AbstractDao<*, *>, Property> {
-        return object : HashMap<AbstractDao<*, *>, Property>() {
-            init {
-                put(session.gloryFitStepsSampleDao, GloryFitStepsSampleDao.Properties.DeviceId)
-                put(session.genericSleepStageSampleDao, GenericSleepStageSampleDao.Properties.DeviceId)
-                put(session.genericHeartRateSampleDao, GenericHeartRateSampleDao.Properties.DeviceId)
-                put(session.genericSpo2SampleDao, GenericSpo2SampleDao.Properties.DeviceId)
-            }
-        }
-    }
-
     override fun getSampleProvider(
         device: GBDevice,
         session: DaoSession
     ): SampleProvider<out AbstractActivitySample>? {
         return GloryFitActivitySampleProvider(device, session)
+    }
+
+    override fun getSleepSessionProvider(
+        device: GBDevice,
+        session: DaoSession
+    ): SleepSessionProvider {
+        return GloryFitSleepSessionProvider(device, session)
     }
 
     override fun getSpo2SampleProvider(
@@ -145,6 +136,14 @@ abstract class GloryFitCoordinator : AbstractBLEDeviceCoordinator() {
     override fun supportsWeather(device: GBDevice): Boolean {
         return true
     }
+
+    override fun supportsAppNotifications(device: GBDevice): Boolean = true
+
+    override fun supportsPhoneCalls(device: GBDevice): Boolean = true
+
+    override fun supportsCallControl(device: GBDevice): Boolean = true
+
+    override fun supportsSmsReply(device: GBDevice): Boolean = getCannedRepliesSlotCount(device) > 0
 
     override fun supportsFindDevice(device: GBDevice): Boolean {
         return true

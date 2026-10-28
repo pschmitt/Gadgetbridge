@@ -16,6 +16,6 @@ public class DecimalValueFormatterTest {
     public void keepsRequestedDecimalsWithDotSeparator() {
         assertEquals("3.11", new DecimalValueFormatter(2).format(3.106855));
         assertEquals("39.4", new DecimalValueFormatter(1).format(39.37));
-        assertEquals("22.37", new DecimalValueFormatter(2).getFormattedValue(22.36936f));
+        assertEquals("22.37", new DecimalValueFormatter(2).format(22.36936f));
     }
 }

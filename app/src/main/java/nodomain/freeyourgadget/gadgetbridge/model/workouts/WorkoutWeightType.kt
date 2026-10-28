@@ -28,6 +28,11 @@ enum class WorkoutWeightType(override val label: Int) : LabeledEntry {
      * A rep-max count, for example 5RM.
      */
     RM(R.string.workout_weight_rm),
+
+    /**
+     * A [WorkoutLoadCategory]. The value is its ordinal.
+     */
+    LOAD_CATEGORY(R.string.workout_weight_load_category),
     ;
 
     companion object {

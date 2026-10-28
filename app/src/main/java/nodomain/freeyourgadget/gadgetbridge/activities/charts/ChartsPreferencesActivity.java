@@ -21,7 +21,10 @@ import android.os.Bundle;
 import android.text.InputType;
 
 import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
+
+import com.mobeta.android.dslv.DragSortListPreference;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.AboutUserPreferencesActivity;
@@ -69,26 +72,14 @@ public class ChartsPreferencesActivity extends AbstractSettingsActivityV2 {
 
             setPreferencesFromResource(R.xml.charts_preferences, rootKey);
 
-            // If a device was provided, show the charts tabs preference, since that's the only one
-            // that is device-specific for now. We also sync changes to the device-specific preference.
-            //final DragSortListPreference prefChartsTabs = findPreference(DeviceSettingsPreferenceConst.PREFS_DEVICE_CHARTS_TABS);
-            //if (prefChartsTabs != null) {
-            //    if (device != null) {
-            //        final DevicePrefs devicePrefs = GBApplication.getDevicePrefs(device.getAddress());
-            //        final String myTabs = devicePrefs.getString(DeviceSettingsPreferenceConst.PREFS_DEVICE_CHARTS_TABS, null);
-            //        if (myTabs != null) {
-            //            prefChartsTabs.setValue(myTabs);
-            //        }
-            //        prefChartsTabs.setOnPreferenceChangeListener((preference, newValue) -> {
-            //            devicePrefs.getPreferences().edit()
-            //                    .putString(DeviceSettingsPreferenceConst.PREFS_DEVICE_CHARTS_TABS, String.valueOf(newValue))
-            //                    .apply();
-            //            return true;
-            //        });
-            //    } else {
-            //        prefChartsTabs.setVisible(false);
-            //    }
-            //}
+            final PreferenceCategory deviceCategory = findPreference("pref_charts_device");
+            if (deviceCategory != null && device != null && device.getDeviceCoordinator().supportsCharts(device)) {
+                deviceCategory.setTitle(device.getAliasOrName());
+                deviceCategory.setVisible(true);
+                final DragSortListPreference chartsTabsPref = ChartsTabsPreference.create(requireContext(), device);
+                deviceCategory.addPreference(chartsTabsPref);
+                ChartsTabsPreference.setup(chartsTabsPref, device);
+            }
 
             setInputTypeFor(GBPrefs.CHART_MAX_HEART_RATE, InputType.TYPE_CLASS_NUMBER);
             setInputTypeFor(GBPrefs.CHART_MIN_HEART_RATE, InputType.TYPE_CLASS_NUMBER);
@@ -100,18 +91,11 @@ public class ChartsPreferencesActivity extends AbstractSettingsActivityV2 {
 
             final Preference aboutUserPref = findPreference("pref_category_activity_personal");
             if (aboutUserPref != null) {
-                if (device != null) {
-                    aboutUserPref.setOnPreferenceClickListener(preference -> {
-                        final Intent enableIntent = new Intent(getActivity(), AboutUserPreferencesActivity.class);
-                        startActivity(enableIntent);
-                        return true;
-                    });
-                } else {
-                    final Preference aboutUserHeader = findPreference("pref_category_activity_personal_title");
-                    if (aboutUserHeader != null) {
-                        aboutUserHeader.setVisible(false);
-                    }
-                }
+                aboutUserPref.setOnPreferenceClickListener(preference -> {
+                    final Intent enableIntent = new Intent(getActivity(), AboutUserPreferencesActivity.class);
+                    startActivity(enableIntent);
+                    return true;
+                });
             }
         }
     }

@@ -5,28 +5,29 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
-import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.components.LimitLine;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.formatter.ValueFormatter;
-
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
+import kotlin.jvm.functions.Function1;
+
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.hydration.HydrationChartData;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartLegendView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.DaySelections;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSeries;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSpec;
+import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileData;
+import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileGridUtilKt;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.devices.HydrationSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
@@ -38,9 +39,9 @@ public class HydrationPeriodFragment extends HydrationFragment<HydrationPeriodFr
     private int TOTAL_DAYS = 1;
 
     private TextView mDateView;
-    private TextView dailyAverage;
-    private TextView hydrationGoal;
-    private BarChart hydrationChart;
+    private LinearLayout hydrationStatsContainer;
+    private GbChartView hydrationChart;
+    private ChartLegendView hydrationLegend;
 
     @Override
     protected boolean isSingleDay() {
@@ -71,44 +72,14 @@ public class HydrationPeriodFragment extends HydrationFragment<HydrationPeriodFr
 
         mDateView = rootView.findViewById(R.id.hydration_date_view);
         hydrationChart = rootView.findViewById(R.id.hydration_chart);
-        dailyAverage = rootView.findViewById(R.id.hydration_daily_average);
-        hydrationGoal = rootView.findViewById(R.id.hydration_goal);
+        hydrationStatsContainer = rootView.findViewById(R.id.hydration_period_stats_container);
+        hydrationLegend = rootView.findViewById(R.id.hydration_chart_legend);
+        hydrationChart.setZoomable(TOTAL_DAYS > 7);
+        hydrationChart.dismissSelectionOnTapOutside(rootView);
 
-        setupHydrationChart();
         refresh();
 
         return rootView;
-    }
-
-    private void setupHydrationChart() {
-        hydrationChart.getDescription().setEnabled(false);
-        if (TOTAL_DAYS <= 7) {
-            hydrationChart.setTouchEnabled(false);
-            hydrationChart.setPinchZoom(false);
-        }
-        hydrationChart.setDoubleTapToZoomEnabled(false);
-        hydrationChart.getLegend().setEnabled(false);
-
-        final XAxis xAxisBottom = hydrationChart.getXAxis();
-        xAxisBottom.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxisBottom.setDrawLabels(true);
-        xAxisBottom.setDrawGridLines(false);
-        xAxisBottom.setEnabled(true);
-        xAxisBottom.setDrawLimitLinesBehindData(true);
-        xAxisBottom.setTextColor(CHART_TEXT_COLOR);
-
-        final YAxis yAxisLeft = hydrationChart.getAxisLeft();
-        yAxisLeft.setDrawGridLines(true);
-        yAxisLeft.setDrawTopYLabelEntry(true);
-        yAxisLeft.setEnabled(true);
-        yAxisLeft.setTextColor(CHART_TEXT_COLOR);
-        yAxisLeft.setAxisMinimum(0f);
-
-        final YAxis yAxisRight = hydrationChart.getAxisRight();
-        yAxisRight.setEnabled(true);
-        yAxisRight.setDrawLabels(false);
-        yAxisRight.setDrawGridLines(false);
-        yAxisRight.setDrawAxisLine(true);
     }
 
     @Override
@@ -136,63 +107,40 @@ public class HydrationPeriodFragment extends HydrationFragment<HydrationPeriodFr
         final HydrationUnit unit = data.unit;
 
         mDateView.setText(DateTimeUtils.formatDaysUntil(TOTAL_DAYS, getTSEnd()));
-        hydrationChart.setData(null);
 
-        final List<BarEntry> entries = new ArrayList<>();
+        final int n = data.days.size();
+        final long[] epochDays = new long[n];
+        final double[] volumes = new double[n];
         double totalMl = 0;
-        for (int i = 0; i < data.days.size(); i++) {
+        for (int i = 0; i < n; i++) {
             final HydrationDay day = data.days.get(i);
-            entries.add(new BarEntry(i, (float) unit.fromMl(day.totalMl)));
+            epochDays[i] = day.date.toEpochDay();
+            volumes[i] = unit.fromMl(day.totalMl);
             totalMl += day.totalMl;
         }
         final int color = ContextCompat.getColor(context, R.color.hydration_color);
-        final BarDataSet set = new BarDataSet(entries, getTitle());
-        set.setDrawValues(true);
-        set.setColors(color);
-        set.setValueFormatter(new ValueFormatter() {
-            @Override
-            public String getFormattedValue(final float value) {
-                //noinspection MalformedFormatString
-                return String.format(Locale.getDefault(), "%." + unit.getDecimals() + "f", value);
-            }
-        });
+        final String label = getTitle();
+        final String emptyValue = getString(R.string.stats_empty_value);
+        final ChartSpec spec = HydrationChartData.periodSpec(epochDays, volumes, unit.fromMl(data.goalMl), label, color);
+        final Function1<Integer, String> rowText = i -> volumes[i] > 0 ? unit.format(context, data.days.get(i).totalMl) : emptyValue;
+        hydrationChart.setSelectionContent(x -> DaySelections.of(
+                epochDays, x, Collections.singletonList(label), Collections.singletonList(color),
+                Collections.singletonList(rowText), emptyValue
+        ));
+        hydrationChart.setSpec(spec);
 
-        final float goal = (float) unit.fromMl(data.goalMl);
-        final YAxis yAxisLeft = hydrationChart.getAxisLeft();
-        yAxisLeft.removeAllLimitLines();
-        final LimitLine goalLine = new LimitLine(goal);
-        goalLine.setLineColor(color);
-        goalLine.setLineWidth(1.5f);
-        goalLine.enableDashedLine(15f, 10f, 0f);
-        yAxisLeft.addLimitLine(goalLine);
-        yAxisLeft.setAxisMaximum((float) Math.max(set.getYMax() * 1.1, goal * 1.1));
-
-        hydrationChart.getXAxis().setValueFormatter(getDayValueFormatter(data));
-
-        final BarData barData = new BarData(set);
-        barData.setValueTextColor(TEXT_COLOR);
-        barData.setValueTextSize(10f);
-        if (TOTAL_DAYS > 7) {
-            hydrationChart.setRenderer(new AngledLabelsChartRenderer(hydrationChart, hydrationChart.getAnimator(), hydrationChart.getViewPortHandler()));
+        final List<ChartSeries> legendSeries = new ArrayList<>(spec.getSeries());
+        if (!spec.getSeries().isEmpty() && !spec.getLimitLines().isEmpty()) {
+            legendSeries.add(ChartLegendView.lineItem(getString(R.string.hydration_goal), color));
         }
-        hydrationChart.setData(barData);
+        hydrationLegend.setSeries(legendSeries.size() > 1 ? legendSeries : Collections.emptyList());
 
-        dailyAverage.setText(unit.format(context, data.days.isEmpty() ? 0 : totalMl / data.days.size()));
-        hydrationGoal.setText(unit.format(context, data.goalMl));
-    }
-
-    private ValueFormatter getDayValueFormatter(final HydrationData data) {
-        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(TOTAL_DAYS > 7 ? "dd" : "EEE", Locale.getDefault());
-        return new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                final int index = (int) value;
-                if (index < 0 || index >= data.days.size()) {
-                    return "";
-                }
-                return data.days.get(index).date.format(formatter);
-            }
-        };
+        final List<StatTileData> stats = Arrays.asList(
+                new StatTileData(unit.format(context, data.days.isEmpty() ? 0 : totalMl / data.days.size()), getString(R.string.hydration_daily_average)),
+                new StatTileData(unit.format(context, data.goalMl), getString(R.string.hydration_goal))
+        );
+        hydrationStatsContainer.removeAllViews();
+        StatTileGridUtilKt.addStatTileGrid(hydrationStatsContainer, context, stats, 0);
     }
 
     @Override

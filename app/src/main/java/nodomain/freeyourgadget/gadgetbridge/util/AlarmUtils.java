@@ -127,6 +127,19 @@ public class AlarmUtils {
     }
 
     /**
+     * Returns the items of a Monday to Sunday list, from the first day of the week of the locale.
+     */
+    public static <T> List<T> orderByFirstDayOfWeek(final List<T> mondayToSunday) {
+        // Calendar.SUNDAY is 1 and Calendar.MONDAY is 2
+        final int firstDayIndex = (Calendar.getInstance().getFirstDayOfWeek() + 5) % 7;
+        final List<T> ordered = new ArrayList<>(mondayToSunday.size());
+        for (int i = 0; i < mondayToSunday.size(); i++) {
+            ordered.add(mondayToSunday.get((firstDayIndex + i) % mondayToSunday.size()));
+        }
+        return ordered;
+    }
+
+    /**
      * Just for backward compatibility, do not call in new code.
      * @param gbDevice
      * @return

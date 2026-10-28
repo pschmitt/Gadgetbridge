@@ -382,7 +382,7 @@ public abstract class AbstractBTLEMultiDeviceSupport extends AbstractBTLEDeviceS
 
             if (supportedServices.contains(service.getUuid())) {
                 logger.debug("discovered supported service: {}: {}",
-                             BleNamesResolver.resolveServiceName(service.getUuid().toString()),
+                             BleNamesResolver.resolveServiceName(service),
                              service.getUuid());
                 List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
                 if (characteristics == null || characteristics.isEmpty()) {
@@ -396,7 +396,7 @@ public abstract class AbstractBTLEMultiDeviceSupport extends AbstractBTLEDeviceS
                     intmAvailableCharacteristics.put(characteristic.getUuid(), characteristic);
                     logger.info("    characteristic: {}: {} ({})",
                                 BleNamesResolver.resolveCharacteristicName(
-                                        characteristic.getUuid().toString()),
+                                        characteristic),
                                 characteristic.getUuid(),
                                 BleNamesResolver.getCharacteristicPropertyString(
                                         characteristic.getProperties()));
@@ -419,7 +419,7 @@ public abstract class AbstractBTLEMultiDeviceSupport extends AbstractBTLEDeviceS
                 }
             } else {
                 logger.debug("discovered unsupported service: {}: {}",
-                             BleNamesResolver.resolveServiceName(service.getUuid().toString()),
+                             BleNamesResolver.resolveServiceName(service),
                              service.getUuid());
             }
         }

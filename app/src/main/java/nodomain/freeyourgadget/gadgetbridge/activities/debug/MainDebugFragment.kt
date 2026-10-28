@@ -5,16 +5,22 @@ import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.Preference
 import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.Logging
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.CameraActivity
 import nodomain.freeyourgadget.gadgetbridge.activities.PermissionsActivity
+import nodomain.freeyourgadget.gadgetbridge.activities.discovery.PickDeviceType
 import nodomain.freeyourgadget.gadgetbridge.activities.welcome.WelcomeActivity
+import nodomain.freeyourgadget.gadgetbridge.database.DBHelper
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventCameraRemote
-import nodomain.freeyourgadget.gadgetbridge.util.DeviceTypeDialog
+import nodomain.freeyourgadget.gadgetbridge.devices.DeviceManager
+import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
+import nodomain.freeyourgadget.gadgetbridge.model.DeviceType
 import nodomain.freeyourgadget.gadgetbridge.util.FileUtils
 import nodomain.freeyourgadget.gadgetbridge.util.GB
 import org.slf4j.Logger
@@ -29,13 +35,19 @@ import kotlin.let
 
 @Suppress("unused")
 class MainDebugFragment : AbstractDebugFragment() {
+    private val addTestDevice = registerForActivityResult(PickDeviceType()) { selection ->
+        selection?.let { createTestDevice(it.address, it.deviceType) }
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.debug_preferences_main, rootKey)
+        index(R.xml.debug_preferences_main)
+        for (screen in DebugActivityV2.searchableScreens()) {
+            index(screen.xml, screen.title)
+        }
 
         onClick(PREF_DEBUG_ADD_TEST_DEVICE) {
-            DeviceTypeDialog(requireActivity(), R.string.add_test_device, null).show { address, deviceType ->
-                DeviceTypeDialog.createTestDevice(requireContext(), deviceType, address, null)
-            }
+            addTestDevice.launch(PickDeviceType.Input(R.string.add_test_device, null))
         }
 
         onClick(PREF_DEBUG_SHARE_LOGS) { showLogSharingWarning() }
@@ -147,6 +159,33 @@ class MainDebugFragment : AbstractDebugFragment() {
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Gadgetbridge log file")
         emailIntent.putExtra(Intent.EXTRA_STREAM, providerUri)
         startActivity(Intent.createChooser(emailIntent, "Share File"))
+    }
+
+    private fun createTestDevice(address: String, deviceType: DeviceType) {
+        val context = requireContext()
+        val deviceNameResource = deviceType.deviceCoordinator.deviceNameResource
+        val deviceName = if (deviceNameResource == 0) deviceType.name else context.getString(deviceNameResource)
+
+        LOG.debug("Adding test device {} as {}", address, deviceType)
+
+        try {
+            GBApplication.acquireDB().use { db ->
+                val gbDevice = GBDevice(address, deviceName, "", null, deviceType)
+                gbDevice.firmwareVersion = "N/A"
+                gbDevice.firmwareVersion2 = "N/A"
+
+                //this causes the attributes (fw version) to be stored as well. Not much useful, but still...
+                gbDevice.setState(GBDevice.State.INITIALIZED)
+
+                DBHelper.getDevice(gbDevice, db.daoSession) //the addition happens here
+
+                LocalBroadcastManager.getInstance(context)
+                    .sendBroadcast(Intent(DeviceManager.ACTION_REFRESH_DEVICELIST))
+                GB.toast(context, "Added $deviceName", Toast.LENGTH_SHORT, GB.INFO)
+            }
+        } catch (e: Exception) {
+            LOG.error("Error accessing database", e)
+        }
     }
 
     companion object {

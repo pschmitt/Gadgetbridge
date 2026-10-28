@@ -8,12 +8,20 @@
         android:layout="@layout/preference_checkbox"
         android:title="@string/pref_title_pebble_enable_bgjs"
         android:summary="@string/pref_summary_pebble_enable_bgjs"
-        app:iconSpaceReserved="false" />
+        android:icon="@drawable/ic_activity_unknown_small" />
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="pebble_enable_finding_app_updates"
         android:layout="@layout/preference_checkbox"
         android:title="@string/pref_title_pebble_search_app_updates"
         android:summary="@string/pref_summary_pebble_search_app_updates"
-        app:iconSpaceReserved="false" />
-</androidx.preference.PreferenceScreen>
+        android:icon="@drawable/ic_download" />
+    <ListPreference
+        android:defaultValue="rebble"
+        android:entries="@array/prefs_pebble_app_stores"
+        android:entryValues="@array/prefs_pebble_app_stores_values"
+        android:key="pebble_app_store"
+        android:title="@string/prefs_pebble_appstore_title"
+        android:summary="@string/prefs_pebble_appstore_summary"
+        android:icon="@drawable/ic_store" />
+    </androidx.preference.PreferenceScreen>

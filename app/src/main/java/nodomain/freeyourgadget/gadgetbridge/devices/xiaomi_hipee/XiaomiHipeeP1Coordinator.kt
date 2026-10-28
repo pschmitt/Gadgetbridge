@@ -23,7 +23,6 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.annotation.NonNull
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
@@ -39,9 +38,6 @@ import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCardAction
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.devices.deviceCardAction
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
-import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession
-import nodomain.freeyourgadget.gadgetbridge.entities.Device
-import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiHipeeP1ReadingDao
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport
 import nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi_hipee.XiaomiHipeeP1Support
 import java.util.regex.Pattern
@@ -67,6 +63,7 @@ class XiaomiHipeeP1Coordinator : AbstractBLEDeviceCoordinator() {
 
     override fun getCustomActions(): List<DeviceCardAction> = listOf(
         deviceCardAction {
+            id = "hipee_live_posture"
             icon = { R.drawable.ic_angle }
             description = { _, context -> context.getString(R.string.mi_hipee_p1_view_live_posture) }
             isVisible = { device -> device.isInitialized }
@@ -77,6 +74,7 @@ class XiaomiHipeeP1Coordinator : AbstractBLEDeviceCoordinator() {
             }
         },
         deviceCardAction {
+            id = "hipee_history"
             icon = { R.drawable.ic_activity_graphs }
             description = { _, context -> context.getString(R.string.controlcenter_start_activitymonitor) }
             isVisible = { _ -> true }
@@ -87,13 +85,6 @@ class XiaomiHipeeP1Coordinator : AbstractBLEDeviceCoordinator() {
             }
         },
     )
-
-    override fun deleteDevice(@NonNull gbDevice: GBDevice, @NonNull device: Device, @NonNull session: DaoSession) {
-        session.xiaomiHipeeP1ReadingDao.queryBuilder()
-            .where(XiaomiHipeeP1ReadingDao.Properties.DeviceId.eq(device.id))
-            .buildDelete()
-            .executeDeleteWithoutDetachingEntities()
-    }
 
     override fun getDeviceSettings(device: GBDevice): DeviceSettingsSpec = deviceSettings {
         var standardPostureDialog: AlertDialog? = null

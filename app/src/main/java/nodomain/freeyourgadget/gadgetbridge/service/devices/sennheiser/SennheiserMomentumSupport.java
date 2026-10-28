@@ -31,6 +31,7 @@ import static nodomain.freeyourgadget.gadgetbridge.service.devices.sennheiser.Se
 import static nodomain.freeyourgadget.gadgetbridge.service.devices.sennheiser.SennheiserMomentumProtocol.CMD_SET_VOICE_PROMPT_CONTROL;
 import static nodomain.freeyourgadget.gadgetbridge.service.devices.sennheiser.SennheiserMomentumProtocol.CMD_SET_VOLUME_ORIENTATION;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -114,6 +115,7 @@ public class SennheiserMomentumSupport extends AbstractHeadphoneBTBRDeviceSuppor
      * instead - {@link nodomain.freeyourgadget.gadgetbridge.util.BondingUtil} connects once it is
      * bonded.
      */
+    @SuppressLint("MissingPermission")
     boolean isBonded() {
         return getBluetoothAdapter().getRemoteDevice(getDevice().getAddress()).getBondState() == BluetoothDevice.BOND_BONDED;
     }

@@ -33,3 +33,8 @@ sealed class ListEntry {
     data class Res(override val value: String, @param:StringRes val label: Int) : ListEntry()
     data class Text(override val value: String, val label: String) : ListEntry()
 }
+
+/**
+ * A group of entries, with a title.
+ */
+data class ListEntryGroup(@param:StringRes val title: Int, val entries: List<ListEntry>)

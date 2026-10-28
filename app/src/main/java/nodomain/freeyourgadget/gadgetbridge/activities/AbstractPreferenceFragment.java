@@ -67,8 +67,10 @@ import nodomain.freeyourgadget.gadgetbridge.util.XTimePreference;
 import nodomain.freeyourgadget.gadgetbridge.util.XTimePreferenceFragment;
 import nodomain.freeyourgadget.gadgetbridge.util.dialogs.MaterialEditTextPreferenceDialogFragment;
 import nodomain.freeyourgadget.gadgetbridge.util.dialogs.MaterialListPreferenceDialogFragment;
+import nodomain.freeyourgadget.gadgetbridge.util.dialogs.MaterialGroupedMultiSelectListPreferenceDialogFragment;
 import nodomain.freeyourgadget.gadgetbridge.util.dialogs.MaterialMultiSelectListPreferenceDialogFragment;
 import nodomain.freeyourgadget.gadgetbridge.util.dialogs.MaterialSubtitleListPreferenceDialogFragment;
+import nodomain.freeyourgadget.gadgetbridge.util.preferences.GroupedMultiSelectListPreference;
 import nodomain.freeyourgadget.gadgetbridge.util.preferences.MinMaxTextWatcher;
 import nodomain.freeyourgadget.gadgetbridge.util.preferences.SubtitleListPreference;
 
@@ -173,6 +175,8 @@ public abstract class AbstractPreferenceFragment extends PreferenceFragmentCompa
             dialogFragment = MaterialEditTextPreferenceDialogFragment.newInstance(preference.getKey());
         } else if (preference instanceof ListPreference) {
             dialogFragment = MaterialListPreferenceDialogFragment.newInstance(preference.getKey());
+        } else if (preference instanceof GroupedMultiSelectListPreference) {
+            dialogFragment = new MaterialGroupedMultiSelectListPreferenceDialogFragment();
         } else if (preference instanceof MultiSelectListPreference) {
             dialogFragment = MaterialMultiSelectListPreferenceDialogFragment.newInstance(preference.getKey());
         } else {
@@ -306,6 +310,11 @@ public abstract class AbstractPreferenceFragment extends PreferenceFragmentCompa
             final Preference preference = findPreference(key);
             if (preference == null) {
                 LOG.warn("Preference {} not found", key);
+                return;
+            }
+
+            if (preference.getPreferenceDataStore() != null) {
+                LOG.trace("Preference {} is not stored in these shared preferences, ignoring", key);
                 return;
             }
 

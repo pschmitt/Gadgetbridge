@@ -16,6 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.xiaomi.watches;
 
+import android.util.Size;
+
 import androidx.annotation.NonNull;
 
 import java.util.regex.Pattern;
@@ -68,5 +70,10 @@ public class MiWatchLiteCoordinator extends XiaomiCoordinator {
     @Override
     public DeviceKind getDeviceKind(@NonNull GBDevice device) {
         return DeviceKind.WATCH;
+    }
+
+    @Override
+    public Size getScreenSize() {
+        return new Size(320, 320);
     }
 }

@@ -5,6 +5,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutDuration
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutDurationType
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutEffort
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutEquipment
+import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutLoadCategory
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutPoolLengthUnit
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutStepNode
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutStepType
@@ -299,6 +300,32 @@ class GarminWorkoutFitEncoderTest : TestBase() {
         )
 
         assertEncodes(template, "/garmin/garmin_strength_full.txt")
+    }
+
+    @Test
+    fun testStrengthLoadCategoryAndRepsPlus() {
+        fun benchPress(duration: WorkoutDuration, weightType: WorkoutWeightType, weightValue: Int) = step(
+            WorkoutStepType.ACTIVE, duration, noTarget,
+            note = "Bench Press",
+            exerciseId = "bench_press/barbell_bench_press",
+            weightType = weightType, weightValue = weightValue,
+        )
+
+        val template = WorkoutTemplate(
+            vendorId = VENDOR_ID,
+            name = "garmin_strength_load",
+            activityKind = ActivityKind.STRENGTH_TRAINING,
+            steps = mutableListOf(
+                benchPress(reps(10), WorkoutWeightType.MANUAL, 70_000),
+                benchPress(reps(10), WorkoutWeightType.LOAD_CATEGORY, WorkoutLoadCategory.LIGHT.ordinal),
+                benchPress(reps(10), WorkoutWeightType.LOAD_CATEGORY, WorkoutLoadCategory.MODERATE.ordinal),
+                benchPress(reps(10), WorkoutWeightType.LOAD_CATEGORY, WorkoutLoadCategory.HEAVY.ordinal),
+                benchPress(reps(10), WorkoutWeightType.LOAD_CATEGORY, WorkoutLoadCategory.VERY_HEAVY.ordinal),
+                benchPress(repsPlus(10), WorkoutWeightType.MANUAL, 70_000),
+            ),
+        )
+
+        assertEncodes(template, "/garmin/garmin_strength_load.txt")
     }
 
     @Test
@@ -662,6 +689,7 @@ class GarminWorkoutFitEncoderTest : TestBase() {
     private fun distanceCm(cm: Long) = WorkoutDuration(WorkoutDurationType.DISTANCE, cm)
     private fun calories(kcal: Long) = WorkoutDuration(WorkoutDurationType.CALORIES, kcal)
     private fun reps(count: Long) = WorkoutDuration(WorkoutDurationType.REPS, count)
+    private fun repsPlus(count: Long) = WorkoutDuration(WorkoutDurationType.REPS, count, plus = true)
     private fun hrAbove(bpm: Long) = WorkoutDuration(WorkoutDurationType.HR_ABOVE, bpm)
     private fun hrBelow(bpm: Long) = WorkoutDuration(WorkoutDurationType.HR_BELOW, bpm)
     private fun powerAbove(watts: Long) = WorkoutDuration(WorkoutDurationType.POWER_ABOVE, watts)

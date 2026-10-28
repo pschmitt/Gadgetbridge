@@ -16,8 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.generic_scale
 
-import de.greenrobot.dao.AbstractDao
-import de.greenrobot.dao.Property
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCardAction
@@ -25,7 +23,6 @@ import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.devices.GenericWeightSampleProvider
 import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession
-import nodomain.freeyourgadget.gadgetbridge.entities.GenericWeightSampleDao
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceCandidate
 import nodomain.freeyourgadget.gadgetbridge.model.WeightSample
@@ -35,12 +32,6 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.generic_scale.Generi
 import java.util.Collections
 
 class GenericWeightScaleCoordinator : AbstractBLEDeviceCoordinator() {
-    override fun getAllDeviceDao(session: DaoSession): MutableMap<AbstractDao<*, *>?, Property?> {
-        return Collections.singletonMap(
-            session.genericWeightSampleDao, GenericWeightSampleDao.Properties.DeviceId
-        )
-    }
-
     override fun getCustomActions(): MutableList<DeviceCardAction?> {
         return Collections.singletonList(
             DeviceCardAction.forActivity(
@@ -87,7 +78,7 @@ class GenericWeightScaleCoordinator : AbstractBLEDeviceCoordinator() {
     }
 
     override fun supports(candidate: GBDeviceCandidate): Boolean {
-        return candidate.supportsService(GattService.UUID_SERVICE_WEIGHT_SCALE)
+        return candidate.supportsService(GattService.SERVICE_WEIGHT_SCALE.uuid)
     }
 
     override fun supportsWeightMeasurement(device: GBDevice): Boolean {

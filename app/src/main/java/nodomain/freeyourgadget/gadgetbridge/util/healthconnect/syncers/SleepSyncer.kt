@@ -21,10 +21,9 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.metadata.Metadata
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.SleepAnalysis
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind
-import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample
+import nodomain.freeyourgadget.gadgetbridge.model.SleepSession
 import nodomain.freeyourgadget.gadgetbridge.util.healthconnect.HealthConnectUtils
 import org.slf4j.LoggerFactory
 import java.time.Instant
@@ -32,7 +31,7 @@ import java.time.ZoneId
 
 private val LOG = LoggerFactory.getLogger("SleepSyncer")
 
-// Persisted per-night identity. SleepAnalysis re-segments a night's start earlier across syncs, so
+// Persisted per-night identity. The SleepSessionProvider can re-segment a night's start earlier across syncs, so
 // we freeze a clientRecordId on first sight and reuse it for any later time-overlapping detection;
 // the HC record then grows in place instead of orphaning the night under a new id.
 internal data class SleepSessionRow(
@@ -85,7 +84,7 @@ internal object SleepSyncer {
             for (idx in rows.indices) {
                 if (idx in used) continue
                 val r = rows[idx]
-                // Inclusive overlap (d.start <= r.end && d.end >= r.start): SleepAnalysis only
+                // Inclusive overlap (d.start <= r.end && d.end >= r.start): the segmenter only
                 // splits across a >1h wake gap so distinct sessions never touch, and inclusive
                 // still matches a fragment sitting exactly on the grown session's start edge.
                 if (!d.start.isAfter(r.endTime) && !d.end.isBefore(r.startTime)) {
@@ -121,43 +120,13 @@ internal object SleepSyncer {
         return rows.filter { it.endTime.isAfter(pruneBefore) }
     }
 
-    /**
-     * Pure fetch-window lower bound for SLEEP (no HC/DB/Android deps, unit-testable). SleepAnalysis
-     * re-derives stages from the fetched samples alone, so a stored night whose start predates the
-     * plain look-back would be re-detected as a clipped tail and overwrite its good HC record with
-     * truncated stages (issue #6453). Extend the start back to the earliest stored row that overlaps
-     * [baseStart, end] but began before baseStart. Clamped to `floor` so a stale row with a far-past
-     * start can't balloon the fetch unboundedly.
-     *
-     * The clamp assumes a night is shorter than floor-to-baseStart (one look-back, ~24h): SleepAnalysis
-     * splits on any wake gap > 1h, so a real session never spans that long. A pathological > 24h
-     * session (e.g. a sensor misclassifying continuous wake as sleep) could clamp short of its true
-     * start and still write clipped stages — acceptable, as that input is already malformed.
-     */
-    internal fun sleepQueryStart(
-        rows: List<SleepSessionRow>,
-        baseStart: Instant,
-        end: Instant,
-        floor: Instant
-    ): Instant {
-        val earliestOverlappingStart = rows
-            .filter { !it.endTime.isBefore(baseStart) && !it.startTime.isAfter(end) }
-            .minOfOrNull { it.startTime }
-        val extended = if (earliestOverlappingStart != null && earliestOverlappingStart.isBefore(baseStart)) {
-            earliestOverlappingStart
-        } else {
-            baseStart
-        }
-        return if (extended.isBefore(floor)) floor else extended
-    }
-
     suspend fun sync(
         healthConnectClient: HealthConnectClient,
         gbDevice: GBDevice,
         metadata: Metadata,
         offset: ZoneId,
         grantedPermissions: Set<String>,
-        deviceSamples: List<ActivitySample>,
+        sleepSessions: List<SleepSession>,
         context: Context,
         existingRows: List<SleepSessionRow>
     ): SleepSyncResult {
@@ -175,25 +144,17 @@ internal object SleepSyncer {
             return SleepSyncResult(SyncerStatistics(recordType = "Sleep"), existingRows)
         }
 
-        if (deviceSamples.isEmpty()) {
-            LOG.info("No device samples provided for sleep analysis for device '$deviceName'.")
-            return SleepSyncResult(SyncerStatistics(recordType = "Sleep"), existingRows)
-        }
-
-        val sortedDeviceSamples = deviceSamples.sortedBy { it.timestamp }
-        val allIdentifiedSessions = SleepAnalysis().calculateSleepSessions(sortedDeviceSamples)
-
-        if (allIdentifiedSessions.isEmpty()) {
-            LOG.info("No sleep sessions identified by SleepAnalysis for device '$deviceName'.")
+        if (sleepSessions.isEmpty()) {
+            LOG.info("No sleep sessions found for device '$deviceName'.")
             return SleepSyncResult(SyncerStatistics(recordType = "Sleep"), existingRows)
         }
 
         // No slice-ownership filter: the frozen clientRecordId dedups, so look-back re-discovery
         // upserts the same record instead of duplicating.
-        val candidates = allIdentifiedSessions.mapNotNull { buildCandidate(it, sortedDeviceSamples, deviceName) }
-        val skippedCount = allIdentifiedSessions.size - candidates.size
+        val candidates = sleepSessions.mapNotNull { buildCandidate(it, deviceName) }
+        val skippedCount = sleepSessions.size - candidates.size
         if (skippedCount > 0) {
-            LOG.info("Skipped $skippedCount sleep session(s) for device '$deviceName' (no samples, no valid stages, or invalid timings).")
+            LOG.info("Skipped $skippedCount sleep session(s) for device '$deviceName' (no valid stages, or invalid timings).")
         }
 
         if (candidates.isEmpty()) {
@@ -258,34 +219,32 @@ internal object SleepSyncer {
         val stages: List<SleepSessionRecord.Stage>
     )
 
-    private fun buildCandidate(
-        analysisSession: SleepAnalysis.SleepSession,
-        sortedDeviceSamples: List<ActivitySample>,
-        deviceName: String
-    ): SleepCandidate? {
-        val sessionBoundaryStart = analysisSession.sleepStart.toInstant()
-        val sessionBoundaryEndInclusive = analysisSession.sleepEnd.toInstant()
+    /**
+     * Maps a sleep session's stage list to Health Connect stages.
+     */
+    private fun buildCandidate(sleepSession: SleepSession, deviceName: String): SleepCandidate? {
+        val sessionBoundaryStart = Instant.ofEpochMilli(sleepSession.startTime)
+        val sessionBoundaryEndInclusive = Instant.ofEpochMilli(sleepSession.endTime)
 
-        val samplesForThisSession = sortedDeviceSamples.filter {
-            val sampleEpochSeconds = it.timestamp.toLong()
-            sampleEpochSeconds >= (analysisSession.sleepStart.time / 1000L) &&
-                    sampleEpochSeconds <= (analysisSession.sleepEnd.time / 1000L)
+        val stages = sleepSession.stages.mapNotNull { stage ->
+            val stageType = mapActivityKindToSleepStage(stage.kind)
+            if (stageType == SleepSessionRecord.STAGE_TYPE_UNKNOWN) {
+                return@mapNotNull null
+            }
+            val stageStartTime = Instant.ofEpochMilli(stage.startTime)
+            val stageEndTime = Instant.ofEpochMilli(stage.endTime)
+            if (!stageEndTime.isAfter(stageStartTime)) {
+                LOG.trace(
+                    "Skipping zero or negative duration stage for device '{}' at {} (type {}), end {}.",
+                    deviceName, stageStartTime, stageType, stageEndTime
+                )
+                return@mapNotNull null
+            }
+            SleepSessionRecord.Stage(stageStartTime, stageEndTime, stageType)
         }
-
-        if (samplesForThisSession.isEmpty()) {
-            LOG.debug(
-                "Skipping session from SleepAnalysis for device '{}' as no samples were found in the original list for its timeframe ({} to {}).",
-                deviceName,
-                sessionBoundaryStart,
-                sessionBoundaryEndInclusive
-            )
-            return null
-        }
-
-        val stages = buildSleepStages(samplesForThisSession, deviceName)
 
         if (stages.isEmpty()) {
-            LOG.warn("No valid sleep stages derived for session ({} to {}, identified by SleepAnalysis) for device '$deviceName'. Skipping this session.", sessionBoundaryStart, sessionBoundaryEndInclusive)
+            LOG.warn("No valid sleep stages for session ({} to {}) for device '$deviceName'. Skipping this session.", sessionBoundaryStart, sessionBoundaryEndInclusive)
             return null
         }
 
@@ -300,69 +259,13 @@ internal object SleepSyncer {
         return SleepCandidate(DetectedSleepSession(recordFinalStartTime, recordFinalEndTime), stages)
     }
 
-    /**
-     * Builds sleep stages from activity samples by grouping consecutive samples of the same type.
-     */
-    internal fun buildSleepStages(
-        samplesForThisSession: List<ActivitySample>,
-        deviceName: String
-    ): List<SleepSessionRecord.Stage> {
-        val stages = mutableListOf<SleepSessionRecord.Stage>()
-        var currentIndex = 0
-
-        while (currentIndex < samplesForThisSession.size) {
-            val firstSampleOfStage = samplesForThisSession[currentIndex]
-            val stageType = mapActivityKindToSleepStage(firstSampleOfStage.kind)
-
-            if (stageType == SleepSessionRecord.STAGE_TYPE_UNKNOWN) {
-                currentIndex++
-                continue
-            }
-
-            val stageStartTime = Instant.ofEpochSecond(firstSampleOfStage.timestamp.toLong())
-            var nextDifferentSampleIndex = currentIndex + 1
-            while (nextDifferentSampleIndex < samplesForThisSession.size &&
-                mapActivityKindToSleepStage(samplesForThisSession[nextDifferentSampleIndex].kind) == stageType) {
-                nextDifferentSampleIndex++
-            }
-
-            val stageEndTime: Instant
-            if (nextDifferentSampleIndex < samplesForThisSession.size) {
-                // Stage ends when the next, different sample begins
-                stageEndTime = Instant.ofEpochSecond(samplesForThisSession[nextDifferentSampleIndex].timestamp.toLong())
-            } else {
-                // This is the last stage of this session. End time is one second after the last
-                // sample. Must land on a whole second: the per-night registry persists the span as
-                // epochSeconds, so a sub-second end (e.g. +1ms) reloads truncated and makes an
-                // otherwise-unchanged re-detection compare unequal -> the skip-unchanged guard in
-                // planSleepSessions is defeated and the night is needlessly rewritten every sync.
-                val lastSampleTimestamp = samplesForThisSession.last().timestamp.toLong()
-                stageEndTime = Instant.ofEpochSecond(lastSampleTimestamp).plusSeconds(1)
-            }
-
-            if (stageEndTime.isAfter(stageStartTime)) {
-                stages.add(SleepSessionRecord.Stage(stageStartTime, stageEndTime, stageType))
-            } else {
-                LOG.trace(
-                    "Skipping zero or negative duration stage for device '{}' at {} (type {}), proposed end {}.",
-                    deviceName,
-                    stageStartTime,
-                    stageType,
-                    stageEndTime
-                )
-            }
-            currentIndex = nextDifferentSampleIndex
-        }
-
-        return stages
-    }
-
     private fun mapActivityKindToSleepStage(activityKind: ActivityKind): Int {
         return when (activityKind) {
             ActivityKind.DEEP_SLEEP -> SleepSessionRecord.STAGE_TYPE_DEEP
             ActivityKind.LIGHT_SLEEP -> SleepSessionRecord.STAGE_TYPE_LIGHT
             ActivityKind.REM_SLEEP -> SleepSessionRecord.STAGE_TYPE_REM
             ActivityKind.AWAKE_SLEEP -> SleepSessionRecord.STAGE_TYPE_AWAKE
+            ActivityKind.SLEEP_ANY -> SleepSessionRecord.STAGE_TYPE_SLEEPING
             else -> SleepSessionRecord.STAGE_TYPE_UNKNOWN
         }
     }

@@ -63,6 +63,7 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.install.FwAppInstallerActivity;
+import nodomain.freeyourgadget.gadgetbridge.activities.wifi.WifiSessionScreen;
 import nodomain.freeyourgadget.gadgetbridge.adapter.MusicListAdapter;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceMusic;
@@ -105,6 +106,10 @@ public class MusicManagerActivity extends AbstractGBActivity {
 
     private int maxMusicCount = 0;
     private int maxPlaylistCount = 0;
+    private boolean deleteSupported = true;
+    private String[] uploadMimeTypes = {"audio/*"};
+
+    private WifiSessionScreen wifiSessionScreen;
     
     public GBDevice getGBDevice() {
         return mGBDevice;
@@ -134,6 +139,8 @@ public class MusicManagerActivity extends AbstractGBActivity {
             throw new IllegalArgumentException("Must provide a device when invoking this activity");
         }
 
+        wifiSessionScreen = new WifiSessionScreen(this, mGBDevice);
+
         fabMusicUpload = findViewById(R.id.fab_music_upload);
         assert fabMusicUpload != null;
         fabMusicUpload.setOnClickListener(new View.OnClickListener() {
@@ -141,7 +148,9 @@ public class MusicManagerActivity extends AbstractGBActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("audio/*");
+                intent.setType(uploadMimeTypes.length == 1 ? uploadMimeTypes[0] : "audio/*");
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, uploadMimeTypes);
+                wifiSessionScreen.holdForPicker();
                 openAudioActivityResultLauncher.launch(intent);
             }
         });
@@ -299,6 +308,7 @@ public class MusicManagerActivity extends AbstractGBActivity {
             } else {
                 selectionAddPlaylist.setVisibility(View.VISIBLE);
             }
+            selectionDelete.setVisibility(deleteSupported ? View.VISIBLE : View.GONE);
         } else {
             bottomToolbar.setVisibility(View.GONE);
             showActionButtons();
@@ -363,9 +373,11 @@ public class MusicManagerActivity extends AbstractGBActivity {
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, filter);
 
-        // Load music data without timeout
-        startLoading(0);
-        GBApplication.deviceService(mGBDevice).onMusicListReq();
+        wifiSessionScreen.runWhenReady(() -> {
+            // Load music data without timeout
+            startLoading(0);
+            GBApplication.deviceService(mGBDevice).onMusicListReq();
+        }, this::finish);
     }
 
     @Override
@@ -379,6 +391,7 @@ public class MusicManagerActivity extends AbstractGBActivity {
             new ActivityResultCallback<ActivityResult>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
+                    wifiSessionScreen.releasePickerHold();
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                         Intent startIntent = new Intent(MusicManagerActivity.this, FwAppInstallerActivity.class);
                         startIntent.putExtra(GBDevice.EXTRA_DEVICE, mGBDevice);
@@ -404,6 +417,12 @@ public class MusicManagerActivity extends AbstractGBActivity {
             menu.removeItem(R.id.musicmanager_delete_from_playlist);
         } else {
             menu.removeItem(R.id.musicmanager_delete);
+        }
+        if (!deleteSupported) {
+            menu.removeItem(R.id.musicmanager_delete);
+        }
+        if (menu.size() == 0) {
+            return false;
         }
 
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -591,6 +610,11 @@ public class MusicManagerActivity extends AbstractGBActivity {
 
         maxMusicCount = intent.getIntExtra("maxMusicCount", 0);
         maxPlaylistCount = intent.getIntExtra("maxPlaylistCount", 0);
+        deleteSupported = intent.getBooleanExtra("deleteSupported", true);
+        final String[] mimeTypes = intent.getStringArrayExtra("uploadMimeTypes");
+        if (mimeTypes != null && mimeTypes.length > 0) {
+            uploadMimeTypes = mimeTypes;
+        }
 
         // Hide playlist if device does not support it.
         playlistSpinnerLayout.setVisibility(maxPlaylistCount>0?View.VISIBLE:View.GONE);

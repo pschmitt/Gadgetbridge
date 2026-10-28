@@ -7,4 +7,5 @@ interface IHttpService {
     int version();
 
     void send(in HttpRequest request, IHttpCallback cb);
+    void sendOnNetwork(in HttpRequest request, String networkRequestId, IHttpCallback cb);
 }

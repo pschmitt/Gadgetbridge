@@ -51,7 +51,9 @@ public abstract class AbstractCollectionFragment extends AbstractGBFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_nested_tabs, container, false);
+        // allowSwipe is only set when the chart is the single tab of the charts activity
+        final int layout = allowSwipe ? R.layout.fragment_nested_tabs_single : R.layout.fragment_nested_tabs;
+        View rootView = inflater.inflate(layout, container, false);
 
         fragmentAdapter = getFragmentAdapter();
         viewPager = rootView.findViewById(R.id.pager);

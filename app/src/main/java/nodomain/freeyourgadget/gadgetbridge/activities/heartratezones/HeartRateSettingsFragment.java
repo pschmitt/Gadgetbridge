@@ -93,7 +93,7 @@ public class HeartRateSettingsFragment extends AbstractGBFragment implements Men
         }
 
         if (config.size() == 1) {
-            binding.hrSettingsTabLayout.setVisibility(View.GONE);
+            binding.hrSettingsTabBar.setVisibility(View.GONE);
         }
 
         binding.hrSettingsTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {

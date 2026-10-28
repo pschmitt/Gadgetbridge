@@ -64,6 +64,9 @@ public class GBDeviceCandidate implements Parcelable, Cloneable {
 
     private SparseArray<byte[]> manufacturerSpecificData;
 
+    @Nullable
+    private byte[] scanRecord;
+
     //
     // USB
     //
@@ -100,6 +103,7 @@ public class GBDeviceCandidate implements Parcelable, Cloneable {
         }
 
         manufacturerSpecificData = in.readSparseArray(getClass().getClassLoader());
+        scanRecord = in.createByteArray();
 
         accessory = in.readParcelable(getClass().getClassLoader());
     }
@@ -117,6 +121,7 @@ public class GBDeviceCandidate implements Parcelable, Cloneable {
         }
 
         dest.writeSparseArray(manufacturerSpecificData);
+        dest.writeByteArray(scanRecord);
         dest.writeParcelable(accessory, 0);
     }
 
@@ -180,6 +185,17 @@ public class GBDeviceCandidate implements Parcelable, Cloneable {
         }
     }
 
+    public void setScanRecord(@Nullable final byte[] scanRecord) {
+        if (scanRecord != null) {
+            this.scanRecord = scanRecord;
+        }
+    }
+
+    @Nullable
+    public byte[] getScanRecord() {
+        return scanRecord;
+    }
+
     public void setRssi(short rssi) {
         this.rssi = rssi;
     }
@@ -217,7 +233,7 @@ public class GBDeviceCandidate implements Parcelable, Cloneable {
     public boolean supportsService(UUID aService) {
         ParcelUuid[] uuids = getServiceUuids();
         if (uuids.length == 0) {
-            LOG.warn("no cached services available for {}", this);
+            LOG.trace("no cached services available for {}", this);
             return false;
         }
 
@@ -323,6 +339,7 @@ public class GBDeviceCandidate implements Parcelable, Cloneable {
             clone.deviceName = this.deviceName;
             clone.isBonded = this.isBonded;
             clone.manufacturerSpecificData = this.manufacturerSpecificData;
+            clone.scanRecord = this.scanRecord;
             clone.accessory = this.accessory;
             return clone;
         } catch (final CloneNotSupportedException e) {

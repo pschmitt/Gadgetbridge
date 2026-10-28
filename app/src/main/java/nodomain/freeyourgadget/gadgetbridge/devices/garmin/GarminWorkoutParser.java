@@ -44,7 +44,9 @@ import nodomain.freeyourgadget.gadgetbridge.activities.workouts.entries.Activity
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.entries.ActivitySummaryValue;
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary;
 import nodomain.freeyourgadget.gadgetbridge.entities.GenericMetricSample;
+import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
+import nodomain.freeyourgadget.gadgetbridge.model.FitActivityTrackProvider;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityPoint;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryData;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryParser;
@@ -61,6 +63,8 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.Gar
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.WaterType;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.exception.FitParseException;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.ExerciseCategory;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.workouts.GarminExercise;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.workouts.GarminExerciseCatalog;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitActivity;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitBattery;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitDeviceInfo;
@@ -83,11 +87,14 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitWorkoutStep;
 import nodomain.freeyourgadget.gadgetbridge.util.FileUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
+import nodomain.freeyourgadget.gadgetbridge.util.elevation.ElevationTiles;
 
 public class GarminWorkoutParser implements ActivitySummaryParser {
     private static final Logger LOG = LoggerFactory.getLogger(GarminWorkoutParser.class);
 
     private final Context context;
+    @Nullable
+    private final GBDevice gbDevice;
 
     private final List<FitTimeInZone> timesInZone = new ArrayList<>();
     private final List<ActivityPoint> activityPoints = new ArrayList<>();
@@ -137,7 +144,12 @@ public class GarminWorkoutParser implements ActivitySummaryParser {
     @Nullable
     private FitActivity activity = null;
     public GarminWorkoutParser(final Context context) {
+        this(context, null);
+    }
+
+    public GarminWorkoutParser(final Context context, @Nullable final GBDevice gbDevice) {
         this.context = context;
+        this.gbDevice = gbDevice;
     }
 
     @Nullable
@@ -192,11 +204,7 @@ public class GarminWorkoutParser implements ActivitySummaryParser {
 
         final ActivitySummaryData activitySummaryData = updateSummary(summary);
         final ActivityKind activityKind = ActivityKind.fromCode(summary.getActivityKind());
-        final ActivityKind.CycleUnit cycleUnit = ActivityKind.getCycleUnit(activityKind);
-
-        if (cycleUnit == ActivityKind.CycleUnit.STEPS) {
-            activityPoints.forEach(ap -> ap.setCadence(ap.getCadence() * 2));
-        }
+        activityPoints.forEach(ap -> FitActivityTrackProvider.normalizeStepCadence(ap, activityKind));
 
         final List<WorkoutChart> charts = new LinkedList<>();
         if (!this.activityPoints.isEmpty()) {
@@ -452,7 +460,8 @@ public class GarminWorkoutParser implements ActivitySummaryParser {
         summary.setActivityKind(activityKind.getCode());
 
         if (session.getTotalElapsedTime() != null) {
-            summary.setEndTime(new Date(summary.getStartTime().getTime() + session.getTotalElapsedTime().intValue()));
+            long elapsedMs = Math.round(session.getTotalElapsedTime() * 1000);
+            summary.setEndTime(new Date(summary.getStartTime().getTime() + elapsedMs));
         }
 
         summaryData.add(ACTIVE_SECONDS, session.getTotalTimerTime(), UNIT_SECONDS);
@@ -548,6 +557,11 @@ public class GarminWorkoutParser implements ActivitySummaryParser {
             if (session.getAvgVam() != null) {
                 summaryData.add(AVERAGE_ASCENT_VELOCITY, session.getAvgVam() * 3600, UNIT_METERS_PER_HOUR);
             }
+        }
+
+        // Altitude from imported elevation tiles replaces what the watch recorded
+        if (ElevationTiles.correct(context, gbDevice, activityKind, activityPoints)) {
+            ElevationTiles.applyToSummary(summaryData, activityPoints);
         }
         summaryData.add(SWIM_AVG_CADENCE, session.getAvgStrokesPerLength(), UNIT_STROKES_PER_LENGTH);
 
@@ -814,7 +828,7 @@ public class GarminWorkoutParser implements ActivitySummaryParser {
                 summaryData.add(TRAINING_EFFECT_AEROBIC, physiologicalMetrics.getAerobicEffect(), UNIT_NONE, true);
             }
             if (physiologicalMetrics.getMetMax() != null) {
-                float vo2Max = physiologicalMetrics.getMetMax().floatValue() * 3.5f;
+                float vo2Max = physiologicalMetrics.getMetMax().floatValue();
                 if (vo2Max > 0.0f) {
                     summaryData.add(MAXIMUM_OXYGEN_UPTAKE, vo2Max, UNIT_ML_KG_MIN);
                     final GenericMetricSample sample = new GenericMetricSample();
@@ -1099,7 +1113,7 @@ public class GarminWorkoutParser implements ActivitySummaryParser {
         if (!sets.isEmpty()) {
             final ActivitySummaryTableBuilder tableBuilder = new ActivitySummaryTableBuilder(SETS, "sets_header", Arrays.asList(
                     "set",
-                    "category",
+                    "activity_type_exercise",
                     "workout_set_reps",
                     "menuitem_weight",
                     "activity_detail_duration_label"
@@ -1108,16 +1122,20 @@ public class GarminWorkoutParser implements ActivitySummaryParser {
             int i = 1;
             for (final FitSet set : sets) {
                 if (set.getSetType() != null && set.getDuration() != null && set.getSetType() == 1) {
-                    ExerciseCategory category = null;
+                    String exerciseName = null;
                     if (set.getCategory() != null && set.getCategory().length > 0) {
-                        category = set.getCategory()[0];
+                        final ExerciseCategory category = set.getCategory()[0];
+                        final Integer[] subtypes = set.getCategorySubtype();
+                        final Integer code = subtypes != null && subtypes.length > 0 ? subtypes[0] : null;
+                        final GarminExercise exercise = code != null ? GarminExerciseCatalog.INSTANCE.exerciseFor(category, code) : null;
+                        exerciseName = exercise != null ? exercise.getName() : context.getString(category.label);
                     }
 
                     tableBuilder.addRow(
                             "set_" + i,
                             Arrays.asList(
                                     new ActivitySummaryValue(i, UNIT_NONE),
-                                    new ActivitySummaryValue(category != null ? context.getString(category.label) : null, UNIT_NONE),
+                                    new ActivitySummaryValue(exerciseName, UNIT_NONE),
                                     new ActivitySummaryValue(set.getRepetitions() != null ? String.valueOf(set.getRepetitions()) : null),
                                     new ActivitySummaryValue(set.getWeight(), weightUnit),
                                     new ActivitySummaryValue(set.getDuration().longValue(), UNIT_SECONDS)
@@ -1278,7 +1296,7 @@ public class GarminWorkoutParser implements ActivitySummaryParser {
         if (garminSport.isPresent()) {
             return garminSport.get().getActivityKind();
         } else {
-            LOG.warn("Unknown garmin sport {}/{}", sport, subsport);
+            LOG.warn("Unknown Garmin sport {}/{}", sport, subsport);
 
             final Optional<GarminSport> optGarminSportFallback = GarminSport.fromCodes(sport, 0);
             if (!optGarminSportFallback.isEmpty()) {

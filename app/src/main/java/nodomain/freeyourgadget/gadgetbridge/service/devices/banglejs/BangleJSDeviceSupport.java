@@ -98,6 +98,7 @@ import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.WakeActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
 import nodomain.freeyourgadget.gadgetbridge.capabilities.loyaltycards.BarcodeFormat;
+import nodomain.freeyourgadget.gadgetbridge.capabilities.loyaltycards.CatimaManager;
 import nodomain.freeyourgadget.gadgetbridge.capabilities.loyaltycards.LoyaltyCard;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
@@ -721,7 +722,8 @@ public class BangleJSDeviceSupport extends AbstractBTLESingleDeviceSupport {
         currentAlarm.setRepetition(Alarm.ALARM_ONCE);
         currentAlarm.setHour(calendar.get(Calendar.HOUR_OF_DAY));
         currentAlarm.setMinute(calendar.get(Calendar.MINUTE));
-        currentAlarm.setEnabled(true);
+        // A past timestamp means Sleep as Android no longer has an upcoming alarm
+        currentAlarm.setEnabled(alarmTimestamp > System.currentTimeMillis());
         currentAlarm.setUnused(false);
 
         // Store modified alarm
@@ -1886,9 +1888,16 @@ public class BangleJSDeviceSupport extends AbstractBTLESingleDeviceSupport {
             }
             encoded_cards.put("t", "cards");
             encoded_cards.put("d", a);
-            uartTxJSON("onSetLoyaltyCards", encoded_cards);
+            final TransactionBuilder builder = performInitialized("onSetLoyaltyCards");
+            uartTxJSON(builder, encoded_cards);
+            builder.run(() -> CatimaManager.notifySynced(getContext(), getDevice(), true));
+            builder.queue();
         } catch (JSONException e) {
             LOG.info("JSONException: " + e.getLocalizedMessage());
+            CatimaManager.notifySynced(getContext(), getDevice(), false);
+        } catch (final IOException e) {
+            LOG.error("Failed to onSetLoyaltyCards", e);
+            CatimaManager.notifySynced(getContext(), getDevice(), false);
         }
     }
 

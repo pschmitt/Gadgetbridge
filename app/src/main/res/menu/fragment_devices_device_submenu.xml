@@ -11,6 +11,9 @@
         android:title="@string/controlcenter_test_new_function"
         android:visible="false" />
     <item
+        android:id="@+id/controlcenter_device_submenu_device_settings"
+        android:title="@string/title_activity_device_specific_settings" />
+    <item
         android:id="@+id/controlcenter_device_submenu_set_parent_folder"
         android:title="@string/controlcenter_set_parent_folder" />
     <item

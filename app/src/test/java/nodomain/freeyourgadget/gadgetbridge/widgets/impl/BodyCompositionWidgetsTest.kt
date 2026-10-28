@@ -16,18 +16,19 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.widgets.impl
 
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.TextView
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser
-import nodomain.freeyourgadget.gadgetbridge.model.WeightUnit
 import nodomain.freeyourgadget.gadgetbridge.test.TestBase
 import nodomain.freeyourgadget.gadgetbridge.util.BodyCompositionCalculator
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetInstance
+import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetVariant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -37,10 +38,11 @@ class BodyCompositionWidgetsTest : TestBase() {
     private val composition = BodyCompositionCalculator.compute(ActivityUser.GENDER_MALE, 30, 180, 80f, 500f)
 
     private fun render(widget: BodyCompositionWidget, data: BodyCompositionWidget.Data): String {
-        val instance = WidgetInstance("test-" + widget.id, widget.id, 1)
+        val instance = WidgetInstance("test-" + widget.id, widget.id)
         val config = WidgetConfig(instance, Prefs(GBApplication.getWidgetSharedPrefs(instance.instanceId)), true, emptySet())
-        val view = widget.createView(LayoutInflater.from(context), FrameLayout(context))
-        widget.bind(view, config, data)
+        val themed = ContextThemeWrapper(context, R.style.GadgetbridgeTheme)
+        val view = widget.createView(LayoutInflater.from(themed), FrameLayout(themed), WidgetVariant.GAUGE)
+        widget.bind(view, WidgetVariant.GAUGE, config, data)
         return view.findViewById<TextView>(R.id.gauge_value).text.toString()
     }
 
@@ -52,7 +54,7 @@ class BodyCompositionWidgetsTest : TestBase() {
         val c = composition!!
         assertEquals(context.getString(R.string.body_composition_percent, c.bodyFatPercent), render(BodyFatWidget, data()))
         assertEquals(context.getString(R.string.body_composition_percent, c.bodyWaterPercent), render(BodyWaterWidget, data()))
-        assertEquals(WeightUnit.formatWeight(context, c.muscleMassKg.toDouble(), GBApplication.getPrefs().weightUnit), render(MuscleMassWidget, data()))
+        assertEquals(WeightWidget.formatWeight(context, c.muscleMassKg.toDouble()), render(MuscleMassWidget, data()))
         assertEquals(context.getString(R.string.body_composition_kcal, c.basalMetabolicRate), render(BasalMetabolicRateWidget, data()))
         // and they are four different numbers, so a mix-up between them would show
         assertEquals(4, setOf(c.bodyFatPercent, c.bodyWaterPercent, c.muscleMassKg, c.basalMetabolicRate.toFloat()).size)

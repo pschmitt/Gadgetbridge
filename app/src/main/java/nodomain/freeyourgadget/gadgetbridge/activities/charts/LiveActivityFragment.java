@@ -21,7 +21,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +41,6 @@ import com.github.mikephil.charting.data.ChartData;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.utils.Utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -242,7 +240,7 @@ public class LiveActivityFragment extends AbstractActivityChartFragment<ChartsDa
 //        int extraRoom = maxStepsPerMinute/5;
 //        buggy in MPAndroidChart? Disable.
 //        stepsPerMinuteCurrentYAxis.setAxisMaxValue(Math.max(MIN_STEPS_PER_MINUTE, maxStepsPerMinute + extraRoom));
-        LimitLine target = new LimitLine(maxStepsPerMinute);
+        LimitLine target = new LimitLine(maxStepsPerMinute, "");
         stepsPerMinuteCurrentYAxis.removeAllLimitLines();
         stepsPerMinuteCurrentYAxis.addLimitLine(target);
 
@@ -257,10 +255,10 @@ public class LiveActivityFragment extends AbstractActivityChartFragment<ChartsDa
         if (stepsPerMinute < 0) {
             stepsPerMinute = 0;
         }
-        mHistorySet.addEntry(new Entry(timestamp, stepsPerMinute));
+        mHistorySet.addEntry(new Entry<>(timestamp, stepsPerMinute, null, null));
         int hr = getCurrentHeartRate();
         if (hr > HeartRateUtils.getInstance().getMinHeartRate()) {
-            mHeartRateSet.addEntry(new Entry(timestamp, hr));
+            mHeartRateSet.addEntry(new Entry<>(timestamp, hr, null, null));
         }
     }
 
@@ -292,14 +290,14 @@ public class LiveActivityFragment extends AbstractActivityChartFragment<ChartsDa
         mTotalStepsChart = rootView.findViewById(R.id.livechart_steps_total);
         mStepsPerMinuteHistoryChart = rootView.findViewById(R.id.livechart_steps_per_minute_history);
 
-        totalStepsEntry = new BarEntry(1, 0);
-        stepsPerMinuteEntry = new BarEntry(1, 0);
+        totalStepsEntry = new BarEntry<>(1, 0, null, null);
+        stepsPerMinuteEntry = new BarEntry<>(1, 0, null, null);
 
         mStepsPerMinuteData = setupCurrentChart(mStepsPerMinuteCurrentChart, stepsPerMinuteEntry, getString(R.string.live_activity_current_steps_per_minute));
-        mStepsPerMinuteData.setDrawValues(true);
+        mStepsPerMinuteData.setDrawValuesEnabled(true);
         mStepsPerMinuteData.setValueTextColor(DESCRIPTION_COLOR);
         mTotalStepsData = setupTotalStepsChart(mTotalStepsChart, totalStepsEntry, getString(R.string.live_activity_total_steps));
-        mTotalStepsData.setDrawValues(true);
+        mTotalStepsData.setDrawValuesEnabled(true);
         mTotalStepsData.setValueTextColor(DESCRIPTION_COLOR);
         setupHistoryChart(mStepsPerMinuteHistoryChart);
         mMaxHeartRateView = rootView.findViewById(R.id.livechart_max_heart_rate);
@@ -416,7 +414,7 @@ public class LiveActivityFragment extends AbstractActivityChartFragment<ChartsDa
         chart.setSinglAnimationEntry(entry);
 
 //        chart.getXAxis().setPosition(XAxis.XAxisPosition.TOP);
-        chart.getXAxis().setDrawLabels(false);
+        chart.getXAxis().setDrawLabelsEnabled(false);
         chart.getXAxis().setEnabled(false);
         chart.getXAxis().setTextColor(CHART_TEXT_COLOR);
         chart.getAxisLeft().setTextColor(CHART_TEXT_COLOR);
@@ -426,6 +424,7 @@ public class LiveActivityFragment extends AbstractActivityChartFragment<ChartsDa
         chart.getDescription().setText(title);
 //        chart.setNoDataTextDescription("");
         chart.setNoDataText("");
+        chart.setNoDataIconEnabled(false);
         chart.getAxisRight().setEnabled(false);
 
         List<BarEntry> entries = new ArrayList<>();
@@ -441,7 +440,7 @@ public class LiveActivityFragment extends AbstractActivityChartFragment<ChartsDa
 //        xLabels.add("");
 
         BarDataSet set = new BarDataSet(entries, "");
-        set.setDrawValues(false);
+        set.setDrawValuesEnabled(false);
         set.setColors(colors);
         BarData data = new BarData(set);
 //        data.setGroupSpace(0);
@@ -468,43 +467,41 @@ public class LiveActivityFragment extends AbstractActivityChartFragment<ChartsDa
         chart.getDescription().setText(getString(R.string.live_activity_steps_per_minute_history));
         chart.setNoDataText(getString(R.string.live_activity_start_your_activity));
         chart.getLegend().setEnabled(false);
-        Paint infoPaint = chart.getPaint(Chart.PAINT_INFO);
-        infoPaint.setTextSize(Utils.convertDpToPixel(20f));
-        infoPaint.setFakeBoldText(true);
-        chart.setPaint(infoPaint, Chart.PAINT_INFO);
+        chart.setNoDataTextSize(20f);
+        chart.getInfoPaint().setFakeBoldText(true);
 
         XAxis x = chart.getXAxis();
-        x.setDrawLabels(true);
-        x.setDrawGridLines(false);
+        x.setDrawLabelsEnabled(true);
+        x.setDrawGridLinesEnabled(false);
         x.setEnabled(true);
         x.setTextColor(CHART_TEXT_COLOR);
         x.setValueFormatter(new SampleXLabelFormatter(tsTranslation, "HH:mm"));
-        x.setDrawLimitLinesBehindData(true);
+        x.setDrawLimitLinesBehindDataEnabled(true);
 
         YAxis y = chart.getAxisLeft();
-        y.setDrawGridLines(false);
-        y.setDrawTopYLabelEntry(false);
+        y.setDrawGridLinesEnabled(false);
+        y.setDrawTopYLabelEntryEnabled(false);
         y.setTextColor(CHART_TEXT_COLOR);
         y.setEnabled(true);
         y.setAxisMinimum(0);
 
         YAxis yAxisRight = chart.getAxisRight();
-        yAxisRight.setDrawGridLines(false);
+        yAxisRight.setDrawGridLinesEnabled(false);
         yAxisRight.setEnabled(true);
-        yAxisRight.setDrawLabels(true);
-        yAxisRight.setDrawTopYLabelEntry(false);
+        yAxisRight.setDrawLabelsEnabled(true);
+        yAxisRight.setDrawTopYLabelEntryEnabled(false);
         yAxisRight.setTextColor(CHART_TEXT_COLOR);
 
         mHistorySet = new LineDataSet(new ArrayList<Entry>(), getString(R.string.live_activity_steps_history));
         mHistorySet.setAxisDependency(YAxis.AxisDependency.LEFT);
         mHistorySet.setColor(akActivity.color);
-        mHistorySet.setDrawCircles(false);
+        mHistorySet.setDrawCirclesEnabled(false);
         mHistorySet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        mHistorySet.setDrawFilled(true);
-        mHistorySet.setDrawValues(false);
+        mHistorySet.setDrawFilledEnabled(true);
+        mHistorySet.setDrawValuesEnabled(false);
 
         mHeartRateSet = createHeartrateSet(new ArrayList<Entry>(), getString(R.string.live_activity_heart_rate));
-        mHeartRateSet.setDrawValues(false);
+        mHeartRateSet.setDrawValuesEnabled(false);
     }
 
     @Override
@@ -535,8 +532,8 @@ public class LiveActivityFragment extends AbstractActivityChartFragment<ChartsDa
 
     @Override
     protected void renderCharts() {
-        mStepsPerMinuteCurrentChart.animateY(150);
-        mTotalStepsChart.animateY(150);
+        mStepsPerMinuteCurrentChart.animateSingleEntry(150);
+        mTotalStepsChart.animateSingleEntry(150);
         mStepsPerMinuteHistoryChart.invalidate();
     }
 

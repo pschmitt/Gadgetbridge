@@ -24,6 +24,10 @@
     <attr name="deviceIconOnPrimary" format="color" />
     <attr name="deviceIconLight" format="color" />
     <attr name="deviceIconDark" format="color" />
+    <attr name="deviceIconBackground" format="color" />
+    <attr name="deviceIconBackgroundLight" format="color" />
+    <attr name="deviceIconBackgroundDark" format="color" />
+    <attr name="deviceCardIconTile" format="color" />
 
     <!-- Pill-style tab bars (workout tabs, charts tabs, Day/Week/Month sub-tabs) -->
     <attr name="tab_bar_bg" format="color" />
@@ -64,6 +68,10 @@
     <attr name="value_line" format="color" />
     <!-- Unfilled track of the dashboard gauges -->
     <attr name="gauge_track" format="color" />
+    <attr name="grid_tile_bg" format="color" />
+    <attr name="device_card_bg" format="color" />
+    <attr name="toolbar_divider" format="color" />
+    <attr name="bottom_bar_divider" format="reference" />
 
     <declare-styleable name="SubtitleListPreference">
         <!-- One subtitle per entry, shown as a second line below each entry's title. -->

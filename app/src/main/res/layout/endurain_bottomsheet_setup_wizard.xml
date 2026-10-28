@@ -12,7 +12,6 @@
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/endurain_setup_title"
         android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
     <!-- SERVER -->
@@ -20,7 +19,7 @@
         android:id="@+id/server_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/endurain_setup_server"
+        android:hint="@string/service_setup_server_hostname"
         app:placeholderText="https://endurain.example.com">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -44,14 +43,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/endurain_setup_login_type_local" />
+            android:text="@string/service_setup_login_type_local" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/sso_login_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/endurain_setup_login_type_sso" />
+            android:text="@string/service_setup_login_type_sso" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <!-- LOCAL LOGIN -->
@@ -93,7 +92,7 @@
             android:id="@+id/mfa_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/endurain_setup_mfa_code"
+            android:hint="@string/service_setup_mfa_code"
             android:inputType="number"
             android:maxLength="6" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -116,7 +115,7 @@
             android:id="@+id/next_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/endurain_setup_next" />
+            android:text="@string/service_setup_next" />
     </LinearLayout>
 
 </LinearLayout>

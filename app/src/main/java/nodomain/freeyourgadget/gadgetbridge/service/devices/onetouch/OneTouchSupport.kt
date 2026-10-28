@@ -64,7 +64,7 @@ class OneTouchSupport : AbstractBTLESingleDeviceSupport(LOG) {
             }
         }
 
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION)
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid)
         deviceInfoProfile = DeviceInfoProfile<OneTouchSupport>(this)
         deviceInfoProfile.addListener(mListener)
         addSupportedProfile(deviceInfoProfile)

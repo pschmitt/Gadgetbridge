@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+package GDI.Proto.WaypointTransfer;
+option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin";
+option java_outer_classname = "GdiWaypointTransfer";
+
+import "garmin/gdi_data_types.proto";
+
+message WaypointRequest {
+    required GDI.Proto.DataTypes.ScPoint location = 1;
+    optional string name = 2;
+    optional GDI.Proto.DataTypes.CoordinateSystem coordinate_system = 3;
+}
+
+message WaypointResponse {
+    enum ResponseStatus {
+        UNKNOWN_RESPONSE_STATUS = 0;
+        OK = 1;
+        ALREADY_EXISTS = 2;
+        ERROR = 3;
+    }
+
+    required GDI.Proto.WaypointTransfer.WaypointResponse.ResponseStatus status = 1;
+}
+
+message WaypointTransferService {
+    optional GDI.Proto.WaypointTransfer.WaypointRequest waypoint_request = 1;
+    optional GDI.Proto.WaypointTransfer.WaypointResponse waypoint_response = 2;
+}

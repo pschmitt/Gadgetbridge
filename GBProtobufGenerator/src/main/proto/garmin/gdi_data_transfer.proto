@@ -1,0 +1,109 @@
+syntax = "proto2";
+
+package GDI.Proto.DataTransfer;
+option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin";
+option java_outer_classname = "GdiDataTransfer";
+
+import "garmin/gdi_data_types.proto";
+
+message CapabilitiesRequest {
+    optional uint32 service_version = 1;
+}
+
+message CapabilitiesResponse {
+}
+
+message DataDownloadRequest {
+    required uint32 id = 1;
+    required uint32 offset = 2;
+    optional uint32 max_chunk_size = 3;
+}
+
+message DataDownloadResponse {
+    enum Status {
+        UNKNOWN = 0;
+        SUCCESS = 1;
+        INVALID_ID = 2;
+        INVALID_OFFSET = 3;
+    }
+
+    required GDI.Proto.DataTransfer.DataDownloadResponse.Status status = 1;
+    required uint32 id = 2;
+    required uint32 offset = 3;
+    optional bytes payload = 4;
+}
+
+message DataTransferService {
+    optional GDI.Proto.DataTransfer.DataDownloadRequest data_download_request = 1;
+    optional GDI.Proto.DataTransfer.DataDownloadResponse data_download_response = 2;
+    optional GDI.Proto.DataTransfer.InitiateDataUploadRequest initiate_data_upload_request = 3;
+    optional GDI.Proto.DataTransfer.InitiateDataUploadResponse initiate_data_upload_response = 4;
+    optional GDI.Proto.DataTransfer.DataUploadRequest data_upload_request = 5;
+    optional GDI.Proto.DataTransfer.DataUploadResponse data_upload_response = 6;
+    optional GDI.Proto.DataTransfer.DataUploadCanceledNotification data_upload_canceled_notification = 7;
+    optional GDI.Proto.DataTransfer.FileAccessItemRequest file_access_item_request = 8;
+    optional GDI.Proto.DataTransfer.FileAccessItemResponse file_access_item_response = 9;
+}
+
+message DataUploadCanceledNotification {
+    required uint32 id = 1;
+}
+
+message DataUploadRequest {
+    required uint32 id = 1;
+    required uint32 offset = 2;
+    required bytes payload = 3;
+}
+
+message DataUploadResponse {
+    enum Status {
+        UNKNOWN = 0;
+        SUCCESS = 1;
+        INVALID_ID = 2;
+        INVALID_OFFSET = 3;
+        SIZE_MISMATCH = 4;
+        ABORT = 5;
+    }
+
+    required uint32 id = 1;
+    required GDI.Proto.DataTransfer.DataUploadResponse.Status status = 2;
+}
+
+message FileAccessItemRequest {
+    enum Latency {
+        STANDARD = 0;
+        SOON = 1;
+        IMMEDIATE = 2;
+        DURING_ACTIVITY = 3;
+    }
+
+    optional uint32 data_xfer_id = 1;
+    optional GDI.Proto.DataTransfer.FileAccessItemRequest.Latency expected_latency = 2;
+}
+
+message FileAccessItemResponse {
+    enum Status {
+        UNKNOWN = 0;
+        OK = 1;
+        INVALID_ID = 2;
+    }
+
+    optional GDI.Proto.DataTransfer.FileAccessItemResponse.Status status = 1;
+    optional uint32 data_xfer_id = 2;
+    optional GDI.Proto.DataTypes.UUID file_access_item_uid = 3;
+}
+
+message InitiateDataUploadRequest {
+    required uint32 id = 1;
+}
+
+message InitiateDataUploadResponse {
+    enum Status {
+        UNKNOWN = 0;
+        OK = 1;
+        INVALID_ID = 2;
+    }
+
+    required uint32 id = 1;
+    required GDI.Proto.DataTransfer.InitiateDataUploadResponse.Status status = 2;
+}

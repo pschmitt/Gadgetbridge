@@ -19,6 +19,9 @@ package nodomain.freeyourgadget.gadgetbridge.devices.xiaomi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.util.Size;
+
+import androidx.annotation.Nullable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,39 +52,40 @@ import nodomain.freeyourgadget.gadgetbridge.util.ZipFileException;
 
 public class XiaomiFWHelper {
     private static final Logger LOG = LoggerFactory.getLogger(XiaomiFWHelper.class);
+    private static final byte[] WATCHFACE_V3_HEADER = new byte[]{0x00, 0x00, 0x06, 0x07, 0x00, 0x02, 0x00, 0x01};
     // TODO use to determine translatable face name displayed in UI
     private static final String[] FACE_LOCALE_BITMAP_LIST = new String[]{
-            "en_US",
-            "zh_CN",
-            "zh_TW",
-            "ja_JP",
-            "es_ES",
-            "fr_FR",
-            "de_DE",
-            "ru_RU",
-            "pt_BR",
-            "pt_PT",
-            "it_IT",
-            "ko_KR",
-            "tr_TR",
-            "nl_NL",
-            "th_TH",
-            "sv_SE",
-            "da_DK",
-            "vi_VN",
-            "nb_NO",
-            "pl_PL",
-            "fi_FI",
-            "in_ID", // old ISO-639
-            "el_GR",
-            "ro_RO",
-            "cs_CZ",
-            "uk_UA",
-            "hu_HU",
-            "sk_SK",
-            "ar_EG",
-            "iw_IL", // old ISO-639
-            "zh_HK",
+        "en_US",
+        "zh_CN",
+        "zh_TW",
+        "ja_JP",
+        "es_ES",
+        "fr_FR",
+        "de_DE",
+        "ru_RU",
+        "pt_BR",
+        "pt_PT",
+        "it_IT",
+        "ko_KR",
+        "tr_TR",
+        "nl_NL",
+        "th_TH",
+        "sv_SE",
+        "da_DK",
+        "vi_VN",
+        "nb_NO",
+        "pl_PL",
+        "fi_FI",
+        "in_ID", // old ISO-639
+        "el_GR",
+        "ro_RO",
+        "cs_CZ",
+        "uk_UA",
+        "hu_HU",
+        "sk_SK",
+        "ar_EG",
+        "iw_IL", // old ISO-639
+        "zh_HK",
     };
 
     private final Uri uri;
@@ -95,6 +99,7 @@ public class XiaomiFWHelper {
     private String name;
     private String version;
     private int versionCode;
+    private Size previewSize;
 
     public XiaomiFWHelper(final Uri uri, final Context context) {
         this.uri = uri;
@@ -164,6 +169,11 @@ public class XiaomiFWHelper {
         return versionCode;
     }
 
+    @Nullable
+    public Size getPreviewSize() {
+        return previewSize;
+    }
+
     public void unsetFwBytes() {
         this.fw = null;
     }
@@ -171,6 +181,9 @@ public class XiaomiFWHelper {
     private void parseBytes() {
         if (parseAsWatchface()) {
             assert id != null;
+            valid = true;
+            typeWatchface = true;
+        } else if (parseAsWatchfaceV3()) {
             valid = true;
             typeWatchface = true;
         } else if (parseAsFirmware()) {
@@ -206,9 +219,9 @@ public class XiaomiFWHelper {
 
                     // keep scanning as a better locale might exist (Portuguese)
                     LOG.debug("Found language match for {}_{}: {}",
-                            userLocale.getLanguage(),
-                            userLocale.getCountry(),
-                            FACE_LOCALE_BITMAP_LIST[i]);
+                        userLocale.getLanguage(),
+                        userLocale.getCountry(),
+                        FACE_LOCALE_BITMAP_LIST[i]);
                     found = i;
                 }
 
@@ -244,8 +257,8 @@ public class XiaomiFWHelper {
 
         if (tableSize < localizationsCount * 4 + 8) {
             LOG.error("cannot decode i18n table (at least {} bytes required for length table, but localization block is only {} bytes)",
-                    localizationsCount * 4 + 8,
-                    tableSize);
+                localizationsCount * 4 + 8,
+                tableSize);
             return null;
         }
 
@@ -272,8 +285,8 @@ public class XiaomiFWHelper {
 
         if (bb.remaining() < targetOffset + targetSize) {
             LOG.error("cannot extract localization (at least {} bytes required, but only {} bytes remaining)",
-                    targetOffset + targetSize,
-                    bb.remaining());
+                targetOffset + targetSize,
+                bb.remaining());
             return null;
         }
 
@@ -288,18 +301,12 @@ public class XiaomiFWHelper {
             return null;
         }
 
+        final int previewOffset = findPreviewOffset();
+        if (previewOffset == -1) {
+            return null;
+        }
+
         final ByteBuffer bb = ByteBuffer.wrap(fw).order(ByteOrder.LITTLE_ENDIAN);
-        final int previewOffset = bb.getInt(0x20);
-        if (previewOffset == 0) {
-            LOG.debug("No preview available (at offset 0)");
-            return null;
-        }
-
-        if (previewOffset + 12 > fw.length) {
-            LOG.debug("No preview available (header out-of-bounds)");
-            return null;
-        }
-
         bb.position(previewOffset);
         final int bitmapType = bb.get() & 0xff;
         final int compressionType = bb.get() & 0xff;
@@ -332,12 +339,32 @@ public class XiaomiFWHelper {
         }
 
         return XiaomiBitmapUtils.decodeWatchfaceImage(
-                bitmapData,
-                bitmapType,
-                compressionType == 8,
-                width,
-                height
+            bitmapData,
+            bitmapType,
+            compressionType == 8,
+            width,
+            height
         );
+    }
+
+    private int findPreviewOffset() {
+        if (fw.length < 0x24 || fw[0] != (byte) 0x5A || fw[1] != (byte) 0xA5) {
+            LOG.debug("No preview available (not a v2 watchface)");
+            return -1;
+        }
+
+        final int previewOffset = BLETypeConversions.toUint32(fw, 0x20);
+        if (previewOffset <= 0) {
+            LOG.debug("No preview available (at offset {})", previewOffset);
+            return -1;
+        }
+
+        if (previewOffset + 12 > fw.length) {
+            LOG.debug("No preview available (header out-of-bounds)");
+            return -1;
+        }
+
+        return previewOffset;
     }
 
     private boolean parseAsRpk() {
@@ -398,6 +425,37 @@ public class XiaomiFWHelper {
                 return false;
             }
         }
+
+        final int previewOffset = findPreviewOffset();
+        if (previewOffset != -1) {
+            previewSize = new Size(
+                BLETypeConversions.toUint16(fw, previewOffset + 4),
+                BLETypeConversions.toUint16(fw, previewOffset + 6)
+            );
+        }
+
+        LOG.debug("Parsed watchface: id={}, name={}, previewSize={}", id, name, previewSize);
+
+        return true;
+    }
+
+    private boolean parseAsWatchfaceV3() {
+        if (fw.length < 100 || !ArrayUtils.equals(fw, WATCHFACE_V3_HEADER, 0)) {
+            LOG.warn("File header not a v3 watchface");
+            return false;
+        }
+
+        name = new String(fw, 21, fw[20] & 0xff, StandardCharsets.UTF_8);
+
+        final int previewOffset = BLETypeConversions.toUint32(fw, 89);
+        if (previewOffset > 0 && previewOffset + 9 <= fw.length && fw[previewOffset] == 1) {
+            previewSize = new Size(
+                BLETypeConversions.toUint16(fw, previewOffset + 5),
+                BLETypeConversions.toUint16(fw, previewOffset + 7)
+            );
+        }
+
+        LOG.debug("Parsed v3 watchface: name={}, previewSize={}", name, previewSize);
 
         return true;
     }

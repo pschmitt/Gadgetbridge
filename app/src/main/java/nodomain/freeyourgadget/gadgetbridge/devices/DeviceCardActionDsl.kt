@@ -20,6 +20,7 @@ import android.content.Context
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 
 class DeviceCardActionBuilder {
+    var id: String? = null
     var icon: ((GBDevice) -> Int)? = null
     var description: ((GBDevice, Context) -> String)? = null
     var label: ((GBDevice, Context) -> String?)? = null
@@ -27,10 +28,12 @@ class DeviceCardActionBuilder {
     var onClick: ((GBDevice, Context) -> Unit)? = null
 
     fun build(): DeviceCardAction {
+        val idValue = requireNotNull(id) { "id must be set" }
         val iconFn = requireNotNull(icon) { "icon must be set" }
         val descriptionFn = requireNotNull(description) { "description must be set" }
         val onClickFn = requireNotNull(onClick) { "onClick must be set" }
         return object : DeviceCardAction {
+            override fun getId() = idValue
             override fun getIcon(device: GBDevice) = iconFn(device)
             override fun getDescription(device: GBDevice, context: Context) = descriptionFn(device, context)
             override fun getLabel(device: GBDevice, context: Context) = label?.invoke(device, context)

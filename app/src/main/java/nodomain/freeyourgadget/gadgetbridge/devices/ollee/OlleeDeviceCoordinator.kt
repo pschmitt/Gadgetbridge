@@ -75,4 +75,6 @@ class OlleeDeviceCoordinator : AbstractBLEDeviceCoordinator() {
 
     override fun getSampleProvider(device: GBDevice, session: DaoSession): SampleProvider<out AbstractActivitySample> =
         OlleeActivitySampleProvider(device, session)
+
+    override fun supportsAppNotifications(device: GBDevice): Boolean = true
 }

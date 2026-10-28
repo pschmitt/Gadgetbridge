@@ -64,7 +64,7 @@ public class HeartRateProfile<T extends AbstractBTLESingleDeviceSupport> extends
     }
 
     protected void writeToControlPoint(byte[] value, TransactionBuilder builder) {
-        builder.write(GattCharacteristic.UUID_CHARACTERISTIC_HEART_RATE_CONTROL_POINT, value);
+        builder.write(GattCharacteristic.CHARACTERISTIC_HEART_RATE_CONTROL_POINT.uuid, value);
     }
 
     public void requestBodySensorLocation(TransactionBuilder builder) {
@@ -73,12 +73,12 @@ public class HeartRateProfile<T extends AbstractBTLESingleDeviceSupport> extends
 
     @Override
     public void enableNotify(TransactionBuilder builder, boolean enable) {
-        builder.notify(GattCharacteristic.UUID_CHARACTERISTIC_HEART_RATE_MEASUREMENT, enable);
+        builder.notify(GattCharacteristic.CHARACTERISTIC_HEART_RATE_MEASUREMENT.uuid, enable);
     }
 
     @Override
     public boolean onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value) {
-        if (!GattCharacteristic.UUID_CHARACTERISTIC_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
+        if (!GattCharacteristic.CHARACTERISTIC_HEART_RATE_MEASUREMENT.uuid.equals(characteristic.getUuid())) {
             return false;
         }
 

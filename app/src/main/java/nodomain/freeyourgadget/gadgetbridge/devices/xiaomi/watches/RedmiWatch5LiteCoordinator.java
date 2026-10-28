@@ -16,8 +16,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.xiaomi.watches;
 
+import android.util.Size;
+
 import androidx.annotation.NonNull;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
@@ -56,5 +59,18 @@ public class RedmiWatch5LiteCoordinator extends XiaomiCoordinator {
     @Override
     public DeviceKind getDeviceKind(@NonNull GBDevice device) {
         return DeviceKind.WATCH;
+    }
+
+    @Override
+    public List<Size> getWatchfacePreviewSizes() {
+        return List.of(
+            // Scaled-down screen resolution, seen in an unofficial watchface
+            new Size(244, 298)
+        );
+    }
+
+    @Override
+    public Size getScreenSize() {
+        return new Size(410, 502);
     }
 }

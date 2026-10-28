@@ -1,11 +1,43 @@
 package nodomain.freeyourgadget.gadgetbridge.util.healthconnect.syncers
 
 import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.records.metadata.Device
+import androidx.health.connect.client.records.metadata.Metadata
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind
 import org.junit.Assert.*
 import org.junit.Test
 
 class WorkoutSyncerUtilsTest {
+    @Test
+    fun workoutClientRecordIds_stableAndUniquePerRecordType() {
+        val summaryId = 1234L
+
+        assertEquals(
+            "gb-workout-session-1234",
+            WorkoutSyncerUtils.workoutClientRecordId(WorkoutSyncerUtils.RECORD_TYPE_SESSION, summaryId)
+        )
+
+        val ids = WorkoutSyncerUtils.WORKOUT_RECORD_TYPES
+            .map { WorkoutSyncerUtils.workoutClientRecordId(it.key, summaryId) }
+
+        assertEquals(WorkoutSyncerUtils.WORKOUT_RECORD_TYPES.size, ids.toSet().size)
+    }
+
+    @Test
+    fun workoutRecordMetadata_carriesStableClientIdAndSuppliedVersion() {
+        val base = Metadata.autoRecorded(Device(Device.TYPE_WATCH, "Acme", "Band"))
+        val version = 1_700_000_500_000L
+
+        val metadata = WorkoutSyncerUtils.workoutRecordMetadata(
+            base,
+            WorkoutSyncerUtils.RECORD_TYPE_DISTANCE,
+            1234L,
+            version
+        )
+
+        assertEquals("gb-workout-distance-1234", metadata.clientRecordId)
+        assertEquals(version, metadata.clientRecordVersion)
+    }
 
     @Test
     fun testMapActivityKind_running() {
@@ -98,7 +130,7 @@ class WorkoutSyncerUtilsTest {
             WorkoutSyncerUtils.mapActivityKindToExerciseType(ActivityKind.WEIGHTLIFTING)
         )
         assertEquals(
-            ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING,
+            ExerciseSessionRecord.EXERCISE_TYPE_BOOT_CAMP,
             WorkoutSyncerUtils.mapActivityKindToExerciseType(ActivityKind.CROSSFIT)
         )
     }
@@ -264,4 +296,3 @@ class WorkoutSyncerUtilsTest {
         }
     }
 }
-

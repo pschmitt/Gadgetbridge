@@ -342,7 +342,7 @@ public abstract class AbstractChartFragment<D extends ChartsData> extends Abstra
     protected void configureBarLineChartDefaults(BarLineChartBase<?> chart) {
         configureChartDefaults(chart);
         if (chart instanceof BarChart) {
-            ((BarChart) chart).setFitBars(true);
+            ((BarChart) chart).setFitBarsEnabled(true);
         }
 
         // enable scaling and dragging
@@ -352,7 +352,7 @@ public abstract class AbstractChartFragment<D extends ChartsData> extends Abstra
         // if disabled, scaling can be done on x- and y-axis separately
 //        chart.setPinchZoom(true);
 
-        chart.setDrawGridBackground(false);
+        chart.setDrawGridBackgroundEnabled(false);
     }
 
     /**
@@ -403,13 +403,15 @@ public abstract class AbstractChartFragment<D extends ChartsData> extends Abstra
         protected void onPostExecute(final Object o) {
             super.onPostExecute(o);
             final FragmentActivity activity = getActivity();
+            loadingHandler.removeCallbacksAndMessages(null);
+            if (activity instanceof ChartsHost) {
+                hideLoading((ChartsHost) activity);
+            }
+
             if (activity == null || activity.isFinishing() || activity.isDestroyed() || getView() == null) {
                 LOG.info("Not rendering charts because activity is not available anymore");
                 return;
             }
-
-            loadingHandler.removeCallbacksAndMessages(null);
-            hideLoading(getChartsHost());
 
             if (getTaskError() != null) {
                 // Async task failed - we will have no data, so avoid NPE crashes

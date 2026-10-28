@@ -100,26 +100,6 @@
     <item name="p_call_privacy_mode_number" type="string">number</item>
     <item name="p_call_privacy_mode_complete" type="string">complete</item>
 
-    <item name="p_cycling" type="string">cycling</item>
-    <item name="p_activity" type="string">activity</item>
-    <item name="p_activity_list" type="string">activitylist</item>
-    <item name="p_sleep" type="string">sleep</item>
-    <item name="p_steps_week" type="string">stepsweek</item>
-    <item name="p_stress" type="string">stress</item>
-    <item name="p_pai" type="string">pai</item>
-    <item name="p_speed_zones" type="string">speedzones</item>
-    <item name="p_hrv_status" type="string">hrvstatus</item>
-    <item name="p_body_energy" type="string">bodyenergy</item>
-    <item name="p_vo2max" type="string">vo2max</item>
-    <item name="p_load" type="string">load</item>
-    <item name="p_heartrate" type="string">heartrate</item>
-    <item name="p_live_stats" type="string">livestats</item>
-    <item name="p_spo2" type="string">spo2</item>
-    <item name="p_respiratory_rate" type="string">respiratoryrate</item>
-    <item name="p_hydration" type="string">hydration</item>
-    <item name="p_temperature" type="string">temperature</item>
-    <item name="p_weight" type="string">weight</item>
-
     <item name="p_message_privacy_mode_off" type="string">off</item>
     <item name="p_message_privacy_mode_complete" type="string">complete</item>
     <item name="p_message_privacy_mode_bodyonly" type="string">bodyonly</item>

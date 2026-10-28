@@ -50,7 +50,8 @@ fun populateTableRow(
     isLastRow: Boolean
 ) {
     val context = container.context
-    val mutedColor = MaterialColors.getColor(context, com.google.android.material.R.attr.colorOnSurfaceVariant, "WorkoutTable")
+    val mutedColor =
+        MaterialColors.getColor(context, com.google.android.material.R.attr.colorOnSurfaceVariant, "WorkoutTable")
     val primaryColor = MaterialColors.getColor(context, R.attr.textColorPrimary, "WorkoutTable")
 
     val row = LinearLayout(context).apply {
@@ -137,8 +138,14 @@ private fun buildHeaderCell(
     }
     return LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL
-        addView(nameView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-        addView(unitView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        addView(
+            nameView,
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        )
+        addView(
+            unitView,
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        )
     }
 }
 
@@ -191,8 +198,15 @@ private fun formatCell(
         return formatter.formatValue(value, unit, false)
     }
 
-    val full = formatter.formatValue(value, unit)
-    val number = formatter.formatValue(value, unit, false)
+    val full: String
+    val number: String
+    if (column.wholeKilograms) {
+        full = formatter.formatWholeKilograms(value, unit, true)
+        number = formatter.formatWholeKilograms(value, unit, false)
+    } else {
+        full = formatter.formatValue(value, unit)
+        number = formatter.formatValue(value, unit, false)
+    }
     // Durations and the like format to something that isn't "number + unit", leave those alone.
     if (full == number || !full.startsWith(number)) {
         return full

@@ -17,7 +17,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.vibratissimo;
 
-import android.app.Activity;
 
 import androidx.annotation.NonNull;
 
@@ -39,11 +38,6 @@ public class VibratissimoCoordinator extends AbstractBLEDeviceCoordinator {
     }
 
     @Override
-    public Class<? extends Activity> getPairingActivity() {
-        return null;
-    }
-
-    @Override
     public String getManufacturer() {
         return "Amor AG";
     }
@@ -60,7 +54,7 @@ public class VibratissimoCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
+    public Class<? extends DeviceSupport> getDeviceSupportClass(@NonNull final GBDevice device) {
         return VibratissimoSupport.class;
     }
 

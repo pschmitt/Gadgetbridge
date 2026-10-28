@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Optional;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
+import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.NavigationInfoSpec;
 import nodomain.freeyourgadget.gadgetbridge.util.NavigationUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
@@ -1187,6 +1188,10 @@ public class GoogleMapsNotificationHandler {
         if (sbn.getPackageName().equals("com.google.android.apps.maps")) {
             checkShouldSendNavigation(context);
             if (!shouldSendNavigation) return false;
+            if (!hasNavCapableDevice()) {
+                LOG.info("Google Maps notification: no navigation-capable device connected, leaving for generic mirroring");
+                return false;
+            }
             Notification notification = sbn.getNotification();
             if (!NotificationCompat.getLocalOnly(notification))
                 return false; // ignore non-local notifications
@@ -1269,6 +1274,7 @@ public class GoogleMapsNotificationHandler {
     public boolean handleRemove(final StatusBarNotification sbn) {
         if (sbn.getPackageName().equals("com.google.android.apps.maps")) {
             if (!shouldSendNavigation) return false;
+            if (!hasNavCapableDevice()) return false;
             Notification notification = sbn.getNotification();
             if (!NotificationCompat.getLocalOnly(notification))
                 return false; // ignore non-local notifications
@@ -1281,5 +1287,22 @@ public class GoogleMapsNotificationHandler {
 
     private void checkShouldSendNavigation(final Context context) {
         shouldSendNavigation = NavigationUtils.shouldSendNavigation(context, "gmaps");
+    }
+
+    private boolean hasNavCapableDevice() {
+        try {
+            for (final GBDevice device : GBApplication.app().getDeviceManager().getSelectedDevices()) {
+                if (!device.isConnected() && !device.isInitialized()) {
+                    continue;
+                }
+                if (device.getDeviceCoordinator().supportsNavigation(device)) {
+                    return true;
+                }
+            }
+        } catch (final Exception e) {
+            LOG.warn("Failed to check for navigation-capable devices, assuming capable", e);
+            return true;
+        }
+        return false;
     }
 }

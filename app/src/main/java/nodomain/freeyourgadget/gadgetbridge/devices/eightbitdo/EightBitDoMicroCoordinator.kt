@@ -6,7 +6,6 @@ import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSett
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsScreen
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.DeviceSettingsSpec
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.ListEntry
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.screen
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.deviceSettings
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
@@ -101,7 +100,7 @@ class EightBitDoMicroCoordinator : AbstractBLEDeviceCoordinator() {
                 }
             }
         }
-        screen(DeviceSpecificSettingsScreen.DEVELOPER, icon = R.drawable.ic_developer_mode) {
+        DeviceSpecificSettingsScreen.DEVELOPER.screen {
             switchSetting(
                 key = DeviceSettingsPreferenceConst.PREF_EIGHTBITDO_REALTIME_BUTTONS,
                 title = R.string.eightbitdo_realtime_buttons_title,

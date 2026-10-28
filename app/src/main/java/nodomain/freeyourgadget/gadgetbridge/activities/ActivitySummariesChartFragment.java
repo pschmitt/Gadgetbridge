@@ -27,29 +27,22 @@ import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 
 import com.github.mikephil.charting.charts.Chart;
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.LegendEntry;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.charts.AbstractActivityChartFragment;
 import nodomain.freeyourgadget.gadgetbridge.activities.charts.ChartsData;
 import nodomain.freeyourgadget.gadgetbridge.activities.charts.ChartsHost;
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.DefaultChartsData;
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.SampleXLabelFormatter;
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.TimestampTranslation;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartLegendView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSeries;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSpec;
 import nodomain.freeyourgadget.gadgetbridge.database.DBAccess;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary;
@@ -59,11 +52,11 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrack;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrackProvider;
 
-
 public class ActivitySummariesChartFragment extends AbstractActivityChartFragment<ChartsData> {
     private static final Logger LOG = LoggerFactory.getLogger(ActivitySummariesChartFragment.class);
 
-    private LineChart mChart;
+    private GbChartView mChart;
+    private ChartLegendView mLegend;
     private View view;
 
     // If a track file is being used (takes precedence over activity data)
@@ -74,7 +67,6 @@ public class ActivitySummariesChartFragment extends AbstractActivityChartFragmen
     private int startTime;
     private int endTime;
 
-    private boolean chartsSetUp;
     private RefreshTask refreshTask;
 
     @Override
@@ -95,7 +87,6 @@ public class ActivitySummariesChartFragment extends AbstractActivityChartFragmen
         this.endTime = (int) endTime;
         this.gbDevice = gbDevice;
         if (this.view != null) {
-            setupChart();
             startRefreshTask();
         }
     }
@@ -107,8 +98,10 @@ public class ActivitySummariesChartFragment extends AbstractActivityChartFragmen
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_charts, container, false);
-        mChart = rootView.findViewById(R.id.activitysleepchart);
+        View rootView = inflater.inflate(R.layout.fragment_activity_summaries_chart, container, false);
+        mChart = rootView.findViewById(R.id.activity_summaries_chart);
+        mChart.setZoomable(true);
+        mLegend = rootView.findViewById(R.id.activity_summaries_chart_legend);
         return rootView;
     }
 
@@ -118,7 +111,6 @@ public class ActivitySummariesChartFragment extends AbstractActivityChartFragmen
         init();
         this.view = view;
         if (this.summary != null || this.gbDevice != null) {
-            setupChart();
             startRefreshTask();
         }
     }
@@ -130,8 +122,8 @@ public class ActivitySummariesChartFragment extends AbstractActivityChartFragmen
             refreshTask = null;
         }
         mChart = null;
+        mLegend = null;
         view = null;
-        chartsSetUp = false;
         super.onDestroyView();
     }
 
@@ -143,49 +135,9 @@ public class ActivitySummariesChartFragment extends AbstractActivityChartFragmen
         refreshTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-
     @Override
     public String getTitle() {
         return "";
-    }
-
-    private void setupChart() {
-        if (chartsSetUp) {
-            return;
-        }
-        mChart.setBackgroundColor(BACKGROUND_COLOR);
-        mChart.getDescription().setTextColor(DESCRIPTION_COLOR);
-        configureBarLineChartDefaults(mChart);
-
-        XAxis x = mChart.getXAxis();
-        x.setDrawLabels(true);
-        x.setDrawGridLines(false);
-        x.setEnabled(true);
-        x.setTextColor(CHART_TEXT_COLOR);
-        x.setDrawLimitLinesBehindData(true);
-
-        YAxis y = mChart.getAxisLeft();
-        y.setDrawGridLines(false);
-//        y.setDrawLabels(false);
-        // TODO: make fixed max value optional
-        y.setAxisMaximum(1f);
-        y.setAxisMinimum(0);
-        y.setDrawTopYLabelEntry(false);
-        y.setTextColor(CHART_TEXT_COLOR);
-
-//        y.setLabelCount(5);
-        y.setEnabled(true);
-
-        YAxis yAxisRight = mChart.getAxisRight();
-        yAxisRight.setDrawGridLines(false);
-        yAxisRight.setEnabled(supportsHeartrate(gbDevice));
-        yAxisRight.setDrawLabels(true);
-        yAxisRight.setDrawTopYLabelEntry(true);
-        yAxisRight.setTextColor(CHART_TEXT_COLOR);
-        yAxisRight.setAxisMaximum(HeartRateUtils.getInstance().getMaxHeartRate());
-        yAxisRight.setAxisMinimum(HeartRateUtils.getInstance().getMinHeartRate());
-
-        chartsSetUp = true;
     }
 
     @Override
@@ -200,24 +152,6 @@ public class ActivitySummariesChartFragment extends AbstractActivityChartFragmen
 
     @Override
     protected void setupLegend(Chart<?> chart) {
-        List<LegendEntry> legendEntries = new ArrayList<>(5);
-
-        LegendEntry activityEntry = new LegendEntry();
-        activityEntry.label = akActivity.label;
-        activityEntry.formColor = akActivity.color;
-        legendEntries.add(activityEntry);
-
-        if (supportsHeartrate(gbDevice)) {
-            LegendEntry hrEntry = new LegendEntry();
-            hrEntry.label = HEARTRATE_LABEL;
-            hrEntry.formColor = HEARTRATE_COLOR;
-            legendEntries.add(hrEntry);
-        }
-
-        chart.getLegend().setCustom(legendEntries);
-        chart.getLegend().setTextColor(LEGEND_TEXT_COLOR);
-        chart.getLegend().setWordWrapEnabled(true);
-        chart.getLegend().setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
     }
 
     @Override
@@ -230,16 +164,27 @@ public class ActivitySummariesChartFragment extends AbstractActivityChartFragmen
     }
 
     @Override
-    protected Entry createLineEntry(float value, int xValue) {
-        return new Entry(xValue, value);
-    }
-
-    @Override
     protected void updateChartsnUIThread(ChartsData chartsData) {
     }
 
+    private void showSamples(final StageSamples samples) {
+        final HeartRateUtils heartRateUtils = HeartRateUtils.getInstance();
+        final ChartSpec spec = stagesSpec(samples, 0, false, heartRateUtils.getMinHeartRate(), heartRateUtils.getMaxHeartRate());
+        mChart.setSelectionContent(stagesSelection(samples));
+        mChart.setSpec(spec);
+
+        final List<ChartSeries> legend = new ArrayList<>();
+        if (!spec.isEmpty()) {
+            legend.add(ChartLegendView.squareItem(akActivity.label, akActivity.color));
+            if (spec.getEndYAxis() != null) {
+                legend.add(ChartLegendView.lineItem(HEARTRATE_LABEL, HEARTRATE_COLOR));
+            }
+        }
+        mLegend.setSeries(legend.size() > 1 ? legend : Collections.emptyList());
+    }
+
     public class RefreshTask extends DBAccess {
-        private DefaultChartsData<LineData> chartsData;
+        private StageSamples samples;
 
         public RefreshTask(String task, Context context) {
             super(task, context, false);
@@ -247,116 +192,45 @@ public class ActivitySummariesChartFragment extends AbstractActivityChartFragmen
 
         @Override
         protected void doInBackground(DBHandler handler) {
-            final DefaultChartsData<LineData> activitySamplesData = buildChartFromSamples(handler);
+            final List<? extends ActivitySample> activitySamples = getAllSamples(handler, gbDevice, startTime, endTime);
+            final List<? extends ActivitySample> highResSamples = getAllSamplesHighRes(handler, gbDevice, startTime, endTime);
+            samples = stageSamples(gbDevice, activitySamples, highResSamples != null ? highResSamples : activitySamples);
 
-            if (summary != null && gbDevice != null) {
-                List<ActivityPoint> activityPoints = null;
+            if (summary != null) {
                 final ActivityTrackProvider activityTrackProvider = gbDevice.getDeviceCoordinator().getActivityTrackProvider(gbDevice, getContext());
                 if (activityTrackProvider != null) {
                     final ActivityTrack activityTrack = activityTrackProvider.getActivityTrack(summary);
                     if (activityTrack != null) {
-                        activityPoints = activityTrack.getAllPoints();
+                        final List<ActivityPoint> activityPoints = activityTrack.getAllPoints();
+                        if (activityPoints != null && !activityPoints.isEmpty()) {
+                            samples = withTrackHeartRate(samples, activityPoints);
+                        }
                     }
                 }
-
-                if (activityPoints != null && !activityPoints.isEmpty()) {
-                    chartsData = buildHeartRateChart(activityPoints, activitySamplesData);
-                } else {
-                    chartsData = activitySamplesData;
-                }
-            } else {
-                chartsData = activitySamplesData;
             }
         }
 
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
-            if (getTaskError() != null || mChart == null) {
+            if (getTaskError() != null || mChart == null || samples == null) {
                 return;
             }
-            if (chartsData != null) {
-                mChart.setData(null); // workaround for https://github.com/PhilJay/MPAndroidChart/issues/2317
-                mChart.getXAxis().setValueFormatter(chartsData.getXValueFormatter());
-                mChart.setData(chartsData.getData());
-            }
-            mChart.invalidate();
+            showSamples(samples);
         }
 
-        private DefaultChartsData<LineData> buildChartFromSamples(DBHandler handler) {
-            final List<? extends ActivitySample> samples = getAllSamples(handler, gbDevice, startTime, endTime);
-            final List<? extends ActivitySample> highResSamples = getAllSamplesHighRes(handler, gbDevice, startTime, endTime);
-
-            try {
-                if (highResSamples == null)
-                    return refresh(gbDevice, samples);
-                return refresh(gbDevice, samples, highResSamples);
-            } catch (Exception e) {
-                LOG.error("Unable to get charts data right now", e);
-            }
-
-            return null;
-        }
-
-        private DefaultChartsData<LineData> buildHeartRateChart(final List<ActivityPoint> activityPoints,
-                                                                final DefaultChartsData<LineData> activitySamplesData) {
-            // If we have data from activity samples, we need to use the same TimestampTranslation so
-            // that the HR chart is aligned
-            // This is not ideal...
-            final TimestampTranslation tsTranslation;
-            if (activitySamplesData != null) {
-                final ValueFormatter xValueFormatter = activitySamplesData.getXValueFormatter();
-                if (xValueFormatter instanceof SampleXLabelFormatter) {
-                    tsTranslation = ((SampleXLabelFormatter) xValueFormatter).getTsTranslation();
-                } else {
-                    LOG.error("Unable to get TimestampTranslation from x value formatter - class changed?");
-                    tsTranslation = new TimestampTranslation();
+        private StageSamples withTrackHeartRate(final StageSamples samples, final List<ActivityPoint> activityPoints) {
+            final long[] hrSeconds = new long[activityPoints.size()];
+            final int[] heartRates = new int[activityPoints.size()];
+            final HeartRateUtils heartRateUtils = HeartRateUtils.getInstance();
+            for (int i = 0; i < activityPoints.size(); i++) {
+                final int heartRate = activityPoints.get(i).getHeartRate();
+                hrSeconds[i] = activityPoints.get(i).getTime().getTime() / 1000L;
+                if (heartRateUtils.isValidHeartRateValue(heartRate)) {
+                    heartRates[i] = heartRate;
                 }
-            } else {
-                tsTranslation = new TimestampTranslation();
             }
-
-            final List<Entry> heartRateEntries = new ArrayList<>(activityPoints.size());
-            final List<ILineDataSet> heartRateDataSets = new ArrayList<>();
-            int lastTsShorten = 0;
-            for (final ActivityPoint activityPoint : activityPoints) {
-                int tsShorten = tsTranslation.shorten((int) (activityPoint.getTime().getTime() / 1000));
-                if (lastTsShorten == 0 || (tsShorten - lastTsShorten) <= 60 * gbDevice.getDeviceCoordinator().getMaxHeartRateMeasurementsGapMinutes(gbDevice)) {
-                    heartRateEntries.add(new Entry(tsShorten, activityPoint.getHeartRate()));
-                } else {
-                    if (!heartRateEntries.isEmpty()) {
-                        List<Entry> clone = new ArrayList<>(heartRateEntries.size());
-                        clone.addAll(heartRateEntries);
-                        heartRateDataSets.add(createHeartrateSet(clone, "Heart Rate"));
-                        heartRateEntries.clear();
-                    }
-                }
-                lastTsShorten = tsShorten;
-                heartRateEntries.add(new Entry(tsShorten, activityPoint.getHeartRate()));
-            }
-            if (!heartRateEntries.isEmpty()) {
-                heartRateDataSets.add(createHeartrateSet(heartRateEntries, "Heart Rate"));
-            }
-
-            if (activitySamplesData != null) {
-                // if we have activity samples, replace the heart rate dataset
-                LineData data = activitySamplesData.getData();
-                List<ILineDataSet> dataSets = data.getDataSets();
-                for (final ILineDataSet dataSet : dataSets) {
-                    if ("Heart Rate".equals(dataSet.getLabel())) {
-                        dataSets.remove(dataSet);
-                        dataSets.addAll(heartRateDataSets);
-                        return activitySamplesData;
-                    }
-                }
-                // We failed to find a heart rate dataset. We can't append ours, or it will crash
-                //dataSets.add(heartRateSet);
-                return activitySamplesData;
-            } else {
-                final LineData lineData = new LineData(heartRateDataSets);
-                final ValueFormatter xValueFormatter = new SampleXLabelFormatter(tsTranslation, "HH:mm");
-                return new DefaultChartsData<>(lineData, xValueFormatter);
-            }
+            return samples.withHeartRate(hrSeconds, heartRates);
         }
     }
 }

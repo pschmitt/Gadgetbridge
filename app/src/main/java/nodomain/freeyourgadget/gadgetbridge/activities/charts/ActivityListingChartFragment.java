@@ -53,6 +53,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySession;
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.FormatUtils;
+import nodomain.freeyourgadget.gadgetbridge.util.kotlin.FloatingActionButtonExtensionsKt;
 
 public class ActivityListingChartFragment extends AbstractActivityChartFragment<ActivityListingChartFragment.MyChartsData> {
     protected static final Logger LOG = LoggerFactory.getLogger(ActivityListingChartFragment.class);
@@ -94,6 +95,7 @@ public class ActivityListingChartFragment extends AbstractActivityChartFragment<
         FloatingActionButton fab;
         fab = rootView.findViewById(R.id.fab);
         fab.setVisibility(View.VISIBLE);
+        FloatingActionButtonExtensionsKt.applyAccentColors(fab);
         fab.setOnClickListener(v -> showDashboard(tsDateTo, getChartsHost().getDevice()));
 
         refresh();

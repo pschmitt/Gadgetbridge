@@ -253,7 +253,7 @@ public class DashboardCalendarActivity extends AbstractGBActivity {
         try (DBHandler dbHandler = GBApplication.acquireDbReadOnly()) {
             for (final GBDevice dev : devices) {
                 if ((showAllDevices || showDeviceList.contains(dev.getAddress())) && dev.getDeviceCoordinator().supportsStepCounter(dev)) {
-                    totalSteps += (int) DailyTotals.getDailyTotalsForDevice(dev, day, dbHandler).getSteps();
+                    totalSteps += (int) DailyTotals.getDailyStepsForDevice(dev, day, dbHandler);
                 }
             }
         } catch (final Exception e) {

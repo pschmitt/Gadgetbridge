@@ -57,10 +57,10 @@ public class VibratissimoSupport extends AbstractBTLESingleDeviceSupport {
 
     public VibratissimoSupport() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION);
-        addSupportedService(GattService.UUID_SERVICE_BATTERY_SERVICE);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
+        addSupportedService(GattService.SERVICE_BATTERY.uuid);
         addSupportedService(UUID.fromString("00001523-1212-efde-1523-785feabcd123"));
 
         deviceInfoProfile = new DeviceInfoProfile<>(this);

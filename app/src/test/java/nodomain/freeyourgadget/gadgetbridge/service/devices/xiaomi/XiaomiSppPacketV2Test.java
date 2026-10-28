@@ -49,9 +49,7 @@ public class XiaomiSppPacketV2Test extends TestBase {
 
     @Test
     public void decodesNack() {
-        // Captured from a Mi Band 10 refusing a command: type 0, echoing the sequence number of
-        // the packet just sent, empty payload. Previously this fell through to a warning and was
-        // dropped, so a rejected command looked identical to a delivered one.
+        // Captured from a Mi Band 10: type 0, the sequence number the watch expects next, empty payload.
         final byte[] captured = new byte[]{
                 (byte) 0xa5, (byte) 0xa5, 0x00, (byte) 0xf6, 0x00, 0x00, 0x00, 0x00,
         };

@@ -21,7 +21,6 @@ import static nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.Dev
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -134,7 +133,7 @@ public class XiaomiAuthService extends AbstractXiaomiService {
                 final XiaomiProto.Command command = handleWatchNonce(cmd.getAuth().getDeviceVerify());
 
                 if (command == null) {
-                    GB.toast(getSupport().getContext(), R.string.authentication_failed_check_key, Toast.LENGTH_LONG, GB.WARN);
+                    getSupport().reportPairingError(getSupport().getContext().getString(R.string.authentication_failed_check_key), true);
                     LOG.error("handleWatchNonce returned null, disconnecting");
                     final GBDevice device = getSupport().getDevice();
 
@@ -161,7 +160,7 @@ public class XiaomiAuthService extends AbstractXiaomiService {
                     getSupport().onAuthSuccess();
                 } else {
                     LOG.warn("Authentication failed, subtype={}, status={}", cmd.getSubtype(), cmd.getStatus());
-                    GB.toast(getSupport().getContext(), R.string.authentication_failed_check_key, Toast.LENGTH_LONG, GB.WARN);
+                    getSupport().reportPairingError(getSupport().getContext().getString(R.string.authentication_failed_check_key), true);
 
                     final GBDevice device = getSupport().getDevice();
                     if (device != null) {

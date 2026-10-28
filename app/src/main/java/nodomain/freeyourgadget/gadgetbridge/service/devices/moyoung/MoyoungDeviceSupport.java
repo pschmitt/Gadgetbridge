@@ -121,7 +121,6 @@ import nodomain.freeyourgadget.gadgetbridge.service.btle.GattCharacteristic;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.GattService;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.TransactionBuilder;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.profiles.IntentListener;
-import nodomain.freeyourgadget.gadgetbridge.service.btle.profiles.battery.BatteryInfo;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.profiles.battery.BatteryInfoProfile;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.profiles.deviceinfo.DeviceInfo;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.profiles.deviceinfo.DeviceInfoProfile;
@@ -165,11 +164,11 @@ public class MoyoungDeviceSupport extends AbstractBTLESingleDeviceSupport {
         super(LOG);
         batteryCmd.level = ActivitySample.NOT_MEASURED;
 
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION);
-        addSupportedService(GattService.UUID_SERVICE_BATTERY_SERVICE);
-        addSupportedService(GattService.UUID_SERVICE_HEART_RATE);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
+        addSupportedService(GattService.SERVICE_BATTERY.uuid);
+        addSupportedService(GattService.SERVICE_HEART_RATE.uuid);
         addSupportedService(MoyoungConstants.UUID_SERVICE_MOYOUNG);
 
         IntentListener mListener = intent -> {
@@ -248,7 +247,7 @@ public class MoyoungDeviceSupport extends AbstractBTLESingleDeviceSupport {
     @Override
     public boolean onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value) {
         UUID charUuid = characteristic.getUuid();
-        if (charUuid.equals(GattCharacteristic.UUID_CHARACTERISTIC_BATTERY_LEVEL)) {
+        if (charUuid.equals(GattCharacteristic.CHARACTERISTIC_BATTERY_LEVEL.uuid)) {
             handleBatteryLevel(value);
             return true;
         }
@@ -632,7 +631,7 @@ public class MoyoungDeviceSupport extends AbstractBTLESingleDeviceSupport {
 
     @Override
     public boolean onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value, int status) {
-        if (status == BluetoothGatt.GATT_SUCCESS && characteristic.getUuid().equals(GattCharacteristic.UUID_CHARACTERISTIC_BATTERY_LEVEL)) {
+        if (status == BluetoothGatt.GATT_SUCCESS && characteristic.getUuid().equals(GattCharacteristic.CHARACTERISTIC_BATTERY_LEVEL.uuid)) {
             handleBatteryLevel(value);
             return true;
         }

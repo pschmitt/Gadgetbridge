@@ -18,6 +18,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.util;
 
+import android.util.Pair;
+
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -202,6 +204,22 @@ public class StringUtils {
         for (int i = startOffset; i < bytes.length; i++) {
             if (bytes[i] == 0) {
                 return new String(ArrayUtils.subarray(bytes, startOffset, i));
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Read string until null terminator. This function returns the actual bytes read.
+     * String.length() does not equal to byte count if the string has non ASCII characters.
+     * @return (string, bytes read).
+     */
+    @Nullable
+    public static Pair<String, Integer> untilNullTerminatorWithLength(final byte[] bytes, final int startOffset) {
+        for (int i = startOffset; i < bytes.length; i++) {
+            if (bytes[i] == 0) {
+                return new Pair<>(new String(ArrayUtils.subarray(bytes, startOffset, i)), i - startOffset);
             }
         }
 

@@ -156,7 +156,7 @@ public class G1DeviceCoordinator extends AbstractBLEDeviceCoordinator {
             GBDevice rightDevice =
                     new GBDevice(right_address.getDetails(), right_name.getDetails(), null,
                             gbDevice.getParentFolder(), gbDevice.getType());
-            super.deleteDevice(rightDevice, true);
+            super.deleteDevice(rightDevice, true, null);
             BondingUtil.Unpair(GBApplication.getContext(), rightDevice.getAddress());
         }
     }
@@ -228,6 +228,11 @@ public class G1DeviceCoordinator extends AbstractBLEDeviceCoordinator {
 
     @Override
     public boolean supportsWeather(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsAppNotifications(@NonNull final GBDevice device) {
         return true;
     }
 

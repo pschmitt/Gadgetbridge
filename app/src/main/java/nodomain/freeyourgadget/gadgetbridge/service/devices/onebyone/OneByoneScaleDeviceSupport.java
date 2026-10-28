@@ -95,9 +95,9 @@ public class OneByoneScaleDeviceSupport extends AbstractBTLESingleDeviceSupport 
 
     public OneByoneScaleDeviceSupport() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
-        addSupportedService(GattService.UUID_SERVICE_BATTERY_SERVICE);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
+        addSupportedService(GattService.SERVICE_BATTERY.uuid);
         addSupportedService(UUID_SERVICE_SCALE);
 
         batteryInfoProfile = new BatteryInfoProfile<>(this);

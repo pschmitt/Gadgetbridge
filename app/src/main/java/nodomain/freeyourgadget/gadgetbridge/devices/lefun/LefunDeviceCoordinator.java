@@ -19,16 +19,11 @@ package nodomain.freeyourgadget.gadgetbridge.devices.lefun;
 
 import androidx.annotation.NonNull;
 
-import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.Property;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
-import nodomain.freeyourgadget.gadgetbridge.entities.LefunActivitySampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.LefunBiometricSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.LefunSleepSampleDao;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceCandidate;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
@@ -40,8 +35,6 @@ import static nodomain.freeyourgadget.gadgetbridge.devices.lefun.LefunConstants.
 import static nodomain.freeyourgadget.gadgetbridge.devices.lefun.LefunConstants.MANUFACTURER_NAME;
 import static nodomain.freeyourgadget.gadgetbridge.devices.lefun.LefunConstants.NUM_ALARM_SLOTS;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -116,6 +109,16 @@ public class LefunDeviceCoordinator extends AbstractBLEDeviceCoordinator {
     }
 
     @Override
+    public boolean supportsAppNotifications(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsPhoneCalls(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
     public BatteryConfig[] getBatteryConfig(final GBDevice device) {
         return new BatteryConfig[]{
                 new BatteryConfig(
@@ -155,15 +158,6 @@ public class LefunDeviceCoordinator extends AbstractBLEDeviceCoordinator {
     @Override
     public int getDefaultIconResource() {
         return R.drawable.ic_device_h30_h10;
-    }
-
-    @Override
-    public Map<AbstractDao<?, ?>, Property> getAllDeviceDao(@NonNull final DaoSession session) {
-        Map<AbstractDao<?, ?>, Property> map = new HashMap<>(3);
-        map.put(session.getLefunActivitySampleDao(), LefunActivitySampleDao.Properties.DeviceId);
-        map.put(session.getLefunBiometricSampleDao(), LefunBiometricSampleDao.Properties.DeviceId);
-        map.put(session.getLefunSleepSampleDao(), LefunSleepSampleDao.Properties.DeviceId);
-        return map;
     }
 
     @Override

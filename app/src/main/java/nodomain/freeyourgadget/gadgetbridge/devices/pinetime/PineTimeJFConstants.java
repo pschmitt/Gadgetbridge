@@ -60,7 +60,7 @@ public class PineTimeJFConstants {
     // since https://github.com/InfiniTimeOrg/InfiniTime/pull/1454
     public static final UUID UUID_CHARACTERISTIC_WORLD_TIME = UUID.fromString("00050001-78fc-48fe-8e23-433b3a1942d0");
 
-    public static final UUID UUID_SERVICE_HEART_RATE = GattService.UUID_SERVICE_HEART_RATE;
+    public static final UUID UUID_SERVICE_HEART_RATE = GattService.SERVICE_HEART_RATE.uuid;
     public static final UUID UUID_CHARACTERISTIC_HEART_RATE_MEASUREMENT = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb");
 
     public static final String ACTION_UPLOAD_PROGRESS = "PINETIME_UPLOAD_PROGRESS";

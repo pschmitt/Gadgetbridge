@@ -1,5 +1,6 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.workouts.entries
 
+import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutValueFormatter
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries
 
 private const val BPM_COLUMN_WEIGHT = 0.8f
@@ -31,12 +32,14 @@ private val IMPLIED_UNITS = setOf(
  * @property weight share of the remaining width, ignored when [fixedWidth].
  * @property impliedUnit the unit that is the same in every cell of the column, if any. It is left
  * off the cells and shown in the column header instead.
+ * @property wholeKilograms all cells are weights, to be displayed as whole kilograms / without decimals.
  */
 data class TableColumnSpec(
     val numeric: Boolean,
     val fixedWidth: Boolean,
     val weight: Float,
     val impliedUnit: String?,
+    val wholeKilograms: Boolean,
 ) {
     val dropUnit: Boolean get() = impliedUnit != null
 }
@@ -50,11 +53,11 @@ class TableSpec private constructor(private val columns: List<TableColumnSpec>) 
     fun column(index: Int): TableColumnSpec = columns.getOrElse(index) { DEFAULT_COLUMN }
 
     companion object {
-        private val DEFAULT_COLUMN = TableColumnSpec(numeric = false, fixedWidth = false, weight = 1f, impliedUnit = null)
+        private val DEFAULT_COLUMN = TableColumnSpec(numeric = false, fixedWidth = false, weight = 1f, impliedUnit = null, wholeKilograms = false)
 
         /** [rows] are the table's header and data rows; only the data rows decide the column kinds. */
         @JvmStatic
-        fun from(rows: List<ActivitySummaryTableRowEntry>): TableSpec {
+        fun from(rows: List<ActivitySummaryTableRowEntry>, formatter: WorkoutValueFormatter): TableSpec {
             val dataRows = rows.filter { !it.isHeader }
             val columnCount = rows.maxOfOrNull { it.columns.size } ?: 0
 
@@ -68,7 +71,9 @@ class TableSpec private constructor(private val columns: List<TableColumnSpec>) 
                 val fixedWidth = index == 0 && numeric && cells.all { it.value() is Int || it.value() is Long }
                 val weight = if (impliedUnit == ActivitySummaryEntries.UNIT_BPM) BPM_COLUMN_WEIGHT else 1f
 
-                TableColumnSpec(numeric, fixedWidth, weight, impliedUnit)
+                val wholeKilograms = numeric && cells.all { formatter.isWholeKilograms(it.value(), it.unit()) }
+
+                TableColumnSpec(numeric, fixedWidth, weight, impliedUnit, wholeKilograms)
             }
             return TableSpec(columns)
         }

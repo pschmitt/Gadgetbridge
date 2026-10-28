@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Preference
+        android:key="notif_app_header"
+        android:persistent="false"
+        android:selectable="false" />
+
+    <ListPreference
+        android:key="notif_app_send_state"
+        android:persistent="false"
+        android:title="@string/pref_title_send_app_notifications"
+        app:iconSpaceReserved="false"
+        app:useSimpleSummaryProvider="true" />
+
+    <ListPreference
+        android:key="notif_app_pebble_state"
+        android:persistent="false"
+        android:title="@string/pref_title_notifications_pebblemsg"
+        app:iconSpaceReserved="false"
+        app:useSimpleSummaryProvider="true" />
+
+    <PreferenceCategory
+        android:title="@string/activity_filter_filter_title"
+        app:iconSpaceReserved="false">
+
+        <ListPreference
+            android:key="notif_app_filter_mode"
+            android:persistent="false"
+            android:title="@string/filter_mode"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            android:key="notif_app_filter_match"
+            android:persistent="false"
+            android:title="@string/notification_apps_filter_match"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            android:key="notif_app_filter_syntax"
+            android:persistent="false"
+            android:title="@string/notification_apps_filter_syntax"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreferenceCompat
+            android:key="notif_app_filter_ignore_case"
+            android:layout="@layout/preference_checkbox"
+            android:persistent="false"
+            android:title="@string/notification_apps_ignore_case"
+            app:iconSpaceReserved="false" />
+
+        <Preference
+            android:key="notif_app_filter_entries"
+            android:persistent="false"
+            android:title="@string/notification_apps_filter_entries"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/notification_apps_text_replacements"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:key="notif_app_replacements"
+            android:persistent="false"
+            android:title="@string/notification_apps_edit_text_replacements"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="notif_app_overrides_category"
+        android:title="@string/notification_apps_overrides"
+        app:iconSpaceReserved="false">
+
+        <ListPreference
+            android:key="notif_app_privacy"
+            android:persistent="false"
+            android:title="@string/pref_title_message_privacy_mode"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            android:key="notif_app_when_screen_on"
+            android:persistent="false"
+            android:title="@string/notification_apps_when_screen_on"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            android:key="notif_app_prefer_long_text"
+            android:persistent="false"
+            android:title="@string/pref_title_notification_prefer_long_text"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            android:key="notif_app_block_if_out_of_notification_times"
+            android:persistent="false"
+            android:title="@string/pref_title_notification_times_enabled"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            android:key="notif_app_ignore_low_priority"
+            android:persistent="false"
+            android:title="@string/pref_title_notifications_ignore_low_priority"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreferenceCompat
+            android:key="notif_app_forward_local_only"
+            android:persistent="false"
+            android:summary="@string/notification_apps_forward_local_only_summary"
+            android:title="@string/notification_apps_forward_local_only"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="notif_app_devices_category"
+        android:title="@string/title_activity_device_specific_settings"
+        app:iconSpaceReserved="false" />
+</PreferenceScreen>

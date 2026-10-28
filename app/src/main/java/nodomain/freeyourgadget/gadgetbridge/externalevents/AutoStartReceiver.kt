@@ -20,36 +20,44 @@ package nodomain.freeyourgadget.gadgetbridge.externalevents
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.database.PeriodicDbExporter
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs
 import nodomain.freeyourgadget.gadgetbridge.util.backup.PeriodicZipExporter
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class AutoStartReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (!GBApplication.getPrefs().autoStart) {
-            return
-        }
         if (Intent.ACTION_BOOT_COMPLETED != intent.action && Intent.ACTION_MY_PACKAGE_REPLACED != intent.action) {
+            LOG.warn("Ignoring unexpected action {}", intent.action)
             return
         }
 
-        Log.i(TAG, "Boot or reinstall completed, starting Gadgetbridge")
+        LOG.info("Received {}", intent.action)
+
+        if (!GBApplication.getPrefs().autoStart) {
+            LOG.info("Not starting, auto-start is disabled")
+            return
+        }
+
+        LOG.info("Boot or reinstall completed, starting Gadgetbridge")
 
         if (GBApplication.getPrefs().getBoolean(GBPrefs.AUTO_CONNECT_BLUETOOTH, false)) {
-            Log.i(TAG, "Auto-connect is enabled, attempting to connect")
+            LOG.info("Auto-connect is enabled, attempting to connect")
             GBApplication.deviceService().connect()
+        } else {
+            LOG.info("Not connecting, auto-connect is disabled")
         }
 
-        Log.i(TAG, "Going to enable periodic db exporter")
+        LOG.debug("Enabling periodic db exporter")
         PeriodicDbExporter.scheduleNextExecution(context)
 
-        Log.i(TAG, "Going to enable periodic zip exporter")
+        LOG.debug("Enabling periodic zip exporter")
         PeriodicZipExporter.scheduleNextExecution(context)
     }
 
     companion object {
-        private val TAG: String = AutoStartReceiver::class.java.getName()
+        private val LOG: Logger = LoggerFactory.getLogger(AutoStartReceiver::class.java)
     }
 }

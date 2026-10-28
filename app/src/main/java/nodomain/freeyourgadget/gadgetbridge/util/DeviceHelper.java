@@ -208,6 +208,21 @@ public class DeviceHelper {
         }
     }
 
+    @Nullable
+    public GBDevice findDeviceByDatabaseId(long id) {
+        try (DBHandler lockHandler = GBApplication.acquireDB()) {
+            List<Device> activeDevices = DBHelper.getActiveDevices(lockHandler.getDaoSession());
+            for (Device dbDevice : activeDevices) {
+                if (dbDevice.getId() != null && dbDevice.getId().equals(id)) {
+                    return toGBDevice(dbDevice);
+                }
+            }
+        } catch (Exception e) {
+            GB.toast(GBApplication.getContext().getString(R.string.error_retrieving_devices_database), Toast.LENGTH_SHORT, GB.ERROR, e);
+        }
+        return null;
+    }
+
     /**
      * Converts a known device from the database to a GBDevice.
      * Note: The device might not be supported anymore, so callers should verify that.

@@ -1,0 +1,125 @@
+syntax = "proto2";
+
+package GDI.Proto.AudioPrompts;
+option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin";
+option java_outer_classname = "GdiAudioPrompts";
+
+message AudioPromptsService {
+    optional GDI.Proto.AudioPrompts.LapNotification lap_notification = 1;
+    optional GDI.Proto.AudioPrompts.AudioSettingsUpdatedNotification audio_settings_updated_notification = 2;
+    optional GDI.Proto.AudioPrompts.AudioSettingsRequest audio_settings_request = 3;
+    optional GDI.Proto.AudioPrompts.AudioSettingsResponse audio_settings_response = 4;
+    optional GDI.Proto.AudioPrompts.SpeedNotification speed_notification = 5;
+    optional GDI.Proto.AudioPrompts.PaceNotification pace_notification = 6;
+    optional GDI.Proto.AudioPrompts.HeartRateNotification heart_rate_notification = 7;
+    optional GDI.Proto.AudioPrompts.PowerNotification power_notification = 8;
+    optional GDI.Proto.AudioPrompts.SpeechNotification speech_notification = 9;
+    optional GDI.Proto.AudioPrompts.SupportedLanguagesRequest supported_languages_request = 10;
+    optional GDI.Proto.AudioPrompts.SupportedLanguagesResponse supported_languages_response = 11;
+    optional GDI.Proto.AudioPrompts.SetLanguageRequest set_language_request = 12;
+    optional GDI.Proto.AudioPrompts.SetLanguageResponse set_language_response = 13;
+    optional GDI.Proto.AudioPrompts.PhraseNotification phrase_notification = 14;
+}
+
+message AudioSettingsRequest {
+}
+
+message AudioSettingsResponse {
+    required bool speakLaps = 1;
+    required uint64 speedIntervalTime = 2;
+    required uint64 hrIntervalTime = 3;
+    optional uint64 powerIntervalTime = 4;
+    optional bool speakNavigation = 5;
+}
+
+message AudioSettingsUpdatedNotification {
+}
+
+message GravelPhrase {
+    required string phrase_template = 1;
+    optional string context_json = 2;
+    optional float speech_rate_multiplier = 3;
+}
+
+message HeartRateNotification {
+    optional uint32 bpm = 1;
+    optional float zone = 2;
+    optional uint32 percentage_max = 3;
+    optional uint32 percentage_hrr = 4;
+    optional GDI.Proto.AudioPrompts.Language audio_prompt_language = 5;
+}
+
+message Language {
+    required string language_code = 1;
+    optional string country_code = 2;
+}
+
+message LapNotification {
+    required uint32 lap_number = 1;
+    required uint64 lap_time = 2;
+    optional float lap_speed = 3;
+    optional GDI.Proto.AudioPrompts.Language audio_prompt_language = 4;
+}
+
+message PaceNotification {
+    optional uint64 average_pace = 1;
+    optional uint64 current_pace = 2;
+    optional uint64 lap_pace = 3;
+    optional GDI.Proto.AudioPrompts.Language audio_prompt_language = 4;
+}
+
+message Phrase {
+    required uint32 phrase_id = 1;
+    repeated GDI.Proto.AudioPrompts.SlotValue slot_values = 2 [packed = false];
+}
+
+message PhraseNotification {
+    optional uint32 priority = 1;
+    repeated GDI.Proto.AudioPrompts.Phrase phrases = 2 [packed = false];
+    repeated GDI.Proto.AudioPrompts.GravelPhrase gravel_phrases = 3 [packed = false];
+}
+
+message PowerNotification {
+    optional uint32 average_power = 1;
+    optional uint32 normalized_power = 2;
+    optional uint32 lap_power = 3;
+    optional GDI.Proto.AudioPrompts.Language audio_prompt_language = 4;
+}
+
+message SetLanguageRequest {
+    required GDI.Proto.AudioPrompts.Language lang = 1;
+}
+
+message SetLanguageResponse {
+    required bool success = 1;
+}
+
+message SlotValue {
+    optional sint32 int_value = 1;
+    optional float float_value = 2;
+}
+
+message SpeechNotification {
+    optional GDI.Proto.AudioPrompts.SpeechType speech_type = 1;
+    optional string text_to_speak = 2;
+}
+
+enum SpeechType {
+    UNKNOWN = 0;
+    NAVIGATION = 1;
+}
+
+message SpeedNotification {
+    optional float average_speed = 1;
+    optional float current_speed = 2;
+    optional float lap_speed = 3;
+    required bool device_is_displaying_metric_units = 4;
+    optional GDI.Proto.AudioPrompts.Language audio_prompt_language = 5;
+}
+
+message SupportedLanguagesRequest {
+}
+
+message SupportedLanguagesResponse {
+    repeated GDI.Proto.AudioPrompts.Language languages = 1 [packed = false];
+}

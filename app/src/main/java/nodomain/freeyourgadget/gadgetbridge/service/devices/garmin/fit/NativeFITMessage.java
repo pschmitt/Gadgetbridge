@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -95,13 +96,13 @@ public class NativeFITMessage {
         return subset;
     }
 
-    FieldDefinition getFieldDefinition(final String name, final int count) {
+    FieldDefinition getFieldDefinition(final String name, final Object[] value) {
         for (FieldDefinitionPrimitive fieldDefinitionPrimitive :
                 fieldDefinitionPrimitives) {
             if (name.equals(fieldDefinitionPrimitive.name)) {
                 return FieldDefinitionFactory.create(
                         fieldDefinitionPrimitive.number,
-                        fieldDefinitionPrimitive.size * count,
+                        fieldSize(fieldDefinitionPrimitive, value),
                         fieldDefinitionPrimitive.type,
                         fieldDefinitionPrimitive.baseType,
                         fieldDefinitionPrimitive.name,
@@ -112,6 +113,20 @@ public class NativeFITMessage {
         }
 
         throw new IllegalArgumentException("Unknown field name " + name);
+    }
+
+    /**
+     * The size of a field that holds {@code value}. A string field with no declared size is as long
+     * as the UTF-8 bytes of the string and the null terminator, up to 255 bytes.
+     */
+    private static int fieldSize(final FieldDefinitionPrimitive fieldDefinitionPrimitive, final Object[] value) {
+        final boolean undeclaredString = fieldDefinitionPrimitive.baseType == BaseType.STRING
+                && fieldDefinitionPrimitive.size == BaseType.STRING.getSize();
+        if (!undeclaredString || value.length != 1 || !(value[0] instanceof String)) {
+            return fieldDefinitionPrimitive.size * value.length;
+        }
+        final int length = ((String) value[0]).getBytes(StandardCharsets.UTF_8).length + 1;
+        return Math.min(length, 255);
     }
 
     @Nullable

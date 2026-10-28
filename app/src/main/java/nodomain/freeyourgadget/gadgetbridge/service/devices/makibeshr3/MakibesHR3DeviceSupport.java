@@ -76,6 +76,7 @@ import nodomain.freeyourgadget.gadgetbridge.service.btle.AbstractBTLESingleDevic
 import nodomain.freeyourgadget.gadgetbridge.service.btle.TransactionBuilder;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.preferences.DevicePrefs;
+import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
 
 public class MakibesHR3DeviceSupport extends AbstractBTLESingleDeviceSupport implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -225,7 +226,7 @@ public class MakibesHR3DeviceSupport extends AbstractBTLESingleDeviceSupport imp
             message += (notificationSpec.getTitle() + ": ");
         }
 
-        message += notificationSpec.getBody();
+        message += StringUtils.ensureNotNull(notificationSpec.getBody());
 
         this.sendNotification(transactionBuilder,
                 sender, message);

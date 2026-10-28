@@ -26,12 +26,14 @@ import android.view.ViewGroup;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.Chart;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +49,7 @@ import java.util.List;
 import lineageos.weather.util.TemperatureUtils;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartDataBuilder;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider;
@@ -74,11 +77,7 @@ public class TemperatureChartFragment extends AbstractChartFragment<TemperatureC
 
     }
     private int getRangeDays() {
-        if (GBApplication.getPrefs().getBoolean("charts_range", true)) {
-            return 30;
-        } else {
-            return 7;
-        }
+        return GBApplication.getPrefs().getChartsRange().getDays();
     }
 
     @Override
@@ -93,7 +92,7 @@ public class TemperatureChartFragment extends AbstractChartFragment<TemperatureC
     protected void updateChartsnUIThread(final TemperatureChartsData temperatureData) {
         mTemperatureChart.setData(null); // workaround for https://github.com/PhilJay/MPAndroidChart/issues/2317
         mTemperatureChart.getXAxis().setValueFormatter(temperatureData.getXValueFormatter());
-        mTemperatureChart.getXAxis().setAvoidFirstLastClipping(true);
+        mTemperatureChart.getXAxis().setAvoidFirstLastClippingEnabled(true);
 
         // Using approximately the range of survivable body-temperatures (in Celsius), rounded to multiples of 5
         final boolean isMetric = temperatureUnit == TemperatureUnit.CELSIUS;
@@ -130,21 +129,21 @@ public class TemperatureChartFragment extends AbstractChartFragment<TemperatureC
         configureBarLineChartDefaults(mTemperatureChart);
 
         final XAxis x = mTemperatureChart.getXAxis();
-        x.setDrawLabels(true);
-        x.setDrawGridLines(false);
+        x.setDrawLabelsEnabled(true);
+        x.setDrawGridLinesEnabled(false);
         x.setEnabled(true);
         x.setTextColor(CHART_TEXT_COLOR);
-        x.setDrawLimitLinesBehindData(true);
+        x.setDrawLimitLinesBehindDataEnabled(true);
 
         final YAxis yAxisLeft = mTemperatureChart.getAxisLeft();
-        yAxisLeft.setDrawGridLines(true);
-        yAxisLeft.setDrawTopYLabelEntry(false);
+        yAxisLeft.setDrawGridLinesEnabled(true);
+        yAxisLeft.setDrawTopYLabelEntryEnabled(false);
         yAxisLeft.setTextColor(CHART_TEXT_COLOR);
         yAxisLeft.setEnabled(true);
 
         final YAxis yAxisRight = mTemperatureChart.getAxisRight();
-        yAxisRight.setDrawGridLines(false);
-        yAxisRight.setDrawLabels(false);
+        yAxisRight.setDrawGridLinesEnabled(false);
+        yAxisRight.setDrawLabelsEnabled(false);
     }
 
     @Override
@@ -153,7 +152,7 @@ public class TemperatureChartFragment extends AbstractChartFragment<TemperatureC
 
     @Override
     protected void renderCharts() {
-        mTemperatureChart.animateX(ANIM_TIME, Easing.EaseInOutQuart);
+        mTemperatureChart.animateX(ANIM_TIME, Easing.INSTANCE.getEaseInOutQuart());
     }
 
     @Override
@@ -189,23 +188,23 @@ public class TemperatureChartFragment extends AbstractChartFragment<TemperatureC
 
             for (TemperatureSample sample : samples) {
                 int timestamp_in_seconds = (int) (sample.getTimestamp() / 1000L);
-                entries.add(new Entry(
+                entries.add(new Entry<>(
                         tsTranslation.shorten(timestamp_in_seconds),
                         (float) (isMetric ? sample.getTemperature() : TemperatureUtils.celsiusToFahrenheit(sample.getTemperature()))
-                ));
+                , null, null));
                 if (firstTs == 0) {
                     firstTs = sample.getTimestamp();
                 }
             }
 
             LineDataSet dataSet = new LineDataSet(entries, getString(R.string.menuitem_temperature));
-            dataSet.setLineWidth(2.2f);
+            dataSet.setLineWidth(ChartDataBuilder.LINE_WIDTH_DP);
             dataSet.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
             dataSet.setCubicIntensity(0.1f);
-            dataSet.setDrawCircles(true);
+            dataSet.setDrawCirclesEnabled(true);
             dataSet.setCircleRadius(5f);
-            dataSet.setDrawCircleHole(false);
-            dataSet.setDrawValues(true);
+            dataSet.setDrawCircleHoleEnabled(false);
+            dataSet.setDrawValuesEnabled(true);
             dataSet.setValueTextSize(10f);
             dataSet.setValueTextColor(CHART_TEXT_COLOR);
             dataSet.setHighlightEnabled(true);
@@ -223,7 +222,7 @@ public class TemperatureChartFragment extends AbstractChartFragment<TemperatureC
     }
 
 
-    protected static class dateFormatter extends ValueFormatter {
+    protected static class dateFormatter implements IAxisValueFormatter {
         private final TimestampTranslation tsTranslation;
         SimpleDateFormat annotationDateFormat = new SimpleDateFormat("dd.MM.");
         Calendar cal = GregorianCalendar.getInstance();
@@ -233,7 +232,7 @@ public class TemperatureChartFragment extends AbstractChartFragment<TemperatureC
         }
 
         @Override
-        public String getFormattedValue(float value) {
+        public String getFormattedValue(final float value, final AxisBase axis) {
             cal.clear();
             int ts = (int) value;
             cal.setTimeInMillis(tsTranslation.toOriginalValue(ts) * 1000L);
@@ -242,11 +241,11 @@ public class TemperatureChartFragment extends AbstractChartFragment<TemperatureC
         }
     }
 
-    protected static class MyValueFormatter extends ValueFormatter {
+    protected static class MyValueFormatter extends DataSetValueFormatter {
         private final DecimalFormat formatter = new DecimalFormat("0.00");
 
         @Override
-        public String getPointLabel(Entry entry) {
+        public String getFormattedValue(final float value, final Entry<?> entry, final int dataSetIndex, final ViewPortHandler viewPortHandler) {
             return formatter.format(entry.getY());
         }
     }

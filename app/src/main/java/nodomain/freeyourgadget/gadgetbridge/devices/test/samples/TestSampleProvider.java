@@ -296,7 +296,8 @@ public class TestSampleProvider extends AbstractSampleProvider<TestSampleProvide
 
         @Override
         public int getActiveCalories() {
-            return (int) Math.round(steps * 0.04);
+            // ~0.04 kcal per step
+            return steps * 40;
         }
     }
 }

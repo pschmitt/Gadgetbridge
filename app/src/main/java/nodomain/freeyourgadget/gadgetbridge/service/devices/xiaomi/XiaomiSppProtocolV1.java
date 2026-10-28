@@ -24,6 +24,7 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import nodomain.freeyourgadget.gadgetbridge.service.btbr.TransactionBuilder;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 
 import static nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.XiaomiSppPacketV1.OPCODE_SEND;
@@ -113,7 +114,11 @@ public class XiaomiSppProtocolV1 extends AbstractXiaomiSppProtocol {
     }
 
     @Override
-    public byte[] encodePacket(XiaomiChannelHandler.Channel channel, byte[] data) {
+    public void writePacket(final TransactionBuilder builder, final XiaomiChannelHandler.Channel channel, final byte[] data) {
+        builder.write(encodePacket(channel, data));
+    }
+
+    private byte[] encodePacket(XiaomiChannelHandler.Channel channel, byte[] data) {
         return XiaomiSppPacketV1.newBuilder()
                 .channel(channel)
                 .opCode(OPCODE_SEND)

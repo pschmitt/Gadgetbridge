@@ -26,15 +26,15 @@
     <string name="appmanager_installed_watchapps">Installierte Apps</string>
     <string name="appmanager_installed_watchfaces">Installierte Zifferblätter</string>
     <string name="appmananger_app_delete">Löschen</string>
-    <string name="appmananger_app_delete_cache">Löschen und aus dem Zwischenspeicher entfernen</string>
+    <string name="appmananger_app_delete_cache">Löschen und aus dem Cache entfernen</string>
     <string name="appmananger_app_reinstall">Erneut installieren</string>
     <string name="appmanager_app_openinstore">Im Pebble App Store suchen</string>
     <string name="appmanager_health_activate">Aktivieren</string>
     <string name="appmanager_health_deactivate">Deaktivieren</string>
     <string name="appmanager_hrm_activate">HRM aktivieren</string>
     <string name="appmanager_hrm_deactivate">HRM deaktivieren</string>
-    <string name="appmanager_weather_activate">Aktiviere die Wetter-App des Systems</string>
-    <string name="appmanager_weather_deactivate">Deaktiviere die Wetter-App des Systems</string>
+    <string name="appmanager_weather_activate">Wetter-App des Systems aktivieren</string>
+    <string name="appmanager_weather_deactivate">Wetter-App des Systems deaktivieren</string>
     <string name="app_configure">Konfigurieren</string>
     <string name="app_move_to_top">Nach oben</string>
     <!--Strings related to CalBlacklist-->
@@ -972,7 +972,7 @@
     <string name="about_version">Version %s</string>
     <string name="menuitem_spo2">SpO2</string>
     <string name="charts_legend_heartrate_average">Ø Puls</string>
-    <string name="find_lost_device_message">Suche nach %1$s\?</string>
+    <string name="find_lost_device_message">Nach %1$s suchen?</string>
     <string name="menuitem_stopwatch">Stoppuhr</string>
     <string name="menuitem_dnd">Nicht stören</string>
     <string name="menuitem_alexa">Alexa</string>
@@ -1456,8 +1456,8 @@
     <string name="activity_type_outdoor_running">Laufen im Freien</string>
     <string name="activity_type_outdoor_cycling">Radfahren im Freien</string>
     <string name="prefs_noise_control">Geräuschkontrolle</string>
-    <string name="pref_switch_controls_anc_off">Geräuschunterdrückung ←→ Aus</string>
-    <string name="pref_switch_controls_ambient_off">Umgebung ←→ Aus</string>
+    <string name="pref_switch_controls_anc_off">Geräuschunterdrückung ↔ Aus</string>
+    <string name="pref_switch_controls_ambient_off">Umgebung ↔ Aus</string>
     <string name="prefs_double_tap_edge_summary">Doppeltippen erkennen, auch wenn nicht auf dem Touchpad getippt wird</string>
     <string name="prefs_voice_detect_duration">Ende nach Ruhe für:</string>
     <string name="pref_voice_detect_duration_5">5 Sekunden</string>
@@ -1497,7 +1497,7 @@
     <string name="prefs_ambient_sound_during_call_title">Umgebungsgeräusche während des Anrufs</string>
     <string name="permission_notification_listener">%1$s benötigt Zugriff auf Benachrichtigungen, um sie auf deiner Smartwatch anzuzeigen, wenn der Bildschirm deines Telefons ausgeschaltet ist.\n\nTippe bitte auf \"%2$s\", dann auf \"%1$s\" und aktiviere „Benachrichtigungszugriff erlauben“. Tippe anschließend auf „Zurück“, um zu %1$s zurückzukehren.</string>
     <string name="prefs_switch_control_left">Schaltersteuerung links</string>
-    <string name="pref_switch_controls_anc_ambient">Geräuschunterdrückung ←→ Umgebungsgeräusche</string>
+    <string name="pref_switch_controls_anc_ambient">Geräuschunterdrückung ↔ Umgebungsgeräusche</string>
     <string name="pref_workout_start_on_phone_summary">Startet/stoppt das Fitness-App-Tracking auf dem Telefon, wenn ein GPS-Training auf dem Gerät gestartet wird</string>
     <string name="pref_workout_send_gps_title">GPS während des Trainings senden</string>
     <string name="pref_workout_send_gps_summary">Senden der aktuellen GPS-Position an das Band während des Trainings</string>
@@ -1928,7 +1928,7 @@
     <string name="fw_upgrade_notice_amazfit_gtr3_pro">Du bist dabei, die Firmware %s auf deine Amazfit GTR 3 Pro zu installieren. \n \nDeine Smartwatch wird nach der Installation der .zip Datei neu starten. \n \nINSTALLATION AUF EIGENE GEFAHR!</string>
     <string name="menuitem_forecast">Vorhersage</string>
     <string name="menuitem_last_workout">Letztes Training</string>
-    <string name="pref_switch_controls_anc_ambient_off">Geräuschunterdrückung ←→ Umgebungsgeräusche ←→ Aus</string>
+    <string name="pref_switch_controls_anc_ambient_off">Geräuschunterdrückung ↔ Umgebungsgeräusche ↔ Aus</string>
     <string name="single_tap">Einmaliges Antippen</string>
     <string name="prefs_shortcut_cards_summary">Kurzbefehlkarten, die erscheinen, wenn du vom Zifferblatt nach rechts wischst. Wenn gerade eine App läuft, wirkt sich diese Einstellung nicht auf automatisch erstellte Karten aus.</string>
     <string name="prefs_shortcut_cards">Verknüpfungskarten</string>
@@ -4447,9 +4447,9 @@
     <string name="qs_tile_not_connected">%s ist nicht verbunden</string>
     <string name="qs_tile_add_to_quick_settings">Zu Schnelleinstellungen hinzufügen</string>
     <string name="qs_tile_cycle_values_all">Alle Werte</string>
-    <string name="endurain_invalid_server_url">Ungültige Server-URL</string>
-    <string name="endurain_server_version">\nServer-Version: %1$s</string>
-    <string name="endurain_logged_out_successfully">Erfolgreich abgemeldet</string>
+    <string name="service_invalid_server_url">Ungültige Server-URL</string>
+    <string name="service_server_version">\nServer-Version: %1$s</string>
+    <string name="service_logged_out">Erfolgreich abgemeldet</string>
     <string name="warning_network_required_title">Netzwerk erforderlich</string>
     <string name="configuredPaceGoal">Zielpace</string>
     <string name="projectedTime5km">5-km-Lauf-Prognose</string>
@@ -4459,4 +4459,15 @@
     <string name="metric_garmin_hill_score">Hill Score</string>
     <string name="pref_log_level_trace_title">Detailliertes Logging</string>
     <string name="soundbrenner_category_tempo">Geschwindigkeit</string>
+    <string name="range_integer">%1$d – %2$d</string>
+    <string name="controlcenter_get_spo2_measurement">Blutsauerstoffmessung</string>
+    <string name="duration_short_day">1T</string>
+    <string name="duration_short_week">1W</string>
+    <string name="duration_short_two_weeks">2W</string>
+    <string name="duration_short_month">1M</string>
+    <string name="duration_short_six_months">6M</string>
+    <string name="duration_short_year">1J</string>
+    <string name="pref_header_device_card">Gerätekarte</string>
+    <string name="navigation_distance_left">%1$s übrig</string>
+    <string name="navigation_eta">vor. Ankunft: %1$s</string>
 </resources>

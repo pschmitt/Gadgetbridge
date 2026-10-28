@@ -12,13 +12,16 @@ import nodomain.freeyourgadget.gadgetbridge.model.SolarChargeSample;
 public class TestSolarChargeSampleProvider extends AbstractTestSampleProvider<SolarChargeSample> {
     private static final int SUNRISE_HOUR = 7;
     private static final int SUNSET_HOUR = 20;
+    private static final long HOUR_MILLIS = 60 * 60 * 1000L;
+    private static final long SAMPLE_INTERVAL_MILLIS = 60 * 1000L;
 
     @NonNull
     @Override
     public List<SolarChargeSample> getAllSamples(final long timestampFrom, final long timestampTo) {
         final List<SolarChargeSample> samples = new ArrayList<>();
 
-        for (long ts = timestampFrom; ts < timestampTo; ts += 15 * 60 * 1000L) {
+        final long firstTs = (timestampFrom + SAMPLE_INTERVAL_MILLIS - 1) / SAMPLE_INTERVAL_MILLIS * SAMPLE_INTERVAL_MILLIS;
+        for (long ts = firstTs; ts < timestampTo; ts += SAMPLE_INTERVAL_MILLIS) {
             samples.add(new TestSolarChargeSample(ts));
         }
 
@@ -38,7 +41,7 @@ public class TestSolarChargeSampleProvider extends AbstractTestSampleProvider<So
     }
 
     /**
-     * Follow daylight hours, zero at night.
+     * Follow daylight hours, zero at night. Simulates clouds changing every hour.
      */
     protected static class TestSolarChargeSample implements SolarChargeSample {
         private final long timestamp;
@@ -47,13 +50,14 @@ public class TestSolarChargeSampleProvider extends AbstractTestSampleProvider<So
         public TestSolarChargeSample(final long timestamp) {
             this.timestamp = timestamp;
 
-            final int hour = hourOfDay(timestamp);
+            final long millisOfDay = timestamp - startOfDay(timestamp);
+            final double hour = (double) millisOfDay / HOUR_MILLIS;
             if (hour < SUNRISE_HOUR || hour >= SUNSET_HOUR) {
                 this.percent = 0;
             } else {
-                final double dayProgress = (double) (hour - SUNRISE_HOUR) / (SUNSET_HOUR - SUNRISE_HOUR);
+                final double dayProgress = (hour - SUNRISE_HOUR) / (SUNSET_HOUR - SUNRISE_HOUR);
                 final double daylight = Math.sin(dayProgress * Math.PI);
-                final float clouds = TestDeviceRand.randFloat(timestamp, 0.4f, 1f);
+                final float clouds = TestDeviceRand.randFloat(timestamp - millisOfDay % HOUR_MILLIS, 0.4f, 1f);
                 this.percent = clamp((float) (daylight * 100 * clouds), 0f, 100f);
             }
         }
@@ -70,7 +74,7 @@ public class TestSolarChargeSampleProvider extends AbstractTestSampleProvider<So
 
         @Override
         public long getGain() {
-            return Math.round(percent * 60 * 1000L);
+            return Math.round(percent / 100 * 4 * 1000L);
         }
     }
 }

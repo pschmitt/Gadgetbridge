@@ -174,6 +174,13 @@ public class XiaomiBitmapUtils {
         return null;
     }
 
+    private static int rgb565ToRgb888(final short value) {
+        final int c565 = value & 0xffff;
+        return ((c565 & 0xf800) << 8) |
+                ((c565 & 0x07e0) << 5) |
+                ((c565 & 0x001f) << 3);
+    }
+
     public static byte[] decompressLvglRleV1(final byte[] bitmapData) {
         if (!ArrayUtils.equals(bitmapData, LVGL_RLE_HEADER, 0)) {
             LOG.debug("Compressed data does not start with expected LVGL RLE header (found {})",
@@ -301,9 +308,13 @@ public class XiaomiBitmapUtils {
                 expectedInputSize = width * height * 4;
                 break;
             case 1:
+            case 3:
             case 4:
             case 7:
                 expectedInputSize = width * height * 2;
+                break;
+            case 6:
+                expectedInputSize = width * height * 3;
                 break;
             case 16:
                 expectedInputSize = 256 * 4 + width * height;
@@ -340,14 +351,15 @@ public class XiaomiBitmapUtils {
                         bitmap.setPixel(x, y, bb.getInt());
                         break;
                     case 0x01:
+                    case 0x03:
                     case 0x04:
                     case 0x07:
-                        final int c565 = bb.getShort() & 0xffff;
-                        final int pixel = 0xff000000 |
-                                ((c565 & 0xf800) << 8) |
-                                ((c565 & 0x07e0) << 5) |
-                                ((c565 & 0x001f) << 3);
-                        bitmap.setPixel(x, y, pixel);
+                        bitmap.setPixel(x, y, 0xff000000 | rgb565ToRgb888(bb.getShort()));
+                        break;
+                    case 0x06:
+                        final int rgb = rgb565ToRgb888(bb.getShort());
+                        final int alpha = bb.get() & 0xff;
+                        bitmap.setPixel(x, y, (alpha << 24) | rgb);
                         break;
                     case 0x10:
                         final int paletteId = bb.get() & 0xff;

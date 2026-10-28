@@ -16,7 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities.charts;
 
-import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -28,7 +29,7 @@ import java.util.Locale;
  * (so the chart library picks round ticks in that unit), so this formatter only formats – it
  * does not convert.
  */
-public class DecimalValueFormatter extends ValueFormatter {
+public class DecimalValueFormatter implements IAxisValueFormatter {
     private final DecimalFormat decimalFormat;
 
     public DecimalValueFormatter(final int decimals) {
@@ -47,7 +48,7 @@ public class DecimalValueFormatter extends ValueFormatter {
     }
 
     @Override
-    public String getFormattedValue(final float value) {
+    public String getFormattedValue(final float value, final AxisBase axis) {
         return format(value);
     }
 }

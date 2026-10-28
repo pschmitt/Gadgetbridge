@@ -52,6 +52,16 @@ public class AmazfitBipLiteCoordinator extends AmazfitBipCoordinator {
     }
 
     @Override
+    public boolean supportsPhoneSilentMode(@NonNull final GBDevice device) {
+        return false;
+    }
+
+    @Override
+    public boolean supportsGpsSharing(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
     public DeviceSpecificSettings getDeviceSpecificSettings(final GBDevice device) {
         final DeviceSpecificSettings deviceSpecificSettings = new DeviceSpecificSettings();
 

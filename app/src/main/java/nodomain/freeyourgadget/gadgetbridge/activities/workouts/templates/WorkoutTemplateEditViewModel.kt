@@ -156,6 +156,17 @@ class WorkoutTemplateEditViewModel : ViewModel() {
     }
 
     /**
+     * Inserts a copy of [node] and its descendants after [node], with new local ids.
+     */
+    fun duplicate(node: WorkoutStepNode) {
+        val container = containerOf(node) ?: return
+        val index = container.indexOfFirst { it.localId == node.localId }
+        if (index < 0) return
+        container.add(index + 1, node.deepCopy())
+        refreshRows()
+    }
+
+    /**
      * Replaces the node with the [WorkoutStepNode.localId] of [edited] with [edited].
      */
     fun replaceNode(edited: WorkoutStepNode) {

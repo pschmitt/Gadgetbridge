@@ -22,12 +22,8 @@ import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
-import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.Property;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsCustomizer;
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator;
@@ -36,13 +32,6 @@ import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.Wena3EnergySampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.Wena3HeartRateSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
-import nodomain.freeyourgadget.gadgetbridge.entities.Wena3ActivitySampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.Wena3BehaviorSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.Wena3CaloriesSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.Wena3EnergySampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.Wena3HeartRateSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.Wena3StressSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.Wena3Vo2SampleDao;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.AbstractNotificationPattern;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
@@ -85,19 +74,6 @@ public class SonyWena3Coordinator extends AbstractBLEDeviceCoordinator {
         ArrayList<ScanFilter> result = new ArrayList<>();
         result.add(builder.build());
         return result;
-    }
-
-    @Override
-    public Map<AbstractDao<?, ?>, Property> getAllDeviceDao(@NonNull final DaoSession session) {
-        Map<AbstractDao<?, ?>, Property> map = new HashMap<>(7);
-        map.put(session.getWena3HeartRateSampleDao(), Wena3HeartRateSampleDao.Properties.DeviceId);
-        map.put(session.getWena3BehaviorSampleDao(), Wena3BehaviorSampleDao.Properties.DeviceId);
-        map.put(session.getWena3CaloriesSampleDao(), Wena3CaloriesSampleDao.Properties.DeviceId);
-        map.put(session.getWena3EnergySampleDao(), Wena3EnergySampleDao.Properties.DeviceId);
-        map.put(session.getWena3ActivitySampleDao(), Wena3ActivitySampleDao.Properties.DeviceId);
-        map.put(session.getWena3Vo2SampleDao(), Wena3Vo2SampleDao.Properties.DeviceId);
-        map.put(session.getWena3StressSampleDao(), Wena3StressSampleDao.Properties.DeviceId);
-        return map;
     }
 
     @Override
@@ -181,6 +157,16 @@ public class SonyWena3Coordinator extends AbstractBLEDeviceCoordinator {
 
     @Override
     public boolean supportsWeather(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsAppNotifications(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsPhoneCalls(@NonNull final GBDevice device) {
         return true;
     }
 

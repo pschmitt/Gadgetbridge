@@ -1,0 +1,68 @@
+syntax = "proto2";
+
+package GDI.Proto.AccessoryUtilities;
+
+option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin";
+option java_outer_classname = "GdiAccessoryUtilities";
+
+import "garmin/gdi_data_types.proto";
+
+message AccessoryUtilitiesCapabilities {
+    repeated uint32 channel_ids = 1 [packed = false];
+    optional bool is_activity_start_request_supported = 2;
+}
+
+message ActivityStartRequest {
+}
+
+message ActivityStartResponse {
+    enum ResponseStatus {
+        UNKNOWN = 0;
+        ERROR = 1;
+        SUCCESS = 2;
+    }
+
+    required GDI.Proto.AccessoryUtilities.ActivityStartResponse.ResponseStatus status = 1;
+    optional GDI.Proto.DataTypes.UUID uuid = 2;
+}
+
+message ActivityStateNotification {
+    enum ActivityState {
+        ACTIVITY_STARTED = 0;
+        ACTIVITY_STOPPED = 1;
+        ACTIVITY_RESUMED = 2;
+        ACTIVITY_SAVED = 3;
+        ACTIVITY_DISCARDED = 4;
+    }
+
+    optional uint32 current_sport = 1;
+    optional uint32 current_sub_sport = 2;
+    optional GDI.Proto.AccessoryUtilities.ActivityStateNotification.ActivityState activity_state = 3;
+}
+
+message CapabilitiesRequest {
+}
+
+message CapabilitiesResponse {
+    optional GDI.Proto.AccessoryUtilities.AccessoryUtilitiesCapabilities accessory_utilities_capabilities = 1;
+}
+
+message ErrorNotification {
+    enum ErrorLevel {
+        INFO = 0;
+        WARNING = 1;
+        CRITICAL = 2;
+    }
+
+    optional GDI.Proto.AccessoryUtilities.ErrorNotification.ErrorLevel error_level = 1;
+    optional uint32 component_index = 2;
+    optional uint32 error_code = 3;
+    optional uint32 error_data = 4;
+}
+
+message Service {
+    optional GDI.Proto.AccessoryUtilities.ErrorNotification error_notification = 1;
+    optional GDI.Proto.AccessoryUtilities.ActivityStartRequest activity_start_request = 2;
+    optional GDI.Proto.AccessoryUtilities.ActivityStartResponse activity_start_response = 3;
+}
+

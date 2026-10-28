@@ -55,6 +55,7 @@ import nodomain.freeyourgadget.gadgetbridge.service.btle.TransactionBuilder;
 import nodomain.freeyourgadget.gadgetbridge.util.AlarmUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
+import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
 
 public class WaspOSDeviceSupport extends AbstractBTLESingleDeviceSupport {
     private static final Logger LOG = LoggerFactory.getLogger(WaspOSDeviceSupport.class);
@@ -246,9 +247,9 @@ public class WaspOSDeviceSupport extends AbstractBTLESingleDeviceSupport {
             o.put("t", "notify");
             o.put("id", notificationSpec.getId());
             o.put("src", notificationSpec.getSourceName());
-            o.put("title", notificationSpec.getTitle());
+            o.put("title", StringUtils.ensureNotNull(notificationSpec.getTitle()));
             o.put("subject", notificationSpec.getSubject());
-            o.put("body", notificationSpec.getBody());
+            o.put("body", StringUtils.ensureNotNull(notificationSpec.getBody()));
             o.put("sender", notificationSpec.getSender());
             o.put("tel", notificationSpec.getPhoneNumber());
             uartTxJSON("onNotification", o);

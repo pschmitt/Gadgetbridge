@@ -44,21 +44,21 @@ public class AlertNotificationProfile<T extends AbstractBTLESingleDeviceSupport>
     }
 
     public void configure(TransactionBuilder builder, AlertNotificationControl control) {
-        BluetoothGattCharacteristic characteristic = getCharacteristic(GattCharacteristic.UUID_CHARACTERISTIC_ALERT_NOTIFICATION_CONTROL_POINT);
+        BluetoothGattCharacteristic characteristic = getCharacteristic(GattCharacteristic.CHARACTERISTIC_ALERT_NOTIFICATION_CONTROL_POINT.uuid);
         if (characteristic != null) {
             builder.write(characteristic, control.getControlMessage());
         }
     }
 
     public void updateAlertLevel(TransactionBuilder builder, AlertLevel level) {
-        BluetoothGattCharacteristic characteristic = getCharacteristic(GattCharacteristic.UUID_CHARACTERISTIC_ALERT_LEVEL);
+        BluetoothGattCharacteristic characteristic = getCharacteristic(GattCharacteristic.CHARACTERISTIC_ALERT_LEVEL.uuid);
         if (characteristic != null) {
             builder.write(characteristic, new byte[] {BLETypeConversions.fromUint8(level.getId())});
         }
     }
 
     public void newAlert(TransactionBuilder builder, NewAlert alert, OverflowStrategy strategy) {
-        BluetoothGattCharacteristic characteristic = getCharacteristic(GattCharacteristic.UUID_CHARACTERISTIC_NEW_ALERT);
+        BluetoothGattCharacteristic characteristic = getCharacteristic(GattCharacteristic.CHARACTERISTIC_NEW_ALERT.uuid);
         if (characteristic != null) {
             String message = StringUtils.ensureNotNull(alert.getMessage());
             if (message.length() > maxLength && strategy == OverflowStrategy.TRUNCATE) {

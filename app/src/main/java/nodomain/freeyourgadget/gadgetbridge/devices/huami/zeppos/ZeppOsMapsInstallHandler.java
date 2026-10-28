@@ -74,7 +74,8 @@ public class ZeppOsMapsInstallHandler implements InstallHandler {
             installActivity.setCloseEnabled(true);
             return;
         }
-        if (!zeppOsCoordinator.supportsMaps(device) || zeppOsCoordinator.supportsWifiHotspot(device)) {
+        if (!zeppOsCoordinator.supportsMaps(device) ||
+            (zeppOsCoordinator.supportsWifiHotspot(device) && !zeppOsCoordinator.supportsWifiFtp(device))) {
             installActivity.setInfoText(mContext.getString(R.string.fwapp_install_device_not_supported));
             installActivity.setInstallEnabled(false);
             installActivity.setCloseEnabled(true);

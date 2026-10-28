@@ -8,10 +8,9 @@
     android:padding="32dp"
     tools:context="nodomain.freeyourgadget.gadgetbridge.activities.DeviceDeleteActivity">
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/delete_progress_bar"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:indeterminate="true" />

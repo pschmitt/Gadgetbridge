@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/tile_info_corner"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:layout_gravity="bottom|end"
+    android:layout_margin="4dp"
+    android:background="?attr/selectableItemBackgroundBorderless"
+    android:contentDescription="@string/pref_dashboard_widget_show_legend_title"
+    android:padding="10dp"
+    android:src="@drawable/ic_info"
+    android:visibility="gone"
+    app:tint="?attr/colorOnSurfaceVariant" />

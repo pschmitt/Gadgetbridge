@@ -12,11 +12,18 @@
         android:textColor="?attr/textColorPrimary"
         android:layout_marginTop="15dp"
         android:layout_marginBottom="20dp" />
-    <com.github.mikephil.charting.charts.LineChart
+    <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView
         android:id="@+id/weight_chart"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1" />
+
+    <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartLegendView
+        android:id="@+id/weight_chart_legend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+
     <!-- Values wrap into rows of three; hidden ones let the following move up. -->
     <com.google.android.flexbox.FlexboxLayout
         android:layout_width="match_parent"

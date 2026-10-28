@@ -1,0 +1,22 @@
+syntax = "proto2";
+package GDI.Proto.HeartRate;
+
+option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSmartProto";
+option java_outer_classname = "GdiHeartRate";
+
+message MeasurementNotification {
+    optional uint32 heart_rate_bpm = 1;
+    optional bool is_hr_confident = 2;
+    optional uint32 beat_period_1_1024ths_s = 3;
+    optional GDI.Proto.HeartRate.SwimInterval swim_interval_data = 4;
+}
+
+message Service {
+}
+
+message SwimInterval {
+    optional uint32 interval_average_heart_rate_bpm = 1;
+    optional uint32 interval_maximum_heart_rate_bpm = 2;
+    optional uint32 session_average_heart_rate_bpm = 3;
+}
+

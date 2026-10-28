@@ -39,6 +39,8 @@ import java.util.Locale;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.activities.SettingsActivity;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.ChartsHeartRateColor;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.ChartsRange;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.DistanceUnit;
 import nodomain.freeyourgadget.gadgetbridge.model.TemperatureUnit;
@@ -61,6 +63,7 @@ public class GBPrefs extends Prefs {
     public static final String RTL_CONTEXTUAL_ARABIC = "contextualArabic";
     public static boolean AUTO_RECONNECT_DEFAULT = true;
     public static final String PREF_ALLOW_INTENT_API = "prefs_key_allow_bluetooth_intent_api";
+    public static final String DEPRECATED_SMS_RECEIVER = "prefs_key_enable_deprecated_smsreceiver";
 
     public static final String SLEEP_AS_ANDROID_ENABLED = "pref_key_sleepasandroid_enable";
     public static final String SLEEP_AS_ANDROID_DEVICE = "sleepasandroid_device";
@@ -116,9 +119,12 @@ public class GBPrefs extends Prefs {
 
     public static final String CHART_MAX_HEART_RATE = "chart_max_heart_rate";
     public static final String CHART_MIN_HEART_RATE = "chart_min_heart_rate";
+    public static final String CHARTS_HEART_RATE_COLOR = "chart_heartrate_color_mode";
+    public static final String CHARTS_RANGE = "charts_range_period";
 
     public static final String LAST_DEVICE_ADDRESSES = "last_device_addresses";
     public static final String LAST_CONNECTED_TS = "last_connected_ts";
+    public static final String LAST_RESTART_RECONNECT_TS = "last_restart_reconnect_ts";
     public static final String SORT_BY_LAST_CONNECTED_TS_KEY = "general_prefs_key_sort_by_last_connected_ts";
     public static final String RECONNECT_ONLY_TO_CONNECTED = "general_reconnectonlytoconnected";
     public static final String BLOCK_SCREENSHOTS = "block_screenshots";
@@ -138,6 +144,8 @@ public class GBPrefs extends Prefs {
     public static final String HEALTH_CONNECT_PROMPT_FOR_FULL_DAO_RESET = "health_connect_prompt_for_full_dao_reset";
 
     public static final String NAVIGATION_APP_COMAPS = "navigation_app_comaps";
+    public static final String NAVIGATION_ALLOW_UNSUPPORTED_DEVICES = "navigation_allow_unsupported_devices";
+    public static final String NAVIGATION_RIGHT_HAND_TRAFFIC = "navigation_right_hand_traffic";
 
     // Online fitness trackers auto-upload (Endurain / Wanderer)
     public static final String ENDURAIN_AUTO_UPLOAD_ENABLED = "endurain_auto_upload_enabled";
@@ -249,6 +257,24 @@ public class GBPrefs extends Prefs {
             LOG.error("Error reading distance unit preference", e);
         }
         return DistanceUnit.METRIC;
+    }
+
+    public ChartsHeartRateColor getChartsHeartRateColor() {
+        try {
+            return ChartsHeartRateColor.valueOf(getString(CHARTS_HEART_RATE_COLOR, "red").toUpperCase(Locale.ROOT));
+        } catch (final Exception e) {
+            LOG.error("Error reading charts heart rate color preference", e);
+        }
+        return ChartsHeartRateColor.RED;
+    }
+
+    public ChartsRange getChartsRange() {
+        try {
+            return ChartsRange.valueOf(getString(CHARTS_RANGE, "month").toUpperCase(Locale.ROOT));
+        } catch (final Exception e) {
+            LOG.error("Error reading charts range preference", e);
+        }
+        return ChartsRange.MONTH;
     }
 
     public boolean syncTime() {

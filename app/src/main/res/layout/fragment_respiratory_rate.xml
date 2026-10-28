@@ -14,17 +14,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="@dimen/chart_section_spacing"
             android:gravity="center"
             android:textSize="20sp"
             android:textColor="?attr/textColorPrimary"
             />
 
+        <nodomain.freeyourgadget.gadgetbridge.activities.workouts.SectionHeaderView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:sectionTitle="@string/day_timeline" />
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="300sp">
+            android:layout_height="250sp">
 
-            <com.github.mikephil.charting.charts.LineChart
+            <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView
                 android:id="@+id/respiratory_rate_line_chart"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"

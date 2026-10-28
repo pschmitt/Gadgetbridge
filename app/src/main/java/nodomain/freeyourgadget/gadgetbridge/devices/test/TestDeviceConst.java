@@ -18,6 +18,7 @@ package nodomain.freeyourgadget.gadgetbridge.devices.test;
 
 public class TestDeviceConst {
     public static final String PREF_TEST_FEATURES = "test_features";
+    public static final String PREF_TEST_GALLERY_FOLDER = "test_gallery_folder";
 
     private TestDeviceConst() {
         // utility class

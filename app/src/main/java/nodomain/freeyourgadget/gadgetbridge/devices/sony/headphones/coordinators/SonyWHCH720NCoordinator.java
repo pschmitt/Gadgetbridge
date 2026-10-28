@@ -48,7 +48,6 @@ public class SonyWHCH720NCoordinator extends SonyHeadphonesCoordinator {
                 SonyHeadphonesCapabilities.AmbientSoundControl,
                 // TODO SonyHeadphonesCapabilities.AmbientSoundControlButtonMode,
                 // TODO SonyHeadphonesCapabilities.AutomaticPowerOffByTime,
-                SonyHeadphonesCapabilities.EqualizerSimple,
                 SonyHeadphonesCapabilities.EqualizerWithCustomBands,
                 SonyHeadphonesCapabilities.PowerOffFromPhone,
                 SonyHeadphonesCapabilities.VoiceNotifications

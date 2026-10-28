@@ -165,6 +165,12 @@ public class TransactionBuilder {
         }
         mQueued = true;
         BtBRQueue queue = mDeviceSupport.getQueue(mChannel);
+        if (queue == null) {
+            // The device disconnected (queue torn down) before this transaction could run, e.g. a
+            // request timeout firing right after a disconnect. Drop it instead of crashing.
+            LOG.warn("Not queueing transaction: no queue for channel {} (device disconnected?)", mChannel);
+            return;
+        }
         queue.add(mTransaction);
     }
 

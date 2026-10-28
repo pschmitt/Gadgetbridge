@@ -32,20 +32,31 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/sleep_legend_stats_container"
+        <nodomain.freeyourgadget.gadgetbridge.activities.workouts.SectionHeaderView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/chart_section_spacing"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:orientation="vertical" />
+            app:sectionTitle="@string/sleep_stages" />
 
-        <com.github.mikephil.charting.charts.BarChart
+        <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView
                 android:id="@+id/week_sleep_chart"
                 android:layout_width="fill_parent"
                 android:layout_height="350dp"
         />
+
+        <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartLegendView
+            android:id="@+id/week_sleep_chart_legend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
+
+        <LinearLayout
+            android:id="@+id/sleep_legend_stats_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/chart_section_spacing"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:orientation="vertical" />
     <LinearLayout
         android:id="@+id/sleep_score_wrapper"
         android:layout_width="fill_parent"
@@ -58,84 +69,20 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/chart_section_spacing"
             app:sectionTitle="@string/sleep_score" />
-        <com.github.mikephil.charting.charts.LineChart
+        <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView
             android:id="@+id/sleep_score_chart"
             android:layout_width="fill_parent"
             android:layout_height="250dp"
             />
-        <GridLayout
-            android:background="@color/gauge_line_color"
+        <LinearLayout
+            android:id="@+id/sleep_score_stats_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:columnCount="2"
             android:layout_marginTop="15dp"
-            >
-            <LinearLayout
-                style="@style/GridTile"
-                android:layout_marginEnd="1dp"
-                android:layout_marginTop="2dp"
-                >
-                <TextView
-                    android:id="@+id/sleep_score_highest"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/stats_empty_value"
-                    android:textColor="?attr/textColorPrimary"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/highest"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-
-            <LinearLayout
-                style="@style/GridTile"
-                android:layout_marginStart="1dp"
-                android:layout_marginTop="2dp"
-                >
-                <TextView
-                    android:id="@+id/sleep_score_lowest"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/stats_empty_value"
-                    android:textColor="?attr/textColorPrimary"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/lowest"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                style="@style/GridTile"
-                android:layout_marginEnd="1dp"
-                >
-                <TextView
-                    android:id="@+id/sleep_score_average"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/stats_empty_value"
-                    android:textColor="?attr/textColorPrimary"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/hr_average"
-                    android:textSize="12sp" />
-            </LinearLayout>
-            <LinearLayout
-                style="@style/GridTile"
-                android:layout_marginStart="1dp"
-                >
-
-            </LinearLayout>
-        </GridLayout>
+            android:layout_marginBottom="15dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:orientation="vertical" />
     </LinearLayout>
 
     </LinearLayout>
