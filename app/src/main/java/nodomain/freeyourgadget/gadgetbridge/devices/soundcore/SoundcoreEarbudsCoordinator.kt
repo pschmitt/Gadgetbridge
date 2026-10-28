@@ -31,6 +31,10 @@ import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.device
 import nodomain.freeyourgadget.gadgetbridge.activities.multipoint.MultipointPairingActivity
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLClassicDeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControl
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControlOption
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControlToggleGroup
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControls
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.BatteryConfig
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport
@@ -321,6 +325,43 @@ abstract class SoundcoreEarbudsCoordinator : AbstractBLClassicDeviceCoordinator(
         "$frequency Hz"
     } else {
         "${(frequency / 1000.0).toString().removeSuffix(".0")} kHz"
+    }
+
+    override fun getQuickControls(device: GBDevice): List<QuickControl> {
+        val capabilities = getCapabilities(device)
+        fun has(capability: Capability) = capabilities.contains(capability)
+        fun has(anyOf: Array<Capability>) = anyOf.any { capabilities.contains(it) }
+
+        return listOf(
+            QuickControlToggleGroup.forPreference(
+                key = DeviceSettingsPreferenceConst.PREF_SOUNDCORE_AMBIENT_SOUND_CONTROL,
+                title = R.string.prefs_noise_control,
+                icon = R.drawable.ic_hearing,
+                defaultValue = AmbientSoundMode.OFF.toString(),
+                visible = { it.isConnected && has(arrayOf(Capability.NoiseControl, Capability.AdaptiveNoiseCancellationMode, Capability.AmbientSound, Capability.Transparency)) },
+                options = buildList {
+                    add(QuickControlOption(
+                        AmbientSoundMode.OFF.toString(),
+                        R.string.sony_ambient_sound_off,
+                        R.drawable.ic_hearing_disabled,
+                    ))
+                    if (has(Capability.NoiseControl) || has(Capability.AdaptiveNoiseCancellationMode)) {
+                        add(QuickControlOption(
+                            (if (has(Capability.NoiseControl)) AmbientSoundMode.NOISE_CANCELLING else AmbientSoundMode.ADAPTIVE_ANC).toString(),
+                            if (has(Capability.NoiseControl)) R.string.sony_ambient_sound_noise_cancelling_short else R.string.pref_adaptive_noise_cancelling_title,
+                            R.drawable.ic_noise_control_on,
+                        ))
+                    }
+                    if (has(Capability.AmbientSound) || has(Capability.Transparency)) {
+                        add(QuickControlOption(
+                            (if (has(Capability.AmbientSound)) AmbientSoundMode.AMBIENT_SOUND else AmbientSoundMode.TRANSPARENCY).toString(),
+                            R.string.sony_ambient_sound_ambient_sound_short,
+                            R.drawable.ic_hearing,
+                        ))
+                    }
+                },
+            ),
+        )
     }
 
     /**
