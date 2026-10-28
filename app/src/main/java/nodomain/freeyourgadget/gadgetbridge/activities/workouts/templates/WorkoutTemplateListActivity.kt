@@ -6,8 +6,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.ColorStateList
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -38,6 +41,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutSyncStatus
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutTemplate
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.WorkoutTemplateExporter
+import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.WorkoutTemplateImporter
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.WorkoutTemplateSpec
 import nodomain.freeyourgadget.gadgetbridge.util.AndroidUtils
 import nodomain.freeyourgadget.gadgetbridge.util.GB
@@ -56,6 +60,10 @@ class WorkoutTemplateListActivity : AbstractGBActivity() {
 
     private val editLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         refresh()
+    }
+
+    private val importLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) importFile(uri)
     }
 
     private val syncStateReceiver = object : BroadcastReceiver() {
@@ -106,6 +114,21 @@ class WorkoutTemplateListActivity : AbstractGBActivity() {
         }
 
         refresh()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        if (::spec.isInitialized && spec.importer != null) {
+            menu.add(0, MENU_IMPORT, 0, R.string.file_import)
+        }
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == MENU_IMPORT) {
+            launchImport()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onResume() {
@@ -201,6 +224,47 @@ class WorkoutTemplateListActivity : AbstractGBActivity() {
                 )
             }
         }
+    }
+
+    private fun launchImport() {
+        importLauncher.launch(arrayOf("application/json"))
+    }
+
+    private fun importFile(uri: Uri) {
+        val importer = if (::spec.isInitialized) spec.importer else null
+        if (importer == null) return
+        lifecycleScope.launch {
+            val template = withContext(Dispatchers.IO) { readTemplate(uri, importer) }
+            if (template == null) {
+                GB.toast(
+                    this@WorkoutTemplateListActivity,
+                    getString(R.string.workout_template_import_failed),
+                    Toast.LENGTH_LONG,
+                    GB.ERROR
+                )
+                return@launch
+            }
+            val saved = withContext(Dispatchers.IO) {
+                WorkoutTemplateRepository.save(template.copy(id = null, vendorId = spec.vendorId), device)
+            }
+            if (saved == null) {
+                GB.toast(
+                    this@WorkoutTemplateListActivity,
+                    getString(R.string.workout_template_save_failed),
+                    Toast.LENGTH_LONG,
+                    GB.ERROR
+                )
+                return@launch
+            }
+            refresh()
+        }
+    }
+
+    private fun readTemplate(uri: Uri, importer: WorkoutTemplateImporter): WorkoutTemplate? = try {
+        contentResolver.openInputStream(uri)?.use { it.readBytes() }?.let { importer.import(it) }
+    } catch (e: Exception) {
+        LOG.error("Failed to read workout template", e)
+        null
     }
 
     private fun confirmDelete(item: WorkoutTemplateListItem) {
@@ -344,5 +408,6 @@ class WorkoutTemplateListActivity : AbstractGBActivity() {
         private const val MENU_DUPLICATE = 3
         private const val MENU_DELETE = 4
         private const val MENU_SHARE = 5
+        private const val MENU_IMPORT = 6
     }
 }

@@ -56,6 +56,9 @@ class ZeppOsExerciseCatalog(source: () -> InputStream) : JsonWorkoutExerciseCata
 
     fun exerciseFor(id: String?): ZeppOsExercise? = byId(id) as? ZeppOsExercise
 
+    fun exerciseForActionType(actionType: Int): ZeppOsExercise? =
+        exercises().firstOrNull { (it as? ZeppOsExercise)?.actionType == actionType } as? ZeppOsExercise
+
     companion object {
         private const val ASSET = "workouts/exercises/zeppos.json"
 

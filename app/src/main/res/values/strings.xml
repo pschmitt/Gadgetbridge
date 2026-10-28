@@ -6400,6 +6400,7 @@
     <string name="workout_template_save_failed">Could not save this workout template.</string>
     <string name="workout_template_unsupported">Not supported by this device</string>
     <string name="workout_template_share_failed">Could not share this workout template</string>
+    <string name="workout_template_import_failed">Could not import this workout template</string>
 
     <plurals name="workout_template_step_count">
         <item quantity="one">%d step</item>
