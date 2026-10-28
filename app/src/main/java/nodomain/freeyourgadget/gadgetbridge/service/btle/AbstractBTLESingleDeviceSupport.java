@@ -238,18 +238,21 @@ public abstract class AbstractBTLESingleDeviceSupport extends AbstractBTLEDevice
      * @param aSupportedService supported service uuid
      * @see #getCharacteristic(UUID)
      */
-    protected void addSupportedService(UUID aSupportedService) {
+    protected final void addSupportedService(UUID aSupportedService) {
+        // called in constructors -> make it final
         mSupportedServices.add(aSupportedService);
     }
 
-    protected void addSupportedProfile(AbstractBleProfile<?> profile) {
+    protected final void addSupportedProfile(AbstractBleProfile<?> profile) {
+        //called in constructors -> make it final
         mSupportedProfiles.add(profile);
     }
 
     /**
      * Subclasses should call this method to add server services they support.
      */
-    protected void addSupportedServerService(BluetoothGattService service) {
+    protected final void addSupportedServerService(BluetoothGattService service) {
+        // called in constructors -> make it final
         mSupportedServerServices.add(service);
     }
 
@@ -297,7 +300,7 @@ public abstract class AbstractBTLESingleDeviceSupport extends AbstractBTLEDevice
             }
 
             if (supportedServices.contains(service.getUuid())) {
-                logger.debug("discovered supported service: {}: {}", BleNamesResolver.resolveServiceName(service.getUuid().toString()), service.getUuid());
+                logger.debug("discovered supported service: {}: {}", BleNamesResolver.resolveServiceName(service), service.getUuid());
                 List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
                 if (characteristics == null || characteristics.isEmpty()) {
                     logger.warn("Supported LE service {} did not return any characteristics", service.getUuid());
@@ -306,7 +309,7 @@ public abstract class AbstractBTLESingleDeviceSupport extends AbstractBTLEDevice
                 HashMap<UUID, BluetoothGattCharacteristic> intmAvailableCharacteristics = new HashMap<>(characteristics.size());
                 for (BluetoothGattCharacteristic characteristic : characteristics) {
                     intmAvailableCharacteristics.put(characteristic.getUuid(), characteristic);
-                    logger.info("    characteristic: {}: {} ({})", BleNamesResolver.resolveCharacteristicName(characteristic.getUuid().toString()), characteristic.getUuid(), BleNamesResolver.getCharacteristicPropertyString(characteristic.getProperties()));
+                    logger.info("    characteristic: {}: {} ({})", BleNamesResolver.resolveCharacteristicName(characteristic), characteristic.getUuid(), BleNamesResolver.getCharacteristicPropertyString(characteristic.getProperties()));
 
                     if (prefs_device_gatt_synchronous_writes && characteristic.getWriteType() == BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE) {
                         if (0 != (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE)) {
@@ -325,7 +328,7 @@ public abstract class AbstractBTLESingleDeviceSupport extends AbstractBTLEDevice
                     mAvailableCharacteristics = newCharacteristics;
                 }
             } else {
-                logger.debug("discovered unsupported service: {}: {}", BleNamesResolver.resolveServiceName(service.getUuid().toString()), service.getUuid());
+                logger.debug("discovered unsupported service: {}: {}", BleNamesResolver.resolveServiceName(service), service.getUuid());
             }
         }
     }

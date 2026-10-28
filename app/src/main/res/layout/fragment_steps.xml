@@ -47,7 +47,7 @@
             android:id="@+id/steps_stats_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/chart_section_spacing"
+            android:layout_marginTop="@dimen/chart_gauge_bottom_spacing"
             android:layout_marginBottom="15dp"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
@@ -56,7 +56,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="250sp">
-            <androidx.compose.ui.platform.ComposeView
+            <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView
                 android:id="@+id/steps_daily_chart"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"

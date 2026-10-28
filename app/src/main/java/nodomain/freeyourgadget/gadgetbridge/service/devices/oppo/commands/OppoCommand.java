@@ -45,6 +45,8 @@ public enum OppoCommand {
     MULTIPOINT_DEVICES_REQ(0x0112),
     MULTIPOINT_DEVICES_ACK(0x840b),
     MULTIPOINT_DEVICES_RET(0x8112),
+    EARBUDS_STATUS_REQ(0x0109),
+    EARBUDS_STATUS_RET(0x8109),
     ;
 
     private final short code;

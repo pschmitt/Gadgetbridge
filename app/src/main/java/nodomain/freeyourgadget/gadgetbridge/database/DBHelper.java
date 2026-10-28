@@ -116,6 +116,22 @@ public class DBHelper {
         return false;
     }
 
+
+    /// @returns {@code false} if the column already exists
+    public static boolean addColumnIfNotExist(@NonNull String tableName,
+                                              @NonNull String columName,
+                                              @NonNull String columnSpec,
+                                              @NonNull SQLiteDatabase db) {
+        if (existsColumn(tableName, columName, db)) {
+            return false;
+        }
+
+        final String statement = "ALTER TABLE \"" + tableName + "\" ADD COLUMN \""
+            + columName + "\" " + columnSpec + ";";
+        db.execSQL(statement);
+        return true;
+    }
+
     /**
      * Looks up the user entity in the database. If a user exists already, it will
      * be updated with the current preferences values. If no user exists yet, it will
@@ -341,6 +357,15 @@ public class DBHelper {
             return devices.get(0);
         }
         return null;
+    }
+
+    @Nullable
+    public static User findUser(@NonNull final DaoSession session) {
+        final List<User> users = session.getUserDao().loadAll();
+        if (users.isEmpty()) {
+            return null;
+        }
+        return users.get(0);
     }
 
     public static void updateDeviceMacAddress(final DaoSession session, final String oldAddress, final String newAddress) {

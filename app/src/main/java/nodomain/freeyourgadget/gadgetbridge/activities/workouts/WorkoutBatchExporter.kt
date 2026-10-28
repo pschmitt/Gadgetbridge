@@ -17,7 +17,9 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.workouts
 
 import android.content.Context
+import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary
+import nodomain.freeyourgadget.gadgetbridge.entities.Device
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.util.ActivitySummaryUtils
 import org.slf4j.LoggerFactory
@@ -54,7 +56,6 @@ object WorkoutBatchExporter {
 
     fun export(
         context: Context,
-        gbDevice: GBDevice,
         summaries: List<BaseActivitySummary>,
         parts: Set<Part>,
         asZip: Boolean
@@ -69,6 +70,7 @@ object WorkoutBatchExporter {
 
         sink.use {
             for (summary in summaries) {
+                val gbDevice = getGBDevice(summary.device)
                 val base = uniqueBase(ActivitySummaryUtils.getExportBaseName(context, summary), usedNames)
                 val time = summary.startTime.time
 
@@ -92,7 +94,7 @@ object WorkoutBatchExporter {
                 if (Part.GPX in parts && WorkoutUploader.summaryHasTrack(summary)) {
                     add("$base.gpx") {
                         val provider = gbDevice.deviceCoordinator.getActivityTrackProvider(gbDevice, context)
-                        ActivitySummaryUtils.getShareableGpxFile(provider, summary)
+                        ActivitySummaryUtils.getShareableGpxFile(provider, gbDevice, summary)
                     }
                 }
                 if (Part.RAW in parts) {
@@ -120,6 +122,11 @@ object WorkoutBatchExporter {
             return Result(emptyList(), 0, skipped)
         }
         return Result(sink.files, sink.entries, skipped)
+    }
+
+    private fun getGBDevice(device: Device): GBDevice {
+        return GBApplication.app().deviceManager.devices
+            .first { it.address.equals(device.identifier, ignoreCase = true) }
     }
 
     /**

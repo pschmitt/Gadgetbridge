@@ -18,19 +18,25 @@ package nodomain.freeyourgadget.gadgetbridge.widgets.impl
 
 import android.content.Context
 import android.graphics.Color
-import android.widget.ImageView
-import android.widget.TextView
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.Spo2Sample
+import nodomain.freeyourgadget.gadgetbridge.widgets.GaugeSpec
+import nodomain.freeyourgadget.gadgetbridge.widgets.MiniChart
+import nodomain.freeyourgadget.gadgetbridge.widgets.StatusLine
+import nodomain.freeyourgadget.gadgetbridge.widgets.TileAxis
+import nodomain.freeyourgadget.gadgetbridge.widgets.TileModel
+import nodomain.freeyourgadget.gadgetbridge.widgets.TimedValue
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
+import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetHistory
 import org.slf4j.LoggerFactory
+import kotlin.math.roundToInt
 
 /**
  * Latest blood oxygen saturation measurement for the day.
  */
-object Spo2Widget : GaugeWidget<Spo2Widget.Data>() {
+object Spo2Widget : MetricWidget<Spo2Widget.Data>() {
     private val LOG = LoggerFactory.getLogger(Spo2Widget::class.java)
 
     /**
@@ -50,6 +56,7 @@ object Spo2Widget : GaugeWidget<Spo2Widget.Data>() {
     override suspend fun loadData(scope: WidgetDataScope, config: WidgetConfig): Data {
         var latestSpo2 = 0
         var latestTimestamp = 0L
+        val day = mutableListOf<TimedValue>()
 
         try {
             scope.db { db ->
@@ -66,27 +73,64 @@ object Spo2Widget : GaugeWidget<Spo2Widget.Data>() {
                             latestSpo2 = latest.spo2
                         }
                     }
+                    if (config.needsHistory) {
+                        samples.filter { it.spo2 > 0 }.mapTo(day) { TimedValue(it.timestamp / 1000L, it.spo2.toFloat()) }
+                    }
                 }
             }
         } catch (e: Exception) {
             LOG.error("Could not get spo2 samples", e)
         }
 
-        return Data(latestSpo2)
+        if (!config.needsHistory) {
+            return Data(latestSpo2)
+        }
+        return Data(
+            latestSpo2,
+            lowest = day.minOfOrNull { it.value }?.toInt() ?: 0,
+            hourly = WidgetHistory.hourlyAverages(day, scope.dayStart),
+            hoursStarted = scope.hoursStarted,
+        )
     }
 
-    override fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: Data) {
-        if (data.spo2 > 0) {
-            gaugeValue.text = context.getString(R.string.battery_percentage_str, data.spo2.toString())
-            drawSimpleGauge(
-                gaugeBar,
-                colorFor(data.spo2),
-                (data.spo2 - GAUGE_MIN).coerceAtLeast(0) / (100f - GAUGE_MIN)
+    override fun previewData() = Data(
+        spo2 = 97,
+        lowest = 92,
+        hourly = floatArrayOf(
+            95f, 94f, 95f, 94f, 95f, 96f, 96f, 97f, 97f, 98f, 97f, 97f,
+            98f, 97f, 96f, 97f, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
+            Float.NaN, Float.NaN, Float.NaN, Float.NaN,
+        ),
+        hoursStarted = 16,
+    )
+
+    override fun model(context: Context, config: WidgetConfig, data: Data): TileModel {
+        val bars = data.hourly?.let { hourly ->
+            MiniChart.Bars(
+                hourly,
+                IntArray(hourly.size) { hour -> if (hourly[hour].isNaN()) 0 else colorFor(hourly[hour].roundToInt()) },
+                GAUGE_MIN.toFloat(),
+                100f,
+                dataUntil = data.hoursStarted,
             )
-        } else {
-            gaugeValue.text = context.getString(R.string.stats_empty_value)
-            drawSimpleGauge(gaugeBar, Color.GRAY, -1f)
         }
+        if (data.spo2 <= 0) {
+            return emptyModel(context, GaugeSpec.Progress(Color.GRAY, -1f), bars)
+        }
+        return TileModel(
+            value = context.getString(R.string.battery_percentage_str, data.spo2.toString()),
+            gauge = GaugeSpec.Progress(colorFor(data.spo2), (data.spo2 - GAUGE_MIN).coerceAtLeast(0) / (100f - GAUGE_MIN)),
+            status = if (data.lowest > 0) {
+                StatusLine.Text(
+                    context.getString(R.string.widget_status_spo2_lowest_value, context.getString(R.string.battery_percentage_str, data.lowest.toString()))
+                )
+            } else {
+                null
+            },
+            chart = bars,
+            largeChart = if (config.isLarge) bars else null,
+            axis = if (config.isLarge && bars != null) TileAxis.HOURS else emptyList(),
+        )
     }
 
     /** Coloured by the usual clinical bands, as the blood pressure widget does. */
@@ -96,5 +140,13 @@ object Spo2Widget : GaugeWidget<Spo2Widget.Data>() {
         else -> Color.rgb(244, 67, 54)         // red - low
     }
 
-    data class Data(val spo2: Int)
+    /**
+     * [lowest] and [hourly] are only loaded for the number style; [hoursStarted] is how many of the hours have begun.
+     */
+    class Data(
+        val spo2: Int,
+        val lowest: Int = 0,
+        val hourly: FloatArray? = null,
+        val hoursStarted: Int = WidgetHistory.HOURS_PER_DAY,
+    )
 }

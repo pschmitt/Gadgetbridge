@@ -21,7 +21,11 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.LabeledEntry
+import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutDurationType
+import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutTargetType
+import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutWeightType
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.ValueSpec
+import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.WorkoutUnit
 import java.util.Locale
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
@@ -676,11 +680,7 @@ private fun buildPaceWheels(context: Context, spec: ValueSpec.Pace, initial: Lon
  * Formats a stored [value] of one scalar [spec] for display, with its unit.
  */
 fun formatScalarValue(context: Context, spec: ValueSpec, value: Long): String = when (spec) {
-    is ValueSpec.Range -> {
-        val number = formatDecimal(spec.unit.toDisplay(value), spec.unit.decimals)
-        val suffix = spec.unit.suffixLabel?.let { " " + context.getString(it) }.orEmpty()
-        number + suffix
-    }
+    is ValueSpec.Range -> withUnit(context, spec.unit, rangeNumber(spec, value))
 
     is ValueSpec.Time -> formatHms(value)
     is ValueSpec.Pace -> "${formatMinSec(value)} ${paceUnitLabel(context, spec)}"
@@ -692,10 +692,66 @@ fun formatScalarValue(context: Context, spec: ValueSpec, value: Long): String = 
 }
 
 /**
- * Formats a stored [low] and [high] of a [ValueSpec.PairRange] for display, as one range.
+ * Formats a [type] and the [valueText] of its [value] for display. The type label is left out when
+ * the value or its unit makes the type implicit.
+ */
+fun formatTypedValue(context: Context, type: LabeledEntry, value: Long?, valueText: String?): String {
+    if (valueText == null) return context.getString(type.label)
+    val quantity = value?.toInt() ?: 0
+    return when (type) {
+        WorkoutDurationType.TIME,
+        WorkoutDurationType.DISTANCE,
+        WorkoutDurationType.CALORIES,
+        WorkoutTargetType.PACE,
+        WorkoutTargetType.SPEED,
+        WorkoutTargetType.HR_RANGE,
+        WorkoutTargetType.POWER_RANGE,
+        WorkoutWeightType.MANUAL,
+        WorkoutWeightType.LOAD_CATEGORY -> valueText
+
+        WorkoutDurationType.REPS ->
+            context.resources.getQuantityString(R.plurals.workout_value_repetitions, quantity, valueText)
+
+        WorkoutDurationType.LAPS ->
+            context.resources.getQuantityString(R.plurals.workout_value_laps, quantity, valueText)
+
+        WorkoutDurationType.STROKES ->
+            context.resources.getQuantityString(R.plurals.workout_value_strokes, quantity, valueText)
+
+        WorkoutTargetType.POWER_FTP_RANGE -> context.getString(R.string.workout_value_percent_ftp, valueText)
+        WorkoutWeightType.PERCENT_1RM -> context.getString(R.string.workout_value_percent_1rm, valueText)
+        WorkoutWeightType.RM -> context.getString(R.string.workout_value_rm, valueText)
+
+        else -> context.getString(type.label) + " " + valueText
+    }
+}
+
+/**
+ * Formats stored [low] and [high] bounds of a [ValueSpec.PairRange] for display, as one range.
  */
 fun formatPairValue(context: Context, spec: ValueSpec.PairRange, low: Long, high: Long): String =
-    formatScalarValue(context, spec.inner, low) + "–" + formatScalarValue(context, spec.inner, high)
+    when (val inner = spec.inner) {
+        is ValueSpec.Range -> withUnit(context, inner.unit, rangeNumber(inner, low) + "–" + rangeNumber(inner, high))
+        is ValueSpec.Pace -> "${formatMinSec(low)}–${formatMinSec(high)} ${paceUnitLabel(context, inner)}"
+        else -> formatScalarValue(context, inner, low) + "–" + formatScalarValue(context, inner, high)
+    }
+
+/**
+ * Formats a stored [value] of [spec] in display units, with no unit and no trailing zeros.
+ */
+private fun rangeNumber(spec: ValueSpec.Range, value: Long): String =
+    formatDecimal(spec.unit.toDisplay(value), spec.unit.decimals).let {
+        if ('.' in it) it.trimEnd('0').trimEnd('.') else it
+    }
+
+private fun withUnit(context: Context, unit: WorkoutUnit, number: String): String {
+    val suffix = unit.suffixLabel?.let { context.getString(it) }
+    return when {
+        suffix == null -> number
+        unit == WorkoutUnit.PERCENT || unit == WorkoutUnit.WEIGHT_KG -> number + suffix
+        else -> "$number $suffix"
+    }
+}
 
 private fun formatDecimal(value: Double, decimals: Int): String =
     if (decimals == 0)

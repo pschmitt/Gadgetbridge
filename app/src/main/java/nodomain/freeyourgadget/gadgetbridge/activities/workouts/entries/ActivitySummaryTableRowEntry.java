@@ -46,7 +46,7 @@ public class ActivitySummaryTableRowEntry extends ActivitySummaryEntry {
      */
     @Override
     public void populate(final String key, final LinearLayout linearLayout, final WorkoutValueFormatter workoutValueFormatter) {
-        populate(linearLayout, workoutValueFormatter, TableSpec.from(Collections.singletonList(this)), true);
+        populate(linearLayout, workoutValueFormatter, TableSpec.from(Collections.singletonList(this), workoutValueFormatter), true);
     }
 
     public void populate(final LinearLayout linearLayout,

@@ -3,6 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <com.bytehamster.lib.preferencesearch.SearchPreference
+        android:key="searchPreference"
+        app:isPreferenceVisible="false" />
+
     <Preference
         android:icon="@drawable/ic_add"
         android:key="pref_debug_add_test_device"
@@ -69,6 +73,13 @@
             android:title="@string/menuitem_weather" />
 
         <Preference
+            android:fragment="nodomain.freeyourgadget.gadgetbridge.activities.debug.NavigationDebugFragment"
+            android:icon="@drawable/ic_navigation"
+            android:key="pref_debug_navigation"
+            android:persistent="false"
+            android:title="@string/pref_header_navigation" />
+
+        <Preference
             android:fragment="nodomain.freeyourgadget.gadgetbridge.activities.debug.DatabaseDebugFragment"
             android:icon="@drawable/ic_database"
             android:key="pref_debug_database"
@@ -96,6 +107,13 @@
             android:persistent="false"
             android:title="@string/companion_pairing_request_title"
             tools:ignore="NewApi" />
+
+        <Preference
+            android:fragment="nodomain.freeyourgadget.gadgetbridge.activities.debug.DashboardDebugFragment"
+            android:icon="@drawable/ic_dashboard"
+            android:key="pref_debug_dashboard"
+            android:persistent="false"
+            android:title="@string/bottom_nav_dashboard" />
 
         <Preference
             android:fragment="nodomain.freeyourgadget.gadgetbridge.activities.debug.WidgetsDebugFragment"

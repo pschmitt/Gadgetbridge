@@ -27,23 +27,37 @@ import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.Loyal
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_SYNC_GROUPS;
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_SYNC_GROUPS_ONLY;
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_SYNC_STARRED;
+import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_SYNC_WATCH_REQUEST;
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.PREF_KEY_HEADER_LOYALTY_CARDS_CATIMA;
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.PREF_KEY_HEADER_LOYALTY_CARDS_SYNC;
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.PREF_KEY_HEADER_LOYALTY_CARDS_SYNC_OPTIONS;
 
 import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.MultiSelectListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +80,30 @@ import nodomain.freeyourgadget.gadgetbridge.util.preferences.SubtitleListPrefere
 public class LoyaltyCardsSettingsFragment extends AbstractPreferenceFragment {
     private static final Logger LOG = LoggerFactory.getLogger(LoyaltyCardsSettingsFragment.class);
 
+    private static final long SYNC_DIALOG_TIMEOUT_MS = 30_000;
+
     private GBDevice device;
+
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Runnable syncTimeoutRunnable = this::dismissSyncDialog;
+    @Nullable
+    private AlertDialog syncDialog;
+
+    private final BroadcastReceiver syncedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            final GBDevice syncedDevice = intent.getParcelableExtra(GBDevice.EXTRA_DEVICE);
+            if (syncedDevice == null || device == null || !syncedDevice.getAddress().equals(device.getAddress())) {
+                return;
+            }
+            final boolean success = intent.getBooleanExtra(CatimaManager.EXTRA_SUCCESS, false);
+            LOG.debug("Loyalty cards sync finished for {}, success = {}", syncedDevice.getAddress(), success);
+            dismissSyncDialog();
+            if (!success) {
+                GB.toast(context, context.getString(R.string.workout_sync_status_failed), Toast.LENGTH_LONG, GB.ERROR);
+            }
+        }
+    };
 
     private void setSettingsFileSuffix(final String settingsFileSuffix) {
         final Bundle args = new Bundle();
@@ -222,9 +259,9 @@ public class LoyaltyCardsSettingsFragment extends AbstractPreferenceFragment {
             catimaPermissionsPreference.setVisible(catimaInstalled && !permissionGranted);
             catimaPermissionsPreference.setOnPreferenceClickListener(preference -> {
                 ActivityCompat.requestPermissions(
-                        requireActivity(),
-                        new String[]{catima.getReadPermission()},
-                        LoyaltyCardsSettingsActivity.PERMISSION_REQUEST_CODE
+                    requireActivity(),
+                    new String[]{catima.getReadPermission()},
+                    LoyaltyCardsSettingsActivity.PERMISSION_REQUEST_CODE
                 );
                 return true;
             });
@@ -240,9 +277,17 @@ public class LoyaltyCardsSettingsFragment extends AbstractPreferenceFragment {
         if (syncPreference != null) {
             syncPreference.setEnabled(catimaInstalled && catimaCompatible && permissionGranted);
             syncPreference.setOnPreferenceClickListener(preference -> {
-                catimaManager.sync(device);
+                final int count = catimaManager.sync(device);
+                if (count >= 0) {
+                    showSyncDialog(count);
+                }
                 return true;
             });
+        }
+
+        final Preference syncWatchRequestPreference = findPreference(LOYALTY_CARDS_SYNC_WATCH_REQUEST);
+        if (syncWatchRequestPreference != null) {
+            syncWatchRequestPreference.setVisible(device.getDeviceCoordinator().supportsLoyaltyCardsSyncRequest(device));
         }
 
         final PreferenceCategory headerCatima = findPreference(PREF_KEY_HEADER_LOYALTY_CARDS_CATIMA);
@@ -296,6 +341,42 @@ public class LoyaltyCardsSettingsFragment extends AbstractPreferenceFragment {
             for (int i = 0; i < syncOptionsCategory.getPreferenceCount(); i++) {
                 syncOptionsCategory.getPreference(i).setEnabled(allowSync);
             }
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        dismissSyncDialog();
+        super.onDestroy();
+    }
+
+    private void showSyncDialog(final int count) {
+        dismissSyncDialog();
+
+        final Context context = requireContext();
+        final View view = LayoutInflater.from(context).inflate(R.layout.dialog_progress, null);
+        final TextView text = view.findViewById(R.id.progress_text);
+        text.setText(getString(R.string.loyalty_cards_syncing, count));
+
+        LocalBroadcastManager.getInstance(context)
+            .registerReceiver(syncedReceiver, new IntentFilter(CatimaManager.ACTION_LOYALTY_CARDS_SYNCED));
+        handler.postDelayed(syncTimeoutRunnable, SYNC_DIALOG_TIMEOUT_MS);
+
+        syncDialog = new MaterialAlertDialogBuilder(context)
+            .setTitle(R.string.loyalty_cards)
+            .setView(view)
+            .setNegativeButton(R.string.dismiss, null)
+            .setOnDismissListener(dialog -> {
+                handler.removeCallbacks(syncTimeoutRunnable);
+                LocalBroadcastManager.getInstance(context).unregisterReceiver(syncedReceiver);
+                syncDialog = null;
+            })
+            .show();
+    }
+
+    private void dismissSyncDialog() {
+        if (syncDialog != null) {
+            syncDialog.dismiss();
         }
     }
 

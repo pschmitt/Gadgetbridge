@@ -32,12 +32,14 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
 import nodomain.freeyourgadget.gadgetbridge.devices.HeartPulseSampleProvider;
+import nodomain.freeyourgadget.gadgetbridge.devices.GenericRespiratoryRateSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.XiaomiSleepStageSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.XiaomiSleepTimeSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.Device;
 import nodomain.freeyourgadget.gadgetbridge.entities.HeartPulseSample;
 import nodomain.freeyourgadget.gadgetbridge.entities.User;
+import nodomain.freeyourgadget.gadgetbridge.entities.GenericRespiratoryRateSample;
 import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiSleepStageSample;
 import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiSleepTimeSample;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
@@ -120,10 +122,17 @@ public class SleepDetailsParser extends XiaomiActivityParser {
         sample.setWakeupTime(wakeupTime * 1000L);
         sample.setIsAwake(isAwake == 1);
 
+        Long intoBedTime = null;
         if (fileId.getVersion() >= 5) {
-            buf.get(new byte[9]); // ?
+            // 9 bytes of unverified metadata. Layout observed in v5 bins:
+            //   off 0..3  u32 LE  unknown counter (no obvious correlation with sleep)
+            //   off 4     u8      always 0 (padding)
+            //   off 5..8  u32 LE  (wakeupTime - bedTime2) in seconds (redundant)
+            buf.get(new byte[9]);
             final int bedTime2 = buf.getInt(); // around ~30 min before bedTime, is previous one fall asleep time?
             final int wakeupTime2 = buf.getInt(); // == wakeupTime
+            intoBedTime = bedTime2 * 1000L;
+            sample.setIntoBedTime(intoBedTime);
             headerIdx += 5;
         }
 
@@ -188,6 +197,7 @@ public class SleepDetailsParser extends XiaomiActivityParser {
 
         final List<XiaomiSleepStageSample> stages = new ArrayList<>();
         final List<HeartPulseSample> heartPulseSamples = new ArrayList<>();
+        final List<GenericRespiratoryRateSample> respiratoryRateSamples = new ArrayList<>();
         LOG.debug("Sleep stage packets from offset {}", Integer.toHexString(buf.position()));
 
         // Do not crash if we face a buffer underflow, as the next parsing is not 100% fool-proof,
@@ -218,7 +228,7 @@ public class SleepDetailsParser extends XiaomiActivityParser {
                 //  - Summary = 16,
                 //  - Stages = 17
 
-                if (type == 0x2 || type == 0x3 || type == 0x9 || type == 0xc || type == 0xd || type == 0xe || type == 0xf) {
+                if (type == 0x2 || type == 0x3 || type == 0x9 || type == 0xc || type == 0xd || type == 0xe || type == 0xf || type == 0x12) {
                     // the bytes reserved for the data length are believed to be flags, as they
                     // do not actually have any data following the headers
                     continue;
@@ -259,14 +269,18 @@ public class SleepDetailsParser extends XiaomiActivityParser {
                     final int deep_duration  = dataBuf.getShort() & 0xFFFF;
 
                     final int data_1 = dataBuf.get() & 0xFF;
-                    final boolean has_rem = (data_1 >> 4) == 1;
-                    final boolean has_stage = (data_1 >> 2) == 1;
+                    // bit flags; observed values 0x05 / 0x06 in v5 bins
+                    final boolean has_rem = (data_1 & 0x10) != 0;
+                    final boolean has_stage = (data_1 & 0x04) != 0;
 
                     // Could probably be an "awake" duration after sleep
                     final int unk_duration_minutes = dataBuf.get() & 0xFF;
 
                     if (sample == null) {
                         sample = new XiaomiSleepTimeSample();
+                        if (intoBedTime != null) {
+                            sample.setIntoBedTime(intoBedTime);
+                        }
                     }
 
                     sample.setTimestamp(bedTime * 1000L);
@@ -297,6 +311,47 @@ public class SleepDetailsParser extends XiaomiActivityParser {
 
                         currentTime += offsetMinutes * 60000;
                     }
+                } else if (type == 0xa) {
+                    // Per-sample sleep readouts: 4 bytes per record.
+                    //   off 0  u8  motion intensity or PPG amplitude (range 0..254, mean ~116)
+                    //   off 1  u8  breathing rate in brpm (only slot used)
+                    //   off 2  u8  noisy PPG-derived value; looks like a raw instantaneous
+                    //              estimate used internally for the brpm calculation, not
+                    //              a usable HR readout - persisting would add noise without resolution
+                    //   off 3  u8  quality flag (observed: 0 dominant, 16 / 32 frequent, 1 / 17 rare)
+                    // Packets emit every 10 minutes and `ts` is in nanoseconds (not seconds).
+                    // The N records in a packet are distributed across the 10-min window
+                    // ending at the packet's `ts`; sub-minute timestamps are not embedded,
+                    // so records are spaced evenly across that window.
+                    final int recordCount = dataLen / 4;
+                    if (recordCount > 0) {
+                        final long packetEndMs = Math.round(ts / 1_000_000.0);
+                        final long windowMs = 10L * 60L * 1000L;
+                        final long windowStartMs = packetEndMs - windowMs;
+                        for (int i = 0; i < recordCount; i++) {
+                            dataBuf.get(); // slot 0 (motion/amplitude) - see comment above
+                            final int rate = dataBuf.get() & 0xff;
+                            dataBuf.get(); // slot 2 (noisy PPG-derived value) - see comment above
+                            dataBuf.get(); // slot 3 (quality flag) - see comment above
+
+                            // Skip implausible values: brpm must be in 1..40 to count as a real reading.
+                            if (rate < 1 || rate > 40) {
+                                continue;
+                            }
+
+                            final long recordTs = windowStartMs
+                                    + ((long) (i + 1) * windowMs) / (recordCount + 1);
+
+                            final GenericRespiratoryRateSample rrSample = new GenericRespiratoryRateSample();
+                            rrSample.setTimestamp(recordTs);
+                            rrSample.setRespiratoryRate(rate);
+                            respiratoryRateSamples.add(rrSample);
+                        }
+                    }
+                } else if (type == 0x65) {
+                    // Sentinel/manifest packet. Appears exactly once per file. Body is
+                    // consistently the 4-byte sequence `01 02 07 04` across all sampled v5 files.
+                    LOG.debug("Sleep details sentinel packet 0x65 body {}", GB.hexdump(data));
                 }
             }
         } catch (final BufferUnderflowException e) {
@@ -369,6 +424,17 @@ public class SleepDetailsParser extends XiaomiActivityParser {
             GB.toast(context, "Error saving heart pulse samples", Toast.LENGTH_LONG, GB.ERROR);
             LOG.error("Error saving heart pulse samples", e);
             persistSuccess = false;
+        }
+
+        if (!respiratoryRateSamples.isEmpty()) {
+            try (DBHandler handler = GBApplication.acquireDB()) {
+                final DaoSession session = handler.getDaoSession();
+                new GenericRespiratoryRateSampleProvider(gbDevice, session)
+                        .persistSamples(respiratoryRateSamples, context);
+            } catch (final Exception e) {
+                LOG.error("Error acquiring db for sleep respiratory rate samples", e);
+                persistSuccess = false;
+            }
         }
 
         return persistSuccess;

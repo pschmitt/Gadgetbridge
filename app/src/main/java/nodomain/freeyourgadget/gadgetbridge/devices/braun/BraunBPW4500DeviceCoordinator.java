@@ -27,11 +27,6 @@ import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.GenericBloodPressureSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
-import nodomain.freeyourgadget.gadgetbridge.entities.GenericBloodPressureSampleDao;
-import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.Property;
-import java.util.HashMap;
-import java.util.Map;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceCandidate;
@@ -87,13 +82,6 @@ public class BraunBPW4500DeviceCoordinator extends AbstractBLEDeviceCoordinator 
     @Override
     public String getManufacturer() {
         return "Braun";
-    }
-
-    @Override
-    public Map<AbstractDao<?, ?>, Property> getAllDeviceDao(@NonNull final DaoSession session) {
-        final Map<AbstractDao<?, ?>, Property> daoMap = new HashMap<>();
-        daoMap.put(session.getGenericBloodPressureSampleDao(), GenericBloodPressureSampleDao.Properties.DeviceId);
-        return daoMap;
     }
 
     @Override

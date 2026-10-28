@@ -21,13 +21,16 @@ package nodomain.freeyourgadget.gadgetbridge.service;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.usb.UsbAccessory;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +39,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
+import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.appmanager.config.DynamicAppConfig;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
 import nodomain.freeyourgadget.gadgetbridge.capabilities.loyaltycards.LoyaltyCard;
@@ -44,6 +48,8 @@ import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventCameraRemo
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.CalendarReceiver;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
+import nodomain.freeyourgadget.gadgetbridge.install.InstallItem;
+import nodomain.freeyourgadget.gadgetbridge.install.InstallSession;
 import nodomain.freeyourgadget.gadgetbridge.model.Alarm;
 import nodomain.freeyourgadget.gadgetbridge.model.CalendarEventSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.CallSpec;
@@ -57,6 +63,8 @@ import nodomain.freeyourgadget.gadgetbridge.model.NotificationSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.Reminder;
 import nodomain.freeyourgadget.gadgetbridge.model.WorldClock;
 import nodomain.freeyourgadget.gadgetbridge.model.weather.Weather;
+import nodomain.freeyourgadget.gadgetbridge.service.navigation.NavigationNotificationSender;
+import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.preferences.DevicePrefs;
 
 // TODO: support option for a single reminder notification when notifications could not be delivered?
@@ -73,6 +81,7 @@ public abstract class AbstractDeviceSupport implements DeviceSupport {
     protected GBDevice gbDevice;
     private Context context;
     private boolean autoReconnect, scanReconnect;
+    private NavigationNotificationSender navigationNotificationSender;
 
     /// an optional {@link Bundle} extra of type {@code byte[]} used to pass
     /// <u>small</u> transient data to {@link #onInstallApp(Uri, Bundle)}
@@ -81,6 +90,11 @@ public abstract class AbstractDeviceSupport implements DeviceSupport {
     /// an optional {@link Bundle} extra of type {@code String} used to pass
     /// a task name for logging to {@link #onInstallApp(Uri, Bundle)}
     public static final String BUNDLE_EXTRA_INSTALL_TASK_NAME = "install_handler_task_name";
+
+    public static final String ACTION_PAIRING_ERROR = "nodomain.freeyourgadget.gadgetbridge.service.action.pairing_error";
+    public static final String EXTRA_PAIRING_ERROR_ADDRESS = "pairing_error_address";
+    public static final String EXTRA_PAIRING_ERROR_MESSAGE = "pairing_error_message";
+    public static final String EXTRA_PAIRING_ERROR_AUTH_KEY = "pairing_error_auth_key";
 
     @Override
     public void setContext(@NonNull final GBDevice gbDevice,
@@ -96,6 +110,23 @@ public abstract class AbstractDeviceSupport implements DeviceSupport {
                            @NonNull final Context context) {
         this.gbDevice = gbDevice;
         this.context = context;
+    }
+
+    /**
+     * Reports an error that stops the pairing process of the device. If no pairing activity received it, it is
+     * displayed as a toast.
+     *
+     * @param isAuthKeyError true if the auth key is wrong
+     */
+    public void reportPairingError(@NonNull final CharSequence message, final boolean isAuthKeyError) {
+        LOG.warn("Pairing error for {} (auth key error: {}): {}", gbDevice.getAddress(), isAuthKeyError, message);
+        final Intent intent = new Intent(ACTION_PAIRING_ERROR)
+            .putExtra(EXTRA_PAIRING_ERROR_ADDRESS, gbDevice.getAddress())
+            .putExtra(EXTRA_PAIRING_ERROR_MESSAGE, message.toString())
+            .putExtra(EXTRA_PAIRING_ERROR_AUTH_KEY, isAuthKeyError);
+        if (!LocalBroadcastManager.getInstance(context).sendBroadcast(intent)) {
+            GB.toast(context, message.toString(), Toast.LENGTH_LONG, GB.WARN);
+        }
     }
 
     /**
@@ -398,6 +429,15 @@ public abstract class AbstractDeviceSupport implements DeviceSupport {
 
     }
 
+    @Override
+    public void onInstall(@NonNull final InstallSession session) {
+        LOG.warn("Install sessions are not supported by {}", getClass().getSimpleName());
+        final String reason = getContext().getString(R.string.fwapp_install_device_not_supported);
+        for (final InstallItem item : session.getItems()) {
+            session.failed(item, reason);
+        }
+    }
+
     /**
      * If the list of apps on the device can be retrieved, this method
      * can be overridden and implemented by the device support class.
@@ -457,7 +497,7 @@ public abstract class AbstractDeviceSupport implements DeviceSupport {
 
     @Override
     public void onAppConfigSet(final UUID appId, final ArrayList<DynamicAppConfig> configs) {
-        
+
     }
 
     /**
@@ -641,8 +681,14 @@ public abstract class AbstractDeviceSupport implements DeviceSupport {
     }
 
     @Override
-    public void onSetNavigationInfo(NavigationInfoSpec navigationInfoSpec) {
-
+    public void onSetNavigationInfo(final NavigationInfoSpec navigationInfoSpec) {
+        if (!getCoordinator().supportsNavigation(getDevice())) {
+            return;
+        }
+        if (navigationNotificationSender == null) {
+            navigationNotificationSender = new NavigationNotificationSender(this);
+        }
+        navigationNotificationSender.onSetNavigationInfo(navigationInfoSpec);
     }
 
     @Override

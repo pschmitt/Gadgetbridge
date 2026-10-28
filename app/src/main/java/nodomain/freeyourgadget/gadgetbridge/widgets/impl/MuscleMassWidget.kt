@@ -17,9 +17,7 @@
 package nodomain.freeyourgadget.gadgetbridge.widgets.impl
 
 import android.content.Context
-import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
-import nodomain.freeyourgadget.gadgetbridge.model.WeightUnit
 import nodomain.freeyourgadget.gadgetbridge.util.BodyCompositionCalculator
 
 /**
@@ -34,7 +32,7 @@ object MuscleMassWidget : BodyCompositionWidget() {
     override fun valueOf(composition: BodyCompositionCalculator.BodyComposition) = composition.muscleMassKg
 
     override fun format(context: Context, value: Float): String =
-        WeightUnit.formatWeight(context, value.toDouble(), GBApplication.getPrefs().weightUnit)
+        WeightWidget.formatWeight(context, value.toDouble())
 
     override fun scale(value: Float): Float = fraction(value, 20f, 60f)
 }

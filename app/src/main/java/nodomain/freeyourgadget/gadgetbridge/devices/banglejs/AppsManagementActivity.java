@@ -36,6 +36,10 @@ import android.webkit.WebView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.json.JSONArray;
@@ -81,6 +85,7 @@ public class AppsManagementActivity extends AbstractGBActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_banglejs_apps_management);
+        applyContentInsets();
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
@@ -90,6 +95,25 @@ public class AppsManagementActivity extends AbstractGBActivity {
             throw new IllegalArgumentException("Must provide a device when invoking this activity");
         }
         mCoordinator = mGBDevice.getDeviceCoordinator();
+
+        // Let the back gesture/button walk the app loader WebView history first
+        // (which closes in-app dialogs and navigates back within the SPA) and
+        // only leave the activity once there is no WebView history left.
+        // Without this the system back finishes the activity immediately,
+        // closing the whole app instead of the WebView's current view.
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (webView != null && webView.canGoBack()) {
+                    webView.goBack();
+                    return;
+                }
+                // Nothing to go back to in the WebView - use the default
+                // behaviour (finish the activity).
+                setEnabled(false);
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
     }
 
     @Override
@@ -194,8 +218,48 @@ public class AppsManagementActivity extends AbstractGBActivity {
         // see onActivityResult
     }
 
+    /**
+     * {@link AbstractGBActivity} pads the content view by the system-bar insets, but the
+     * WebView still reports them to the page, so a page that respects
+     * env(safe-area-inset-*) pads a second time. Zero those two types before they reach
+     * the WebView.
+     *
+     * <p>{@code ime()} is deliberately left alone. The WebView makes room for the
+     * keyboard itself, by shrinking the page's visual viewport, and that is the only
+     * place the keyboard should be accounted for.
+     */
+    private void applyWebViewInsets() {
+        final View container = (View) webView.getParent();
+        ViewCompat.setOnApplyWindowInsetsListener(container, (view, windowInsets) ->
+                new WindowInsetsCompat.Builder(windowInsets)
+                        .setInsets(WindowInsetsCompat.Type.systemBars(), Insets.NONE)
+                        .setInsets(WindowInsetsCompat.Type.displayCutout(), Insets.NONE)
+                        .build());
+    }
+
+    /**
+     * {@link AbstractGBActivity} pads the content view by the system-bar insets, but the
+     * bottom edge needs one more correction. While the keyboard is up,
+     * {@code navigationBars()} reports the keyboard's height (so {@code systemBars()}
+     * grows from the navigation bar's height to the keyboard's), and padding by that would
+     * shorten the content view by the keyboard - while the WebView already makes room for
+     * it by shrinking the page's visual viewport. Pad by the part of the bottom the
+     * keyboard does not cover.
+     */
+    private void applyContentInsets() {
+        final View content = findViewById(android.R.id.content);
+        ViewCompat.setOnApplyWindowInsetsListener(content, (view, windowInsets) -> {
+            final Insets bars = windowInsets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+            final Insets ime = windowInsets.getInsets(WindowInsetsCompat.Type.ime());
+            view.setPadding(bars.left, bars.top, bars.right, Math.max(0, bars.bottom - ime.bottom));
+            return windowInsets;
+        });
+    }
+
     private void initViews() {
         webView = findViewById(R.id.webview);
+        applyWebViewInsets();
         LinearLayout permissionMissingAlert = findViewById(R.id.permission_missing_alert);
         if (GBApplication.hasInternetAccess() && !GBApplication.hasDirectInternetAccess()) {
             // Using the internethelper add-on app, check whether the Bangle.js app loader is allowed in settings

@@ -42,11 +42,6 @@ public class GarminCirqaCoordinator extends GarminWatchCoordinator {
     }
 
     @Override
-    public boolean supportsMusicInfo(@NonNull final GBDevice device) {
-        return false;
-    }
-
-    @Override
     public boolean supportsCalendarEvents(@NonNull final GBDevice device) {
         // No screen
         return false;
@@ -73,5 +68,17 @@ public class GarminCirqaCoordinator extends GarminWatchCoordinator {
     @Override
     public boolean supportsRacePrediction(@NonNull final GBDevice device) {
         return false;
+    }
+
+    @Override
+    public boolean supportsNavigation(@NonNull final GBDevice device) {
+        // No screen
+        return true;
+    }
+
+    @Override
+    public boolean supportsCallControl(@NonNull final GBDevice device) {
+        // No screen
+        return true;
     }
 }

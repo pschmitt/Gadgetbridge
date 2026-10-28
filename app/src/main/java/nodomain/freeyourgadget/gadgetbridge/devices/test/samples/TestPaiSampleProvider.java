@@ -25,31 +25,25 @@ import java.util.List;
 import nodomain.freeyourgadget.gadgetbridge.devices.test.TestDeviceRand;
 import nodomain.freeyourgadget.gadgetbridge.model.PaiSample;
 
+/**
+ * One sample per hour.
+ * The PAI for the day increases during waking hours.
+ * The total is the sum of the previous 6 days and the current day.
+ */
 public class TestPaiSampleProvider extends AbstractTestSampleProvider<PaiSample> {
+    private static final long HOUR_MILLIS = 60 * 60 * 1000L;
+    private static final int WAKE_HOUR = 7;
+    private static final int SLEEP_HOUR = 22;
+
     @NonNull
     @Override
     public List<PaiSample> getAllSamples(final long timestampFrom, final long timestampTo) {
         final List<PaiSample> samples = new ArrayList<>();
+        final long now = System.currentTimeMillis();
 
-        int paiLow = TestDeviceRand.randInt(timestampFrom, 0, 15);
-        int paiMod = TestDeviceRand.randInt(timestampFrom, 0, 15);
-        int paiHigh = TestDeviceRand.randInt(timestampFrom, 0, 15);
-        int paiTotal = paiLow + paiMod + paiHigh;
-
-        for (long ts = timestampFrom; ts < timestampTo; ts += 12 * 60 * 60 * 1000L) {
-            if (TestDeviceRand.randBool(ts, 0.75f)) {
-                samples.add(new TestPaiSample(
-                        ts,
-                        paiLow,
-                        paiMod,
-                        paiHigh,
-                        paiTotal
-                ));
-            }
-            paiTotal += paiLow + paiMod + paiHigh;
-            paiLow += TestDeviceRand.randInt(ts, - paiLow, 15 - paiLow);
-            paiMod += TestDeviceRand.randInt(ts, - paiMod, 15 - paiMod);
-            paiHigh += TestDeviceRand.randInt(ts, - paiHigh, 15 - paiHigh);
+        final long firstTs = (timestampFrom + HOUR_MILLIS - 1) / HOUR_MILLIS * HOUR_MILLIS;
+        for (long ts = firstTs; ts < timestampTo && ts <= now; ts += HOUR_MILLIS) {
+            samples.add(createSample(ts));
         }
 
         return samples;
@@ -58,26 +52,43 @@ public class TestPaiSampleProvider extends AbstractTestSampleProvider<PaiSample>
     @Nullable
     @Override
     public PaiSample getLatestSample() {
-        final long ts = System.currentTimeMillis();
-        return new TestPaiSample(
-                ts - TestDeviceRand.randLong(ts, 10 * 1000L, 2 * 60 * 60 * 1000L),
-                TestDeviceRand.randInt(ts, 85, 99),
-                TestDeviceRand.randInt(ts, 85, 99),
-                TestDeviceRand.randInt(ts, 85, 99),
-                TestDeviceRand.randInt(ts, 85, 99)
-        );
+        final long now = System.currentTimeMillis();
+        return createSample(now / HOUR_MILLIS * HOUR_MILLIS);
     }
 
     @Nullable
     @Override
     public PaiSample getFirstSample() {
-        return new TestPaiSample(
-                TestDeviceRand.BASE_TIMESTAMP,
-                TestDeviceRand.randInt(TestDeviceRand.BASE_TIMESTAMP, 0, 15),
-                TestDeviceRand.randInt(TestDeviceRand.BASE_TIMESTAMP, 0, 15),
-                TestDeviceRand.randInt(TestDeviceRand.BASE_TIMESTAMP, 0, 15),
-                TestDeviceRand.randInt(TestDeviceRand.BASE_TIMESTAMP, 70, 90)
-        );
+        return createSample(TestDeviceRand.BASE_TIMESTAMP / HOUR_MILLIS * HOUR_MILLIS);
+    }
+
+    private static TestPaiSample createSample(final long timestamp) {
+        final long day = startOfDay(timestamp);
+        final float progress = clamp((float) (hourOfDay(timestamp) - WAKE_HOUR) / (SLEEP_HOUR - WAKE_HOUR), 0f, 1f);
+
+        final int low = Math.round(paiLow(day) * progress);
+        final int moderate = Math.round(paiModerate(day) * progress);
+        final int high = Math.round(paiHigh(day) * progress);
+
+        int total = low + moderate + high;
+        for (int i = 1; i < 7; i++) {
+            final long previousDay = startOfDay(day - i * DAY_MILLIS + HOUR_MILLIS);
+            total += paiLow(previousDay) + paiModerate(previousDay) + paiHigh(previousDay);
+        }
+
+        return new TestPaiSample(timestamp, low, moderate, high, total);
+    }
+
+    private static int paiLow(final long day) {
+        return TestDeviceRand.randInt(day, 0, 5);
+    }
+
+    private static int paiModerate(final long day) {
+        return TestDeviceRand.randInt(day + 1, 0, 10);
+    }
+
+    private static int paiHigh(final long day) {
+        return TestDeviceRand.randInt(day + 2, 0, 15);
     }
 
     public static class TestPaiSample implements PaiSample {

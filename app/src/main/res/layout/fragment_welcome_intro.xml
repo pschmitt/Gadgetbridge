@@ -14,15 +14,14 @@
         android:orientation="vertical">
 
         <ImageView
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:background="?attr/accent_color"
-            android:src="@drawable/ic_launcher_foreground" />
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/splash_icon" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
             android:textAlignment="center"
             android:text="@string/first_start_intro_welcome_to"
             android:textSize="30sp" />

@@ -4,13 +4,15 @@ import android.content.Context
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.database.repository.WorkoutTemplateRepository
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutTemplate
+import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.WorkoutTemplateExporter
+import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.WorkoutTemplateFile
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.services.ZeppOsFileTransferService
 import org.slf4j.LoggerFactory
 
 /**
  * Sends a [WorkoutTemplate] to a Zepp OS device and updates the template's sync state.
  */
-object ZeppOsWorkoutTemplateUploader {
+object ZeppOsWorkoutTemplateUploader : WorkoutTemplateExporter {
     private val LOG = LoggerFactory.getLogger(ZeppOsWorkoutTemplateUploader::class.java)
 
     private const val URL = "sport://file_transfer?appId=7074120303&params={}"
@@ -37,8 +39,7 @@ object ZeppOsWorkoutTemplateUploader {
             return
         }
 
-        // The id of the previous sync is reused, so that the watch replaces the template
-        val remoteId = template.syncRemoteId?.toLongOrNull() ?: (System.currentTimeMillis() * 1000L)
+        val remoteId = remoteId(template)
 
         val payload = ZeppOsWorkoutTemplateEncoder.encode(template, remoteId)
         if (payload == null) {
@@ -74,6 +75,23 @@ object ZeppOsWorkoutTemplateUploader {
             }
         })
     }
+
+    override fun export(template: WorkoutTemplate): WorkoutTemplateFile? {
+        val sportType = ZeppOsWorkoutCodes.sportType(template.activityKind) ?: return null
+        val remoteId = remoteId(template)
+        val payload = ZeppOsWorkoutTemplateEncoder.encode(template, remoteId) ?: return null
+        return WorkoutTemplateFile(
+            filename(sportType, remoteId, template.name),
+            "application/json",
+            payload.toString().toByteArray(Charsets.UTF_8)
+        )
+    }
+
+    /**
+     * The id of the previous sync, so that the watch replaces the template, or a new id.
+     */
+    private fun remoteId(template: WorkoutTemplate): Long =
+        template.syncRemoteId?.toLongOrNull() ?: (System.currentTimeMillis() * 1000L)
 
     /**
      * The file name the watch expects, for example `training_52_1790193217000011_Strength Training.json`.

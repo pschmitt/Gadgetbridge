@@ -82,7 +82,7 @@ public class SonySWR12DeviceSupport extends AbstractBTLESingleDeviceSupport {
 
     public SonySWR12DeviceSupport() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_BATTERY_SERVICE);
+        addSupportedService(GattService.SERVICE_BATTERY.uuid);
         addSupportedService(SonySWR12Constants.UUID_SERVICE_AHS);
         batteryInfoProfile = new BatteryInfoProfile<>(this);
         batteryInfoProfile.addListener(mListener);

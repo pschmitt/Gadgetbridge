@@ -1,0 +1,18 @@
+# Timestamps are epoch seconds starting 2024-01-15T22:00:00Z. Rows are one per stage transition,
+# not one per minute - the segmenter only cares about the delta between consecutive samples, so this
+# is equivalent to (and far more readable than) a real per-minute device dump of the same night.
+timestamp,kind,steps,heartRate
+1705356000,LIGHT_SLEEP,0,62
+1705356300,DEEP_SLEEP,0,55
+1705358700,LIGHT_SLEEP,0,58
+1705359000,REM_SLEEP,0,64
+1705360200,LIGHT_SLEEP,0,60
+1705360500,ACTIVITY,0,78
+1705360680,LIGHT_SLEEP,0,63
+1705360800,DEEP_SLEEP,0,54
+1705364400,AWAKE_SLEEP,0,70
+1705364700,LIGHT_SLEEP,0,59
+1705368000,REM_SLEEP,0,65
+1705369800,DEEP_SLEEP,0,52
+1705374000,LIGHT_SLEEP,0,58
+1705376400,LIGHT_SLEEP,0,61

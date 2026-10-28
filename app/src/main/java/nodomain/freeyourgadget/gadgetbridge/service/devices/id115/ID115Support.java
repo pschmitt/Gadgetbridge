@@ -45,8 +45,8 @@ public class ID115Support extends AbstractBTLESingleDeviceSupport {
 
     public ID115Support() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
         addSupportedService(ID115Constants.UUID_SERVICE_ID115);
     }
 

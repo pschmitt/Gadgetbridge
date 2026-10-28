@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiCore;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiDataTypes;
 
 public final class GarminUtils {
     private GarminUtils() {
@@ -75,8 +76,8 @@ public final class GarminUtils {
         return (int) Math.round(degrees / SEMICIRCLE_DEGREES);
     }
 
-    public static GdiCore.CoreService.LocationData toLocationData(final Location location, final GdiCore.CoreService.DataType dataType) {
-        final GdiCore.CoreService.LatLon positionForWatch = GdiCore.CoreService.LatLon.newBuilder()
+    public static GdiCore.LocationData toLocationData(final Location location, final GdiCore.LocationData.DataType dataType) {
+        final GdiDataTypes.ScPoint positionForWatch = GdiDataTypes.ScPoint.newBuilder()
                 .setLat(degreesToSemicircles(location.getLatitude()))
                 .setLon(degreesToSemicircles(location.getLongitude()))
                 .build();
@@ -86,14 +87,14 @@ public final class GarminUtils {
             vAccuracy = location.getVerticalAccuracyMeters();
         }
 
-        return GdiCore.CoreService.LocationData.newBuilder()
+        return GdiCore.LocationData.newBuilder()
                 .setPosition(positionForWatch)
                 .setAltitude((float) location.getAltitude())
                 .setTimestamp(GarminTimeUtils.javaMillisToGarminTimestamp(location.getTime()))
-                .setHAccuracy(location.getAccuracy())
-                .setVAccuracy(vAccuracy)
-                .setPositionType(dataType)
-                .setBearing(location.getBearing())
+                .setHorizontalAccuracy(location.getAccuracy())
+                .setVerticalAccuracy(vAccuracy)
+                .setDatatype(dataType)
+                .setCourse(location.getBearing())
                 .setSpeed(location.getSpeed())
                 .build();
     }

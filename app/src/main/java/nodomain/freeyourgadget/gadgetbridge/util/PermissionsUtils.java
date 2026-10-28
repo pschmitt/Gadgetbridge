@@ -20,7 +20,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.NotificationManager;
-import android.companion.CompanionDeviceManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
@@ -58,6 +57,7 @@ public class PermissionsUtils {
     private static final Logger LOG = LoggerFactory.getLogger(PermissionsUtils.class);
 
     public static final String CUSTOM_PERM_IGNORE_BATT_OPTIM = "custom_perm_ignore_battery_optimization";
+    public static final String CUSTOM_PERM_AUTOSTART = "custom_perm_autostart";
     public static final String CUSTOM_PERM_NOTIFICATION_LISTENER = "custom_perm_notifications_listener";
     public static final String CUSTOM_PERM_NOTIFICATION_SERVICE = "custom_perm_notifications_service";
     public static final String CUSTOM_PERM_DISPLAY_OVER = "custom_perm_display_over";
@@ -66,6 +66,7 @@ public class PermissionsUtils {
 
     public static final List<String> specialPermissions = new ArrayList<>() {{
         add(CUSTOM_PERM_IGNORE_BATT_OPTIM);
+        add(CUSTOM_PERM_AUTOSTART);
         add(CUSTOM_PERM_NOTIFICATION_LISTENER);
         add(CUSTOM_PERM_NOTIFICATION_SERVICE);
         add(CUSTOM_PERM_DISPLAY_OVER);
@@ -77,12 +78,7 @@ public class PermissionsUtils {
 
     public static ArrayList<PermissionDetails> getRequiredPermissionsList(Activity activity) {
         ArrayList<PermissionDetails> permissionsList = new ArrayList<>();
-        int companionDevicesCount = 0;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            final CompanionDeviceManager manager = (CompanionDeviceManager) GBApplication.getContext().getSystemService(Context.COMPANION_DEVICE_SERVICE);
-            companionDevicesCount = manager.getAssociations().size();
-        }
-        if (companionDevicesCount == 0) {
+        if (CompanionDeviceUtil.getCompanionAssociations(GBApplication.getContext()).isEmpty()) {
             permissionsList.add(new PermissionDetails(
                     CUSTOM_PERM_IGNORE_BATT_OPTIM,
                     activity.getString(R.string.permission_disable_doze_title),
@@ -90,6 +86,13 @@ public class PermissionsUtils {
             ));
         } else {
             LOG.info("Not requesting explicit battery optimization exemption due to paired Companion devices");
+        }
+        if (AutoStartUtils.getSettingsIntent(activity) != null) {
+            permissionsList.add(new PermissionDetails(
+                    CUSTOM_PERM_AUTOSTART,
+                    activity.getString(R.string.permission_autostart_title),
+                    activity.getString(R.string.permission_autostart_summary)
+            ));
         }
         permissionsList.add(new PermissionDetails(
                 CUSTOM_PERM_NOTIFICATION_LISTENER,
@@ -164,10 +167,12 @@ public class PermissionsUtils {
                 Manifest.permission.READ_CALENDAR,
                 activity.getString(R.string.permission_calendar_title),
                 activity.getString(R.string.permission_calendar_summary)));
-        permissionsList.add(new PermissionDetails(
-                Manifest.permission.RECEIVE_SMS,
-                activity.getString(R.string.permission_receive_sms_title),
-                activity.getString(R.string.permission_receive_sms_summary)));
+        if (GBApplication.getPrefs().getBoolean(GBPrefs.DEPRECATED_SMS_RECEIVER, false)) {
+            permissionsList.add(new PermissionDetails(
+                    Manifest.permission.RECEIVE_SMS,
+                    activity.getString(R.string.permission_receive_sms_title),
+                    activity.getString(R.string.permission_receive_sms_summary)));
+        }
         permissionsList.add(new PermissionDetails(
                 Manifest.permission.SEND_SMS,
                 activity.getString(R.string.permission_send_sms_title),
@@ -225,6 +230,9 @@ public class PermissionsUtils {
                 PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
                 return pm.isIgnoringBatteryOptimizations(context.getApplicationContext().getPackageName());
             }
+            case CUSTOM_PERM_AUTOSTART -> {
+                return AutoStartUtils.isAllowed(context);
+            }
             default -> {
                 return ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_DENIED;
             }
@@ -244,6 +252,8 @@ public class PermissionsUtils {
     public static void requestPermission(Activity activity, String permission) {
         if (permission.equals(CUSTOM_PERM_IGNORE_BATT_OPTIM)) {
             showRequestIgnoreBatteryOptimizationDialog(activity);
+        } else if (permission.equals(CUSTOM_PERM_AUTOSTART)) {
+            AutoStartUtils.showRequestDialog(activity);
         } else if (permission.equals(CUSTOM_PERM_NOTIFICATION_LISTENER)) {
             showNotifyListenerPermissionsDialog(activity);
         } else if (permission.equals(CUSTOM_PERM_NOTIFICATION_SERVICE)) {

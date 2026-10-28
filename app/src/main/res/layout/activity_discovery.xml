@@ -10,7 +10,7 @@
 
     <LinearLayout
         android:orientation="vertical"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:weightSum="1">
 
@@ -48,27 +48,19 @@
         </LinearLayout>
 
         <ListView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:id="@+id/discovery_device_candidates_list"
             android:layout_gravity="bottom|top"
-            android:layout_weight="1" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/discovery_note"
-            android:id="@+id/discovery_note"
-            android:textStyle="bold"
-            android:textColor="?attr/textColorSecondary"
-            android:gravity="center_horizontal|bottom" />
+            android:layout_weight="1"
+            android:divider="@null"
+            android:dividerHeight="0dp"
+            android:listSelector="@android:color/transparent" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/discovery_connected_devices_hint"
             android:id="@+id/discovery_hint"
             android:textColor="?attr/textColorSecondary"
             android:textIsSelectable="true" />

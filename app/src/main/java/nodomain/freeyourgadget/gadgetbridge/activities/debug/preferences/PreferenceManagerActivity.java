@@ -66,7 +66,6 @@ public class PreferenceManagerActivity extends AbstractGBActivity implements Men
 
     private SearchView searchView;
     private String sharedPreferencesName;
-    private final List<DebugPreference> allPrefs = new ArrayList<>();
     private PreferenceManagerAdapter listAdapter;
 
     private final ActivityResultLauncher<String> exportFileChooser = registerForActivityResult(
@@ -111,7 +110,12 @@ public class PreferenceManagerActivity extends AbstractGBActivity implements Men
             actionBar.setTitle(title != null ? title : sharedPreferencesName);
         }
 
-        listAdapter = new PreferenceManagerAdapter(this, allPrefs);
+        listAdapter = new PreferenceManagerAdapter(this, preference -> new DebugPreferenceEditDialog(
+                this,
+                getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE),
+                preference,
+                this::reloadPreferences
+        ).show());
         preferenceListView.setAdapter(listAdapter);
 
         searchView = findViewById(R.id.preferenceListSearchView);
@@ -129,7 +133,7 @@ public class PreferenceManagerActivity extends AbstractGBActivity implements Men
 
             @Override
             public boolean onQueryTextChange(final String newText) {
-                listAdapter.getFilter().filter(newText);
+                listAdapter.setFilter(newText);
                 return true;
             }
         });
@@ -137,19 +141,15 @@ public class PreferenceManagerActivity extends AbstractGBActivity implements Men
         reloadPreferences();
     }
 
-    @SuppressLint("NotifyDataSetChanged")  // the entire list will be reloaded
     private void reloadPreferences() {
-        allPrefs.clear();
+        final List<DebugPreference> allPrefs = new ArrayList<>();
         final SharedPreferences sharedPreferences = getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE);
-        for (Map.Entry<String, ?> e : sharedPreferences.getAll().entrySet()) {
-            allPrefs.add(new DebugPreference(
-                    e.getKey(),
-                    e.getValue().toString()
-            ));
+        for (final Map.Entry<String, ?> e : sharedPreferences.getAll().entrySet()) {
+            allPrefs.add(new DebugPreference(e.getKey(), e.getValue()));
         }
         LOG.debug("Got {} preferences", allPrefs.size());
         allPrefs.sort((a, b) -> a.key().compareToIgnoreCase(b.key()));
-        listAdapter.notifyDataSetChanged();
+        listAdapter.setPreferences(allPrefs);
     }
 
     @Override

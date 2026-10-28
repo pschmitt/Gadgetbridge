@@ -31,15 +31,16 @@ import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity
 import nodomain.freeyourgadget.gadgetbridge.adapter.DeviceInstallAdapter
 import nodomain.freeyourgadget.gadgetbridge.databinding.ActivityFileInstallerBinding
-import nodomain.freeyourgadget.gadgetbridge.devices.InstallHandler
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_OPTIONS
+import nodomain.freeyourgadget.gadgetbridge.util.kotlin.getParcelableArrayListCompat
 import nodomain.freeyourgadget.gadgetbridge.util.kotlin.getParcelableCompat
 import org.slf4j.LoggerFactory
 
 class FileInstallerActivity : AbstractGBActivity() {
     private val viewModel: FileInstallerViewModel by viewModels {
-        FileInstallerViewModelFactory(GBApplication.app(),
+        FileInstallerViewModelFactory(
+            GBApplication.app(),
             intent.getParcelableCompat<Bundle>(EXTRA_OPTIONS) ?: Bundle.EMPTY
         )
     }
@@ -47,26 +48,32 @@ class FileInstallerActivity : AbstractGBActivity() {
     private lateinit var binding: ActivityFileInstallerBinding
     private lateinit var deviceAdapter: DeviceInstallAdapter
 
-    private val handlers: MutableMap<GBDevice, InstallHandler> = mutableMapOf()
-    private var currentUri: Uri? = null
+    private val installIntents: MutableMap<GBDevice, Intent> = mutableMapOf()
+    private var files: List<Uri> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFileInstallerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        currentUri = intent.data ?: intent.getParcelableCompat<Uri>(Intent.EXTRA_STREAM)
+        files = when {
+            intent.data != null -> listOfNotNull(intent.data)
+            intent.action == Intent.ACTION_SEND_MULTIPLE -> intent.getParcelableArrayListCompat<Uri>(Intent.EXTRA_STREAM)
+                .orEmpty()
+
+            else -> listOfNotNull(intent.getParcelableCompat<Uri>(Intent.EXTRA_STREAM))
+        }
 
         // Set up the RecyclerView
         deviceAdapter = DeviceInstallAdapter { selectedDevice ->
-            launchInstallActivity(selectedDevice, handlers[selectedDevice], currentUri)
+            launchInstallActivity(selectedDevice, installIntents[selectedDevice])
         }
         binding.recyclerViewDevices.apply {
             adapter = deviceAdapter
             layoutManager = LinearLayoutManager(this@FileInstallerActivity)
         }
 
-        viewModel.findCompatibleDevices(currentUri)
+        viewModel.findCompatibleDevices(files)
         viewModel.uiState.observe(this) { state ->
             updateUi(state)
         }
@@ -83,29 +90,33 @@ class FileInstallerActivity : AbstractGBActivity() {
                 binding.fileInstallerLoadingProgress.visibility = View.VISIBLE
                 LOG.debug("Loading compatible devices...")
             }
+
             is InstallDeviceUiState.Success -> {
                 if (state.results.isEmpty()) { // Ideally this should be caught by Error state
-                    binding.textInstallerStatus.text = getString(R.string.fwinstaller_no_compatible_device_found, currentUri)
+                    binding.textInstallerStatus.text = getString(
+                        R.string.fwinstaller_no_compatible_device_found,
+                        files.joinToString()
+                    )
                     binding.textInstallerStatus.visibility = View.VISIBLE
                 } else {
                     binding.recyclerViewDevices.visibility = View.VISIBLE
-                    handlers.clear()
-                    for (pair in state.results) {
-                        handlers.put(pair.first, pair.second)
-                    }
+                    installIntents.clear()
+                    installIntents.putAll(state.results)
                     deviceAdapter.submitList(state.results.map { pair -> pair.first })
                     if (state.results.size == 1) {
                         // Single device was found - start the install activity directly
-                        val (device, handler) = state.results[0]
-                        launchInstallActivity(device, handler, currentUri)
+                        val (device, installIntent) = state.results[0]
+                        launchInstallActivity(device, installIntent)
                     }
                 }
             }
+
             is InstallDeviceUiState.Error -> {
                 binding.textInstallerStatus.text = state.message
                 binding.textInstallerStatus.visibility = View.VISIBLE
                 LOG.error("Error: ${state.message}")
             }
+
             is InstallDeviceUiState.NoUri -> {
                 // Should never happen
                 @SuppressLint("SetTextI18n")
@@ -116,39 +127,18 @@ class FileInstallerActivity : AbstractGBActivity() {
         }
     }
 
-    private fun launchInstallActivity(selectedDevice: GBDevice, installHandler: InstallHandler?, uri: Uri?) {
-        if (uri == null) {
-            Toast.makeText(this, "Cannot install without a file URI.", Toast.LENGTH_LONG).show()
-            finish()
-            return
-        }
-
-        if (installHandler == null) {
+    private fun launchInstallActivity(selectedDevice: GBDevice, installIntent: Intent?) {
+        if (installIntent == null) {
             // This should never happen
-            Toast.makeText(this, "Failed to find installHandler", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Failed to find install activity", Toast.LENGTH_LONG).show()
             finish()
             return
         }
 
-        LOG.info(
-            "Launching install activity {} for {}",
-            installHandler.installActivity.simpleName,
-            selectedDevice
-        )
+        LOG.info("Launching install activity {} for {}", installIntent.component?.className, selectedDevice)
 
-        val intent = Intent(this, installHandler.installActivity).apply {
-            setDataAndType(uri, contentResolver.getType(uri))
-            putExtra(GBDevice.EXTRA_DEVICE, selectedDevice)
-            setAction(Intent.ACTION_VIEW)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                    Intent.FLAG_ACTIVITY_TASK_ON_HOME or
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION
-        }
-        val installAppBundle = getIntent().getParcelableCompat<Bundle>(EXTRA_OPTIONS)
-        if (installAppBundle != null) {
-            intent.putExtra(EXTRA_OPTIONS, installAppBundle)
-        }
-        startActivity(intent)
+        installIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME)
+        startActivity(installIntent)
         finish()
     }
 

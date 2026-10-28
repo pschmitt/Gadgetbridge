@@ -514,7 +514,7 @@
     <string name="weeksleepchart_sleep_a_week">Sleep per week</string>
     <string name="sleepchart_your_sleep">Sleep</string>
     <string name="notif_battery_low_bigtext_number_of_charges">Number of charges: %s</string>
-    <string name="notif_battery_low_bigtext_last_charge_time">Last charge: %s 
+    <string name="notif_battery_low_bigtext_last_charge_time">Last charge: %s
 \n</string>
     <string name="notif_battery_low_title">Gadget battery Low!</string>
     <string name="installer_activity_wait_while_determining_status">Please wait while determining the installation status…</string>

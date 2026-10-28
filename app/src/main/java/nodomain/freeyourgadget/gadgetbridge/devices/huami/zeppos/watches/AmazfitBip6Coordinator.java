@@ -37,7 +37,7 @@ public class AmazfitBip6Coordinator extends ZeppOsCoordinator {
     @Override
     public Set<Integer> getDeviceSources() {
         return new HashSet<>(Arrays.asList(
-                9765120, // chinese mainland version
+                9765120, // Chinese mainland version
                 9765121,
                 10158337
         ));

@@ -167,7 +167,7 @@ public class DefaultWorkoutChartsTest {
     private static List<Entry> entriesEvery(final long stepMs, final int count) {
         final List<Entry> entries = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            entries.add(new Entry(i * stepMs, 25));
+            entries.add(new Entry<>(i * stepMs, 25, null, null));
         }
         return entries;
     }
@@ -187,7 +187,7 @@ public class DefaultWorkoutChartsTest {
     public void pauseDoesNotMakeDenseSeriesSparse() {
         final List<Entry> entries = entriesEvery(1000, 30);
         for (int i = 0; i < 30; i++) {
-            entries.add(new Entry(600_000 + i * 1000, 25));
+            entries.add(new Entry<>(600_000 + i * 1000, 25, null, null));
         }
         assertTrue(DefaultWorkoutCharts.isDenseSeries(entries));
     }

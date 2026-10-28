@@ -23,7 +23,6 @@ import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport
 import nodomain.freeyourgadget.gadgetbridge.util.RtlUtils
 import nodomain.freeyourgadget.gadgetbridge.util.language.Transliterator
 
-import java.io.Serializable
 import java.util.concurrent.atomic.AtomicInteger
 
 @Parcelize

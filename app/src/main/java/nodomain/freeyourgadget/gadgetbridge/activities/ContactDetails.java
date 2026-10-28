@@ -19,36 +19,44 @@ package nodomain.freeyourgadget.gadgetbridge.activities;
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.MenuItem;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputLayout;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
+import nodomain.freeyourgadget.gadgetbridge.databinding.ActivityContactDetailsBinding;
 import nodomain.freeyourgadget.gadgetbridge.entities.Contact;
-import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
 
 public class ContactDetails extends AbstractGBActivity {
-    private Contact contact;
-    private GBDevice device;
+    private static final Logger LOG = LoggerFactory.getLogger(ContactDetails.class);
 
-    EditText contactName;
-    EditText contactNumber;
+    private ActivityContactDetailsBinding binding;
+
+    private Contact contact;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_contact_details);
+        binding = ActivityContactDetailsBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        contact = (Contact) getIntent().getSerializableExtra(Contact.EXTRA_CONTACT);
+        if (savedInstanceState != null) {
+            contact = (Contact) savedInstanceState.getSerializable(Contact.EXTRA_CONTACT);
+        } else {
+            contact = (Contact) getIntent().getSerializableExtra(Contact.EXTRA_CONTACT);
+        }
 
         if (contact == null) {
             GB.toast("No contact provided to ContactDetails Activity", Toast.LENGTH_LONG, GB.ERROR);
@@ -56,60 +64,38 @@ public class ContactDetails extends AbstractGBActivity {
             return;
         }
 
-        contactName = findViewById(R.id.contact_name);
-        contactNumber = findViewById(R.id.contact_number);
-        contactNumber.setInputType(InputType.TYPE_CLASS_PHONE);
+        if (savedInstanceState == null) {
+            binding.contactName.setText(contact.getName());
+            binding.contactNumber.setText(contact.getNumber());
+        }
 
-        device = getIntent().getParcelableExtra(GBDevice.EXTRA_DEVICE);
+        clearErrorOnEdit(binding.contactNameLayout);
+        clearErrorOnEdit(binding.contactNumberLayout);
 
-        contactName.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(final CharSequence s, int start, int count, int after) {
+        binding.fabSave.setOnClickListener(view -> {
+            final String name = String.valueOf(binding.contactName.getText()).trim();
+            final String number = String.valueOf(binding.contactNumber.getText()).trim();
+
+            boolean valid = true;
+            if (StringUtils.isNullOrEmpty(name)) {
+                binding.contactNameLayout.setError(getString(R.string.contact_missing_name));
+                valid = false;
             }
-
-            @Override
-            public void onTextChanged(final CharSequence s, int start, int before, int count) {
+            if (StringUtils.isNullOrEmpty(number)) {
+                binding.contactNumberLayout.setError(getString(R.string.contact_missing_number));
+                valid = false;
             }
-
-            @Override
-            public void afterTextChanged(final Editable s) {
-                contact.setName(s.toString());
-            }
-        });
-
-        contactNumber.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(final CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(final CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(final Editable s) {
-                contact.setNumber(s.toString());
-            }
-        });
-
-        final FloatingActionButton fab = findViewById(R.id.fab_save);
-        fab.setOnClickListener(view -> {
-            if (StringUtils.isNullOrEmpty(contact.getName())) {
-                GB.toast(getBaseContext().getString(R.string.contact_missing_name), Toast.LENGTH_LONG, GB.WARN);
+            if (!valid) {
                 return;
             }
 
-            if (StringUtils.isNullOrEmpty(contact.getNumber())) {
-                GB.toast(getBaseContext().getString(R.string.contact_missing_number), Toast.LENGTH_LONG, GB.WARN);
-                return;
-            }
-
-            updateContact();
-            ContactDetails.this.setResult(Activity.RESULT_OK);
+            contact.setName(name);
+            contact.setNumber(number);
+            LOG.debug("Storing contact {}", contact.getContactId());
+            DBHelper.store(contact);
+            setResult(Activity.RESULT_OK);
             finish();
         });
-
-        updateUiFromContact();
     }
 
     @Override
@@ -117,32 +103,32 @@ public class ContactDetails extends AbstractGBActivity {
         final int itemId = item.getItemId();
         if (itemId == android.R.id.home) {
             // back button
-            // TODO confirm when exiting without saving
             finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateContact() {
-        DBHelper.store(contact);
-    }
-
     @Override
     protected void onSaveInstanceState(@NonNull final Bundle state) {
         super.onSaveInstanceState(state);
-        state.putSerializable("contact", contact);
+        state.putSerializable(Contact.EXTRA_CONTACT, contact);
     }
 
-    @Override
-    protected void onRestoreInstanceState(@NonNull final Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        contact = (Contact) savedInstanceState.getSerializable("contact");
-        updateUiFromContact();
-    }
+    private static void clearErrorOnEdit(final TextInputLayout layout) {
+        Objects.requireNonNull(layout.getEditText()).addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
+            }
 
-    public void updateUiFromContact() {
-        contactName.setText(contact.getName());
-        contactNumber.setText(contact.getNumber());
+            @Override
+            public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+            }
+
+            @Override
+            public void afterTextChanged(final Editable s) {
+                layout.setError(null);
+            }
+        });
     }
 }

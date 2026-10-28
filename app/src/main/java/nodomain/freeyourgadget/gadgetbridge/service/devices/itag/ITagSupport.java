@@ -25,7 +25,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
+import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEvent;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventBatteryInfo;
+import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventCameraRemote;
+import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventFindPhone;
 import nodomain.freeyourgadget.gadgetbridge.devices.itag.ITagConstants;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.AbstractBTLESingleDeviceSupport;
@@ -34,6 +37,10 @@ import nodomain.freeyourgadget.gadgetbridge.service.btle.TransactionBuilder;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.profiles.IntentListener;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.profiles.battery.BatteryInfoProfile;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.profiles.deviceinfo.DeviceInfoProfile;
+import nodomain.freeyourgadget.gadgetbridge.util.GB;
+
+import static nodomain.freeyourgadget.gadgetbridge.devices.itag.ITagConstants.PREF_BEEP_ON_DISCONNECT;
+import static nodomain.freeyourgadget.gadgetbridge.devices.itag.ITagConstants.PREF_BUTTON_EVENT;
 
 public class ITagSupport extends AbstractBTLESingleDeviceSupport {
 
@@ -56,12 +63,13 @@ public class ITagSupport extends AbstractBTLESingleDeviceSupport {
 
     public ITagSupport() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
-        addSupportedService(GattService.UUID_SERVICE_BATTERY_SERVICE);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
+        addSupportedService(GattService.SERVICE_BATTERY.uuid);
 
-        addSupportedService(GattService.UUID_SERVICE_IMMEDIATE_ALERT);
+        addSupportedService(GattService.SERVICE_IMMEDIATE_ALERT.uuid);
         addSupportedService(ITagConstants.UUID_SERVICE_BUTTON);
+        addSupportedService(ITagConstants.UUID_SERVICE_SERIAL_NRF);
 
 
         deviceInfoProfile = new DeviceInfoProfile<>(this);
@@ -82,6 +90,8 @@ public class ITagSupport extends AbstractBTLESingleDeviceSupport {
     protected TransactionBuilder initializeDevice(TransactionBuilder builder) {
         builder.setDeviceState(GBDevice.State.INITIALIZING);
         requestDeviceInfo(builder);
+        builder.notify(ITagConstants.UUID_SERVICE_BUTTON, true);
+        applyBeepOnDisconnect(builder);
         setInitialized(builder);
         batteryInfoProfile.requestBatteryInfo(builder);
         return builder;
@@ -108,7 +118,12 @@ public class ITagSupport extends AbstractBTLESingleDeviceSupport {
 
     @Override
     public void onFindDevice(boolean start) {
-        onSetConstantVibration(start ? 0x02 : 0x00);
+        onSetConstantVibration(start ? resolveAlertLevel() : 0x00);
+    }
+
+    private int resolveAlertLevel() {
+        final String pref = getDevicePrefs().getString(ITagConstants.PREF_ALERT_LEVEL, "high");
+        return "mild".equals(pref) ? ITagConstants.ALERT_LEVEL_MILD : ITagConstants.ALERT_LEVEL_HIGH;
     }
 
     @Override
@@ -127,10 +142,37 @@ public class ITagSupport extends AbstractBTLESingleDeviceSupport {
         if (super.onCharacteristicChanged(gatt, characteristic, value)) {
             return true;
         }
-
         UUID characteristicUUID = characteristic.getUuid();
+        if (ITagConstants.UUID_SERVICE_BUTTON.equals(characteristicUUID)) {
+            LOG.info("Button: {}", GB.hexdump(value));
+            if (value.length > 0 && value[0] == 1) {
+                onButtonPressed();
+            }
+            return true;
+        }
         LOG.info("Unhandled characteristic changed: " + characteristicUUID);
         return false;
+    }
+
+
+    private void onButtonPressed() {
+        String button_event = getDevicePrefs().getString(PREF_BUTTON_EVENT, "findphone");
+        LOG.debug("Button pressed! Perform {}", button_event);
+
+        final GBDeviceEvent evt = switch (button_event) {
+            case "takephoto" -> {
+                final GBDeviceEventCameraRemote cameraRemoteEvent = new GBDeviceEventCameraRemote();
+                cameraRemoteEvent.event = GBDeviceEventCameraRemote.Event.TAKE_PICTURE;
+                yield cameraRemoteEvent;
+            }
+            default -> {
+                final GBDeviceEventFindPhone findPhoneEvent = new GBDeviceEventFindPhone();
+                findPhoneEvent.event = GBDeviceEventFindPhone.Event.START;
+                yield findPhoneEvent;
+            }
+        };
+        evaluateGBDeviceEvent(evt);
+
     }
 
     @Override
@@ -144,6 +186,25 @@ public class ITagSupport extends AbstractBTLESingleDeviceSupport {
 
         LOG.info("Unhandled characteristic read: " + characteristicUUID);
         return false;
+    }
+
+    @Override
+    public void onSendConfiguration(String config) {
+        switch (config) {
+            case PREF_BEEP_ON_DISCONNECT -> {
+                TransactionBuilder builder = createTransactionBuilder("apply config");
+                applyBeepOnDisconnect(builder);
+                builder.queue();
+            }
+        }
+    }
+
+    private void applyBeepOnDisconnect(TransactionBuilder builder) {
+        if (getCharacteristic(ITagConstants.UUID_CHAR_LINKLOSS_FFE2) == null) {
+            return;
+        }
+        final boolean beep = getDevicePrefs().getBoolean(ITagConstants.PREF_BEEP_ON_DISCONNECT, false);
+        builder.write(ITagConstants.UUID_CHAR_LINKLOSS_FFE2, new byte[]{(byte) (beep ? 0x01 : 0x00)});
     }
 
     @Override

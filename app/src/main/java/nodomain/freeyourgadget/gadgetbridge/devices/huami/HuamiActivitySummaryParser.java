@@ -19,6 +19,8 @@ package nodomain.freeyourgadget.gadgetbridge.devices.huami;
 
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.*;
 
+import androidx.annotation.Nullable;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,7 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.GBException;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.charts.DefaultWorkoutCharts;
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary;
+import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityPoint;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryData;
@@ -49,12 +52,19 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.AbstractHuamiA
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.HuamiActivityDetailsParser;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.HuamiSportsActivityType;
 import nodomain.freeyourgadget.gadgetbridge.util.FileUtils;
+import nodomain.freeyourgadget.gadgetbridge.util.elevation.ElevationTiles;
 
 public class HuamiActivitySummaryParser implements ActivitySummaryParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(HuamiActivitySummaryParser.class);
     protected ActivitySummaryData summaryData = new ActivitySummaryData();
     protected final List<WorkoutChart> charts = new ArrayList<>();
+    @Nullable
+    private final GBDevice gbDevice;
+
+    public HuamiActivitySummaryParser(@Nullable final GBDevice gbDevice) {
+        this.gbDevice = gbDevice;
+    }
 
     @Override
     public BaseActivitySummary parseBinaryData(BaseActivitySummary summary, final boolean forDetails) {
@@ -440,6 +450,10 @@ public class HuamiActivitySummaryParser implements ActivitySummaryParser {
     protected void enrichWithDetails(final BaseActivitySummary summary, final ActivityTrack activityTrack) throws IOException, GBException {
         final List<ActivityPoint> allPoints = activityTrack.getAllPoints();
         if (!allPoints.isEmpty()) {
+            // Altitude from imported elevation tiles replaces what the device recorded
+            if (ElevationTiles.correct(GBApplication.getContext(), gbDevice, ActivityKind.fromCode(summary.getActivityKind()), allPoints)) {
+                ElevationTiles.applyToSummary(summaryData, allPoints);
+            }
             charts.addAll(DefaultWorkoutCharts.buildDefaultCharts(
                     GBApplication.getContext(),
                     allPoints,

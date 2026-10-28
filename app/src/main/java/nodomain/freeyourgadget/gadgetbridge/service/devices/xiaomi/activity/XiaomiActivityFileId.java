@@ -17,6 +17,7 @@
 package nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.activity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
 
@@ -24,6 +25,7 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
@@ -151,13 +153,43 @@ public class XiaomiActivityFileId implements Comparable<XiaomiActivityFileId> {
     }
 
     public File getOutputFile(final File targetDir) {
+        return new File(
+                getOutputDir(targetDir, timestamp, type, subtype, detailType),
+                getOutputFilePrefix(timestamp, type, subtype, detailType) + version + ".bin"
+        );
+    }
+
+    /**
+     * The raw file {@link #getOutputFile} wrote for a file with these id fields, whatever its
+     * version, or null when there is none on disk.
+     */
+    @Nullable
+    public static File findOutputFile(final File targetDir,
+                                      final Date timestamp,
+                                      final int type,
+                                      final int subtype,
+                                      final int detailType) {
+        final File dir = getOutputDir(targetDir, timestamp, type, subtype, detailType);
+        final String prefix = getOutputFilePrefix(timestamp, type, subtype, detailType);
+        final File[] files = dir.listFiles((d, name) -> name.startsWith(prefix) && name.endsWith(".bin"));
+        if (files == null || files.length == 0) {
+            return null;
+        }
+        Arrays.sort(files);
+        return files[0];
+    }
+
+    private static File getOutputDir(final File targetDir,
+                                     final Date timestamp,
+                                     final int type,
+                                     final int subtype,
+                                     final int detailType) {
         final SimpleDateFormat SDF_YEAR = new SimpleDateFormat("yyyy", Locale.ROOT);
-        final SimpleDateFormat SDF_FULL = new SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.US);
 
         final StringBuilder sb = new StringBuilder();
 
         // Year
-        sb.append(SDF_YEAR.format(getTimestamp()));
+        sb.append(SDF_YEAR.format(timestamp));
         sb.append(File.separator);
 
         // Type
@@ -182,20 +214,24 @@ public class XiaomiActivityFileId implements Comparable<XiaomiActivityFileId> {
         if (detailTypeName == DetailType.UNKNOWN) {
             sb.append("_").append(String.format("%02X", subtype));
         }
-        sb.append(File.separator);
-
-        // Filename
-        sb.append(String.format(
-                Locale.ROOT,
-                "%s_%02X_%02X_%02X_v%d.bin",
-                SDF_FULL.format(getTimestamp()),
-                getTypeCode(),
-                getSubtypeCode(),
-                getDetailTypeCode(),
-                getVersion()
-        ));
 
         return new File(targetDir, sb.toString());
+    }
+
+    /** The file name up to the version number. */
+    private static String getOutputFilePrefix(final Date timestamp,
+                                              final int type,
+                                              final int subtype,
+                                              final int detailType) {
+        final SimpleDateFormat SDF_FULL = new SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.US);
+        return String.format(
+                Locale.ROOT,
+                "%s_%02X_%02X_%02X_v",
+                SDF_FULL.format(timestamp),
+                type,
+                subtype,
+                detailType
+        );
     }
 
     public enum Type {

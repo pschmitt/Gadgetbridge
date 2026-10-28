@@ -25,6 +25,8 @@ import android.view.ViewGroup;
 import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,12 +36,14 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.materialswitch.MaterialSwitch;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.ConfigureAlarms;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
 import nodomain.freeyourgadget.gadgetbridge.entities.Alarm;
+import nodomain.freeyourgadget.gadgetbridge.util.AlarmUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 
 /**
@@ -87,6 +91,9 @@ public class GBAlarmListAdapter extends RecyclerView.Adapter<GBAlarmListAdapter.
         holder.alarmDaySunday.setChecked(alarm.getRepetition(Alarm.ALARM_SUN));
         holder.container.setAlpha(alarm.getUnused() ? 0.5f : 1.0f);
         holder.delete.setVisibility(alarm.getUnused() ? View.INVISIBLE : View.VISIBLE);
+        // A recycled view still has the listener of its previous alarm
+        holder.isEnabled.setOnCheckedChangeListener(null);
+        holder.isEnabled.setChecked(alarm.getEnabled());
         holder.isEnabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -125,12 +132,8 @@ public class GBAlarmListAdapter extends RecyclerView.Adapter<GBAlarmListAdapter.
         });
 
         holder.alarmTime.setText(DateTimeUtils.formatTime(alarm.getHour(), alarm.getMinute()));
-        holder.isEnabled.setChecked(alarm.getEnabled());
-        if (alarm.getSmartWakeup()) {
-            holder.isSmartWakeup.setVisibility(TextView.VISIBLE);
-        } else {
-            holder.isSmartWakeup.setVisibility(TextView.GONE);
-        }
+        holder.isSmartWakeup.setVisibility(alarm.getSmartWakeup() ? View.VISIBLE : View.GONE);
+        holder.isSnooze.setVisibility(alarm.getSnooze() ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -145,7 +148,8 @@ public class GBAlarmListAdapter extends RecyclerView.Adapter<GBAlarmListAdapter.
         TextView alarmTime;
         MaterialSwitch isEnabled;
         ImageButton delete;
-        TextView isSmartWakeup;
+        ImageView isSmartWakeup;
+        ImageView isSnooze;
 
         CheckedTextView alarmDayMonday;
         CheckedTextView alarmDayTuesday;
@@ -164,6 +168,7 @@ public class GBAlarmListAdapter extends RecyclerView.Adapter<GBAlarmListAdapter.
             isEnabled = view.findViewById(R.id.alarm_item_toggle);
             delete = view.findViewById(R.id.alarm_item_delete);
             isSmartWakeup = view.findViewById(R.id.alarm_smart_wakeup);
+            isSnooze = view.findViewById(R.id.alarm_snooze);
 
             alarmDayMonday = view.findViewById(R.id.alarm_item_monday);
             alarmDayTuesday = view.findViewById(R.id.alarm_item_tuesday);
@@ -172,7 +177,21 @@ public class GBAlarmListAdapter extends RecyclerView.Adapter<GBAlarmListAdapter.
             alarmDayFriday = view.findViewById(R.id.alarm_item_friday);
             alarmDaySaturday = view.findViewById(R.id.alarm_item_saturday);
             alarmDaySunday = view.findViewById(R.id.alarm_item_sunday);
+
+            final LinearLayout dowSelector = view.findViewById(R.id.dowSelector);
+            dowSelector.removeAllViews();
+            final List<CheckedTextView> orderedAlarmDays = AlarmUtils.orderByFirstDayOfWeek(Arrays.asList(
+                alarmDayMonday,
+                alarmDayTuesday,
+                alarmDayWednesday,
+                alarmDayThursday,
+                alarmDayFriday,
+                alarmDaySaturday,
+                alarmDaySunday
+            ));
+            for (final View day : orderedAlarmDays) {
+                dowSelector.addView(day);
+            }
         }
     }
-
 }

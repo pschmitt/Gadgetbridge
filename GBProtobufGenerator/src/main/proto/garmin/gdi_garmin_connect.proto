@@ -1,0 +1,67 @@
+syntax = "proto2";
+
+package GDI.Proto.GarminConnect;
+option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiLaunchMonitorService";
+option java_outer_classname = "GdiGarminConnect";
+
+message CheckDownloadQueueRequest {
+    optional GDI.Proto.GarminConnect.Priority priority = 1;
+    optional bool force_beta_software_update_check = 2;
+}
+
+message CheckDownloadQueueResponse {
+    enum Status {
+        SUCCESS = 0;
+        FAIL_NO_CONNECTIVITY = 1;
+    }
+
+    optional GDI.Proto.GarminConnect.CheckDownloadQueueResponse.Status status = 1;
+}
+
+message ClientFeatureCapabilities {
+    optional uint32 version = 1;
+    optional bool wellness_threshold_met_support = 2;
+}
+
+message ContactsUpdateRequestNotification {
+}
+
+message CutWellnessFilesRequest {
+    optional GDI.Proto.GarminConnect.Priority priority = 1;
+}
+
+message CutWellnessFilesResponse {
+    enum Status {
+        SUCCESS = 0;
+        IGNORED = 1;
+        NOT_SUPPORTED = 2;
+    }
+
+    optional GDI.Proto.GarminConnect.CutWellnessFilesResponse.Status status = 1;
+}
+
+message LifestyleLoggingUpdateRequestNotification {
+}
+
+enum Priority {
+    STANDARD = 0;
+    USER_INITIATED = 1;
+}
+
+message ServerFeatureCapabilities {
+    optional bool wellness_support = 2;
+    optional bool lifestyle_logging_support = 3;
+}
+
+message Service {
+    optional GDI.Proto.GarminConnect.CheckDownloadQueueRequest check_download_queue_request = 1;
+    optional GDI.Proto.GarminConnect.CheckDownloadQueueResponse check_download_queue_response = 2;
+    optional GDI.Proto.GarminConnect.CutWellnessFilesRequest cut_wellness_files_request = 3;
+    optional GDI.Proto.GarminConnect.CutWellnessFilesResponse cut_wellness_files_response = 4;
+    optional GDI.Proto.GarminConnect.WellnessThresholdMetNotification wellness_threshold_met_notification = 5;
+    optional GDI.Proto.GarminConnect.ContactsUpdateRequestNotification contacts_update_request_notification = 6;
+    optional GDI.Proto.GarminConnect.LifestyleLoggingUpdateRequestNotification lifestyle_logging_update_request_notification = 7;
+}
+
+message WellnessThresholdMetNotification {
+}

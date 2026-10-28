@@ -58,7 +58,7 @@ public class HuamiActivitySummaryParserTest extends TestBase {
         summary.setRawSummaryData(bytes);
         summary.setStartTime(new Date(1782879293000L));
 
-        final HuamiActivitySummaryParser parser = new HuamiActivitySummaryParser();
+        final HuamiActivitySummaryParser parser = new HuamiActivitySummaryParser(null);
         parser.parseBinaryData(summary, false);
 
         final ActivitySummaryData summaryData = ActivitySummaryData.fromJson(summary.getSummaryData());

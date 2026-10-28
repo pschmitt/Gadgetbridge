@@ -69,8 +69,8 @@ public class ZeppOsBtleSupport extends AbstractBTLESingleDeviceSupport implement
     public ZeppOsBtleSupport() {
         super(LOG);
 
-        addSupportedService(GattService.UUID_SERVICE_HEART_RATE);
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION);
+        addSupportedService(GattService.SERVICE_HEART_RATE.uuid);
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
 
         addSupportedService(MiBandService.UUID_SERVICE_MIBAND_SERVICE);
         addSupportedService(HuamiService.UUID_SERVICE_FIRMWARE_SERVICE);
@@ -179,7 +179,7 @@ public class ZeppOsBtleSupport extends AbstractBTLESingleDeviceSupport implement
 
     @Override
     public void setCurrentTime(final ZeppOsTransactionBuilder builder) {
-        builder.write(GattCharacteristic.UUID_CHARACTERISTIC_CURRENT_TIME, HuamiUtils.getCurrentTimeBytes());
+        builder.write(GattCharacteristic.CHARACTERISTIC_CURRENT_TIME.uuid, HuamiUtils.getCurrentTimeBytes());
     }
 
     @Override
@@ -216,6 +216,11 @@ public class ZeppOsBtleSupport extends AbstractBTLESingleDeviceSupport implement
     @Override
     public void onFetchRecordedData(final int dataTypes) {
         zeppOsSupport.onFetchRecordedData(dataTypes);
+    }
+
+    @Override
+    public void onMusicListReq() {
+        zeppOsSupport.onMusicListReq();
     }
 
     @Override

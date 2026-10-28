@@ -178,7 +178,7 @@ public class HPlusHealthSampleProvider extends AbstractSampleProvider<HPlusHealt
 
 
         //Fix Step counters
-        //Todays sample steps will come from the Day Slots messages
+        //Today's sample steps will come from the Day Slots messages
         //Historical steps will be provided by Day Summaries messages
         //This will allow both week and current day results to be consistent
         Calendar today = GregorianCalendar.getInstance();

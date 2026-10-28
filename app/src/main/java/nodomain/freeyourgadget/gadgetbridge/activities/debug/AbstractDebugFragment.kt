@@ -2,6 +2,7 @@ package nodomain.freeyourgadget.gadgetbridge.activities.debug
 
 import android.text.InputType
 import android.widget.Toast
+import androidx.annotation.DrawableRes
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
@@ -13,6 +14,7 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractPreferenceFragment
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
+import nodomain.freeyourgadget.gadgetbridge.util.DeviceIconUtils
 import nodomain.freeyourgadget.gadgetbridge.util.GB
 import java.util.UUID
 
@@ -105,6 +107,20 @@ abstract class AbstractDebugFragment : AbstractPreferenceFragment() {
 
         group?.addPreference(pref)
 
+        return pref
+    }
+
+    protected fun addDynamicDevicePref(
+        group: PreferenceGroup?,
+        title: String,
+        summary: String,
+        @DrawableRes icon: Int,
+        connected: Boolean,
+        onClickFunction: () -> Unit,
+    ): Preference {
+        val pref = addDynamicPref(group, title, summary, onClickFunction = onClickFunction)
+        pref.layoutResource = R.layout.preference_device
+        pref.icon = DeviceIconUtils.tile(requireContext(), icon, connected)
         return pref
     }
 

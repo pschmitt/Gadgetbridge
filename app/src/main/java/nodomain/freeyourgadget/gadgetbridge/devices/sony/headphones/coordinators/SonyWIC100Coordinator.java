@@ -40,7 +40,6 @@ public class SonyWIC100Coordinator extends SonyHeadphonesCoordinator {
     public Set<SonyHeadphonesCapabilities> getDefaultCapabilities() {
         return new HashSet<>(Arrays.asList(
                 SonyHeadphonesCapabilities.BatterySingle,
-                SonyHeadphonesCapabilities.EqualizerSimple,
                 SonyHeadphonesCapabilities.EqualizerWithCustomBands,
                 SonyHeadphonesCapabilities.AudioUpsampling,
                 SonyHeadphonesCapabilities.VoiceNotifications,

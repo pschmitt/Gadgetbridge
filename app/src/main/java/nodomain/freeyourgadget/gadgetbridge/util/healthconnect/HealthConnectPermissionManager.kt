@@ -311,9 +311,11 @@ object HealthConnectPermissionManager {
             try {
                 GBApplication.acquireDB().use { db ->
                     db.daoSession.healthConnectSyncStateDao.deleteAll()
+                    db.daoSession.healthConnectWorkoutSyncFailureDao.deleteAll()
                     db.daoSession.clear()
                     LOG.info("Successfully cleared all HealthConnect sync states and session cache.")
                 }
+                HealthConnectWorkoutSync.notifyStateChanged(context)
                 setHealthConnectPermissionResetNeeded(context, false) // Use new setter
                 // LOG.info("Cleared PREF_KEY_HC_PROMPT_FOR_FULL_DAO_RESET after DAO reset.") // Log is now part of setter
 

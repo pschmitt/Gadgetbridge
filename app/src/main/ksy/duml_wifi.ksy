@@ -46,3 +46,45 @@ types:
     seq:
       - id: status
         type: u1
+
+  ap_ssid_get_request:
+    meta:
+      -duml-cmd: 0x07
+    seq:
+      - id: unknown
+        doc: Meaning unknown. The app sends 0x1c.
+        type: u1
+
+  ap_ssid_get_response:
+    meta:
+      -duml-cmd: 0x07
+    seq:
+      - id: status
+        type: u1
+      - id: ssid_len
+        type: u1
+      - id: ssid
+        type: str
+        size: ssid_len
+        encoding: ASCII
+
+  ap_passphrase_get_request:
+    meta:
+      -duml-cmd: 0x0e
+    seq:
+      - id: unknown
+        doc: Meaning unknown. The app sends 0x79.
+        type: u1
+
+  ap_passphrase_get_response:
+    meta:
+      -duml-cmd: 0x0e
+    seq:
+      - id: status
+        type: u1
+      - id: passphrase_len
+        type: u1
+      - id: passphrase
+        type: str
+        size: passphrase_len
+        encoding: ASCII

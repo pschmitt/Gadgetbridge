@@ -7,13 +7,15 @@ import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutDurationType
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutEquipment
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutStepType
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutTargetType
+import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutTemplate
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutWeightType
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.exercises.WorkoutExerciseCatalog
 
 /**
  * One duration choice of a step. [value] is null for a type with no value, such as a button press.
+ * [plus] is true when the value can be a target that the user can go beyond.
  */
-data class DurationOption(val type: WorkoutDurationType, val value: ValueSpec? = null)
+data class DurationOption(val type: WorkoutDurationType, val value: ValueSpec? = null, val plus: Boolean = false)
 
 /**
  * One target choice of a step. [value] is null for [WorkoutTargetType.NONE].
@@ -117,6 +119,15 @@ data class SportSpec(
     fun stepSpec(stepType: WorkoutStepType): StepSpec = stepOverrides[stepType] ?: defaultStep
 }
 
+class WorkoutTemplateFile(val name: String, val mimeType: String, val bytes: ByteArray)
+
+fun interface WorkoutTemplateExporter {
+    /**
+     * Returns null when the template cannot be encoded.
+     */
+    fun export(template: WorkoutTemplate): WorkoutTemplateFile?
+}
+
 /**
  * What a device supports for workout templates.
  */
@@ -135,4 +146,9 @@ data class WorkoutTemplateSpec(
     val nameMaxLength: Int = 200,
     val noteMaxLength: Int = 200,
     val sports: Map<ActivityKind, SportSpec> = emptyMap(),
+
+    /**
+     * Null when the raw data of a template cannot be shared.
+     */
+    val exporter: WorkoutTemplateExporter? = null,
 )

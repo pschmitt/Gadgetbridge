@@ -354,8 +354,15 @@ open class JabraEvolve255Coordinator : AbstractBLClassicDeviceCoordinator() {
         }
     }
 
+    override fun supportsAppNotifications(device: GBDevice): Boolean = true
+
+    override fun supportsPhoneCalls(device: GBDevice): Boolean = true
+
+    override fun supportsCallControl(device: GBDevice): Boolean = true
+
     companion object {
         private val DEVICE_CARD_ACTION_ANC = deviceCardAction {
+            id = "jabra_anc"
             icon = { device ->
                 val state = GBApplication.getDevicePrefs(device)
                     .getBoolean(DeviceSettingsPreferenceConst.PREF_ACTIVE_NOISE_CANCELLING_TOGGLE, false)
@@ -370,6 +377,7 @@ open class JabraEvolve255Coordinator : AbstractBLClassicDeviceCoordinator() {
             }
         }
         private val DEVICE_CARD_ACTION_BUSY_LIGHT = deviceCardAction {
+            id = "jabra_busy_light"
             icon = { device ->
                 val state = GBApplication.getDevicePrefs(device)
                     .getBoolean(DeviceSettingsPreferenceConst.PREF_BUSYLIGHT, false)

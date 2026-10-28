@@ -243,6 +243,7 @@ public final class GBScanEventProcessor implements Runnable {
                                               firstEvent.getRssi(),
                                               firstEvent.getServiceUuids(),
                                               firstEvent.getManufacturerSpecificData());
+            candidate.setScanRecord(firstEvent.getScanRecord());
         } else {
             previousName = candidate.getName();
             previousUuids = candidate.getServiceUuids();
@@ -254,6 +255,7 @@ public final class GBScanEventProcessor implements Runnable {
             candidate.setRssi(event.getRssi());
             candidate.addUuids(event.getServiceUuids());
             candidate.addManufacturerSpecificData(event.getManufacturerSpecificData());
+            candidate.setScanRecord(event.getScanRecord());
         }
 
         candidate.refreshNameIfUnknown();

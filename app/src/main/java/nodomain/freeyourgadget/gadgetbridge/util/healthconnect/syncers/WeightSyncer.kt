@@ -48,8 +48,8 @@ internal object WeightSyncer : AbstractTimeSampleSyncer<WeightSample, WeightReco
     ): WeightRecord? {
         val weightInKg = sample.getWeightKg().toDouble()
 
-        if (weightInKg !in 0.0..1000.0 || !weightInKg.isFinite()) {
-            logger.skipOutOfRange(deviceName, "Weight", weightInKg, "0..1000 kg")
+        if (weightInKg <= 0.0 || weightInKg > 1000.0 || !weightInKg.isFinite()) {
+            logger.skipOutOfRange(deviceName, "Weight", weightInKg, ">0..1000 kg")
             return null
         }
 

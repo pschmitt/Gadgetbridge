@@ -27,7 +27,11 @@ public class OppoHeadphonesPreferences {
     public static final String LDAC = "pref_soundcore_ldac_mode";
     public static final String GAME_MODE = "oppo_game_mode";
     public static final String FIND_PHONE = "pref_find_phone";
+
+    public static final String NOISE_CONTROL_HEADER = "oppo_header_noise_control";
     public static final String ANC_SELECTOR = "noise_control_selector";
+    public static final String ANC_LEVEL_SELECTOR = "noise_control_level_selector";
+    public static final String ANC_LEVEL_DYNAMIC = "noise_control_level_dynamic";
     public static final String ANC_TOUCH_CYCLE_MODES = "oppo_touch_anc_cycle_modes";
 
     public static String getTouchKey(final TouchConfigSide side, final TouchConfigType type) {

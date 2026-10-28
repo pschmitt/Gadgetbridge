@@ -164,6 +164,13 @@ class QnScaleDeviceSupport : AbstractBTLESingleDeviceSupport(LOG) {
     }
 
     private fun saveMeasurement(weightKg: Float, resistanceOhm: Int, timestampMillis: Long) {
+        // A stable 0.0 kg frame is the scale's step-off/tare event, not a real reading.
+        // Persisting it shows a 0 kg point in the weight chart and a 0 kg record in
+        // Health Connect that consumers reject ("must be a positive number").
+        if (weightKg <= 0.0f) {
+            LOG.debug("Skipping zero-weight QN-Scale sample (tare/step-off)")
+            return
+        }
         try {
             GBApplication.acquireDB().use { handler ->
                 val session = handler.daoSession

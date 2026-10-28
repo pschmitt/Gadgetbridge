@@ -2,17 +2,10 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- this only shows up when a device is set
-    <com.mobeta.android.dslv.DragSortListPreference
-        android:icon="@drawable/ic_tabs"
-        android:defaultValue="@array/pref_charts_tabs_items_default"
-        android:dialogTitle="@string/prefs_charts_tabs"
-        android:entries="@array/pref_charts_tabs_items"
-        android:entryValues="@array/pref_charts_tabs_values"
-        android:key="charts_tabs"
-        android:persistent="false"
-        android:summary="@string/prefs_charts_tabs_summary"
-        android:title="@string/prefs_charts_tabs" />-->
+    <PreferenceCategory
+        android:key="pref_charts_device"
+        app:iconSpaceReserved="false"
+        app:isPreferenceVisible="false" />
 
     <PreferenceCategory
         android:key="pref_charts"
@@ -37,12 +30,12 @@
             app:iconSpaceReserved="false"
             app:useSimpleSummaryProvider="true" />
 
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:key="chart_heartrate_color"
-            android:layout="@layout/preference_checkbox"
-            android:summaryOff="@string/pref_chart_heartrate_color_orange"
-            android:summaryOn="@string/pref_chart_heartrate_color_red"
+        <ListPreference
+            android:defaultValue="red"
+            android:entries="@array/pref_chart_heartrate_color_entries"
+            android:entryValues="@array/pref_chart_heartrate_color_values"
+            android:key="chart_heartrate_color_mode"
+            android:summary="%s"
             android:title="@string/pref_title_chart_heartrate_color"
             app:iconSpaceReserved="false" />
 
@@ -62,6 +55,15 @@
             android:title="@string/pref_title_chart_sleep_rolling_24_hour"
             app:iconSpaceReserved="false" />
 
+        <ListPreference
+            android:defaultValue="hypnogram"
+            android:entries="@array/pref_chart_sleep_day_chart_entries"
+            android:entryValues="@array/pref_chart_sleep_day_chart_values"
+            android:key="chart_sleep_day_chart"
+            android:summary="%s"
+            android:title="@string/pref_title_chart_sleep_day_chart"
+            app:iconSpaceReserved="false" />
+
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="charts_show_average"
@@ -79,12 +81,12 @@
             android:title="@string/pref_title_chart_weight_body_composition"
             app:iconSpaceReserved="false" />
 
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:key="charts_range"
-            android:layout="@layout/preference_checkbox"
-            android:summaryOff="@string/pref_charts_range_off"
-            android:summaryOn="@string/pref_charts_range_on"
+        <ListPreference
+            android:defaultValue="month"
+            android:entries="@array/pref_charts_range_entries"
+            android:entryValues="@array/pref_charts_range_values"
+            android:key="charts_range_period"
+            android:summary="%s"
             android:title="@string/pref_title_charts_range"
             app:iconSpaceReserved="false" />
 

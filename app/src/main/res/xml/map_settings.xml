@@ -16,7 +16,30 @@
             android:title="@string/pref_title_theme"
             app:useSimpleSummaryProvider="true" />
 
-        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+        <Preference
+            android:icon="@drawable/ic_draft"
+            android:key="maps_theme_custom_file"
+            android:summary="@string/map_theme_custom_file_summary"
+            android:title="@string/map_theme_custom_file_title"
+            app:iconSpaceReserved="false" />
+
+        <ListPreference
+            android:defaultValue="dark_low_contrast"
+            android:entries="@array/maps_themes_names"
+            android:entryValues="@array/maps_themes_values"
+            android:icon="@drawable/ic_dark_mode"
+            android:key="maps_theme_dark"
+            android:title="@string/map_theme_dark_title"
+            app:useSimpleSummaryProvider="true" />
+
+        <Preference
+            android:icon="@drawable/ic_draft"
+            android:key="maps_theme_dark_custom_file"
+            android:summary="@string/map_theme_custom_file_summary"
+            android:title="@string/map_theme_custom_file_title"
+            app:iconSpaceReserved="false" />
+
+        <com.jaredrummler.android.colorpicker.MaterialColorPreferenceCompat
             android:defaultValue="@color/map_track_default"
             android:icon="@drawable/ic_border_color"
             android:key="maps_track_color"

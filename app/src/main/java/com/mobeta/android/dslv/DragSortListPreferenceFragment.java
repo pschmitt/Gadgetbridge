@@ -107,8 +107,8 @@ public class DragSortListPreferenceFragment extends MaterialListPreferenceDialog
 				if (checked != null && checked.equals(true)) {
 					mListView.setItemChecked(i, true);
 				}
+				i++;
 			}
-			i++;
 		}
 	}
 

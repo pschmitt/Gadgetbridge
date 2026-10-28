@@ -1,132 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/list_item_parent_layout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-    <!--
-    android:background="?android:attr/activatedBackgroundIndicator"
-    -->
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/activity_list_summary_dashboard"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/activity_list_goal_card"
+        style="@style/Widget.Material3.CardView.Outlined"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:orientation="vertical">
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        app:cardBackgroundColor="?attr/stat_tile_bg"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:strokeColor="?attr/stat_tile_border"
+        app:strokeWidth="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/activity_dashboard_piechart1"
-                android:layout_width="110dp"
-                android:layout_height="110dp"
-                android:layout_gravity="bottom|center"
-                android:layout_marginBottom="0dp"
-                android:layout_weight="1" />
-
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/activity_dashboard_piechart2"
-                android:layout_width="110dp"
-                android:layout_height="110dp"
-                android:layout_gravity="bottom|center"
-                android:layout_marginBottom="0dp"
-                android:layout_weight="1" />
-
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/activity_dashboard_piechart3"
-                android:layout_width="110dp"
-                android:layout_height="110dp"
-                android:layout_gravity="bottom|center"
-                android:layout_marginBottom="0dp"
-                android:layout_weight="1" />
-            <!--
-                                <com.github.mikephil.charting.charts.PieChart
-                                    android:id="@+id/activity_dashboard_piechart4"
-                                    android:layout_width="90dp"
-                                    android:layout_height="90dp"
-                                    android:layout_gravity="bottom|center"
-                                    android:layout_marginBottom="0dp" />
-                                    -->
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_marginBottom="0dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <View
-                android:layout_width="25dp"
-                android:layout_height="0dp"
-                android:layout_weight="0.5" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <include
-                layout="@layout/layout_widget_heartrate_average"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="bottom|center"
-                android:layout_weight="1" />
+                android:id="@+id/activity_list_goal_active_steps"
+                layout="@layout/activity_list_goal_row" />
 
             <include
-                layout="@layout/layout_widget_intensity_total"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="bottom|center"
-                android:layout_marginTop="0dp"
-                android:layout_marginEnd="0dp"
-                android:layout_weight="1" />
+                android:id="@+id/activity_list_goal_distance"
+                layout="@layout/activity_list_goal_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp" />
 
-            <View
-                android:layout_width="25dp"
-                android:layout_height="0dp"
-                android:layout_weight="0.5" />
+            <include
+                android:id="@+id/activity_list_goal_active_time"
+                layout="@layout/activity_list_goal_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp" />
         </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="0dp"
-            android:layout_marginBottom="10dp"
-            android:baselineAligned="false"
-            android:gravity="bottom|center"
-            android:orientation="horizontal">
-
-            <include layout="@layout/layout_widget_active_steps" />
-
-            <include layout="@layout/layout_widget_distance" />
-
-            <include layout="@layout/layout_widget_duration" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:baselineAligned="false"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <include layout="@layout/layout_widget_total_steps" />
-
-            <include layout="@layout/layout_widget_activities_count" />
-
-            <include layout="@layout/layout_widget_intensity_total2" />
-
-        </LinearLayout>
-    </LinearLayout>
-    <View
-        android:layout_below="@id/activity_list_summary_dashboard"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="?attr/row_separator"
-        />
-</RelativeLayout>
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="16dp"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <include
+            android:id="@+id/activity_list_tile_total_steps"
+            layout="@layout/activity_list_summary_tile"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1" />
+
+        <include
+            android:id="@+id/activity_list_tile_avg_hr"
+            layout="@layout/activity_list_summary_tile"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <include
+            android:id="@+id/activity_list_tile_intensity"
+            layout="@layout/activity_list_summary_tile"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1" />
+
+        <include
+            android:id="@+id/activity_list_tile_activities"
+            layout="@layout/activity_list_summary_tile"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <nodomain.freeyourgadget.gadgetbridge.activities.workouts.SectionHeaderView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        app:sectionTitle="@string/activity_list_summary_activities" />
+
+    <TextView
+        android:id="@+id/activity_list_no_activities"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:text="@string/chart_no_active_data"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="14sp"
+        android:visibility="gone"
+        tools:visibility="visible" />
+</LinearLayout>

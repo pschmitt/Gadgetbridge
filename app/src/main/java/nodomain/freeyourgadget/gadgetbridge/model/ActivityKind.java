@@ -85,13 +85,13 @@ public enum ActivityKind {
     MOUNTAINEERING(0x04000017, R.string.activity_type_mountaineering, R.drawable.ic_activity_climbing),
     MULTISPORT(0x04000019, R.string.activity_type_multisport),
     PADDLING(0x0400001a, R.string.activity_type_paddling, R.drawable.ic_activity_rowing),
-    FLYING(0x0400001b, R.string.activity_type_flying),
+    FLYING(0x0400001b, R.string.activity_type_flying, R.drawable.ic_raven),
     MOTORCYCLING(0x0400001d, R.string.activity_type_motorcycling, R.drawable.ic_activity_motorcycling),
     BOATING(0x0400001e, R.string.activity_type_boating, R.drawable.ic_activity_boating),
     DRIVING(0x0400001f, R.string.activity_type_driving, R.drawable.ic_activity_driving),
     GOLF(0x04000020, R.string.activity_type_golf, R.drawable.ic_activity_golf),
     HANG_GLIDING(0x04000021, R.string.activity_type_hang_gliding, R.drawable.ic_activity_paragliding),
-    HUNTING(0x04000023, R.string.activity_type_hunting),
+    HUNTING(0x04000023, R.string.activity_type_hunting, R.drawable.ic_pest_control_rodent),
     FISHING(0x04000024, R.string.activity_type_fishing, R.drawable.ic_activity_fishing),
     INLINE_SKATING(0x04000025, R.string.activity_type_inline_skating, R.drawable.ic_activity_roller_skating),
     ROCK_CLIMBING(0x04000026, R.string.activity_type_rock_climbing, R.drawable.ic_activity_rock_climbing),
@@ -128,7 +128,7 @@ public enum ActivityKind {
     VIDEO_GAMING(0x04000046, R.string.activity_type_video_gaming, R.drawable.ic_videogame),
     RACKET(0x04000047, R.string.activity_type_racket),
     PICKLEBALL(0x04000048, R.string.activity_type_pickleball),
-    PADEL(0x04000049, R.string.activity_type_padel),
+    PADEL(0x04000049, R.string.activity_type_padel, R.drawable.ic_padel),
     SQUASH(0x0400004a, R.string.activity_type_squash),
     RACQUETBALL(0x0400004b, R.string.activity_type_racquetball),
     PUSH_WALK_SPEED(0x0400004c, R.string.activity_type_push_walk_speed),
@@ -139,15 +139,15 @@ public enum ActivityKind {
     PARA_SPORT(0x04000051, R.string.activity_type_para_sport),
     DISC_GOLF(0x04000052, R.string.activity_type_disc_golf),
     ULTIMATE_DISC(0x04000053, R.string.activity_type_ultimate_disc),
-    TEAM_SPORT(0x04000054, R.string.activity_type_team_sport),
+    TEAM_SPORT(0x04000054, R.string.activity_type_team_sport, R.drawable.ic_groups),
     RUGBY(0x04000055, R.string.activity_type_rugby, R.drawable.ic_activity_rugby),
     HOCKEY(0x04000056, R.string.activity_type_hockey, R.drawable.ic_activity_hockey),
-    LACROSSE(0x04000057, R.string.activity_type_lacrosse),
+    LACROSSE(0x04000057, R.string.activity_type_lacrosse, R.drawable.ic_shoe_cleats),
     VOLLEYBALL(0x04000058, R.string.activity_type_volleyball, R.drawable.ic_activity_volleyball),
     WATER_TUBING(0x04000059, R.string.activity_type_water_tubing, R.drawable.ic_activity_watertubing),
     WAKESURFING(0x0400005a, R.string.activity_type_wakesurfing, R.drawable.ic_activity_wakesurfing),
     MIXED_MARTIAL_ARTS(0x0400005b, R.string.activity_type_mixed_martial_arts, R.drawable.ic_activity_mma), // aka MMA
-    DANCE(0x0400005c, R.string.activity_type_dance),
+    DANCE(0x0400005c, R.string.activity_type_dance, R.drawable.ic_festival),
     MOUNTAIN_HIKE(0x040000e2, R.string.activity_type_mountain_hike, R.drawable.ic_activity_climbing),
     CROSS_TRAINER(0x0400005d, R.string.activity_type_cross_trainer),
     FREE_TRAINING(0x0400005e, R.string.activity_type_free_training, R.drawable.ic_activity_free_training),
@@ -198,7 +198,7 @@ public enum ActivityKind {
     DISC_SPORTS(0x0400008b, R.string.activity_type_disc_sports),
     DARTS(0x0400008c, R.string.activity_type_darts, R.drawable.ic_activity_darts),
     ARCHERY(0x0400008d, R.string.activity_type_archery, R.drawable.ic_activity_archery),
-    HORSE_RIDING(0x0400008e, R.string.activity_type_horse_riding),
+    HORSE_RIDING(0x0400008e, R.string.activity_type_horse_riding, R.drawable.ic_chess_knight),
     KITE_FLYING(0x0400008f, R.string.activity_type_kite_flying),
     SWING(0x04000090, R.string.activity_type_swing),
     STAIRS(0x04000091, R.string.activity_type_stairs, R.drawable.ic_activity_stairs),
@@ -283,7 +283,7 @@ public enum ActivityKind {
     FREE_SPARRING(0x040000e4, R.string.activity_type_free_sparring),
     BODY_COMBAT(0x040000e5, R.string.activity_type_body_combat),
     PLAZA_DANCING(0x040000e6, R.string.activity_type_plaza_dancing),
-    LASER_TAG(0x040000e7, R.string.activity_type_laser_tag),
+    LASER_TAG(0x040000e7, R.string.activity_type_laser_tag, R.drawable.ic_stylus_laser_pointer),
     OBSTACLE_RACE(0x040000e8, R.string.activity_type_obstacle_race, R.drawable.ic_activity_obstacle_race),
     BILLIARD_POOL(0x040000e9, R.string.activity_type_billiard_pool, R.drawable.ic_activity_billiard_pool),
     CANOEING(0x040000ea, R.string.activity_type_canoeing, R.drawable.ic_activity_kayaking),
@@ -312,9 +312,9 @@ public enum ActivityKind {
     BURPEE(0x0400010b, R.string.activity_type_burpee),
     ABS(0x0400010c, R.string.activity_type_abs),
     BACK(0x0400010d, R.string.activity_type_back),
-    STEP_AEROBICS(0x0400010e, R.string.activity_type_step_aerobics),
-    EQUESTRIAN(0x0400010f, R.string.activity_type_equestrian),
-    ATHLETICS(0x04000110, R.string.activity_type_athletics),
+    STEP_AEROBICS(0x0400010e, R.string.activity_type_step_aerobics, R.drawable.ic_steps),
+    EQUESTRIAN(0x0400010f, R.string.activity_type_equestrian, R.drawable.ic_chess_knight),
+    ATHLETICS(0x04000110, R.string.activity_type_athletics, R.drawable.ic_activity_gymnastics),
     FREE_DIVING(0x04000111, R.string.activity_type_free_diving, R.drawable.ic_activity_diving),
     APNEA_TRAINING(0x04000112, R.string.activity_type_apnea_training),
     APNEA_TEST(0x04000113, R.string.activity_type_apnea_test),
@@ -444,6 +444,22 @@ public enum ActivityKind {
             default:
                 return false;
         }
+    }
+
+    /**
+     * Whether the wearer's altitude follows the ground: false on and under water, in the air,
+     * and on stairs or in buildings, where an elevation model says nothing about the activity.
+     */
+    public static boolean followsTerrain(final ActivityKind activityKind) {
+        if (isDiving(activityKind) || isSwimActivity(activityKind) || isNauticalActivity(activityKind) || isRowingActivity(activityKind)) {
+            return false;
+        }
+        return switch (activityKind) {
+            case SURFING, KITESURFING, WAKESURFING, STAND_UP_PADDLEBOARDING, DRAGON_BOAT, SNORKELING,
+                 FLYING, HANG_GLIDING, PARAGLIDING, SKY_DIVING, KITE_FLYING,
+                 FLOOR_CLIMBING, STAIRS, STAIR_STEPPER, STAIR_CLIMBER -> false;
+            default -> true;
+        };
     }
 
     public static boolean isDiving(final ActivityKind activityKind) {

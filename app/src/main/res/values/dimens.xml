@@ -13,9 +13,15 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <dimen name="nav_header_vertical_spacing">16dp</dimen>
     <dimen name="nav_header_height">160dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="quick_control_spacing">8dp</dimen>
     <dimen name="dialog_margin">20dp</dimen>
+    <dimen name="dialog_list_icon_size">24dp</dimen>
     <dimen name="um25_value_text_size">60dp</dimen>
     <dimen name="um25_value_text_size_small">30dp</dimen>
     <!-- Space above and below the gauge or bar chart at the top of a chart tab -->
     <dimen name="chart_section_spacing">15dp</dimen>
+    <dimen name="chart_gauge_bottom_spacing">24dp</dimen>
+    <dimen name="device_icon_tile_size">48dp</dimen>
+    <dimen name="device_icon_tile_inset">2dp</dimen>
+    <dimen name="dashboard_grid_spacing">6dp</dimen>
 </resources>

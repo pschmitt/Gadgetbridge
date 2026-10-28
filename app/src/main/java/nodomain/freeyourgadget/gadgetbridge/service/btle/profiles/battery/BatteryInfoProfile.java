@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.util.UUID;
 
 import nodomain.freeyourgadget.gadgetbridge.service.btle.AbstractBTLESingleDeviceSupport;
+import nodomain.freeyourgadget.gadgetbridge.service.btle.BleNamesResolver;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.GattCharacteristic;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.GattService;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.TransactionBuilder;
@@ -40,9 +41,9 @@ public class BatteryInfoProfile<T extends AbstractBTLESingleDeviceSupport> exten
     public static final String ACTION_BATTERY_INFO = ACTION_PREFIX + "BATTERY_INFO";
     public static final String EXTRA_BATTERY_INFO = "BATTERY_INFO";
 
-    public static final UUID SERVICE_UUID = GattService.UUID_SERVICE_BATTERY_SERVICE;
+    public static final UUID SERVICE_UUID = GattService.SERVICE_BATTERY.uuid;
 
-    public static final UUID UUID_CHARACTERISTIC_BATTERY_LEVEL = GattCharacteristic.UUID_CHARACTERISTIC_BATTERY_LEVEL;
+    public static final UUID UUID_CHARACTERISTIC_BATTERY_LEVEL = GattCharacteristic.CHARACTERISTIC_BATTERY_LEVEL.uuid;
     private final BatteryInfo batteryInfo = new BatteryInfo();
 
     public BatteryInfoProfile(T support) {
@@ -66,7 +67,7 @@ public class BatteryInfoProfile<T extends AbstractBTLESingleDeviceSupport> exten
                 handleBatteryLevel(gatt, characteristic, value);
                 return true;
             } else {
-                LOG.warn("error reading characteristic: {}", GattCharacteristic.toString(characteristic));
+                LOG.warn("error reading characteristic: {}", BleNamesResolver.toString(characteristic));
                 return false;
             }
         }

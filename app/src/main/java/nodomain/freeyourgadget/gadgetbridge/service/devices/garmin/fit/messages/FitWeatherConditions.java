@@ -70,7 +70,7 @@ public class FitWeatherConditions extends AbstractFitWeatherConditions {
             // WeatherSpec: 0-15
             // FIT: 0-10
             if (0.0f <= uvIndex) {
-                // clamp, don't scale, to keep in line with direct web retriveal
+                // clamp, don't scale, to keep in line with direct web retrieval
                 // >=10 is extreme UV exposure in both scales
                 if (uvIndex > 10.0f) {
                     uvIndex = 10.0f;
@@ -83,11 +83,11 @@ public class FitWeatherConditions extends AbstractFitWeatherConditions {
 
         public void weatherWindSpeed(final float kilometerPerHour) {
             // WeatherSpec: kilometer per hour
-            // FIT: millimeter per second
+            // FIT: meter per second
             if (kilometerPerHour >= 0.0f) {
-                int speed = Math.round(kilometerPerHour / 3.6f * 1000.0f);
-                if (speed >= 0xFFFF) {
-                    speed = 0xFFFE;
+                float speed = kilometerPerHour / 3600.0f * 1000.0f;
+                if (speed >= 65.53f) {
+                    speed = 65.53f;
                 }
                 setWindSpeed(speed);
             } else {
@@ -96,7 +96,7 @@ public class FitWeatherConditions extends AbstractFitWeatherConditions {
         }
 
         public void weatherTemperature(final int kelvin) {
-            // #4313 - We do a "wrong" conversion to celsius on purpose
+            // #4313 - We do a "wrong" conversion to Celsius on purpose
             if (kelvin > 0) {
                 setTemperature(kelvin - 273);
             } else {
@@ -105,7 +105,7 @@ public class FitWeatherConditions extends AbstractFitWeatherConditions {
         }
 
         public void weatherTemperatureFeelsLike(final int kelvin) {
-            // #4313 - We do a "wrong" conversion to celsius on purpose
+            // #4313 - We do a "wrong" conversion to Celsius on purpose
             if (kelvin > 0) {
                 setTemperatureFeelsLike(kelvin - 273);
             } else {
@@ -114,7 +114,7 @@ public class FitWeatherConditions extends AbstractFitWeatherConditions {
         }
 
         public void weatherHighTemperature(final int kelvin) {
-            // #4313 - We do a "wrong" conversion to celsius on purpose
+            // #4313 - We do a "wrong" conversion to Celsius on purpose
             if (kelvin > 0) {
                 setHighTemperature(kelvin - 273);
             } else {
@@ -123,7 +123,7 @@ public class FitWeatherConditions extends AbstractFitWeatherConditions {
         }
 
         public void weatherLowTemperature(final int kelvin) {
-            // #4313 - We do a "wrong" conversion to celsius on purpose
+            // #4313 - We do a "wrong" conversion to Celsius on purpose
             if (kelvin > 0) {
                 setLowTemperature(kelvin - 273);
             } else {
@@ -132,7 +132,7 @@ public class FitWeatherConditions extends AbstractFitWeatherConditions {
         }
 
         public void weatherDewPoint(final int kelvin) {
-            // #4313 - We do a "wrong" conversion to celsius on purpose
+            // #4313 - We do a "wrong" conversion to Celsius on purpose
             if (kelvin > 0) {
                 setDewPoint(kelvin - 273);
             } else {

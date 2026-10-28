@@ -31,6 +31,7 @@ public final class LoyaltyCardsSettingsConst {
     public static final String LOYALTY_CARDS_INSTALL_FOSSWALLET = "loyalty_cards_install_fosswallet";
     public static final String LOYALTY_CARDS_CATIMA_PERMISSIONS = "loyalty_cards_catima_permissions";
     public static final String LOYALTY_CARDS_SYNC = "loyalty_cards_sync";
+    public static final String LOYALTY_CARDS_SYNC_WATCH_REQUEST = "loyalty_cards_sync_watch_request";
     public static final String LOYALTY_CARDS_SYNC_GROUPS_ONLY = "loyalty_cards_sync_groups_only";
     public static final String LOYALTY_CARDS_SYNC_GROUPS = "loyalty_cards_sync_groups";
     public static final String LOYALTY_CARDS_SYNC_ARCHIVED = "loyalty_cards_sync_archived";

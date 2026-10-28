@@ -79,6 +79,9 @@ public class ZeppOsWifiService extends AbstractZeppOsService {
                         break;
                     default:
                         stateStr = "Unknown (" + stateHex + ")";
+                        if (mCallback != null) {
+                            mCallback.onWifiHotspotError(payload[1]);
+                        }
                         break;
                 }
 
@@ -168,12 +171,14 @@ public class ZeppOsWifiService extends AbstractZeppOsService {
     public void stopWifiHotspot() {
         LOG.info("Stopping Wi-Fi hotspot");
 
-        write("start wifi hotspot", WIFI_CMD_HOTSPOT_STOP);
+        write("stop wifi hotspot", WIFI_CMD_HOTSPOT_STOP);
     }
 
     public interface Callback {
         void onWifiHotspotStart();
 
         void onWifiHotspotStop();
+
+        void onWifiHotspotError(final int errorNumber);
     }
 }

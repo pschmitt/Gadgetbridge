@@ -30,6 +30,8 @@ import java.util.Date;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationAppRepository;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationAppRules;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationType;
 import nodomain.freeyourgadget.gadgetbridge.util.NotificationUtils;
@@ -82,16 +84,10 @@ public class AlarmClockReceiver extends BroadcastReceiver {
             return;
         }
 
-        if (GBApplication.getPrefs().getString("notification_list_is_blacklist", "true").equals("true")) {
-            if (GBApplication.appIsNotifBlacklisted(packageName)) {
-                LOG.info("Ignoring alarm action, application is blacklisted");
-                return;
-            }
-        } else {
-            if (!GBApplication.appIsNotifBlacklisted(packageName)) {
-                LOG.info("Ignoring alarm action, application is not whitelisted");
-                return;
-            }
+        final NotificationAppRepository repository = NotificationAppRepository.INSTANCE;
+        if (!NotificationAppRules.INSTANCE.shouldSend(repository.get(packageName), repository.getDefaultAction())) {
+            LOG.info("Ignoring alarm action, application is not allowed to send notifications");
+            return;
         }
 
         if (ALARM_ALERT_ACTION.equals(action) || GOOGLE_CLOCK_ALARM_ALERT_ACTION.equals(action)) {

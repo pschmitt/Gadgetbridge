@@ -17,18 +17,18 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.charts;
 
 import com.github.mikephil.charting.data.ChartData;
-import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 
 public class DefaultChartsData<T extends ChartData<?>> extends ChartsData {
     private final T data;
-    private final ValueFormatter xValueFormatter;
+    private final IAxisValueFormatter xValueFormatter;
 
-    public DefaultChartsData(final T data, final ValueFormatter xValueFormatter) {
+    public DefaultChartsData(final T data, final IAxisValueFormatter xValueFormatter) {
         this.xValueFormatter = xValueFormatter;
         this.data = data;
     }
 
-    public ValueFormatter getXValueFormatter() {
+    public IAxisValueFormatter getXValueFormatter() {
         return xValueFormatter;
     }
 

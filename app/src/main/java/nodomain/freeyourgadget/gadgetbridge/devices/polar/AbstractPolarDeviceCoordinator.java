@@ -18,17 +18,10 @@ package nodomain.freeyourgadget.gadgetbridge.devices.polar;
 
 import androidx.annotation.NonNull;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.Property;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
-import nodomain.freeyourgadget.gadgetbridge.entities.HeartRrIntervalSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.PolarH10ActivitySampleDao;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport;
@@ -69,14 +62,6 @@ public abstract class AbstractPolarDeviceCoordinator extends AbstractBLEDeviceCo
     @Override
     public SampleProvider<? extends ActivitySample> getSampleProvider(GBDevice device, DaoSession session) {
         return new PolarH10ActivitySampleProvider(device, session);
-    }
-
-    @Override
-    public Map<AbstractDao<?, ?>, Property> getAllDeviceDao(@NonNull final DaoSession session) {
-        Map<AbstractDao<?, ?>, Property> map = new HashMap<>(1);
-        map.put(session.getPolarH10ActivitySampleDao(), PolarH10ActivitySampleDao.Properties.DeviceId);
-        map.put(session.getHeartRrIntervalSampleDao(), HeartRrIntervalSampleDao.Properties.DeviceId);
-        return map;
     }
 
     @Override

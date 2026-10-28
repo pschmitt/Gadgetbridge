@@ -174,6 +174,12 @@ class Ls24xDeviceCoordinator : AbstractBLEDeviceCoordinator() {
         return DeviceCoordinator.DeviceKind.HEAD_MOUNTED
     }
 
+    override fun supportsAppNotifications(device: GBDevice): Boolean = true
+
+    override fun supportsPhoneCalls(device: GBDevice): Boolean = true
+
+    override fun supportsCallControl(device: GBDevice): Boolean = true
+
     companion object {
         private fun fmPresetEntries(device: GBDevice): List<ListEntry> {
             val prefs = GBApplication.getDeviceSpecificSharedPrefs(device.address)

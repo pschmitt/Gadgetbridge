@@ -64,9 +64,9 @@ public class WelcomeFragmentIntro extends Fragment {
             handler.postDelayed(() -> {
                 // Delay recreation of the Activity to give the dropdown some time to settle.
                 // If we recreate it immediately, the theme popup will reopen, which is not what the user expects.
-                Intent intent = new Intent();
+                final Intent intent = new Intent();
                 intent.setAction(GBApplication.ACTION_THEME_CHANGE);
-                LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent);
+                LocalBroadcastManager.getInstance(GBApplication.getContext()).sendBroadcast(intent);
             }, 500);
         });
         return view;

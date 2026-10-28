@@ -819,10 +819,10 @@ public class Ak102DeviceSupport extends AbstractBTLESingleDeviceSupport {
     public void onNotification(final NotificationSpec notificationSpec) {
         final String name = StringUtils.getFirstOf(notificationSpec.getSender(), notificationSpec.getTitle());
         final StringBuilder content = new StringBuilder();
-        if (!StringUtils.isEmpty(notificationSpec.getTitle()) && !notificationSpec.getTitle().equals(name)) {
+        if (!StringUtils.isNullOrEmpty(notificationSpec.getTitle()) && !notificationSpec.getTitle().equals(name)) {
             content.append(notificationSpec.getTitle()).append(": ");
         }
-        if (!StringUtils.isEmpty(notificationSpec.getBody())) {
+        if (!StringUtils.isNullOrEmpty(notificationSpec.getBody())) {
             content.append(notificationSpec.getBody());
         } else if (!StringUtils.isEmpty(notificationSpec.getSubject())) {
             content.append(notificationSpec.getSubject());

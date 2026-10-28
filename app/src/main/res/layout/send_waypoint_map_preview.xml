@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:layout_marginBottom="@dimen/activity_vertical_margin">
+
+    <org.mapsforge.map.android.view.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/missingMapsWarning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:background="?android:attr/colorBackground"
+        android:paddingHorizontal="@dimen/activity_horizontal_margin"
+        android:paddingVertical="4dp"
+        android:text="@string/maps_not_found"
+        android:textColor="?android:attr/textColorSecondary"
+        android:visibility="gone" />
+
+</FrameLayout>

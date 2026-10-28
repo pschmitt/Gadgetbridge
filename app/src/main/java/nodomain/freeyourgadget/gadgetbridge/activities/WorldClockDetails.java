@@ -16,64 +16,71 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities;
 
-import android.content.DialogInterface;
+import android.app.Activity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.TimeZone;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.adapter.TimeZonePickerAdapter;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
+import nodomain.freeyourgadget.gadgetbridge.databinding.ActivityWorldClockDetailsBinding;
+import nodomain.freeyourgadget.gadgetbridge.databinding.DialogTimezonePickerBinding;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.entities.WorldClock;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
+import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
 
 public class WorldClockDetails extends AbstractGBActivity {
+    private static final Logger LOG = LoggerFactory.getLogger(WorldClockDetails.class);
+
+    public static final String EXTRA_NEW = "world_clock_new";
+
+    private ActivityWorldClockDetailsBinding binding;
+
     private WorldClock worldClock;
     private GBDevice device;
-
-    ArrayAdapter<String> timezoneAdapter;
-
-    TextView worldClockTimezone;
-    EditText worldClockLabel;
-    EditText worldClockCode;
-    View worldClockEnabledCard;
-    CheckBox worldClockEnabled;
+    private boolean isNew;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_world_clock_details);
+        binding = ActivityWorldClockDetailsBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        worldClock = (WorldClock) getIntent().getSerializableExtra(WorldClock.EXTRA_WORLD_CLOCK);
-
+        if (savedInstanceState != null) {
+            worldClock = (WorldClock) savedInstanceState.getSerializable(WorldClock.EXTRA_WORLD_CLOCK);
+        } else {
+            worldClock = (WorldClock) getIntent().getSerializableExtra(WorldClock.EXTRA_WORLD_CLOCK);
+        }
         if (worldClock == null) {
             GB.toast("No worldClock provided to WorldClockDetails Activity", Toast.LENGTH_LONG, GB.ERROR);
             finish();
             return;
         }
-
-        worldClockEnabledCard = findViewById(R.id.card_enabled);
-        worldClockEnabled = findViewById(R.id.world_clock_enabled);
-        worldClockTimezone = findViewById(R.id.world_clock_timezone);
-        worldClockLabel = findViewById(R.id.world_clock_label);
-        worldClockCode = findViewById(R.id.world_clock_code);
 
         device = getIntent().getParcelableExtra(GBDevice.EXTRA_DEVICE);
         if (device == null) {
@@ -82,76 +89,48 @@ public class WorldClockDetails extends AbstractGBActivity {
             return;
         }
 
+        isNew = getIntent().getBooleanExtra(EXTRA_NEW, false);
+
         final DeviceCoordinator coordinator = device.getDeviceCoordinator();
 
-        final String[] timezoneIDs = TimeZone.getAvailableIDs();
-        timezoneAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, timezoneIDs);
+        binding.cardTimezone.setOnClickListener(v -> showTimeZonePicker());
 
-        final View cardTimezone = findViewById(R.id.card_timezone);
-        cardTimezone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new MaterialAlertDialogBuilder(WorldClockDetails.this).setAdapter(timezoneAdapter, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        worldClock.setTimeZoneId(timezoneIDs[i]);
-                        updateUiFromWorldClock();
-                    }
-                }).create().show();
-            }
+        binding.cardOptions.setVisibility(coordinator.supportsDisabledWorldClocks(device) ? View.VISIBLE : View.GONE);
+
+        final int maxLabelLength = coordinator.getWorldClocksLabelLength();
+        binding.worldClockLabel.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLabelLength)});
+        binding.worldClockLabelLayout.setCounterMaxLength(maxLabelLength);
+
+        binding.worldClockEnabled.setChecked(worldClock.getEnabled() == null || worldClock.getEnabled());
+        binding.worldClockLabel.setText(worldClock.getLabel());
+        binding.worldClockCode.setText(worldClock.getCode());
+        updateTimeZoneText();
+
+        binding.fabSave.setVisibility(isNew ? View.VISIBLE : View.GONE);
+        binding.fabSave.setOnClickListener(v -> {
+            storeWorldClock();
+            setResult(Activity.RESULT_OK);
+            finish();
         });
 
-        if (coordinator.supportsDisabledWorldClocks(device)) {
-            worldClockEnabled.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                worldClock.setEnabled(isChecked);
-            });
-        } else {
-            worldClockEnabledCard.setVisibility(View.GONE);
-        }
-
-        worldClockLabel.setFilters(new InputFilter[]{new InputFilter.LengthFilter(coordinator.getWorldClocksLabelLength())});
-        worldClockLabel.addTextChangedListener(new TextWatcher() {
+        // Added after the initial values are set, so that only the changes of the user call it
+        final TextWatcher changeWatcher = new TextWatcher() {
             @Override
-            public void beforeTextChanged(final CharSequence s, int start, int count, int after) {
+            public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
             }
 
             @Override
-            public void onTextChanged(final CharSequence s, int start, int before, int count) {
+            public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
             }
 
             @Override
             public void afterTextChanged(final Editable s) {
-                worldClock.setLabel(s.toString());
+                onWorldClockChanged();
             }
-        });
-
-        worldClockCode.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
-        worldClockCode.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(final CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(final CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(final Editable s) {
-                worldClock.setCode(s.toString());
-            }
-        });
-
-        final FloatingActionButton fab = findViewById(R.id.fab_save);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateWorldClock();
-                WorldClockDetails.this.setResult(1);
-                finish();
-            }
-        });
-
-        updateUiFromWorldClock();
+        };
+        binding.worldClockLabel.addTextChangedListener(changeWatcher);
+        binding.worldClockCode.addTextChangedListener(changeWatcher);
+        binding.worldClockEnabled.setOnCheckedChangeListener((buttonView, isChecked) -> onWorldClockChanged());
     }
 
     @Override
@@ -159,62 +138,133 @@ public class WorldClockDetails extends AbstractGBActivity {
         final int itemId = item.getItemId();
         if (itemId == android.R.id.home) {
             // back button
-            // TODO confirm when exiting without saving
             finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateWorldClock() {
-        DBHelper.store(worldClock);
+    @Override
+    protected void onPause() {
+        if (worldClock != null && device != null && !isNew) {
+            storeWorldClock();
+        }
+        super.onPause();
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull final Bundle state) {
         super.onSaveInstanceState(state);
-        state.putSerializable("worldClock", worldClock);
+        updateWorldClockFromUi();
+        state.putSerializable(WorldClock.EXTRA_WORLD_CLOCK, worldClock);
     }
 
-    @Override
-    protected void onRestoreInstanceState(@NonNull final Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        worldClock = (WorldClock) savedInstanceState.getSerializable("worldClock");
-        updateUiFromWorldClock();
+    private void storeWorldClock() {
+        updateWorldClockFromUi();
+        LOG.debug("Storing world clock {}", worldClock.getWorldClockId());
+        DBHelper.store(worldClock);
     }
 
-    public void updateUiFromWorldClock() {
-        final DeviceCoordinator coordinator = device.getDeviceCoordinator();
-        final int maxLabelLength = coordinator.getWorldClocksLabelLength();
+    private void onWorldClockChanged() {
+        if (!isNew) {
+            setResult(Activity.RESULT_OK);
+        }
+    }
 
-        worldClockEnabled.setChecked(worldClock.getEnabled() == null || worldClock.getEnabled());
+    private void updateWorldClockFromUi() {
+        if (device.getDeviceCoordinator().supportsDisabledWorldClocks(device)) {
+            worldClock.setEnabled(binding.worldClockEnabled.isChecked());
+        }
+        worldClock.setLabel(Objects.requireNonNull(binding.worldClockLabel.getText()).toString());
+        worldClock.setCode(Objects.requireNonNull(binding.worldClockCode.getText()).toString());
+    }
 
-        final String oldTimezone = worldClockTimezone.getText().toString();
+    private void updateTimeZoneText() {
+        final TimeZone timeZone = TimeZone.getTimeZone(worldClock.getTimeZoneId());
+        final Date now = new Date();
+        final DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(this);
+        timeFormat.setTimeZone(timeZone);
 
-        worldClockTimezone.setText(worldClock.getTimeZoneId());
+        binding.worldClockCurrentTime.setText(timeFormat.format(now));
+        binding.worldClockTimezone.setText(worldClock.getTimeZoneId());
+        binding.worldClockTimezoneOffset.setText(getString(
+            R.string.activity_list_row_stats_pair,
+            DateTimeUtils.formatUtcOffset(timeZone, now.getTime()),
+            timeZone.getDisplayName(timeZone.inDaylightTime(now), TimeZone.LONG, Locale.getDefault())
+        ));
+    }
+
+    private void setTimeZone(final String timeZoneId) {
+        final String oldTimeZoneId = worldClock.getTimeZoneId();
+        if (oldTimeZoneId.equals(timeZoneId)) {
+            return;
+        }
+
+        updateWorldClockFromUi();
+        worldClock.setTimeZoneId(timeZoneId);
 
         // Check if the label was still the default (the timezone city name)
         // If so, and if the user changed the timezone, update the label to match the new city name
-        if (!StringUtils.isNullOrEmpty(oldTimezone) && !oldTimezone.equals(worldClock.getTimeZoneId())) {
-            final String[] oldTimezoneParts = oldTimezone.split("/");
-            final String[] newTimezoneParts = worldClock.getTimeZoneId().split("/");
-            final String newLabel = StringUtils.truncate(newTimezoneParts[newTimezoneParts.length - 1], maxLabelLength);
-            final String oldLabel = StringUtils.truncate(oldTimezoneParts[oldTimezoneParts.length - 1], maxLabelLength);
-            final String userLabel = worldClockLabel.getText().toString();
-            if (StringUtils.isNullOrEmpty(userLabel) || userLabel.equals(oldLabel)) {
-                // The label was still the original, so let's override it with the new city
-                worldClock.setLabel(newLabel);
-            }
-            final String newCode = StringUtils.truncate(newLabel, 3).toUpperCase();
-            final String oldCode = StringUtils.truncate(oldLabel, 3).toUpperCase();
-            final String userCode = worldClockCode.getText().toString();
-            if (StringUtils.isNullOrEmpty(userCode) || userCode.equals(oldCode)) {
-                // The code was still the original, so let's override it with the new one
-                worldClock.setCode(newCode);
-            }
+        final int maxLabelLength = device.getDeviceCoordinator().getWorldClocksLabelLength();
+        final String[] oldTimeZoneParts = oldTimeZoneId.split("/");
+        final String[] newTimeZoneParts = timeZoneId.split("/");
+        final String oldLabel = StringUtils.truncate(oldTimeZoneParts[oldTimeZoneParts.length - 1], maxLabelLength);
+        final String newLabel = StringUtils.truncate(newTimeZoneParts[newTimeZoneParts.length - 1], maxLabelLength);
+        if (StringUtils.isNullOrEmpty(worldClock.getLabel()) || worldClock.getLabel().equals(oldLabel)) {
+            binding.worldClockLabel.setText(newLabel);
+        }
+        final String oldCode = StringUtils.truncate(oldLabel, 3).toUpperCase(Locale.getDefault());
+        final String newCode = StringUtils.truncate(newLabel, 3).toUpperCase(Locale.getDefault());
+        if (StringUtils.isNullOrEmpty(worldClock.getCode()) || worldClock.getCode().equals(oldCode)) {
+            binding.worldClockCode.setText(newCode);
         }
 
-        worldClockLabel.setText(worldClock.getLabel());
-        worldClockCode.setText(worldClock.getCode());
+        updateTimeZoneText();
+        onWorldClockChanged();
+    }
+
+    private void showTimeZonePicker() {
+        final DialogTimezonePickerBinding pickerBinding = DialogTimezonePickerBinding.inflate(getLayoutInflater());
+        final AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.world_clock_timezone)
+            .setView(pickerBinding.getRoot())
+            .setNegativeButton(android.R.string.cancel, null)
+            .create();
+
+        final TimeZonePickerAdapter adapter = new TimeZonePickerAdapter(worldClock.getTimeZoneId(), timeZoneId -> {
+            setTimeZone(timeZoneId);
+            dialog.dismiss();
+        });
+        pickerBinding.timezoneList.setLayoutManager(new LinearLayoutManager(this));
+        pickerBinding.timezoneList.setAdapter(adapter);
+
+        new Thread(() -> {
+            final List<TimeZonePickerAdapter.Entry> entries = TimeZonePickerAdapter.buildEntries();
+            runOnUiThread(() -> {
+                adapter.setEntries(entries);
+                final int selectedPosition = adapter.getSelectedPosition();
+                if (selectedPosition != RecyclerView.NO_POSITION) {
+                    pickerBinding.timezoneList.scrollToPosition(selectedPosition);
+                }
+            });
+        }, "TimeZonePickerLoader").start();
+
+        pickerBinding.timezoneSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
+            }
+
+            @Override
+            public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+            }
+
+            @Override
+            public void afterTextChanged(final Editable s) {
+                adapter.filter(s.toString());
+                pickerBinding.timezoneList.scrollToPosition(0);
+            }
+        });
+
+        dialog.show();
     }
 }

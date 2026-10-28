@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,12 +25,16 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.GaugeDrawer;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
+import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileData;
+import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileGridUtilKt;
 import nodomain.freeyourgadget.gadgetbridge.database.DBAccess;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.devices.HydrationSampleProvider;
@@ -45,8 +50,7 @@ public class HydrationDailyFragment extends HydrationFragment<HydrationDailyFrag
 
     private ImageView hydrationGauge;
     private TextView dateView;
-    private TextView hydrationTotal;
-    private TextView hydrationGoal;
+    private LinearLayout hydrationStatsContainer;
     private Button addIncrementButton;
     private Button addButton;
     private Button removeIncrementButton;
@@ -62,8 +66,7 @@ public class HydrationDailyFragment extends HydrationFragment<HydrationDailyFrag
 
         hydrationGauge = rootView.findViewById(R.id.hydration_gauge);
         dateView = rootView.findViewById(R.id.date_view);
-        hydrationTotal = rootView.findViewById(R.id.hydration_total);
-        hydrationGoal = rootView.findViewById(R.id.hydration_goal);
+        hydrationStatsContainer = rootView.findViewById(R.id.hydration_stats_container);
         addIncrementButton = rootView.findViewById(R.id.hydration_add_increment);
         addButton = rootView.findViewById(R.id.hydration_add);
         removeIncrementButton = rootView.findViewById(R.id.hydration_remove_increment);
@@ -98,8 +101,12 @@ public class HydrationDailyFragment extends HydrationFragment<HydrationDailyFrag
         final HydrationUnit unit = data.unit;
 
         dateView.setText(data.date.format(DateTimeFormatter.ofPattern("E, MMM dd", Locale.getDefault())));
-        hydrationTotal.setText(unit.format(context, data.totalMl));
-        hydrationGoal.setText(unit.format(context, data.goalMl));
+        final List<StatTileData> stats = Arrays.asList(
+                new StatTileData(unit.format(context, data.totalMl), getString(R.string.hydration_total)),
+                new StatTileData(unit.format(context, data.goalMl), getString(R.string.hydration_goal))
+        );
+        hydrationStatsContainer.removeAllViews();
+        StatTileGridUtilKt.addStatTileGrid(hydrationStatsContainer, context, stats, 0);
 
         final int width = (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
@@ -199,6 +206,7 @@ public class HydrationDailyFragment extends HydrationFragment<HydrationDailyFrag
             super.onPostExecute(o);
             if (getTaskError() == null) {
                 LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent(ChartsHost.REFRESH));
+                GB.signalActivityDataFinish(device);
                 if (day == HydrationSampleProvider.toDay(LocalDate.now()) && device.isInitialized()) {
                     GBApplication.deviceService(device).onSendConfiguration(DeviceSettingsPreferenceConst.PREF_HYDRATION_SEND_TODAY);
                 }

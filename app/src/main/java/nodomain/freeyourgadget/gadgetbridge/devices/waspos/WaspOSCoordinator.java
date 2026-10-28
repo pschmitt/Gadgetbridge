@@ -68,6 +68,31 @@ public class WaspOSCoordinator extends AbstractBLEDeviceCoordinator {
     }
 
     @Override
+    public boolean supportsAppNotifications(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsPhoneCalls(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsCallControl(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsMusicInfo(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsWeather(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
     public SampleProvider<? extends ActivitySample> getSampleProvider(GBDevice device, DaoSession session) {
         return null;//new WaspOSSampleProvider(device, session);
     }

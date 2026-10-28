@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.xiaomi.watches;
 
+import android.util.Size;
+
 import androidx.annotation.NonNull;
 
 import java.util.regex.Pattern;
@@ -47,11 +49,6 @@ public class MiBand10Coordinator extends XiaomiCoordinator {
     }
 
     @Override
-    public boolean isExperimental() {
-        return true;
-    }
-
-    @Override
     public DeviceCoordinator.DeviceKind getDeviceKind(@NonNull GBDevice device) {
         return DeviceCoordinator.DeviceKind.FITNESS_BAND;
     }
@@ -80,4 +77,13 @@ public class MiBand10Coordinator extends XiaomiCoordinator {
         return getVibrationPresetNameRes(id) != 0;
     }
 
+    @Override
+    public boolean supportsNavigation(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public Size getScreenSize() {
+        return new Size(212, 520);
+    }
 }

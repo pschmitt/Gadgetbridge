@@ -10,7 +10,12 @@ public class UnhandledMessage extends GFDIMessage {
         this.messageType = messageType;
 
         this.statusMessage = new GenericStatusMessage(messageType, Status.UNSUPPORTED);
+    }
 
+    public UnhandledMessage(GarminMessage garminMessage) {
+        this.messageType = garminMessage.getId();
+        this.garminMessage = garminMessage;
+        this.statusMessage = new GenericStatusMessage(garminMessage, Status.UNSUPPORTED, false);
     }
 
     @Override

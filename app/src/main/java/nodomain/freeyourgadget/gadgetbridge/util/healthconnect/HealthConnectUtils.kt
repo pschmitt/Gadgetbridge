@@ -19,6 +19,7 @@ package nodomain.freeyourgadget.gadgetbridge.util.healthconnect
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.edit
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.records.*
@@ -41,8 +42,10 @@ import nodomain.freeyourgadget.gadgetbridge.entities.HealthConnectSleepSession
 import nodomain.freeyourgadget.gadgetbridge.entities.HealthConnectSleepSessionDao
 import nodomain.freeyourgadget.gadgetbridge.entities.HealthConnectSyncState
 import nodomain.freeyourgadget.gadgetbridge.entities.HealthConnectSyncStateDao
+import nodomain.freeyourgadget.gadgetbridge.entities.HealthConnectWorkoutSyncFailureDao
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample
+import nodomain.freeyourgadget.gadgetbridge.model.SleepSession
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs
 import nodomain.freeyourgadget.gadgetbridge.util.healthconnect.HealthConnectPermissionManager.PREF_KEY_LAST_GRANTED_HC_PERMISSIONS
 import nodomain.freeyourgadget.gadgetbridge.util.healthconnect.syncers.*
@@ -380,28 +383,26 @@ class HealthConnectUtils {
                     } else {
                         currentSliceEndTs
                     }
-                    val baseQueryStartTs = currentSliceStartTs.minusSeconds(lookBackInSeconds)
-                    // For SLEEP, extend the fetch back to cover any stored night that began before the
-                    // plain look-back window, so SleepAnalysis re-derives its full stage list instead
-                    // of a clipped tail (issue #6453). Clamped to one extra look-back.
-                    val queryStartTs = if (isSleep) {
-                        SleepSyncer.sleepQueryStart(
-                            rows = sleepRows,
-                            baseStart = baseQueryStartTs,
-                            end = queryEndTs,
-                            floor = baseQueryStartTs.minusSeconds(lookBackInSeconds)
-                        )
-                    } else {
-                        baseQueryStartTs
-                    }
+                    val queryStartTs = currentSliceStartTs.minusSeconds(lookBackInSeconds)
                     LOG.info("$HC_SYNC_TAG Querying Gadgetbridge DB for {}({}) from {} to {}", gbDevice.aliasOrName, dataType.name, queryStartTs, queryEndTs)
 
                     // Fetch activityBasedSamples under their own lock if needed for the current dataType
                     val activityBasedSamples: List<ActivitySample>? =
-                        if (dataType == HealthConnectPermissionManager.HealthConnectDataType.ACTIVITY ||
-                            dataType == HealthConnectPermissionManager.HealthConnectDataType.SLEEP) {
+                        if (dataType == HealthConnectPermissionManager.HealthConnectDataType.ACTIVITY) {
                             GBApplication.acquireDbReadOnly().use { db ->
                                 getActivitySamples(db, gbDevice, queryStartTs.epochSecond.toInt(), queryEndTs.epochSecond.toInt())
+                            }
+                        } else {
+                            null
+                        }
+
+                    // Sleep sessions are fetched whole (padded, re-derived from scratch every slice)
+                    // by the sleep session provider itself, so there is no clipped-tail risk here
+                    // (issue #6453) - no extra fetch-window widening needed.
+                    val sleepSessionsForSlice: List<SleepSession>? =
+                        if (isSleep) {
+                            GBApplication.acquireDbReadOnly().use { db ->
+                                getSleepSessions(db, gbDevice, queryStartTs.epochSecond.toInt(), queryEndTs.epochSecond.toInt())
                             }
                         } else {
                             null
@@ -410,12 +411,12 @@ class HealthConnectUtils {
                     try {
                         val sliceStats: List<SyncerStatistics>
                         if (isSleep) {
-                            if (activityBasedSamples.isNullOrEmpty()) {
+                            if (sleepSessionsForSlice.isNullOrEmpty()) {
                                 sliceStats = emptyList()
                             } else {
                                 val result = SleepSyncer.sync(
                                     healthConnectClient, gbDevice, metadata, zoneId,
-                                    grantedPermissions, activityBasedSamples, context,
+                                    grantedPermissions, sleepSessionsForSlice, context,
                                     sleepRows
                                 )
                                 sleepRows = result.rows
@@ -572,10 +573,18 @@ class HealthConnectUtils {
                     )
                     .buildDelete()
                     .executeDeleteWithoutDetachingEntities()
+                if (dataType == HealthConnectPermissionManager.HealthConnectDataType.WORKOUTS) {
+                    db.daoSession.healthConnectWorkoutSyncFailureDao.queryBuilder()
+                        .where(HealthConnectWorkoutSyncFailureDao.Properties.DeviceId.eq(deviceFromDb.id))
+                        .buildDelete()
+                        .executeDeleteWithoutDetachingEntities()
+                }
             }
+            HealthConnectWorkoutSync.notifyStateChanged(GBApplication.getContext())
         }
 
-        private fun getSyncTimestampRange(
+        @VisibleForTesting
+        internal fun getSyncTimestampRange(
             context: Context,
             gbDevice: GBDevice,
             deviceCoordinator: DeviceCoordinator,
@@ -638,7 +647,9 @@ class HealthConnectUtils {
             val firstTs = getFirstSampleTimestamp(deviceCoordinator, gbDevice, db, dataType)
             if (firstTs != null) {
                 CompanionLogger.info("$HC_SYNC_TAG Using first sample timestamp for {}({}): {}", gbDevice.aliasOrName, dataType.name, firstTs)
-                return firstTs
+                // Start before the first sample: a range holding a single sample would otherwise
+                // have start == end and be skipped as having nothing new to sync.
+                return firstTs.minusSeconds(1)
             }
 
             return null
@@ -754,6 +765,10 @@ class HealthConnectUtils {
                 return emptyList() // Return empty list on error
             }
             return provider.getAllActivitySamples(tsFrom, tsTo)
+        }
+
+        internal fun getSleepSessions(db: DBHandler, device: GBDevice, tsFrom: Int, tsTo: Int): List<SleepSession> {
+            return device.deviceCoordinator.getSleepSessionProvider(device, db.daoSession).getSleepSessions(tsFrom, tsTo)
         }
 
         private fun loadSleepRows(gbDevice: GBDevice): List<SleepSessionRow> {

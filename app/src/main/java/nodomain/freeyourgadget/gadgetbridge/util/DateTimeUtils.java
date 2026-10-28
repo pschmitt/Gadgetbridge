@@ -31,6 +31,8 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -44,7 +46,7 @@ import nodomain.freeyourgadget.gadgetbridge.R;
 public class DateTimeUtils {
     private static final SimpleDateFormat DAY_STORAGE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
     private static final SimpleDateFormat HOURS_MINUTES_FORMAT = new SimpleDateFormat("HH:mm", Locale.US);
-    public static SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US){
+    public static SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US) {
         //see https://github.com/Freeyourgadget/Gadgetbridge/issues/1076#issuecomment-383834116 and https://stackoverflow.com/a/30221245
 
         @Override
@@ -61,7 +63,7 @@ public class DateTimeUtils {
         public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition pos) {
             StringBuffer rfcFormat = super.format(date, toAppendTo, pos);
             if (this.getTimeZone().equals(TimeZone.getTimeZone("UTC"))) {
-                rfcFormat.setLength(rfcFormat.length()-5);
+                rfcFormat.setLength(rfcFormat.length() - 5);
                 return rfcFormat.append("Z");
             } else {
                 return rfcFormat.insert(rfcFormat.length() - 2, ":");
@@ -75,7 +77,7 @@ public class DateTimeUtils {
     }
 
     public static String formatIso8601(Date date) {
-        if(GBApplication.isRunningNougatOrLater()){
+        if (GBApplication.isRunningNougatOrLater()) {
             return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US).format(date);
         }
         ISO_8601_FORMAT.setTimeZone(TimeZone.getDefault());
@@ -88,7 +90,7 @@ public class DateTimeUtils {
     }
 
     public static String formatIso8601UTC(Date date) {
-        if(GBApplication.isRunningNougatOrLater()){
+        if (GBApplication.isRunningNougatOrLater()) {
             final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US);
             sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
             return sdf.format(date);
@@ -98,29 +100,29 @@ public class DateTimeUtils {
     }
 
     public static String formatDate(Date date) {
-        return DateUtils.formatDateTime(GBApplication.getContext(), date.getTime(), DateUtils.FORMAT_SHOW_DATE|DateUtils.FORMAT_ABBREV_ALL);
+        return DateUtils.formatDateTime(GBApplication.getContext(), date.getTime(), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
     }
 
     public static String formatDate(Date date, int extraFlags) {
-        return DateUtils.formatDateTime(GBApplication.getContext(), date.getTime(), DateUtils.FORMAT_SHOW_DATE|DateUtils.FORMAT_ABBREV_ALL|extraFlags);
+        return DateUtils.formatDateTime(GBApplication.getContext(), date.getTime(), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL | extraFlags);
     }
 
     public static String formatDurationHoursMinutes(long duration, TimeUnit unit) {
         DurationFormatter df = DurationFormatter.Builder.SYMBOLS
-                .maximum(TimeUnit.DAYS)
-                .minimum(TimeUnit.SECONDS)
-                .suppressZeros(DurationFormatter.SuppressZeros.LEADING, DurationFormatter.SuppressZeros.TRAILING)
-                .maximumAmountOfUnitsToShow(2)
-                .build();
+            .maximum(TimeUnit.DAYS)
+            .minimum(TimeUnit.SECONDS)
+            .suppressZeros(DurationFormatter.SuppressZeros.LEADING, DurationFormatter.SuppressZeros.TRAILING)
+            .maximumAmountOfUnitsToShow(2)
+            .build();
         return df.format(duration, unit);
     }
 
     public static String formatDateRange(Date from, Date to) {
-        return DateUtils.formatDateRange(GBApplication.getContext(), from.getTime(), to.getTime(), DateUtils.FORMAT_SHOW_DATE|DateUtils.FORMAT_ABBREV_ALL);
+        return DateUtils.formatDateRange(GBApplication.getContext(), from.getTime(), to.getTime(), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
     }
 
     public static String formatDateRange(Date from, Date to, int extraFlags) {
-        return DateUtils.formatDateRange(GBApplication.getContext(), from.getTime(), to.getTime(), DateUtils.FORMAT_SHOW_DATE|DateUtils.FORMAT_ABBREV_ALL|extraFlags);
+        return DateUtils.formatDateRange(GBApplication.getContext(), from.getTime(), to.getTime(), DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL | extraFlags);
     }
 
     public static Date shiftByDays(Date date, int offset) {
@@ -169,6 +171,25 @@ public class DateTimeUtils {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
+    }
+
+    /**
+     * Returns the UTC midnight for the local date of the timestamp.
+     */
+    public static long toUtcDayStartMillis(final long timestampMillis) {
+        return Instant.ofEpochMilli(timestampMillis)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+            .atStartOfDay(ZoneOffset.UTC)
+            .toInstant()
+            .toEpochMilli();
+    }
+
+    /**
+     * Returns the UTC date of the timestamp.
+     */
+    public static LocalDate utcMillisToLocalDate(final long utcMillis) {
+        return Instant.ofEpochMilli(utcMillis).atZone(ZoneOffset.UTC).toLocalDate();
     }
 
     public static long utcDateTimeToLocal(final long timestamp) {
@@ -229,6 +250,16 @@ public class DateTimeUtils {
         return String.format(Locale.US, "%02d", hours) + ":" + String.format(Locale.US, "%02d", minutes);
     }
 
+    /**
+     * Returns the offset of the time zone from UTC at the timestamp, for example "UTC+05:30".
+     */
+    public static String formatUtcOffset(final TimeZone timeZone, final long timestamp) {
+        final int offsetMinutes = timeZone.getOffset(timestamp) / 60000;
+        final char sign = offsetMinutes < 0 ? '-' : '+';
+        final int absMinutes = Math.abs(offsetMinutes);
+        return String.format(Locale.ROOT, "UTC%c%02d:%02d", sign, absMinutes / 60, absMinutes % 60);
+    }
+
 
     public static Date todayUTC() {
         Calendar cal = getCalendarUTC();
@@ -242,6 +273,7 @@ public class DateTimeUtils {
     public static String minutesToHHMM(int minutes) {
         return String.format(Locale.US, "%d:%02d", minutes / 60, minutes % 60); // no I do not want to use durationformatter :P
     }
+
     public static boolean isYesterday(Date d) {
         return DateUtils.isToday(d.getTime() + DateUtils.DAY_IN_MILLIS);
     }
@@ -277,8 +309,8 @@ public class DateTimeUtils {
      */
     public static boolean isSameDay(Calendar calendar1, Calendar calendar2) {
         return calendar1.get(Calendar.YEAR) == calendar2.get(Calendar.YEAR)
-                && calendar1.get(Calendar.MONTH) == calendar2.get(Calendar.MONTH)
-                && calendar1.get(Calendar.DAY_OF_MONTH) == calendar2.get(Calendar.DAY_OF_MONTH);
+            && calendar1.get(Calendar.MONTH) == calendar2.get(Calendar.MONTH)
+            && calendar1.get(Calendar.DAY_OF_MONTH) == calendar2.get(Calendar.DAY_OF_MONTH);
     }
 
     /**
@@ -306,7 +338,7 @@ public class DateTimeUtils {
      */
     public static boolean isSameMonth(Calendar calendar1, Calendar calendar2) {
         return calendar1.get(Calendar.YEAR) == calendar2.get(Calendar.YEAR)
-                && calendar1.get(Calendar.MONTH) == calendar2.get(Calendar.MONTH);
+            && calendar1.get(Calendar.MONTH) == calendar2.get(Calendar.MONTH);
     }
 
     public static String formatDateRelative(final Context context, final Date date) {
@@ -332,7 +364,7 @@ public class DateTimeUtils {
     public static String formatDaysUntil(int days, int endTs) {
         final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("E, MMM dd", Locale.getDefault());
         final Date to = new Date((long) endTs * 1000);
-        final Date from = org.apache.commons.lang3.time.DateUtils.addDays(to, - (days - 1));
+        final Date from = org.apache.commons.lang3.time.DateUtils.addDays(to, -(days - 1));
         final String toFormattedDate = simpleDateFormat.format(to);
         final String fromFormattedDate = simpleDateFormat.format(from);
         return fromFormattedDate + " - " + toFormattedDate;
@@ -348,11 +380,11 @@ public class DateTimeUtils {
     /// format duration day - milliseconds with max 3 units shown
     public static String formatSportsDuration(long duration, TimeUnit unit) {
         DurationFormatter df = DurationFormatter.Builder.SYMBOLS
-                .maximum(TimeUnit.HOURS)
-                .minimum(TimeUnit.MILLISECONDS)
-                .suppressZeros(DurationFormatter.SuppressZeros.LEADING, DurationFormatter.SuppressZeros.TRAILING)
-                .maximumAmountOfUnitsToShow(3)
-                .build();
+            .maximum(TimeUnit.HOURS)
+            .minimum(TimeUnit.MILLISECONDS)
+            .suppressZeros(DurationFormatter.SuppressZeros.LEADING, DurationFormatter.SuppressZeros.TRAILING)
+            .maximumAmountOfUnitsToShow(3)
+            .build();
         return df.format(duration, unit);
     }
 

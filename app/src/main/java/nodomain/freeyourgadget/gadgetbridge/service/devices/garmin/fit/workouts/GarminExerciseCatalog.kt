@@ -79,7 +79,13 @@ class GarminExerciseCatalog(source: () -> InputStream) : JsonWorkoutExerciseCata
         )
     }
 
+    private val byCode: Map<Pair<ExerciseCategory, Int?>, GarminExercise> by lazy {
+        exercises(null).filterIsInstance<GarminExercise>().associateBy { it.category to it.code }
+    }
+
     fun exerciseFor(id: String?): GarminExercise? = byId(id) as? GarminExercise
+
+    fun exerciseFor(category: ExerciseCategory, code: Int?): GarminExercise? = byCode[category to code]
 
     companion object {
         private const val ASSET = "workouts/exercises/garmin.json"

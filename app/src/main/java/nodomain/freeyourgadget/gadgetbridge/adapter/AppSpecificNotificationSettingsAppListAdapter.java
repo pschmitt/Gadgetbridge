@@ -38,10 +38,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.app_specific_notifications.AppSpecificNotificationSettingsDetailActivity;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationAppRepository;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationAppRules;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationDefaultAction;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.util.NotificationUtils;
-
-import static nodomain.freeyourgadget.gadgetbridge.GBApplication.packageNameToPebbleMsgSender;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,13 +124,13 @@ public class AppSpecificNotificationSettingsAppListAdapter extends RecyclerView.
      */
     public List<String> getAllApplications() {
         final List<String> apps = NotificationUtils.getAllApplications(GBApplication.getContext());
-        boolean filterInverted = !GBApplication.getPrefs().getString("notification_list_is_blacklist", "true").equals("true");
+        final NotificationAppRepository repository = NotificationAppRepository.INSTANCE;
+        final NotificationDefaultAction defaultAction = repository.getDefaultAction();
 
         final List<String> ret = new LinkedList<>();
 
-        for(String packageName: apps) {
-            boolean blacklisted = GBApplication.appIsNotifBlacklisted(packageName) || GBApplication.appIsPebbleBlacklisted(packageNameToPebbleMsgSender(packageName));
-            if((!filterInverted && !blacklisted) || (filterInverted && blacklisted)) {
+        for (final String packageName : apps) {
+            if (NotificationAppRules.INSTANCE.shouldSend(repository.get(packageName), defaultAction)) {
                 ret.add(packageName);
             }
         }

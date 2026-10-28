@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:minHeight="56dp"
+    android:orientation="horizontal"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="8dp">
+
+    <ImageView
+        android:id="@+id/spinner_item_icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_dropdown_icon_circle"
+        android:importantForAccessibility="no"
+        android:paddingLeft="4dp"
+        android:paddingTop="4dp"
+        android:paddingRight="2.5dp"
+        android:paddingBottom="2.5dp"
+        android:scaleType="fitCenter"
+        android:theme="@style/ThemeOverlay.App.DropdownDeviceIcon"
+        tools:ignore="RtlHardcoded" />
+
+    <TextView
+        android:id="@+id/spinner_item_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_weight="1"
+        android:textAppearance="?attr/textAppearanceBodyLarge" />
+</LinearLayout>

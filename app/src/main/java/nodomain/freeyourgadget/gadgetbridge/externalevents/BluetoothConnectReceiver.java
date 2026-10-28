@@ -104,7 +104,7 @@ public class BluetoothConnectReceiver extends BroadcastReceiver {
                 return;
             }
 
-            if (pref.getBoolean(GBPrefs.DEVICE_CONNECT_BACK, false)) {
+            if (pref.getBoolean(GBPrefs.DEVICE_CONNECT_BACK, true)) {
                 LOG.debug("re-connecting to observed device due DEVICE_CONNECT_BACK preference");
             } else {
                 LOG.info("ignoring observed device {} {}", address, state);

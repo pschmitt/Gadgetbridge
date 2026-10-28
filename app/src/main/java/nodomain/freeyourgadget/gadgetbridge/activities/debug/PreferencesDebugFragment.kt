@@ -29,11 +29,12 @@ class PreferencesDebugFragment : AbstractDebugFragment() {
         removeDynamicPrefs(devicePreferences)
 
         for (device in GBApplication.app().deviceManager.devices.sortedBy { it.aliasOrName }) {
-            addDynamicPref(
+            addDynamicDevicePref(
                 devicePreferences,
                 device.aliasOrName,
                 device.address,
-                device.deviceCoordinator.defaultIconResource
+                device.deviceCoordinator.defaultIconResource,
+                device.isConnected
             ) {
                 editPreferences("devicesettings_" + device.address.toString().uppercase(), device.aliasOrName)
             }

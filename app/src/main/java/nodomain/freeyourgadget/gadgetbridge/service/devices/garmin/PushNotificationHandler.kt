@@ -5,7 +5,7 @@ import com.google.gson.JsonObject
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.devices.HydrationSampleProvider
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSmartProto.PushNotificationService
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiDeviceMessages
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSmartProto.Smart
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.http.interceptors.HydrationInterceptor
 import nodomain.freeyourgadget.gadgetbridge.util.protobuf.buildWith
@@ -16,18 +16,18 @@ import kotlin.random.Random
 
 @Suppress("SameParameterValue")
 class PushNotificationHandler(private val deviceSupport: GarminSupport) {
-    fun handle(service: PushNotificationService): Boolean {
-        if (service.hasLastPushNotification()) {
-            LOG.debug("Last push notification received by the watch: {}", service.lastPushNotification.id)
+    fun handle(service: GdiDeviceMessages.DeviceMessageService): Boolean {
+        if (service.hasMessageSubscribe()) {
+            LOG.debug("Last push notification received by the watch: {}", service.messageSubscribe.lastEventId)
             return true
         }
 
-        if (service.hasPushNotificationAck()) {
-            val ack = service.pushNotificationAck
-            if (ack.status == 0) {
-                LOG.debug("Push notification {} acknowledged", ack.id)
+        if (service.hasMessageResponse()) {
+            val ack = service.messageResponse
+            if (ack.status == GdiDeviceMessages.CIQMessageResponse.Status.SUCCESS) {
+                LOG.debug("Push notification {} acknowledged", ack.eventId)
             } else {
-                LOG.warn("Push notification {} failed, status={}", ack.id, ack.status)
+                LOG.warn("Push notification {} failed, status={}", ack.eventId, ack.status)
             }
             return true
         }
@@ -90,9 +90,9 @@ class PushNotificationHandler(private val deviceSupport: GarminSupport) {
         LOG.debug("Sending push notification {} for {}: {}", id, appId, payload)
 
         return Smart.newBuilder().buildWith {
-            pushNotificationService = PushNotificationService.newBuilder().buildWith {
-                pushNotification = PushNotificationService.PushNotification.newBuilder().buildWith {
-                    this.id = id
+            deviceMessageService = GdiDeviceMessages.DeviceMessageService.newBuilder().buildWith {
+                messageRequest = GdiDeviceMessages.CIQMessageRequest.newBuilder().buildWith {
+                    this.eventId = id
                     this.appId = appId
                     this.payload = payload.toString()
                 }

@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,16 +33,12 @@ import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.ColmiHeartRateSampleProvider;
-import nodomain.freeyourgadget.gadgetbridge.devices.ColmiSleepStageSampleProvider;
-import nodomain.freeyourgadget.gadgetbridge.devices.yawell.ring.YawellRingConstants;
 import nodomain.freeyourgadget.gadgetbridge.entities.ColmiActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.entities.ColmiActivitySampleDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.ColmiHeartRateSample;
-import nodomain.freeyourgadget.gadgetbridge.entities.ColmiSleepStageSample;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
-import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 
 public class ColmiActivitySampleProvider extends AbstractSampleProvider<ColmiActivitySample> {
     private static final Logger LOG = LoggerFactory.getLogger(ColmiActivitySampleProvider.class);
@@ -114,10 +111,11 @@ public class ColmiActivitySampleProvider extends AbstractSampleProvider<ColmiAct
         }
 
         overlayHeartRate(sampleByTs, timestamp_from, timestamp_to);
-        overlaySleep(sampleByTs, timestamp_from, timestamp_to);
+        final ColmiSleepSessionProvider sleepSessionProvider = new ColmiSleepSessionProvider(getDevice(), getSession());
+        overlaySleep(sleepSessionProvider, sampleByTs, timestamp_from, timestamp_to);
 
         final List<ColmiActivitySample> finalSamples = new ArrayList<>(sampleByTs.values());
-        Collections.sort(finalSamples, (a, b) -> Integer.compare(a.getTimestamp(), b.getTimestamp()));
+        Collections.sort(finalSamples, Comparator.comparingInt(ColmiActivitySample::getTimestamp));
 
         final long nanoEnd = System.nanoTime();
         final long executionTime = (nanoEnd - nanoStart) / 1000000;
@@ -142,52 +140,6 @@ public class ColmiActivitySampleProvider extends AbstractSampleProvider<ColmiAct
             }
 
             sample.setHeartRate(hrSample.getHeartRate());
-        }
-    }
-
-    private void overlaySleep(final Map<Integer, ColmiActivitySample> sampleByTs, final int timestamp_from, final int timestamp_to) {
-        final ColmiSleepStageSampleProvider sleepStageSampleProvider = new ColmiSleepStageSampleProvider(getDevice(), getSession());
-        final List<ColmiSleepStageSample> sleepStageSamples = sleepStageSampleProvider.getAllSamples(timestamp_from * 1000L, timestamp_to * 1000L);
-
-        // Retrieve the last stage before this time range, as the user could have been asleep during
-        // the range transition
-        final ColmiSleepStageSample lastSleepStageBeforeRange = sleepStageSampleProvider.getLastSampleBefore(timestamp_from * 1000L);
-        if (lastSleepStageBeforeRange != null && (lastSleepStageBeforeRange.getTimestamp() + lastSleepStageBeforeRange.getDuration() * 1000L > timestamp_from)) {
-            LOG.debug("Last sleep stage before range: ts={}, stage={}", lastSleepStageBeforeRange.getTimestamp(), lastSleepStageBeforeRange.getStage());
-            sleepStageSamples.add(0, lastSleepStageBeforeRange);
-        }
-
-        for (final ColmiSleepStageSample sleepStageSample : sleepStageSamples) {
-            final ActivityKind sleepRawKind = sleepStageToActivityKind(sleepStageSample.getStage());
-            // round to the nearest minute, we don't need per-second granularity
-            final int tsSeconds = (int) ((sleepStageSample.getTimestamp() / 1000) / 60) * 60;
-            for (int i = tsSeconds; i < tsSeconds + sleepStageSample.getDuration() * 60; i += 60) {
-                if (i < timestamp_from) continue;
-                ColmiActivitySample sample = sampleByTs.get(i);
-                if (sample == null) {
-                    sample = new ColmiActivitySample();
-                    sample.setTimestamp(i);
-                    sample.setProvider(this);
-                    sampleByTs.put(i, sample);
-                }
-                sample.setRawKind(sleepRawKind.getCode());
-                sample.setRawIntensity(ActivitySample.NOT_MEASURED);
-            }
-        }
-    }
-
-    final ActivityKind sleepStageToActivityKind(final int sleepStage) {
-        switch (sleepStage) {
-            case YawellRingConstants.SLEEP_TYPE_LIGHT:
-                return ActivityKind.LIGHT_SLEEP;
-            case YawellRingConstants.SLEEP_TYPE_DEEP:
-                return ActivityKind.DEEP_SLEEP;
-            case YawellRingConstants.SLEEP_TYPE_REM:
-                return ActivityKind.REM_SLEEP;
-            case YawellRingConstants.SLEEP_TYPE_AWAKE:
-                return ActivityKind.AWAKE_SLEEP;
-            default:
-                return ActivityKind.UNKNOWN;
         }
     }
 }

@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import nodomain.freeyourgadget.gadgetbridge.externalevents.BluetoothConnectReceiver;
-import nodomain.freeyourgadget.gadgetbridge.util.BondingUtil;
+import nodomain.freeyourgadget.gadgetbridge.util.CompanionDeviceUtil;
 
 
 /**
@@ -48,6 +48,7 @@ import nodomain.freeyourgadget.gadgetbridge.util.BondingUtil;
 public class GBCompanionDeviceService extends CompanionDeviceService {
     private static final Logger LOG = LoggerFactory.getLogger(GBCompanionDeviceService.class);
 
+    @SuppressWarnings("deprecation")
     @DeprecatedSinceApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     public void onDeviceAppeared(@NonNull String address) {
@@ -57,12 +58,14 @@ public class GBCompanionDeviceService extends CompanionDeviceService {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @DeprecatedSinceApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     public void onDeviceDisappeared(@NonNull String address) {
         // nop - the super is abstract in older versions
     }
 
+    @SuppressWarnings("deprecation")
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @DeprecatedSinceApi(api = Build.VERSION_CODES.BAKLAVA)
     @Override
@@ -77,6 +80,7 @@ public class GBCompanionDeviceService extends CompanionDeviceService {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @DeprecatedSinceApi(api = Build.VERSION_CODES.BAKLAVA)
     @Override
@@ -104,7 +108,7 @@ public class GBCompanionDeviceService extends CompanionDeviceService {
             case DevicePresenceEvent.EVENT_BLE_APPEARED:
             case DevicePresenceEvent.EVENT_BT_CONNECTED:
             case DevicePresenceEvent.EVENT_SELF_MANAGED_APPEARED:
-                CompanionDeviceManager manager = BondingUtil.getCompanionDeviceManager(getBaseContext());
+                CompanionDeviceManager manager = CompanionDeviceUtil.getCompanionDeviceManager(getBaseContext());
                 if (manager == null) {
                     LOG.error("CompanionDeviceManager is null");
                     return;

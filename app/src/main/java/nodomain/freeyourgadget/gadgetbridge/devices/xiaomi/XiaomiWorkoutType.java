@@ -141,7 +141,7 @@ public class XiaomiWorkoutType {
                 return ActivityKind.CORE_TRAINING;
             case 304: // flexibility      0x0130
                 return ActivityKind.FLEXIBILITY;
-            case 305: // pilates          0x0131
+            case 305: // Pilates          0x0131
                 return ActivityKind.PILATES;
             case 306: // "Gymnastics"
                 return ActivityKind.GYMNASTICS;

@@ -16,6 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities.charts;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -27,25 +28,16 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.Chart;
 import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.LegendEntry;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -53,8 +45,16 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import kotlin.jvm.functions.Function1;
+
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartLegendView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.DaySelections;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSeries;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSpec;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.stress.StressChartData;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileData;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileGridUtilKt;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
@@ -66,14 +66,17 @@ import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 public class StressPeriodFragment extends StressFragment<StressPeriodFragment.MyChartsData> {
     protected static final Logger LOG = LoggerFactory.getLogger(StressPeriodFragment.class);
 
+    private static final StressType[] BAR_LEVELS = {
+            StressType.HIGH, StressType.MODERATE, StressType.MILD, StressType.RELAXED, StressType.UNKNOWN,
+    };
+
     protected int TOTAL_DAYS = getRangeDays();
 
     private LinearLayout mStatsContainer;
     private TextView stressDatesText;
     private PieChart mStressLevelsPieChart;
-    private BarChart mWeekChart;
-
-    protected Locale mLocale;
+    private GbChartView mWeekChart;
+    private ChartLegendView mWeekLegend;
 
     public static StressPeriodFragment newInstance(int totalDays) {
         StressPeriodFragment fragment = new StressPeriodFragment();
@@ -92,7 +95,6 @@ public class StressPeriodFragment extends StressFragment<StressPeriodFragment.My
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mLocale = getResources().getConfiguration().locale;
         View rootView = inflater.inflate(R.layout.fragment_weekstress_chart, container, false);
 
         rootView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
@@ -100,12 +102,14 @@ public class StressPeriodFragment extends StressFragment<StressPeriodFragment.My
         });
 
         mWeekChart = rootView.findViewById(R.id.weekstresschart);
-        mStressLevelsPieChart = rootView.findViewById(R.id.stress_pie_chart);
+        mWeekChart.setZoomable(TOTAL_DAYS > 7);
+        mWeekChart.dismissSelectionOnTapOutside(rootView);
+        mWeekLegend = rootView.findViewById(R.id.weekstress_chart_legend);
         mStatsContainer = rootView.findViewById(R.id.stress_stats_container);
         stressDatesText = rootView.findViewById(R.id.stress_dates);
+        mStressLevelsPieChart = rootView.findViewById(R.id.stress_pie_chart);
 
         setupPieChart();
-        setupWeekChart();
         refresh();
 
         return rootView;
@@ -115,7 +119,7 @@ public class StressPeriodFragment extends StressFragment<StressPeriodFragment.My
     protected MyChartsData refreshInBackground(ChartsHost chartsHost, DBHandler db, GBDevice device) {
         Calendar day = Calendar.getInstance();
         day.setTime(chartsHost.getEndDate());
-        DefaultChartsData<BarData> weekBeforeData = refreshWeekBeforeStressData(db, day, device);
+        StressPeriodBars weekBeforeData = refreshWeekBeforeStressData(db, day, device);
         MyStressWeeklyData stressWeeklyData = getMyStressWeeklyData(db, day, device);
 
         return new MyChartsData(weekBeforeData, stressWeeklyData);
@@ -123,17 +127,50 @@ public class StressPeriodFragment extends StressFragment<StressPeriodFragment.My
 
     @Override
     protected void updateChartsnUIThread(MyChartsData mcd) {
-        setupLegend(mWeekChart);
-
-        mWeekChart.setData(null); // workaround for https://github.com/PhilJay/MPAndroidChart/issues/2317
-        mWeekChart.setData(mcd.getWeekBeforeData().getData());
-        mWeekChart.getXAxis().setValueFormatter(mcd.getWeekBeforeData().getXValueFormatter());
-        mWeekChart.getBarData().setValueTextSize(10f);
-
+        updateWeekChart(mcd.getWeekBeforeData());
         updatePieChart(mcd.getStressWeeklyData());
         updateStressTiles(mcd.getStressWeeklyData());
 
         stressDatesText.setText(DateTimeUtils.formatDaysUntil(TOTAL_DAYS, getTSEnd()));
+    }
+
+    private void updateWeekChart(final StressPeriodBars bars) {
+        final String[] labels = new String[BAR_LEVELS.length];
+        final int[] colors = new int[BAR_LEVELS.length];
+        for (int i = 0; i < BAR_LEVELS.length; i++) {
+            labels[i] = BAR_LEVELS[i].getLabel(requireContext());
+            colors[i] = BAR_LEVELS[i].getColor(requireContext());
+        }
+        final String averageLabel = getString(R.string.charts_legend_stress_average);
+        final ChartSpec spec = StressChartData.periodSpec(bars.epochDays(), bars.minutes(), labels, colors,
+                bars.averages(), averageLabel, Color.GRAY);
+
+        final List<String> rowLabels = new ArrayList<>();
+        final List<Integer> rowColors = new ArrayList<>();
+        final List<Function1<Integer, String>> rowTexts = new ArrayList<>();
+        final String emptyValue = getString(R.string.stats_empty_value);
+        for (int level = BAR_LEVELS.length - 2; level >= 0; level--) {
+            final double[] levelMinutes = bars.minutes()[level];
+            rowLabels.add(labels[level]);
+            rowColors.add(colors[level]);
+            rowTexts.add(i -> levelMinutes[i] > 0
+                    ? DateTimeUtils.formatDurationHoursMinutes(Math.round(levelMinutes[i] * 60), TimeUnit.SECONDS)
+                    : emptyValue);
+        }
+        rowLabels.add(averageLabel);
+        rowColors.add(Color.GRAY);
+        rowTexts.add(i -> bars.averages()[i] > 0 ? String.valueOf(bars.averages()[i]) : emptyValue);
+        mWeekChart.setSelectionContent(x -> DaySelections.of(bars.epochDays(), x, rowLabels, rowColors, rowTexts, emptyValue));
+        mWeekChart.setSpec(spec);
+
+        final List<ChartSeries> legendSeries = new ArrayList<>();
+        if (!spec.getSeries().isEmpty()) {
+            for (final StressType type : StressType.values()) {
+                legendSeries.add(ChartLegendView.squareItem(type.getLabel(requireContext()), type.getColor(requireContext())));
+            }
+            legendSeries.add(ChartLegendView.lineItem(averageLabel, Color.GRAY));
+        }
+        mWeekLegend.setSeries(legendSeries);
     }
 
     private void updatePieChart(final MyStressWeeklyData stressWeeklyData) {
@@ -144,30 +181,30 @@ public class StressPeriodFragment extends StressFragment<StressPeriodFragment.My
             long totalTime = stressWeeklyData.totalStressTime();
             if (totalTime > 0) {
                 if (stressWeeklyData.totalRelaxed() > 0) {
-                    pieEntries.add(new PieEntry(stressWeeklyData.totalRelaxed(),
-                            StressType.RELAXED.getLabel(getContext())));
+                    pieEntries.add(new PieEntry<>(stressWeeklyData.totalRelaxed(),
+                            StressType.RELAXED.getLabel(getContext()), null, null));
                     pieColors.add(StressType.RELAXED.getColor(getContext()));
                 }
                 if (stressWeeklyData.totalMild() > 0) {
-                    pieEntries.add(new PieEntry(stressWeeklyData.totalMild(),
-                            StressType.MILD.getLabel(getContext())));
+                    pieEntries.add(new PieEntry<>(stressWeeklyData.totalMild(),
+                            StressType.MILD.getLabel(getContext()), null, null));
                     pieColors.add(StressType.MILD.getColor(getContext()));
                 }
                 if (stressWeeklyData.totalModerate() > 0) {
-                    pieEntries.add(new PieEntry(stressWeeklyData.totalModerate(),
-                            StressType.MODERATE.getLabel(getContext())));
+                    pieEntries.add(new PieEntry<>(stressWeeklyData.totalModerate(),
+                            StressType.MODERATE.getLabel(getContext()), null, null));
                     pieColors.add(StressType.MODERATE.getColor(getContext()));
                 }
                 if (stressWeeklyData.totalHigh() > 0) {
-                    pieEntries.add(new PieEntry(stressWeeklyData.totalHigh(),
-                            StressType.HIGH.getLabel(getContext())));
+                    pieEntries.add(new PieEntry<>(stressWeeklyData.totalHigh(),
+                            StressType.HIGH.getLabel(getContext()), null, null));
                     pieColors.add(StressType.HIGH.getColor(getContext()));
                 }
             }
         }
 
         if (pieEntries.isEmpty()) {
-            pieEntries.add(new PieEntry(1));
+            pieEntries.add(new PieEntry<>(1, null, null, null));
             pieColors.add(getResources().getColor(R.color.gauge_line_color));
         }
 
@@ -177,7 +214,7 @@ public class StressPeriodFragment extends StressFragment<StressPeriodFragment.My
         pieDataSet.setValueTextSize(13f);
         pieDataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
         pieDataSet.setYValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
-        pieDataSet.setDrawValues(false);
+        pieDataSet.setDrawValuesEnabled(false);
         pieDataSet.setSliceSpace(2f);
         PieData pieData = new PieData(pieDataSet);
 
@@ -238,7 +275,14 @@ public class StressPeriodFragment extends StressFragment<StressPeriodFragment.My
     }
 
     private StatTileData buildStressTile(final StressType stressType, final String value) {
-        return new StatTileData(value, stressType.getLabel(requireContext()), null, null, null, null, stressType.getColor(requireContext()));
+        final int label = switch (stressType) {
+            case RELAXED -> R.string.stress_relaxed_avg;
+            case MILD -> R.string.stress_mild_avg;
+            case MODERATE -> R.string.stress_moderate_avg;
+            case HIGH -> R.string.stress_high_avg;
+            default -> R.string.unknown;
+        };
+        return new StatTileData(value, getString(label), null, null, null, null, stressType.getColor(requireContext()));
     }
 
     private MyStressWeeklyData getMyStressWeeklyData(DBHandler db, Calendar day, GBDevice device) {
@@ -301,18 +345,17 @@ public class StressPeriodFragment extends StressFragment<StressPeriodFragment.My
                 showStressLevelInPercents);
     }
 
-    private DefaultChartsData<BarData> refreshWeekBeforeStressData(DBHandler db, Calendar day, GBDevice device) {
+    private StressPeriodBars refreshWeekBeforeStressData(DBHandler db, Calendar day, GBDevice device) {
         day = (Calendar) day.clone();
         day.set(Calendar.HOUR_OF_DAY, 0);
         day.set(Calendar.MINUTE, 0);
         day.set(Calendar.SECOND, 0);
         day.set(Calendar.MILLISECOND, 0);
         day.add(Calendar.DATE, -TOTAL_DAYS + 1);
-        List<BarEntry> entries = new ArrayList<>();
-        ArrayList<String> labels = new ArrayList<>();
 
-        int[] colors = new int[TOTAL_DAYS * 5]; // 4 stress types + unknown type
-        int colorIndex = 0;
+        final long[] epochDays = new long[TOTAL_DAYS];
+        final double[][] minutes = new double[BAR_LEVELS.length][TOTAL_DAYS];
+        final int[] averages = new int[TOTAL_DAYS];
 
         DeviceCoordinator coordinator = device.getDeviceCoordinator();
         int sampleRate = 60;
@@ -322,7 +365,6 @@ public class StressPeriodFragment extends StressFragment<StressPeriodFragment.My
         }
 
         Calendar now = Calendar.getInstance();
-
         for (int counter = 0; counter < TOTAL_DAYS; counter++) {
             Calendar dayStart = (Calendar) day.clone();
             Calendar dayEnd = (Calendar) day.clone();
@@ -334,68 +376,29 @@ public class StressPeriodFragment extends StressFragment<StressPeriodFragment.My
 
             Map<StressType, Integer> dailyTotals = calculateStressTotals(samples,
                     device.getDeviceCoordinator().getStressRanges(), sampleRate);
-
-            float[] yValues = new float[5]; // For stacked bar chart
-            int idx = 0;
-
             float totalMinutesTracked = dailyTotals.values().stream().reduce(0, Integer::sum) / 60f;
 
             // Calculate the total possible minutes for this day, excluding future time
             float totalPossibleMinutes;
             if (dayEnd.before(now) || dayEnd.equals(now)) {
-                // Full day in the past
                 totalPossibleMinutes = 24 * 60;
             } else if (dayStart.after(now)) {
-                // Full day in the future
                 totalPossibleMinutes = 0;
             } else {
-                // Partial day (current day) - only count minutes up to now
                 long minutesFromStartToNow = (now.getTimeInMillis() - dayStart.getTimeInMillis()) / (1000 * 60);
                 totalPossibleMinutes = Math.max(0, minutesFromStartToNow);
             }
 
-            float untrackedMins = Math.max(totalPossibleMinutes - totalMinutesTracked, 0);
-
-            yValues[idx++] = dailyTotals.get(StressType.HIGH) / 60f;
-            yValues[idx++] = dailyTotals.get(StressType.MODERATE) / 60f;
-            yValues[idx++] = dailyTotals.get(StressType.MILD) / 60f;
-            yValues[idx++] = dailyTotals.get(StressType.RELAXED) / 60f;
-            yValues[idx++] = untrackedMins;
-
-            colors[colorIndex++] = StressType.HIGH.getColor(getContext());
-            colors[colorIndex++] = StressType.MODERATE.getColor(getContext());
-            colors[colorIndex++] = StressType.MILD.getColor(getContext());
-            colors[colorIndex++] = StressType.RELAXED.getColor(getContext());
-            colors[colorIndex++] = StressType.UNKNOWN.getColor(getContext());
-
-            entries.add(new BarEntry(counter, yValues));
-
-            labels.add(TOTAL_DAYS > 7
-                    ? String.valueOf(day.get(Calendar.DAY_OF_MONTH))
-                    : day.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, mLocale));
+            epochDays[counter] = LocalDate.of(day.get(Calendar.YEAR), day.get(Calendar.MONTH) + 1, day.get(Calendar.DAY_OF_MONTH)).toEpochDay();
+            for (int level = 0; level < BAR_LEVELS.length - 1; level++) {
+                minutes[level][counter] = dailyTotals.get(BAR_LEVELS[level]) / 60d;
+            }
+            minutes[BAR_LEVELS.length - 1][counter] = Math.max(totalPossibleMinutes - totalMinutesTracked, 0);
+            averages[counter] = calculateAverageStress(samples);
 
             day.add(Calendar.DATE, 1);
         }
-
-        BarDataSet set = new BarDataSet(entries, "");
-        set.setDrawValues(false);
-        set.setAxisDependency(YAxis.AxisDependency.LEFT);
-        set.setColors(colors);
-        set.setStackLabels(new String[]{
-                StressType.HIGH.getLabel(getContext()),
-                StressType.MODERATE.getLabel(getContext()),
-                StressType.MILD.getLabel(getContext()),
-                StressType.RELAXED.getLabel(getContext()),
-                StressType.UNKNOWN.getLabel(getContext())
-        });
-
-        ArrayList<IBarDataSet> dataSets = new ArrayList<>();
-        dataSets.add(set);
-
-        BarData barData = new BarData(dataSets);
-        barData.setBarWidth(0.9f);
-
-        return new DefaultChartsData<>(barData, new PreformattedXIndexLabelFormatter(labels));
+        return new StressPeriodBars(epochDays, minutes, averages);
     }
 
     private void setupPieChart() {
@@ -404,68 +407,18 @@ public class StressPeriodFragment extends StressFragment<StressPeriodFragment.My
         mStressLevelsPieChart.setEntryLabelColor(DESCRIPTION_COLOR);
         mStressLevelsPieChart.getDescription().setText("");
         mStressLevelsPieChart.setNoDataText("");
+        mStressLevelsPieChart.setNoDataIconEnabled(false);
         mStressLevelsPieChart.setTouchEnabled(false);
         mStressLevelsPieChart.setCenterTextColor(GBApplication.getTextColor(getContext()));
         mStressLevelsPieChart.setCenterTextSize(18f);
         mStressLevelsPieChart.setHoleColor(requireContext().getResources().getColor(R.color.transparent));
-        mStressLevelsPieChart.setHoleRadius(85);
-        mStressLevelsPieChart.setDrawEntryLabels(false);
+        mStressLevelsPieChart.setHoleRadius(87);
+        mStressLevelsPieChart.setDrawEntryLabelsEnabled(false);
         mStressLevelsPieChart.getLegend().setEnabled(false);
-    }
-
-    protected void setupWeekChart() {
-        mWeekChart.setBackgroundColor(BACKGROUND_COLOR);
-        mWeekChart.getDescription().setTextColor(DESCRIPTION_COLOR);
-        mWeekChart.getDescription().setText("");
-        mWeekChart.setFitBars(true);
-
-        configureBarLineChartDefaults(mWeekChart);
-
-        XAxis x = mWeekChart.getXAxis();
-        x.setDrawLabels(true);
-        x.setDrawGridLines(false);
-        x.setEnabled(true);
-        x.setTextColor(CHART_TEXT_COLOR);
-        x.setDrawLimitLinesBehindData(true);
-        x.setPosition(XAxis.XAxisPosition.BOTTOM);
-        if (TOTAL_DAYS > 7) {
-            x.setSpaceMin(0);
-        }
-
-        YAxis y = mWeekChart.getAxisLeft();
-        y.setDrawGridLines(false);
-        y.setEnabled(true);
-        y.setDrawTopYLabelEntry(false);
-        y.setTextColor(CHART_TEXT_COLOR);
-        y.setDrawZeroLine(true);
-        y.setSpaceBottom(0);
-        y.setAxisMinimum(0);
-        y.setAxisMaximum(24 * 60);
-        y.setValueFormatter(getYAxisFormatter());
-
-        YAxis yAxisRight = mWeekChart.getAxisRight();
-        yAxisRight.setDrawGridLines(false);
-        yAxisRight.setEnabled(false);
-        yAxisRight.setDrawLabels(false);
-        yAxisRight.setDrawTopYLabelEntry(false);
-        yAxisRight.setTextColor(CHART_TEXT_COLOR);
-
-        if (TOTAL_DAYS > 7) {
-            mWeekChart.setRenderer(new AngledLabelsChartRenderer(mWeekChart, mWeekChart.getAnimator(),
-                    mWeekChart.getViewPortHandler()));
-        } else {
-            mWeekChart.setScaleEnabled(false);
-            mWeekChart.setTouchEnabled(false);
-        }
     }
 
     @Override
     protected void setupLegend(Chart<?> chart) {
-        List<LegendEntry> legendEntries = createLegendEntries(chart);
-        chart.getLegend().setCustom(legendEntries);
-        chart.getLegend().setTextColor(LEGEND_TEXT_COLOR);
-        chart.getLegend().setWordWrapEnabled(true);
-        chart.getLegend().setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
     }
 
     @Override
@@ -475,16 +428,7 @@ public class StressPeriodFragment extends StressFragment<StressPeriodFragment.My
     }
 
     private int getRangeDays() {
-        return GBApplication.getPrefs().getBoolean("charts_range", true) ? 30 : 7;
-    }
-
-    ValueFormatter getYAxisFormatter() {
-        return new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                return DateTimeUtils.minutesToHHMM((int) value);
-            }
-        };
+        return GBApplication.getPrefs().getChartsRange().getDays();
     }
 
     @Override
@@ -493,22 +437,25 @@ public class StressPeriodFragment extends StressFragment<StressPeriodFragment.My
     }
 
     protected static class MyChartsData extends ChartsData {
-        private final DefaultChartsData<BarData> weekBeforeData;
+        private final StressPeriodBars weekBeforeData;
         private final MyStressWeeklyData stressWeeklyData;
 
-        public MyChartsData(DefaultChartsData<BarData> weekBeforeData,
+        public MyChartsData(StressPeriodBars weekBeforeData,
                             MyStressWeeklyData stressWeeklyData) {
             this.weekBeforeData = weekBeforeData;
             this.stressWeeklyData = stressWeeklyData;
         }
 
-        public DefaultChartsData<BarData> getWeekBeforeData() {
+        public StressPeriodBars getWeekBeforeData() {
             return weekBeforeData;
         }
 
         public MyStressWeeklyData getStressWeeklyData() {
             return stressWeeklyData;
         }
+    }
+
+    private record StressPeriodBars(long[] epochDays, double[][] minutes, int[] averages) {
     }
 
     private record MyStressWeeklyData(long totalRelaxed,

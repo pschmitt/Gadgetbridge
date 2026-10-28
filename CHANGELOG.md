@@ -4,38 +4,198 @@
 
 #### Next version (WIP)
 
-* Initial support for 8BitDo Micro
+* Initial support for Anker Soundcore V20i
+* Initial support for BRAZ/7HARRY (FitPro)
+* Initial support for Colmi P10
+* Initial support for Fire-Boltt 069, KW19-B (MoYoung / Da Fit)
+* Initial support for Huawei Watch 6 / 6 Pro
+* Initial support for iGPSPORT BSC 100Max
+* Initial support for Innovo iP900BP-B pulse oximeter
+* Initial support for some other iTag versions
+* Initial support for T70 (GloryFit)
+* Initial support for Teufel Mynd
+* Initial support for Xiaomi Smart Band 11
+* Initial support for Yawell Y27 AI Health WatchPad
+* Initial support for Zeblaze Stratos 4 Pro
+* Experimental support for Concept2 PM5
+* Experimental support for 15 Anker Soundcore devices
+* Refresh design for alarms list and details
+* Refresh design for app manager
+* Refresh design for charts
+* Refresh design for dashboard
+* Refresh design for device discovery list
+* Refresh design for splash screen
+* Add additional activity icons, refresh others
+* Add altitude correction from SRTM tiles
+* Add companion pairing hint to device cards
+* Add file installer device card item for debug builds
+* Add quick controls from device cards
+* Add warning when accessing device developer settings
+* Add workouts tab to main screen
+* Amazfit Bip: Add experimental sleep estimation
+* Anker Soundcore: Add quick settings
+* Anker Soundcore: Allow supported feature overrides
+* Anker Soundcore: Display find device dialog for earbud selection
+* Bangle.js: Fix back button closing the app
+* Bangle.js: Stop double-counting insets in the app loader WebView
+* Charts: Activity list design refresh
+* Charts: Add optional overview page
+* Charts: Adjust some too-bright colors
+* Charts: Display HRV 7-day average
+* Charts: Display workout intervals from track segments
+* Charts: Fix chart ranges daylight savings
+* Charts: Fix sleep time inconsistencies for some devices
+* Charts: Fix VO2 max on some devices
+* Charts: Keep chips in one scrollable row
+* Charts: Keep x-axis marker labels from overlapping
+* Charts: Plot body fat, water and muscle history on the weight chart
+* Charts: Refresh sleep hypnogram
+* Charts: Show heart rate reading on sleep chart if available
+* Charts: Update actionbar title, hide tabs if single chart
+* CMF Watch Pro: Fix sleep time inconsistencies
+* Configure and hide device card items
+* Cycling sensor: Fix CSC measurement parsing for combined sensors
+* Cycling sensor: Record and show crank cadence
+* Cycling sensor: Reset live speed and cadence when the sensor goes silent
+* Debug: Add preference search
+* Debug: Allow custom notification picture selection
+* Debug: Allow selection of device to import database table
+* Debug: Refresh device icons
+* Device list: Fix some crashes and resets
+* Discovery: Add device candidate details screen
+* DJI Osmo Action 4: Add camera gallery via Wi-Fi
+* Endurain: Add support for Endurain 0.20
+* Expand/collapse folders when clicking the folder icon
+* Fix connection to devices on startup not respecting all-devices setting
+* Fix notification privacy mode on some devices
+* Fix service crash loop on reconnection
+* Fix sleep day assignment in 24h rolling mode
+* Fix some settings in subscreens not working
+* Fossil: Add quick settings
+* Garmin: Add card item to send waypoints
+* Garmin: Add notification for app and watch crashes on debug builds
+* Garmin: Add support for custom apps for navigation and loyalty cards
+* Garmin: Add workout templates extra reps, load category
+* Garmin: Display map in waypoint activity
+* Garmin: Display workout set exercise name if available
+* Garmin: Dynamically check music and find devices capabilities
+* Garmin: Estimate sleep for older watches
+* Garmin: Fix workout templates step names
+* Garmin: Improve JSON request decoding
+* Garmin: Improve PRG install process
+* Garmin: Improve upload speed
+* Garmin: Optimize loyalty cards sync
+* Garmin: Persist more sleep related statistics
+* Garmin: Remove unsupported capabilities
+* Garmin: Send waypoints from Plus Codes
+* H59: Add notification and incoming call support
+* Health Connect: Implement deletion of activities
+* Health Connect: Map aerobics to exercise class and CrossFit to boot camp
+* Huami: Fix overlapping sleep sessions
+* Huawei: Enable Sleep Breath feature
+* Hydration: Refresh dashboard after manual entry
+* iGPSPORT: Always send notification name and content
+* Load the notifications app list asynchronously
+* Maps: Allow configuration of dark mode theme, add low contrast dark theme
+* Maps: Fix tiles on preference change
+* Mi Body Composition Scale: Fix missing impedance
+* Mi Watch Color Sport: Improve workout parsing
+* Notifications: Add Khmer and Thai transliterations
+* Notifications: Fix SMS notification replies
+* Open crash stack traces in a text viewer
+* Oppo Headphones: Add ANC level support
+* Oppo Headphones: Add quick controls
+* Pebble: Fix back button closing the app store
+* Pebble: Fix double-counting insets in the app store WebView
+* Quick Settings: Long press to device settings
+* Rename "Keep activity data on device" developer setting
+* Shokz: Add quick controls
+* Sinilink: Replace custom actions with quick controls
+* Sleep as Android: Fix alarms skipped outside of tracking
+* Sleep As Android: Multiple stability improvements
+* Sony headphones: Add quick controls
+* Sony headphones: Fix equalizer custom bands not visible
+* Test Device: Add photo gallery
+* Test Device: Add some missing test data
+* Test Device: Fix feature overrides when multiple test devices exist
+* Test device: Fix test HR samples
+* Test device: Improve configuration of enabled features
+* Throttle device list updates
+* Update some old dialogs to Material 3
+* Weather: Optimise solar calculations
+* Workout details: Display HR zone thresholds and time percentages
+* Workout templates: Add button to duplicate steps
+* Workout templates: Add sync status dot indicator
+* Workout templates: Allow sharing workouts
+* Workout templates: Improve repeat group rows
+* Workout templates: Simplify step value labels
+* Workout templates: Sort alphabetically
+* Workout Templates: Use cards in the template list and editor
+* Workouts: Add statistics overview
+* Workouts: Simplify weight column for whole KGs
+* Workouts: Update filter screen to Material 3
+* Xiaomi-protobuf: Add settings for irregular heart rhythm alert and sleep breathing rate
+* Xiaomi-protobuf: Always allow raw summary, details and GPS sharing
+* Xiaomi-protobuf: Fix reprocessing getting stuck when there are no files
+* Xiaomi-protobuf: Keep activities that fail to be parsed
+* Xiaomi-protobuf: Parse sleep respiratory rate and into-bed time
+* Xiaomi-protobuf: Resume workout GPS and live stats transmission on reconnection
+* Xiaomi-protobuf: Sleep As Android improvements
+* Xiaomi: Add SpO2 sleep-only mode, keep the low alert threshold
+* Zepp OS: Optimise notification image conversion
+* Zepp OS: Respect notification picture orientation
+* Zepp OS: Sync calendar from watch to phone
+
+#### 0.95.1
+
+* Fix build reproducibility
+
+#### 0.95.0
+
 * Initial support for 1MORE SonoFlow SE
+* Initial support for 8BitDo Micro
+* Initial support for Anker Soundcore A30i
 * Initial support for Cardo LS2-4X
-* Initial support for Sennheiser Momentum In-Ear Wireless
-* Initial support for UGREEN HiTune Max 5c
-* Initial support for Sony REON Pocket Pro
-* Initial support for Xiaomi Hipee Smart Posture Corrector P1
-* Initial support for LeFu Health Scale (1byone, Veeway, and other rebrands)
+* Initial support for Colmi P81
 * Initial support for FitPro SERIES 11
 * Initial support for HK8 Ultra (Wearfit)
+* Initial support for LeFu Health Scale (1byone, Veeway, and other rebrands)
+* Initial support for Nx Wear B8
 * Initial support for Redmi Buds 6 Lite
-* Initial support for Colmi P81
+* Initial support for Sennheiser Momentum In-Ear Wireless
+* Initial support for Sony REON Pocket Pro
+* Initial support for UGREEN HiTune Max 5c
 * Initial support for Viatom F8 Scale
-* Experiemtal support for 7 Garmin D2 watches
-* Redesigned screens, charts, workout details
+* Initial support for Xiaomi Hipee Smart Posture Corrector P1
+* Experimental support for 7 Garmin D2 watches, Garmin Enduro 4
+* Refreshed design for charts, workout details, device list
+* Add support for navigation instructions as notifications to unsupported devices
 * Alarms: Replace long-press to disable with explicit add/delete
 * Amazfit Balance 3: Fix device name recognition
 * Amazfit Bip Max: Fix device name recognition
+* Anker headphones: Add quick settings
 * Auto fetch: Add safeguard for a last fetch time in the future
 * Beurer BM69: Add active user setting
 * C20 Pro: Fix alarm setting
 * Camera: Take picture immediately when calling event
+* Charts: Add heart rate zone overlay
+* Charts: Adjust HR day chart to full day
+* Charts: Fix cadence charts
+* Charts: Fix labels when there are gaps in the data
 * Charts: Fix multiple labels for the same data
 * Charts: Show BMI on weight chart
 * CoMaps: Add support for navigation route
 * Dashboard: Add widgets for basal metabolic rate, body fat, body water, mucle mass, heart rate, hydration
+* Dashboard: Improve calendar loading performance
 * Dashboard: Load calendar days progressively
 * Dashboard: Round sleep across multiple devices
 * Dashboard: Shrink unit text size
+* Debug: Add Navigation
 * EarFun: Improved device recognition
 * Endurain: Fix crash on SSO login
+* Endurain: Fix upload of unsupported images
 * Endurain: Upload stability improvements
+* FIT export: Fix cadence unit
 * Fix companion pairing for classic and already bonded devices
 * Fix crash when reading large files
 * Fix new device FAB behind system navbar
@@ -50,14 +210,18 @@
 * Garmin: Add some missing exercise names
 * Garmin: Fix activity fetch getting stuck after connection loss
 * Garmin: Fix experimental deletion of apps
+* Garmin: Fix fake OAuth on some devices
 * Garmin: Fix sending of some web requests
 * Garmin: Improve decoding of realtime settings
 * Garmin: Improve FIT decoding
 * Garmin: Manage workout templates
 * Generic headphones: Reflect the actual headphones connection
 * H59: Improve device name matching
+* Health Connect: Display workout sync failures
+* Health Connect: Fix cadence export
 * Health Connect: Fix distance sync during some workouts
 * Health Connect: Fix missed samples on some devices
+* Health Connect: Fix sync of single samples
 * Health Connect: Sync blood pressure
 * Huawei Freebuds: Allow find individual earbuds
 * Huawei: Add wheelchair mode
@@ -65,7 +229,9 @@
 * Huawei: Fix missing altitude value on exported GPX track and Health Connect
 * Huawei: Merge workout metrics into auto-export FIT/GPX
 * Intent API: Fix synthetic options
+* Location: Fix speed and timestamps for phone GPS location
 * Logging: Fix log rollover from the previous day
+* Maps: Add support for custom Mapsforge themes
 * MoYoung: Fix battery decoding on some devices
 * MoYoung: Fix crash when weather has no location name
 * MoYoung: Fix decoding of time range settings
@@ -74,6 +240,7 @@
 * Oppo / Realme: Add multipoint support
 * Oppo / Realme: Add quick settings
 * Pebble: Fix blank page on app store
+* PineTime: Add quick settings
 * Redmi Buds: Add quick settings
 * SBM67: Add active user setting
 * Shokz: Add battery polling
@@ -81,21 +248,31 @@
 * Sleep As Android: Improved support for Xiaomi-protobuf devices
 * Sleep As Android: Stability improvements
 * Test Device: Improve test data
+* Wanderer: Improve login status
 * Wanderer: Upload stability improvements
 * Workouts: Allow edit of activity type
 * Workouts: Allow export of multiple workouts as FIT files or zip
+* Workouts: Fix attached GPX export to FIT files
+* Xiaomi-protobuf: Add support for navigation instructions
 * Xiaomi-protobuf: Avoid sending duplicated weather locations
 * Xiaomi-protobuf: Enable body energy and VO2 max charts
 * Xiaomi-protobuf: Fix reading of heart rate interval setting
+* Xiaomi-protobuf: Fix resting heart rate query
 * Xiaomi-protobuf: Fix sleep stages parsing failing on some devices
+* Xiaomi-protobuf: Improve connection when packets are lost
+* Xiaomi-protobuf: Improve watchface compatibility checking
 * Xiaomi-protobuf: Improve workout parsing
 * Xiaomi-protobuf: Improved activity details parsing
 * Xiaomi-protobuf: Share a workout's raw DETAILS and GPS files from dev tools
 * Xiaomi-protobuf: Training load charts
 * Yawell: Add quick settings
+* Zepp OS: Add support for navigation instructions
 * Zepp OS: Add support for V6 weather
 * Zepp OS: Decode cumulative workout distance
+* Zepp OS: FTP file browser via Wi-Fi
 * Zepp OS: Manage workout templates
+* Zepp OS: Music and map upload via Wi-Fi
+* Zepp OS: Voice memo download via Wi-Fi
 
 #### 0.94.0
 

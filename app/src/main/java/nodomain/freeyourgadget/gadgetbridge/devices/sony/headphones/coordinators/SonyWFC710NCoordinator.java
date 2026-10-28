@@ -44,7 +44,6 @@ public class SonyWFC710NCoordinator extends SonyHeadphonesCoordinator {
                 SonyHeadphonesCapabilities.BatteryDual2,
                 SonyHeadphonesCapabilities.BatteryCase,
                 SonyHeadphonesCapabilities.AmbientSoundControl2,
-                SonyHeadphonesCapabilities.EqualizerSimple,
                 SonyHeadphonesCapabilities.EqualizerWithCustomBands,
                 SonyHeadphonesCapabilities.AudioUpsampling,
                 SonyHeadphonesCapabilities.ButtonModesLeftRight,

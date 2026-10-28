@@ -30,17 +30,21 @@ public class BatteryStatusMessage extends GFDIMessage {
     public static BatteryStatusMessage parseIncoming(MessageReader reader, GarminMessage originalGarminMessage) {
         final int wireStatus = reader.readByte(); // 0
         final float voltage = reader.readByte() / 100.0f; // 1
-        // 2-6 - unknown meaning
+        final int percent = reader.readByte(); // 2
+        // 3-6 - unknown meaning
 
         final String status = switch (wireStatus & 0x70) {
-            case 0x20 -> "good";
-            case 0x30 -> "ok";
-            case 0x40 -> "low";
+            case 0x10 -> "good";
+            case 0x20 -> "ok";
+            case 0x30 -> "low";
+            case 0x40 -> "critical";
+            case 0x50 -> "new";
+            case 0x70 -> "invalid";
             default -> Integer.toBinaryString(wireStatus & 0x70);
         };
 
-        LOG.info("Received not-yet supported BATTERY_STATUS message with status={} and voltage={}",
-                status, voltage);
+        LOG.info("Received not-yet supported BATTERY_STATUS message with status={}, voltage={} and capacity={}",
+                status, voltage, percent);
 
         return new BatteryStatusMessage(originalGarminMessage);
     }

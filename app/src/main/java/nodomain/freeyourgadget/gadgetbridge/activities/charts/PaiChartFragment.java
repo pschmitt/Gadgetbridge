@@ -28,30 +28,28 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.Chart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.LegendEntry;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.data.ChartData;
-import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
+
+import kotlin.jvm.functions.Function1;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartLegendView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.DaySelections;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.pai.PaiChartData;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSpec;
 import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.GaugeDrawer;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileData;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileGridUtilKt;
@@ -67,10 +65,9 @@ public class PaiChartFragment extends AbstractChartFragment<PaiChartFragment.Pai
 
     protected final int TOTAL_DAYS = getRangeDays();
 
-    protected Locale mLocale;
-
     protected ImageView mGoalMinutesGauge;
-    protected BarChart mWeekChart;
+    protected GbChartView mWeekChart;
+    protected ChartLegendView mWeekLegend;
     protected TextView mDateView;
     protected LinearLayout mSummaryStatsContainer;
     protected TextView mLineLowInc;
@@ -83,21 +80,11 @@ public class PaiChartFragment extends AbstractChartFragment<PaiChartFragment.Pai
     protected View mTileModerate;
     protected View mTileHigh;
 
-    protected int BACKGROUND_COLOR;
-    protected int DESCRIPTION_COLOR;
-    protected int CHART_TEXT_COLOR;
-    protected int LEGEND_TEXT_COLOR;
-    protected int TEXT_COLOR;
-
     protected int PAI_TOTAL_COLOR;
     protected int PAI_DAY_COLOR;
 
     @Override
     protected void init() {
-        BACKGROUND_COLOR = GBApplication.getBackgroundColor(requireContext());
-        LEGEND_TEXT_COLOR = DESCRIPTION_COLOR = TEXT_COLOR = GBApplication.getTextColor(requireContext());
-        CHART_TEXT_COLOR = GBApplication.getSecondaryTextColor(requireContext());
-
         PAI_TOTAL_COLOR = ContextCompat.getColor(requireContext(), R.color.chart_pai_weekly);
         PAI_DAY_COLOR = ContextCompat.getColor(requireContext(), R.color.chart_pai_today);
     }
@@ -106,8 +93,6 @@ public class PaiChartFragment extends AbstractChartFragment<PaiChartFragment.Pai
     public View onCreateView(final LayoutInflater inflater,
                              final ViewGroup container,
                              final Bundle savedInstanceState) {
-        mLocale = getResources().getConfiguration().locale;
-
         final View rootView = inflater.inflate(R.layout.fragment_pai_chart, container, false);
 
         rootView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
@@ -116,6 +101,7 @@ public class PaiChartFragment extends AbstractChartFragment<PaiChartFragment.Pai
 
         mGoalMinutesGauge = rootView.findViewById(R.id.goal_minutes_gauge);
         mWeekChart = rootView.findViewById(R.id.pai_chart_week);
+        mWeekLegend = rootView.findViewById(R.id.pai_chart_legend);
         mDateView = rootView.findViewById(R.id.pai_date_view);
         mSummaryStatsContainer = rootView.findViewById(R.id.pai_summary_stats_container);
         mLineLowInc = rootView.findViewById(R.id.pai_line_low_inc);
@@ -138,7 +124,7 @@ public class PaiChartFragment extends AbstractChartFragment<PaiChartFragment.Pai
             mTileLow.setVisibility(View.GONE);
         }
 
-        setupWeekChart();
+        mWeekChart.dismissSelectionOnTapOutside(rootView);
 
         // refresh immediately instead of use refreshIfVisible(), for perceived performance
         refresh();
@@ -146,47 +132,8 @@ public class PaiChartFragment extends AbstractChartFragment<PaiChartFragment.Pai
         return rootView;
     }
 
-    private void setupWeekChart() {
-        mWeekChart.setBackgroundColor(BACKGROUND_COLOR);
-        mWeekChart.getDescription().setTextColor(DESCRIPTION_COLOR);
-        mWeekChart.getDescription().setText("");
-        mWeekChart.setFitBars(true);
-        configureBarLineChartDefaults(mWeekChart);
-        mWeekChart.setTouchEnabled(false);
-
-        final XAxis x = mWeekChart.getXAxis();
-        x.setDrawLabels(true);
-        x.setDrawGridLines(false);
-        x.setEnabled(true);
-        x.setTextColor(CHART_TEXT_COLOR);
-        x.setDrawLimitLinesBehindData(true);
-        x.setPosition(XAxis.XAxisPosition.BOTTOM);
-
-        final YAxis y = mWeekChart.getAxisLeft();
-        y.setDrawGridLines(true);
-        y.setDrawTopYLabelEntry(true);
-        y.setTextColor(CHART_TEXT_COLOR);
-        y.setDrawZeroLine(true);
-        y.setSpaceBottom(0);
-        y.setAxisMinimum(0);
-        y.setAxisMaximum(getPaiTarget());
-        y.setValueFormatter(getRoundFormatter());
-        y.setEnabled(true);
-
-        final YAxis yAxisRight = mWeekChart.getAxisRight();
-        yAxisRight.setDrawGridLines(false);
-        yAxisRight.setEnabled(false);
-        yAxisRight.setDrawLabels(false);
-        yAxisRight.setDrawTopYLabelEntry(false);
-        yAxisRight.setTextColor(CHART_TEXT_COLOR);
-    }
-
     private int getRangeDays() {
-        if (GBApplication.getPrefs().getBoolean("charts_range", true)) {
-            return 30;
-        } else {
-            return 7;
-        }
+        return GBApplication.getPrefs().getChartsRange().getDays();
     }
 
     private int getPaiTarget() {
@@ -195,7 +142,7 @@ public class PaiChartFragment extends AbstractChartFragment<PaiChartFragment.Pai
 
     @Override
     public String getTitle() {
-        if (GBApplication.getPrefs().getBoolean("charts_range", true)) {
+        if (GBApplication.getPrefs().getChartsRange() == ChartsRange.MONTH) {
             return getString(R.string.pai_chart_per_month);
         } else {
             return getString(R.string.pai_chart_per_week);
@@ -208,14 +155,13 @@ public class PaiChartFragment extends AbstractChartFragment<PaiChartFragment.Pai
         day.setTime(chartsHost.getEndDate());
         //NB: we could have omitted the day, but this way we can move things to the past easily
         final DayData dayData = refreshDayData(db, day, device);
-        final WeekChartsData<BarData> weekBeforeData = refreshWeekBeforeData(db, day, device);
+        final WeekData weekBeforeData = refreshWeekBeforeData(db, day, device);
 
         return new PaiChartsData(dayData, weekBeforeData);
     }
 
     @Override
     protected void updateChartsnUIThread(final PaiChartsData pcd) {
-        setupLegend(mWeekChart);
         int[] colors = new int[] {
                 ContextCompat.getColor(GBApplication.getContext(), R.color.chart_pai_weekly),
                 ContextCompat.getColor(GBApplication.getContext(), R.color.chart_pai_today)
@@ -236,16 +182,7 @@ public class PaiChartFragment extends AbstractChartFragment<PaiChartFragment.Pai
                 getContext()
         ));
 
-        // set custom renderer for 30days bar charts
-        if (GBApplication.getPrefs().getBoolean("charts_range", true)) {
-            mWeekChart.setRenderer(new AngledLabelsChartRenderer(mWeekChart, mWeekChart.getAnimator(), mWeekChart.getViewPortHandler()));
-        }
-
-        mWeekChart.setData(null); // workaround for https://github.com/PhilJay/MPAndroidChart/issues/2317
-        mWeekChart.setData(pcd.getWeekBeforeData().getData());
-        mWeekChart.getXAxis().setValueFormatter(pcd.getWeekBeforeData().getXValueFormatter());
-        mWeekChart.getAxisLeft().setAxisMaximum(
-                Math.max(pcd.getWeekBeforeData().getMaxPai(), getPaiTarget()) + 20);
+        updateWeekChart(pcd.getWeekBeforeData());
 
         mDateView.setText(DateTimeUtils.formatDate(pcd.getDayData().day.getTime()));
 
@@ -273,62 +210,49 @@ public class PaiChartFragment extends AbstractChartFragment<PaiChartFragment.Pai
         mLineHighTime.setText(requireContext().getString(R.string.num_min, pcd.getDayData().minutesHigh));
     }
 
+    private void updateWeekChart(final WeekData week) {
+        final String totalLabel = getString(R.string.pai_total);
+        final String dayLabel = getString(R.string.pai_day);
+        final ChartSpec spec = PaiChartData.periodSpec(
+                week.epochDays, week.totals, week.today, getPaiTarget(), totalLabel, PAI_TOTAL_COLOR, dayLabel, PAI_DAY_COLOR
+        );
+        final String emptyValue = getString(R.string.stats_empty_value);
+        final List<Function1<Integer, String>> rowTexts = new ArrayList<>();
+        rowTexts.add(i -> week.totals[i] > 0 ? String.valueOf(week.totals[i]) : emptyValue);
+        rowTexts.add(i -> week.totals[i] > 0 ? getString(R.string.pai_plus_num, week.today[i]) : emptyValue);
+        mWeekChart.setSelectionContent(x -> DaySelections.of(
+                week.epochDays, x, Arrays.asList(totalLabel, dayLabel), Arrays.asList(PAI_TOTAL_COLOR, PAI_DAY_COLOR),
+                rowTexts, emptyValue
+        ));
+        mWeekChart.setSpec(spec);
+        mWeekLegend.setSeries(spec.getSeries());
+    }
+
     @Override
     protected void renderCharts() {
         mWeekChart.invalidate();
     }
 
-    protected String getWeeksChartsLabel(final Calendar day) {
-        if (GBApplication.getPrefs().getBoolean("charts_range", true)) {
-            // month, show day date
-            return String.valueOf(day.get(Calendar.DAY_OF_MONTH));
-        } else {
-            // week, show short day name
-            return day.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, mLocale);
-        }
-    }
-
-    protected WeekChartsData<BarData> refreshWeekBeforeData(final DBHandler db,
-                                                            Calendar day,
-                                                            final GBDevice device) {
+    protected WeekData refreshWeekBeforeData(final DBHandler db,
+                                             Calendar day,
+                                             final GBDevice device) {
         day = (Calendar) day.clone(); // do not modify the caller's argument
         day.add(Calendar.DATE, -TOTAL_DAYS + 1);
 
-        List<BarEntry> entries = new ArrayList<>();
-        final ArrayList<String> labels = new ArrayList<>();
-        int maxPai = -1;
-
+        final long[] epochDays = new long[TOTAL_DAYS];
+        final int[] totals = new int[TOTAL_DAYS];
+        final int[] today = new int[TOTAL_DAYS];
         for (int counter = 0; counter < TOTAL_DAYS; counter++) {
+            epochDays[counter] = LocalDate.of(day.get(Calendar.YEAR), day.get(Calendar.MONTH) + 1, day.get(Calendar.DAY_OF_MONTH)).toEpochDay();
             final Optional<? extends PaiSample> sampleOpt = getSamplePaiForDay(db, device, day);
-
             if (sampleOpt.isPresent()) {
-                final PaiSample sample = sampleOpt.get();
-                final int paiToday = Math.round(sample.getPaiToday());
-                final int paiTotal = Math.round(sample.getPaiTotal());
-                maxPai = Math.max(maxPai, paiTotal);
-
-                final float[] paiBar = new float[]{
-                        paiTotal - paiToday,
-                        paiToday
-                };
-
-                entries.add(new BarEntry(counter, paiBar));
-            } else {
-                entries.add(new BarEntry(counter, new float[]{0.0f, 0.0f}));
+                totals[counter] = Math.round(sampleOpt.get().getPaiTotal());
+                today[counter] = Math.round(sampleOpt.get().getPaiToday());
             }
-            labels.add(getWeeksChartsLabel(day));
             day.add(Calendar.DATE, 1);
         }
 
-        BarDataSet set = new BarDataSet(entries, "");
-        set.setColors(PAI_TOTAL_COLOR, PAI_DAY_COLOR);
-        set.setValueFormatter(getRoundFormatter());
-
-        BarData barData = new BarData(set);
-        barData.setValueTextColor(TEXT_COLOR); //prevent tearing other graph elements with the black text. Another approach would be to hide the values completely with data.setDrawValues(false);
-        barData.setValueTextSize(10f);
-
-        return new WeekChartsData(barData, new PreformattedXIndexLabelFormatter(labels), maxPai);
+        return new WeekData(epochDays, totals, today);
     }
 
     protected DayData refreshDayData(final DBHandler db,
@@ -376,33 +300,8 @@ public class PaiChartFragment extends AbstractChartFragment<PaiChartFragment.Pai
         return new DayData(day, segments, today, total, paiLow, paiModerate, paiHigh, minutesLow, minutesModerate, minutesHigh);
     }
 
-    protected ValueFormatter getRoundFormatter() {
-        return new ValueFormatter() {
-            @Override
-            public String getFormattedValue(final float value) {
-                return String.valueOf(Math.round(value));
-            }
-        };
-    }
-
     @Override
     protected void setupLegend(Chart<?> chart) {
-        List<LegendEntry> legendEntries = new ArrayList<>(2);
-
-        LegendEntry lightSleepEntry = new LegendEntry();
-        lightSleepEntry.label = requireContext().getString(R.string.pai_total);
-        lightSleepEntry.formColor = PAI_TOTAL_COLOR;
-        legendEntries.add(lightSleepEntry);
-
-        LegendEntry deepSleepEntry = new LegendEntry();
-        deepSleepEntry.label = requireContext().getString(R.string.pai_day);
-        deepSleepEntry.formColor = PAI_DAY_COLOR;
-        legendEntries.add(deepSleepEntry);
-
-        chart.getLegend().setCustom(legendEntries);
-        chart.getLegend().setTextColor(LEGEND_TEXT_COLOR);
-        chart.getLegend().setWordWrapEnabled(true);
-        chart.getLegend().setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
     }
 
     private Optional<? extends PaiSample> getSamplePaiForDay(final DBHandler db, final GBDevice device, final Calendar day) {
@@ -457,26 +356,23 @@ public class PaiChartFragment extends AbstractChartFragment<PaiChartFragment.Pai
         }
     }
 
-    protected static class WeekChartsData<T extends ChartData<?>> extends DefaultChartsData<T> {
-        private final int maxPai;
+    protected static class WeekData {
+        private final long[] epochDays;
+        private final int[] totals;
+        private final int[] today;
 
-        public WeekChartsData(final T data,
-                              final PreformattedXIndexLabelFormatter xIndexLabelFormatter,
-                              final int maxPai) {
-            super(data, xIndexLabelFormatter);
-            this.maxPai = maxPai;
-        }
-
-        public int getMaxPai() {
-            return maxPai;
+        WeekData(final long[] epochDays, final int[] totals, final int[] today) {
+            this.epochDays = epochDays;
+            this.totals = totals;
+            this.today = today;
         }
     }
 
     protected static class PaiChartsData extends ChartsData {
-        private final WeekChartsData<BarData> weekBeforeData;
+        private final WeekData weekBeforeData;
         private final DayData dayData;
 
-        PaiChartsData(final DayData dayData, final WeekChartsData<BarData> weekBeforeData) {
+        PaiChartsData(final DayData dayData, final WeekData weekBeforeData) {
             this.dayData = dayData;
             this.weekBeforeData = weekBeforeData;
         }
@@ -485,7 +381,7 @@ public class PaiChartFragment extends AbstractChartFragment<PaiChartFragment.Pai
             return dayData;
         }
 
-        public WeekChartsData<BarData> getWeekBeforeData() {
+        public WeekData getWeekBeforeData() {
             return weekBeforeData;
         }
     }

@@ -65,9 +65,9 @@ public class DomyosT540Support extends AbstractBTLESingleDeviceSupport {
 
     public DomyosT540Support() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
         addSupportedService(UUUD_SERVICE_DOMYOS);
 
         deviceInfoProfile = new DeviceInfoProfile<>(this);
@@ -198,7 +198,7 @@ public class DomyosT540Support extends AbstractBTLESingleDeviceSupport {
     public void onFindDevice(boolean start) {
         byte[] command = new byte[]{(byte) 0xf0, (byte) 0xaf, (byte) (start ? 0x01 : 0x00), 0x00};
         command[3] = getChecksum(command);
-        
+
         TransactionBuilder builder = createTransactionBuilder("beep");
         builder.write(UUUD_CHARACTERISTICS_WRITE, command);
         builder.queue();

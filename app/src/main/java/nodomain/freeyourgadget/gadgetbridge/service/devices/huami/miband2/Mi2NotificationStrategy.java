@@ -34,7 +34,7 @@ public class Mi2NotificationStrategy extends V2NotificationStrategy<HuamiSupport
 
     public Mi2NotificationStrategy(HuamiSupport support) {
         super(support);
-        alertLevelCharacteristic = support.getCharacteristic(GattCharacteristic.UUID_CHARACTERISTIC_ALERT_LEVEL);
+        alertLevelCharacteristic = support.getCharacteristic(GattCharacteristic.CHARACTERISTIC_ALERT_LEVEL.uuid);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class Mi2NotificationStrategy extends V2NotificationStrategy<HuamiSupport
             short vibration = (short) vibrationProfile.getOnOffSequence()[0];
             short pause = (short) vibrationProfile.getOnOffSequence()[1];
             waitDuration = (vibration + pause) * repeat;
-            builder.write(GattCharacteristic.UUID_CHARACTERISTIC_ALERT_LEVEL, new byte[]{-1, (byte) (vibration & 255), (byte) (vibration >> 8 & 255), (byte) (pause & 255), (byte) (pause >> 8 & 255), repeat});
+            builder.write(GattCharacteristic.CHARACTERISTIC_ALERT_LEVEL.uuid, new byte[]{-1, (byte) (vibration & 255), (byte) (vibration >> 8 & 255), (byte) (pause & 255), (byte) (pause >> 8 & 255), repeat});
         }
 
         // Don't wait during an incoming call, otherwise we'll not be able to stop the call notification

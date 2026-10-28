@@ -64,7 +64,7 @@ public class AsteroidOSDeviceSupport extends AbstractBTLESingleDeviceSupport {
         super(LOG);
         addSupportedService(AsteroidOSConstants.SERVICE_UUID);
         addSupportedService(AsteroidOSConstants.TIME_SERVICE_UUID);
-        addSupportedService(GattService.UUID_SERVICE_BATTERY_SERVICE);
+        addSupportedService(GattService.SERVICE_BATTERY.uuid);
         addSupportedService(AsteroidOSConstants.WEATHER_SERVICE_UUID);
         addSupportedService(AsteroidOSConstants.NOTIFICATION_SERVICE_UUID);
         addSupportedService(AsteroidOSConstants.MEDIA_SERVICE_UUID);

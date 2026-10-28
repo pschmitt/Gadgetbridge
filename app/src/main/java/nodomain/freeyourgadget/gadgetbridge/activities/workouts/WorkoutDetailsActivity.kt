@@ -115,7 +115,6 @@ class WorkoutDetailsActivity : AbstractGBActivity() {
 
         fun createFilteredListIntent(
             context: Context,
-            gbDevice: GBDevice,
             position: Int = 0,
             activityFilter: Int = 0,
             dateFromFilter: Long = 0,
@@ -125,7 +124,6 @@ class WorkoutDetailsActivity : AbstractGBActivity() {
             itemsFilter: List<Long>? = null
         ): Intent {
             return Intent(context, WorkoutDetailsActivity::class.java).apply {
-                putExtra(GBDevice.EXTRA_DEVICE, gbDevice)
                 putExtra("position", position)
                 putExtra("activityFilter", activityFilter)
                 putExtra("dateFromFilter", dateFromFilter)

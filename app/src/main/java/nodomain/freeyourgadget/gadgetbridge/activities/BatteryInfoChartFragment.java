@@ -18,8 +18,10 @@ package nodomain.freeyourgadget.gadgetbridge.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,51 +33,39 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
-import com.github.mikephil.charting.animation.Easing;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.CombinedData;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.color.MaterialColors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.SampleXLabelFormatter;
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.TimestampTranslation;
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.marker.ValueMarker;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.battery.BatteryChartData;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartSelection;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSpec;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartValueFormat;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutValueFormatter;
 import nodomain.freeyourgadget.gadgetbridge.database.DBAccess;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.databinding.FragmentBatteryChartBinding;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
-import nodomain.freeyourgadget.gadgetbridge.util.Accumulator;
+import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.preferences.DevicePrefs;
 
 public class BatteryInfoChartFragment extends AbstractGBFragment {
     private static final Logger LOG = LoggerFactory.getLogger(BatteryInfoChartFragment.class);
     private static final String PREF_SELECTED_METRICS_PREFIX = "chart_battery_selected_metrics_";
     private static final String STATE_SELECTED_METRICS = "selectedMetrics";
-
-    private int chartTextColor;
-    private int textColor;
-    private int backgroundColor;
 
     private FragmentBatteryChartBinding binding;
 
@@ -103,8 +93,6 @@ public class BatteryInfoChartFragment extends AbstractGBFragment {
 
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-        init();
-
         binding = FragmentBatteryChartBinding.inflate(inflater, container, false);
 
         if (savedInstanceState != null) {
@@ -147,40 +135,9 @@ public class BatteryInfoChartFragment extends AbstractGBFragment {
         return "";
     }
 
-    private void init() {
-        backgroundColor = GBApplication.getBackgroundColor(requireContext());
-        textColor = GBApplication.getTextColor(requireContext());
-        chartTextColor = GBApplication.getSecondaryTextColor(requireContext());
-    }
-
     private void setupChart() {
-        binding.batteryChart.setBackgroundColor(backgroundColor);
-        binding.batteryChart.getDescription().setEnabled(false);
-        binding.batteryChart.getLegend().setTextColor(textColor);
-        binding.batteryChart.getLegend().setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
-        binding.batteryChart.getLegend().setWordWrapEnabled(true);
-        binding.batteryChart.setTouchEnabled(true);
-        binding.batteryChart.setDragEnabled(true);
-        binding.batteryChart.setScaleEnabled(true);
-        binding.batteryChart.setDrawGridBackground(false);
-        binding.batteryChart.setHighlightPerDragEnabled(false);
-
-        final XAxis x = binding.batteryChart.getXAxis();
-        x.setDrawLabels(true);
-        x.setDrawGridLines(false);
-        x.setEnabled(true);
-        x.setPosition(XAxis.XAxisPosition.BOTTOM);
-        x.setTextColor(chartTextColor);
-        x.setAvoidFirstLastClipping(true);
-
-        final YAxis yAxisLeft = binding.batteryChart.getAxisLeft();
-        yAxisLeft.setTextColor(chartTextColor);
-        yAxisLeft.setDrawGridLines(true);
-
-        final YAxis yAxisRight = binding.batteryChart.getAxisRight();
-        yAxisRight.setTextColor(chartTextColor);
-        yAxisRight.setDrawGridLines(false);
-        yAxisRight.setEnabled(false);
+        binding.batteryChart.setZoomable(true);
+        binding.batteryChart.dismissSelectionOnTapOutside(binding.getRoot());
     }
 
     private void startRefreshTask() {
@@ -295,19 +252,6 @@ public class BatteryInfoChartFragment extends AbstractGBFragment {
         return names;
     }
 
-    private String getXAxisDatePattern(final int totalDays) {
-        if (totalDays <= 1) {
-            return "HH:mm";
-        }
-        if (totalDays <= 7) {
-            return "EEE dd";
-        }
-        if (totalDays <= 31) {
-            return "dd.MM";
-        }
-        return "MM.yyyy";
-    }
-
     private String formatMetricValue(final BatteryMetric metric, final double value, final boolean showUnit) {
         return valueFormatter.formatValue(value, metric.uomKey, showUnit).trim();
     }
@@ -316,40 +260,39 @@ public class BatteryInfoChartFragment extends AbstractGBFragment {
         if (min >= max) {
             return formatMetricValue(metric, min, true);
         }
-        return formatMetricValue(metric, min, false) + "–" + formatMetricValue(metric, max, true);
+        return formatMetricValue(metric, min, false) + "\u2013" + formatMetricValue(metric, max, true);
     }
 
-    /**
-     * Configures a real-valued (non-normalized) y-axis for the given metric's min/max, padding it
-     * out to at least {@link BatteryMetric#minAxisSpan} so a nearly-flat series (e.g. idle current
-     * fluctuating by a few mA) isn't stretched to fill the whole chart height.
-     */
-    private void configureRealAxis(final YAxis axis, final BatteryMetric metric, final float min, final float max) {
-        axis.setEnabled(true);
-        axis.setValueFormatter(new ValueFormatter() {
-            @Override
-            public String getFormattedValue(final float value) {
-                return formatMetricValue(metric, value, false);
-            }
-        });
-
+    private int lineColor(final BatteryMetric metric) {
         if (metric == BatteryMetric.LEVEL) {
-            // keep the familiar fixed 0-100% range for battery level
-            axis.setAxisMinimum(0f);
-            axis.setAxisMaximum(100f);
-            return;
+            return MaterialColors.getColor(requireContext(), R.attr.textColorPrimary, Color.GRAY);
         }
+        return ContextCompat.getColor(requireContext(), metric.colorResId);
+    }
 
-        float axisMin = min;
-        float axisMax = max;
-        if (axisMax - axisMin < metric.minAxisSpan) {
-            final float center = (axisMin + axisMax) / 2f;
-            axisMin = center - metric.minAxisSpan / 2f;
-            axisMax = center + metric.minAxisSpan / 2f;
+    private ChartSelection selection(final double x,
+                                     final List<BatteryMetric> metrics,
+                                     final List<BatteryChartData.Metric> chartMetrics,
+                                     final boolean singleDay,
+                                     final int tsFrom,
+                                     final int tsTo) {
+        final Date date = new Date(Math.round(x) * 1000L);
+        final String title = singleDay
+                ? DateFormat.getTimeFormat(requireContext()).format(date)
+                : DateTimeUtils.formatDateTime(date);
+        final List<ChartSelection.Row> rows = new ArrayList<>();
+        final StringBuilder description = new StringBuilder(title).append('.');
+        for (int i = 0; i < chartMetrics.size(); i++) {
+            final BatteryChartData.Metric chartMetric = chartMetrics.get(i);
+            final int index = BatteryChartData.nearestSample(chartMetric.getSeconds(), x, tsFrom, tsTo);
+            if (index < 0) {
+                continue;
+            }
+            final String text = formatMetricValue(metrics.get(i), chartMetric.getValues()[index], true);
+            rows.add(new ChartSelection.Row(chartMetric.getColor(), text));
+            description.append(' ').append(getString(metrics.get(i).labelResId)).append(' ').append(text).append('.');
         }
-        final float padding = (axisMax - axisMin) * 0.1f;
-        axis.setAxisMinimum(axisMin - padding);
-        axis.setAxisMaximum(axisMax + padding);
+        return new ChartSelection(title, rows, description.toString());
     }
 
     /**
@@ -390,39 +333,6 @@ public class BatteryInfoChartFragment extends AbstractGBFragment {
             addedAny = true;
         }
         return addedAny;
-    }
-
-    /**
-     * A chart entry's y value formatter for a single battery metric. When several metrics are
-     * plotted together, their raw values are normalized to a common 0-100 range so they can share
-     * one hidden y-axis. This formatter converts a normalized value back to the real one before
-     * formatting it, so the tap tooltip always shows real units.
-     */
-    private class MetricValueFormatter extends ValueFormatter {
-        private final BatteryMetric metric;
-        private final float min;
-        private final float max;
-        private final boolean normalized;
-
-        MetricValueFormatter(final BatteryMetric metric, final float min, final float max, final boolean normalized) {
-            this.metric = metric;
-            this.min = min;
-            this.max = max;
-            this.normalized = normalized;
-        }
-
-        @Override
-        public String getFormattedValue(final float value) {
-            final float actual = normalized ? denormalize(value) : value;
-            return formatMetricValue(metric, actual, false);
-        }
-
-        private float denormalize(final float normalizedY) {
-            if (max <= min) {
-                return min;
-            }
-            return min + (normalizedY / 100f) * (max - min);
-        }
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -487,94 +397,38 @@ public class BatteryInfoChartFragment extends AbstractGBFragment {
         }
 
         private void renderChart() {
-            final TimestampTranslation tsTranslation = new TimestampTranslation();
-            tsTranslation.shorten(tsFrom);
-            final float xMax = tsTranslation.shorten(tsTo);
-
-            // only the metrics that actually have data in this window are plotted/axis-assigned;
-            // a selected metric with no samples in range still shows its chip, just no line
-            final List<BatteryMetric> orderedMetrics = new ArrayList<>();
+            final List<BatteryMetric> plottedMetrics = new ArrayList<>();
+            final List<BatteryChartData.Metric> chartMetrics = new ArrayList<>();
             for (final BatteryMetric metric : BatteryMetric.values()) {
                 final List<BatteryMetric.Sample> samples = samplesByMetric.get(metric);
-                if (loadedMetrics.contains(metric) && samples != null && !samples.isEmpty()) {
-                    orderedMetrics.add(metric);
+                if (!loadedMetrics.contains(metric) || samples == null || samples.isEmpty()) {
+                    continue;
                 }
-            }
-            final boolean hasAnyData = !orderedMetrics.isEmpty();
-            // 1 metric: its own real axis. 2 metrics: one real axis each (left/right). 3+: no
-            // room for more real axes, so values are normalized onto one shared, hidden axis.
-            final boolean dualAxis = orderedMetrics.size() == 2;
-            final boolean normalized = orderedMetrics.size() >= 3;
-
-            final List<LineDataSet> dataSets = new ArrayList<>();
-            final Map<String, ValueFormatter> markerFormatters = new HashMap<>();
-            final Map<String, String> markerUnits = new HashMap<>();
-
-            BatteryMetric axisLeftMetric = null;
-            float axisLeftMin = 0f;
-            float axisLeftMax = 1f;
-            BatteryMetric axisRightMetric = null;
-            float axisRightMin = 0f;
-            float axisRightMax = 1f;
-
-            for (int i = 0; i < orderedMetrics.size(); i++) {
-                final BatteryMetric metric = orderedMetrics.get(i);
-                final List<BatteryMetric.Sample> rawSamples = Objects.requireNonNull(samplesByMetric.get(metric));
-
-                final Accumulator accumulator = new Accumulator();
-                for (final BatteryMetric.Sample sample : rawSamples) {
-                    accumulator.add(sample.value());
+                final long[] seconds = new long[samples.size()];
+                final double[] values = new double[samples.size()];
+                double min = Double.MAX_VALUE;
+                double max = -Double.MAX_VALUE;
+                for (int i = 0; i < samples.size(); i++) {
+                    seconds[i] = samples.get(i).timestampSeconds();
+                    values[i] = samples.get(i).value();
+                    min = Math.min(min, values[i]);
+                    max = Math.max(max, values[i]);
                 }
-                final float min = (float) accumulator.getMin();
-                final float max = (float) accumulator.getMax();
-
-                final YAxis.AxisDependency axisDependency;
-                if (dualAxis && i == 1) {
-                    axisDependency = YAxis.AxisDependency.RIGHT;
-                    axisRightMetric = metric;
-                    axisRightMin = min;
-                    axisRightMax = max;
-                } else {
-                    axisDependency = YAxis.AxisDependency.LEFT;
-                    if (!normalized) {
-                        axisLeftMetric = metric;
-                        axisLeftMin = min;
-                        axisLeftMax = max;
-                    }
-                }
-
-                final List<Entry> entries = new ArrayList<>(rawSamples.size());
-                for (final BatteryMetric.Sample sample : rawSamples) {
-                    final float x = tsTranslation.shorten(sample.timestampSeconds());
-                    final float y = normalized ? normalize(sample.value(), min, max) : sample.value();
-                    entries.add(new Entry(x, y));
-                }
-
-                final String label = getString(
-                        R.string.generic_metric_chart_label_with_unit,
-                        getString(metric.labelResId),
-                        formatMetricRange(metric, min, max)
-                );
-
-                final LineDataSet dataSet = new LineDataSet(entries, label);
-                final int metricColor = ContextCompat.getColor(requireContext(), metric.colorResId);
-                dataSet.setAxisDependency(axisDependency);
-                dataSet.setColor(metricColor);
-                dataSet.setCircleColor(metricColor);
-                dataSet.setDrawCircleHole(false);
-                dataSet.setCircleRadius(entries.size() > 30 ? 2.5f : 4f);
-                dataSet.setDrawCircles(entries.size() <= 60);
-                dataSet.setDrawValues(false);
-                dataSet.setLineWidth(2f);
-                dataSet.setValueTextColor(textColor);
-                final MetricValueFormatter formatter = new MetricValueFormatter(metric, min, max, normalized);
-                dataSet.setValueFormatter(formatter);
-                dataSets.add(dataSet);
-                markerFormatters.put(label, formatter);
-                markerUnits.put(label, null);
+                final boolean level = metric == BatteryMetric.LEVEL;
+                plottedMetrics.add(metric);
+                chartMetrics.add(new BatteryChartData.Metric(
+                        metric.name(),
+                        getString(R.string.generic_metric_chart_label_with_unit, getString(metric.labelResId), formatMetricRange(metric, min, max)),
+                        lineColor(metric),
+                        seconds,
+                        values,
+                        metric.minAxisSpan,
+                        level ? Double.valueOf(0) : null,
+                        level ? Double.valueOf(100) : null,
+                        value -> formatMetricValue(metric, value, false)
+                ));
             }
 
-            binding.batteryChartEmpty.setVisibility(hasAnyData ? View.GONE : View.VISIBLE);
             // the header shows "live" readings, which are meaningless once the device has
             // disconnected and can no longer be trusted to be current
             final boolean deviceConnected = device.isConnected();
@@ -585,47 +439,11 @@ public class BatteryInfoChartFragment extends AbstractGBFragment {
             }
             binding.batteryChartLatestValues.setVisibility(hasLatestValues ? View.VISIBLE : View.GONE);
 
-            final XAxis xAxis = binding.batteryChart.getXAxis();
-            xAxis.setValueFormatter(new SampleXLabelFormatter(tsTranslation, getXAxisDatePattern(Math.max(1, (tsTo - tsFrom) / 86400))));
-            xAxis.setAxisMinimum(0f);
-            xAxis.setAxisMaximum(Math.max(1f, xMax));
-
-            final YAxis yAxisLeft = binding.batteryChart.getAxisLeft();
-            final YAxis yAxisRight = binding.batteryChart.getAxisRight();
-            if (normalized || !hasAnyData) {
-                yAxisLeft.setEnabled(!normalized);
-                yAxisLeft.setValueFormatter(null);
-                yAxisLeft.setAxisMinimum(normalized ? -5f : 0f);
-                yAxisLeft.setAxisMaximum(normalized ? 105f : 1f);
-                yAxisRight.setEnabled(false);
-            } else {
-                configureRealAxis(yAxisLeft, axisLeftMetric, axisLeftMin, axisLeftMax);
-                if (dualAxis) {
-                    configureRealAxis(yAxisRight, axisRightMetric, axisRightMin, axisRightMax);
-                } else {
-                    yAxisRight.setEnabled(false);
-                }
-            }
-
-            final LineData lineData = new LineData();
-            for (final LineDataSet dataSet : dataSets) {
-                lineData.addDataSet(dataSet);
-            }
-            final CombinedData combinedData = new CombinedData();
-            combinedData.setData(lineData);
-
-            binding.batteryChart.setData(null); // workaround for https://github.com/PhilJay/MPAndroidChart/issues/2317
-            binding.batteryChart.setData(combinedData);
-            binding.batteryChart.setMarker(new ValueMarker(requireContext(), combinedData, markerFormatters, markerUnits));
-            binding.batteryChart.animateX(500, Easing.EaseInOutQuart);
-            binding.batteryChart.invalidate();
-        }
-
-        private float normalize(final float value, final float min, final float max) {
-            if (max <= min) {
-                return 50f;
-            }
-            return (value - min) / (max - min) * 100f;
+            final ChartSpec spec = BatteryChartData.spec(tsFrom, tsTo, chartMetrics);
+            final boolean singleDay = spec.getXAxis().getFormat() == ChartValueFormat.TIME_OF_DAY;
+            binding.batteryChart.setSelectionContent(x -> selection(x, plottedMetrics, chartMetrics, singleDay, tsFrom, tsTo));
+            binding.batteryChart.setSpec(spec);
+            binding.batteryChartLegend.setSeries(spec.getSeries());
         }
     }
 }

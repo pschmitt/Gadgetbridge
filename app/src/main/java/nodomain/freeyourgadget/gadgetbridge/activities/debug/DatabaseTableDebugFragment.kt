@@ -23,8 +23,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nodomain.freeyourgadget.gadgetbridge.BuildConfig
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
+import nodomain.freeyourgadget.gadgetbridge.database.DBHelper
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils
 import nodomain.freeyourgadget.gadgetbridge.util.GB
+import nodomain.freeyourgadget.gadgetbridge.util.dialogs.SubtitleListAdapter
 import org.slf4j.LoggerFactory
 import java.io.BufferedWriter
 import java.io.File
@@ -136,8 +138,8 @@ class DatabaseTableDebugFragment : AbstractDebugFragment() {
             GBApplication.acquireDB().use { db ->
                 val cursor = db.database.rawQuery(
                     """
-                    SELECT sql 
-                    FROM sqlite_master 
+                    SELECT sql
+                    FROM sqlite_master
                     WHERE name='${tableName}' OR tbl_name='${tableName}';
                     """.trimIndent(),
                     null
@@ -497,10 +499,49 @@ class DatabaseTableDebugFragment : AbstractDebugFragment() {
             // Validate that all headers exist as columns in the table
             val tableColumns = getTableColumns(tableName)
             val unknownHeaders = headers.filter { it !in tableColumns }
-            if (!unknownHeaders.isEmpty()) {
+            if (unknownHeaders.isNotEmpty()) {
                 GB.toast("File contains unknown columns", Toast.LENGTH_LONG, GB.ERROR)
                 return
             }
+
+            if (DEVICE_ID_COLUMN in headers) {
+                showImportDevicePicker(tableName, headers, lines)
+            } else {
+                importRows(tableName, headers, lines, null)
+            }
+        } catch (e: Exception) {
+            LOG.error("Failed to import table", e)
+            GB.toast("Import failed: ${e.localizedMessage}", Toast.LENGTH_LONG, GB.ERROR)
+        }
+    }
+
+    private fun showImportDevicePicker(tableName: String, headers: List<String>, lines: List<String>) {
+        val devices = GBApplication.acquireDbReadOnly().use { db ->
+            DBHelper.getActiveDevices(db.daoSession)
+        }
+            .map { (it.alias?.takeIf { a -> a.isNotBlank() } ?: it.name) to it }
+            .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.first })
+
+        val rows = listOf("Keep $DEVICE_ID_COLUMN from file" to null) +
+            devices.map { (name, device) -> name to "${device.identifier}, id=${device.id}" }
+
+        val adapter = SubtitleListAdapter(requireContext(), rows, 0)
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Import into device")
+            .setSingleChoiceItems(adapter, 0) { _, which -> adapter.checkedPosition = which }
+            .setPositiveButton(R.string.ok) { _, _ ->
+                val which = adapter.checkedPosition
+                val deviceId = if (which == 0) null else devices[which - 1].second.id
+                importRows(tableName, headers, lines, deviceId)
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun importRows(tableName: String, headers: List<String>, lines: List<String>, deviceId: Long?) {
+        try {
+            LOG.debug("Importing {} rows into {}, device id {}", lines.size, tableName, deviceId)
 
             var rowsImported = 0
             var rowsFailed = 0
@@ -520,21 +561,23 @@ class DatabaseTableDebugFragment : AbstractDebugFragment() {
 
                         val contentValues = ContentValues()
                         for (j in headers.indices) {
-                            if (headers[j] in tableColumns) {
-                                val value = values[j]
-                                when {
-                                    value == NULL_FIELD_CSV_VALUE -> contentValues.putNull(headers[j])
-                                    value.startsWith("<blob:") && value.endsWith(">") -> {
-                                        val blob = parseBlobHex(value)
-                                        if (blob == null) {
-                                            rowsFailed++
-                                            continue@linesLoop
-                                        }
-                                        contentValues.put(headers[j], blob)
+                            if (deviceId != null && headers[j] == DEVICE_ID_COLUMN) {
+                                contentValues.put(DEVICE_ID_COLUMN, deviceId)
+                                continue
+                            }
+                            val value = values[j]
+                            when {
+                                value == NULL_FIELD_CSV_VALUE -> contentValues.putNull(headers[j])
+                                value.startsWith("<blob:") && value.endsWith(">") -> {
+                                    val blob = parseBlobHex(value)
+                                    if (blob == null) {
+                                        rowsFailed++
+                                        continue@linesLoop
                                     }
-
-                                    else -> contentValues.put(headers[j], value)
+                                    contentValues.put(headers[j], blob)
                                 }
+
+                                else -> contentValues.put(headers[j], value)
                             }
                         }
 
@@ -675,6 +718,7 @@ class DatabaseTableDebugFragment : AbstractDebugFragment() {
         private val LOG = LoggerFactory.getLogger(DatabaseTableDebugFragment::class.java)
 
         private const val NULL_FIELD_CSV_VALUE = "<null>"
+        private const val DEVICE_ID_COLUMN = "DEVICE_ID"
 
         private const val PREF_DEBUG_DATABASE_COUNT = "pref_debug_database_count"
         private const val PREF_DEBUG_EXPORT_TABLE = "pref_debug_export_table"

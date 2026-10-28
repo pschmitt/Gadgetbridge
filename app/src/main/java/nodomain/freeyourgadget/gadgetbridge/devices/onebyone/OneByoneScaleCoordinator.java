@@ -18,18 +18,13 @@ package nodomain.freeyourgadget.gadgetbridge.devices.onebyone;
 
 import androidx.annotation.NonNull;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
-import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.Property;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.GenericWeightSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
-import nodomain.freeyourgadget.gadgetbridge.entities.GenericWeightSampleDao;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.WeightSample;
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport;
@@ -42,13 +37,6 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.onebyone.OneByoneSca
  * manufacturer. The protocol is documented in the openScale project (OneByoneHandler, GPLv3).
  */
 public class OneByoneScaleCoordinator extends AbstractBLEDeviceCoordinator {
-    @Override
-    public Map<AbstractDao<?, ?>, Property> getAllDeviceDao(@NonNull final DaoSession session) {
-        final Map<AbstractDao<?, ?>, Property> map = new HashMap<>(1);
-        map.put(session.getGenericWeightSampleDao(), GenericWeightSampleDao.Properties.DeviceId);
-        return map;
-    }
-
     @Override
     protected Pattern getSupportedDeviceName() {
         return Pattern.compile("Health Scale", Pattern.CASE_INSENSITIVE);

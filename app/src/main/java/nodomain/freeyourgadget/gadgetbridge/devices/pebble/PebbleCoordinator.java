@@ -29,18 +29,14 @@ import androidx.annotation.StringRes;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
-import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.Property;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.ExternalPebbleJSActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.appmanager.AppManagerActivity;
-import nodomain.freeyourgadget.gadgetbridge.activities.appmanager.RebbleAppStoreActivity;
+import nodomain.freeyourgadget.gadgetbridge.activities.appmanager.PebbleAppStoreActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettings;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsCustomizer;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsScreen;
@@ -49,20 +45,17 @@ import nodomain.freeyourgadget.gadgetbridge.devices.InstallHandler;
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.AbstractActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
-import nodomain.freeyourgadget.gadgetbridge.entities.PebbleHealthActivityOverlayDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.PebbleHealthActivitySampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.PebbleMisfitSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.PebbleMorpheuzSampleDao;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.pebble.PebbleSupport;
-import nodomain.freeyourgadget.gadgetbridge.devices.pebble.PebbleHardware;
 import nodomain.freeyourgadget.gadgetbridge.util.PebbleUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.preferences.DevicePrefs;
 
 public class PebbleCoordinator extends AbstractBLClassicDeviceCoordinator {
     private static final String BG_JS_ENABLED = "pebble_enable_background_javascript";
     private static final boolean BG_JS_ENABLED_DEFAULT = false;
+    private static final String APP_STORE_PREF = "pebble_app_store";
+    private static final String APP_STORE_DEFAULT = "rebble";
 
     public PebbleCoordinator() {
     }
@@ -75,16 +68,6 @@ public class PebbleCoordinator extends AbstractBLClassicDeviceCoordinator {
     @Override
     public Class<? extends Activity> getPairingActivity() {
         return PebblePairingActivity.class;
-    }
-
-    @Override
-    public Map<AbstractDao<?, ?>, Property> getAllDeviceDao(@NonNull final DaoSession session) {
-        Map<AbstractDao<?, ?>, Property> map = new HashMap<>(4);
-        map.put(session.getPebbleHealthActivitySampleDao(), PebbleHealthActivitySampleDao.Properties.DeviceId);
-        map.put(session.getPebbleHealthActivityOverlayDao(), PebbleHealthActivityOverlayDao.Properties.DeviceId);
-        map.put(session.getPebbleMisfitSampleDao(), PebbleMisfitSampleDao.Properties.DeviceId);
-        map.put(session.getPebbleMorpheuzSampleDao(), PebbleMorpheuzSampleDao.Properties.DeviceId);
-        return map;
     }
 
     @Override
@@ -151,7 +134,7 @@ public class PebbleCoordinator extends AbstractBLClassicDeviceCoordinator {
 
     @Override
     public Class<? extends Activity> getAppStoreActivity(final GBDevice device) {
-        return RebbleAppStoreActivity.class;
+        return PebbleAppStoreActivity.class;
     }
 
     @Override
@@ -191,6 +174,31 @@ public class PebbleCoordinator extends AbstractBLClassicDeviceCoordinator {
 
     @Override
     public boolean supportsWeather(final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsAppNotifications(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsPhoneCalls(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsCallControl(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsInternetAccess(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsSmsReply(@NonNull final GBDevice device) {
         return true;
     }
 
@@ -268,6 +276,17 @@ public class PebbleCoordinator extends AbstractBLClassicDeviceCoordinator {
     public boolean isBackgroundJsEnabled(final GBDevice device) {
         DevicePrefs deviceSpecificPreferences = GBApplication.getDevicePrefs(device);
         return deviceSpecificPreferences.getBoolean(BG_JS_ENABLED, BG_JS_ENABLED_DEFAULT);
+    }
+
+    public String getAppStoreDomain(final GBDevice device) {
+        DevicePrefs deviceSpecificPreferences = GBApplication.getDevicePrefs(device);
+        final String appStore = deviceSpecificPreferences.getString(APP_STORE_PREF, APP_STORE_DEFAULT);
+        switch (appStore) {
+            case "repebble":
+                return "repebble.com";
+            default:
+                return "rebble.io";
+        }
     }
 
     @Override

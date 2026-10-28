@@ -28,6 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.CompiledNotificationAppConfig;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationAppConfig;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationAppRepository;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationAppRules;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationText;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationType;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
@@ -75,18 +80,29 @@ public class PebbleReceiver extends BroadcastReceiver {
 
         if (notificationSpec.getTitle() != null) {
             notificationSpec.setType(NotificationType.UNKNOWN);
-            String sender = intent.getStringExtra("sender");
-            if (GBApplication.getPrefs().getString("notification_list_is_blacklist", "true").equals("true")) {
-                if (GBApplication.appIsPebbleBlacklisted(sender)) {
-                    LOG.info("Ignoring Pebble message, application " + sender + " is blacklisted");
-                    return;
-                }
-            } else {
-                if (!GBApplication.appIsPebbleBlacklisted(sender)) {
-                    LOG.info("Ignoring Pebble message, application " + sender + " is not whitelisted");
-                    return;
-                }
+            final String sender = intent.getStringExtra("sender");
+            final NotificationAppRepository repository = NotificationAppRepository.INSTANCE;
+            final String senderPackage = sender != null ? repository.pebbleSenderToPackageName(sender) : null;
+            notificationSpec.setSourceAppId(senderPackage);
+            final CompiledNotificationAppConfig appConfig = repository.get(senderPackage);
+            if (!NotificationAppRules.INSTANCE.shouldSendPebble(appConfig, repository.getDefaultAction())) {
+                LOG.info("Ignoring Pebble message, application {} is not allowed to send Pebble messages", sender);
+                return;
             }
+
+            final CompiledNotificationAppConfig allAppsConfig = repository.get(NotificationAppConfig.ALL_APPS);
+            if (!NotificationAppRules.INSTANCE.passesFilters(allAppsConfig, appConfig, notificationSpec.getTitle(), notificationSpec.getBody())) {
+                return;
+            }
+
+            final NotificationText replacedText = NotificationAppRules.INSTANCE.applyReplacements(
+                    allAppsConfig,
+                    appConfig,
+                    notificationSpec.getTitle(),
+                    notificationSpec.getBody()
+            );
+            notificationSpec.setTitle(replacedText.getTitle());
+            notificationSpec.setBody(replacedText.getBody());
 
             if ("Conversations".equals(sender)) {
                 notificationSpec.setType(NotificationType.CONVERSATIONS);

@@ -38,7 +38,7 @@ public class Mi2TextNotificationStrategy extends Mi2NotificationStrategy {
 
     public Mi2TextNotificationStrategy(HuamiSupport support) {
         super(support);
-        newAlertCharacteristic = support.getCharacteristic(GattCharacteristic.UUID_CHARACTERISTIC_NEW_ALERT);
+        newAlertCharacteristic = support.getCharacteristic(GattCharacteristic.CHARACTERISTIC_NEW_ALERT.uuid);
     }
 
     @Override
@@ -88,6 +88,6 @@ public class Mi2TextNotificationStrategy extends Mi2NotificationStrategy {
 
     @Override
     public void stopCurrentNotification(TransactionBuilder builder) {
-        builder.write(GattCharacteristic.UUID_CHARACTERISTIC_NEW_ALERT, new byte[]{(byte) AlertCategory.IncomingCall.getId(), 0});
+        builder.write(GattCharacteristic.CHARACTERISTIC_NEW_ALERT.uuid, new byte[]{(byte) AlertCategory.IncomingCall.getId(), 0});
     }
 }

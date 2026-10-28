@@ -56,8 +56,8 @@ public class GenericBloodPressureSupport extends AbstractBTLESingleDeviceSupport
     public GenericBloodPressureSupport() {
         super(LOG);
 
-        addSupportedService(GattService.UUID_SERVICE_BLOOD_PRESSURE);
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION);
+        addSupportedService(GattService.SERVICE_BLOOD_PRESSURE.uuid);
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
 
         deviceInfoProfile = new DeviceInfoProfile<>(this);
         deviceInfoProfile.addListener(this);

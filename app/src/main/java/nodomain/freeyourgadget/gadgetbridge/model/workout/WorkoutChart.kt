@@ -1,21 +1,31 @@
 package nodomain.freeyourgadget.gadgetbridge.model.workout
 
-import com.github.mikephil.charting.charts.BarLineChartBase
-import com.github.mikephil.charting.data.ChartData
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.formatter.ValueFormatter
-import com.github.mikephil.charting.interfaces.datasets.IDataSet
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartPoint
 import nodomain.freeyourgadget.gadgetbridge.model.heartratezones.HeartRateZones
 
+/**
+ * One metric of a workout over time. [labeler] formats its values, and [minimum] / [maximum] fix the y axis.
+ */
 data class WorkoutChart @JvmOverloads constructor(
     val id: String,
     val title: String,
     val group: String,
-    val chartData: ChartData<out IDataSet<out Entry>>,
-    var chartYLabelFormatter: ValueFormatter? = null,
+    val series: Series,
+    val labeler: ((Double) -> String)? = null,
     var unitString: String? = null,
-    val lineChart: (BarLineChartBase<*>) -> Unit = {},
+    val minimum: Double? = null,
+    val maximum: Double? = null,
     // Time-in-zone (index 0..5) and the resolved thresholds for the HR-zone overlay; null on non-HR charts.
     var secondsInZone: IntArray? = null,
     var zoneThresholds: HeartRateZones? = null
-)
+) {
+    /**
+     * Points with x in seconds since the workout started, broken where neighbours are more than [maxGap] apart.
+     */
+    data class Series @JvmOverloads constructor(
+        val points: List<ChartPoint>,
+        val color: Int,
+        val maxGap: Double? = null,
+        val dots: Boolean = false,
+    )
+}

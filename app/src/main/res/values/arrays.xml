@@ -27,24 +27,26 @@
         <item>@string/pref_theme_value_dynamic</item>
     </string-array>
 
-    <!--
-    These must match nodomain.freeyourgadget.gadgetbridge.util.maps.MapTheme
-    -->
+    <!-- these must match MapTheme, plus the custom value -->
     <string-array name="maps_themes_names">
         <item>@string/pref_default</item>
         <item>@string/map_theme_biker</item>
         <item>@string/pref_theme_dark</item>
+        <item>@string/map_theme_dark_low_contrast</item>
         <item>@string/map_theme_indigo</item>
         <item>@string/map_theme_motorider</item>
         <item>@string/map_theme_osmarender</item>
+        <item>@string/map_theme_custom</item>
     </string-array>
     <string-array name="maps_themes_values">
         <item>default</item>
         <item>biker</item>
         <item>dark</item>
+        <item>dark_low_contrast</item>
         <item>indigo</item>
         <item>motorider</item>
         <item>osmarender</item>
+        <item>custom</item>
     </string-array>
 
     <!-- https://meta.wikimedia.org/wiki/Template:List_of_language_names_ordered_by_code -->
@@ -186,6 +188,17 @@
     <string-array name="notification_mode_values">
         <item>always</item>
         <item>when_screen_off</item>
+        <item>never</item>
+    </string-array>
+
+    <string-array name="pref_device_card_show_items">
+        <item>@string/always</item>
+        <item>@string/when_connected</item>
+        <item>@string/never</item>
+    </string-array>
+    <string-array name="pref_device_card_show_items_values">
+        <item>always</item>
+        <item>connected</item>
         <item>never</item>
     </string-array>
 
@@ -3128,6 +3141,18 @@
         <item>0</item>
     </string-array>
 
+    <string-array name="prefs_spo2_monitoring_mode">
+        <item>@string/spo2_off</item>
+        <item>@string/spo2_mode_sleep</item>
+        <item>@string/spo2_mode_all_day</item>
+    </string-array>
+
+    <string-array name="prefs_spo2_monitoring_mode_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
     <string-array name="prefs_zetime_heartrate_measurement_interval">
         <item name="0">@string/off</item>
         <item name="300">@string/interval_five_minutes</item>
@@ -3262,17 +3287,6 @@
         <item>@string/reminder_every_week</item>
         <item>@string/reminder_every_month</item>
         <item>@string/reminder_every_year</item>
-    </string-array>
-
-    <string-array name="notification_filter_modes_entries">
-        <item>@string/filter_mode_none</item>
-        <item>@string/filter_mode_whitelist</item>
-        <item>@string/filter_mode_blacklist</item>
-    </string-array>
-
-    <string-array name="notification_filter_submodes_entries">
-        <item>@string/filter_submode_at_least_one</item>
-        <item>@string/filter_submode_all</item>
     </string-array>
 
     <!-- Note: ZeTime preferences -->
@@ -3449,7 +3463,7 @@
     </string-array>
 
     <string-array name="activity_filter_quick_filter_period_items">
-        <item>@string/sports_activity_quick_filter_select</item>
+        <item>@string/custom</item>
         <item>@string/activity_summary_today</item>
         <item>@string/sports_activity_quick_filter_this_week</item>
         <item>@string/sports_activity_quick_filter_this_month</item>
@@ -3497,88 +3511,6 @@
         <item>40</item>
         <item>50</item>
         <item>60</item>
-    </string-array>
-
-    <string-array name="pref_charts_tabs_items">
-        <item>@string/activity_sleepchart_activity_and_sleep</item>
-        <item>@string/charts_activity_list</item>
-        <item>@string/sleepchart_your_sleep</item>
-        <item>@string/weekstepschart_steps_a_week_or_month</item>
-        <item>@string/pref_header_hrv_status</item>
-        <item>@string/body_energy</item>
-        <item>@string/menuitem_vo2_max</item>
-        <item>@string/pref_header_training_load</item>
-        <item>@string/menuitem_race_predictor</item>
-        <item>@string/metric_garmin_training_readiness</item>
-        <item>@string/menuitem_solar_charging</item>
-        <item>@string/generic_metrics</item>
-        <item>@string/menuitem_hr</item>
-        <item>@string/menuitem_stress</item>
-        <item>@string/menuitem_pai</item>
-        <item>@string/stats_title</item>
-        <item>@string/liveactivity_live_activity</item>
-        <item>@string/pref_header_spo2</item>
-        <item>@string/menuitem_temperature</item>
-        <item>@string/menuitem_weight</item>
-        <item>@string/watchface_widget_type_calories</item>
-        <item>@string/pref_header_hydration</item>
-        <item>@string/respiratoryrate</item>
-        <item>@string/blood_pressure</item>
-    </string-array>
-
-    <string-array name="pref_charts_tabs_values">
-        <item>@string/p_activity</item>
-        <item>@string/p_activity_list</item>
-        <item>@string/p_sleep</item>
-        <item>@string/p_steps_week</item>
-        <item>@string/p_hrv_status</item>
-        <item>@string/p_body_energy</item>
-        <item>@string/p_vo2max</item>
-        <item>@string/p_load</item>
-        <item>@string/p_raceprediction</item>
-        <item>@string/p_trainingreadiness</item>
-        <item>@string/p_solar_charging</item>
-        <item>@string/p_generic_metrics</item>
-        <item>@string/p_heartrate</item>
-        <item>@string/p_stress</item>
-        <item>@string/p_pai</item>
-        <item>@string/p_speed_zones</item>
-        <item>@string/p_live_stats</item>
-        <item>@string/p_spo2</item>
-        <item>@string/p_temperature</item>
-        <item>@string/p_weight</item>
-        <item>@string/p_calories</item>
-        <item>@string/p_hydration</item>
-        <item>@string/p_respiratory_rate</item>
-        <item>@string/p_bloodpressure</item>
-    </string-array>
-
-    <string-array name="pref_charts_tabs_items_default">
-        <item>@string/p_cycling</item>
-        <item>@string/p_activity</item>
-        <item>@string/p_activity_list</item>
-        <item>@string/p_sleep</item>
-        <item>@string/p_hrv_status</item>
-        <item>@string/p_body_energy</item>
-        <item>@string/p_vo2max</item>
-        <item>@string/p_load</item>
-        <item>@string/p_raceprediction</item>
-        <item>@string/p_trainingreadiness</item>
-        <item>@string/p_solar_charging</item>
-        <item>@string/p_generic_metrics</item>
-        <item>@string/p_heartrate</item>
-        <item>@string/p_steps_week</item>
-        <item>@string/p_stress</item>
-        <item>@string/p_pai</item>
-        <item>@string/p_speed_zones</item>
-        <item>@string/p_live_stats</item>
-        <item>@string/p_spo2</item>
-        <item>@string/p_temperature</item>
-        <item>@string/p_weight</item>
-        <item>@string/p_calories</item>
-        <item>@string/p_hydration</item>
-        <item>@string/p_respiratory_rate</item>
-        <item>@string/p_bloodpressure</item>
     </string-array>
 
     <string-array name="pref_amazfitneo_sounds">
@@ -3635,16 +3567,6 @@
         <item>1</item>
         <item>2</item>
         <item>3</item>
-    </string-array>
-
-    <string-array name="notification_list_is_blacklist_names">
-        <item>@string/pref_title_notification_use_as_deny</item>
-        <item>@string/pref_title_notification_use_as_allow</item>
-    </string-array>
-
-    <string-array name="notification_list_is_blacklist_values">
-        <item>true</item>
-        <item>false</item>
     </string-array>
 
     <string-array name="galaxy_eqalizer_modes">
@@ -4133,88 +4055,6 @@
         <item>outdoor</item>
     </string-array>
 
-    <string-array name="soundcore_button_function_names">
-        <item>@string/pref_media_volumedown</item>
-        <item>@string/pref_media_volumeup</item>
-        <item>@string/pref_media_next</item>
-        <item>@string/pref_media_previous</item>
-        <item>@string/pref_media_playpause</item>
-        <item>@string/pref_title_touch_voice_assistant</item>
-        <item>@string/sony_button_mode_ambient_sound_control</item>
-    </string-array>
-
-    <string-array name="soundcore_button_function_values">
-        <item>VOLUME_DOWN</item>
-        <item>VOLUME_UP</item>
-        <item>MEDIA_NEXT</item>
-        <item>MEDIA_PREV</item>
-        <item>PLAYPAUSE</item>
-        <item>VOICE_ASSISTANT</item>
-        <item>AMBIENT_SOUND_CONTROL</item>
-    </string-array>
-
-    <string-array name="soundcore_sport_x20_single_tap_function_names">
-        <item>@string/pref_media_volumedown</item>
-        <item>@string/pref_media_volumeup</item>
-        <item>@string/pref_media_next</item>
-        <item>@string/pref_media_previous</item>
-        <item>@string/pref_media_playpause</item>
-        <item>@string/none</item>
-    </string-array>
-
-    <string-array name="soundcore_sport_x20_single_tap_function_values">
-        <item>VOLUME_DOWN</item>
-        <item>VOLUME_UP</item>
-        <item>MEDIA_NEXT</item>
-        <item>MEDIA_PREV</item>
-        <item>PLAYPAUSE</item>
-        <item>NONE</item>
-    </string-array>
-
-    <string-array name="soundcore_sport_x20_double_tap_function_names">
-        <item>@string/pref_media_volumedown</item>
-        <item>@string/pref_media_volumeup</item>
-        <item>@string/pref_media_next</item>
-        <item>@string/pref_media_previous</item>
-        <item>@string/pref_media_playpause</item>
-        <item>@string/pref_title_touch_voice_assistant</item>
-        <item>@string/sony_button_mode_ambient_sound_control</item>
-        <item>@string/none</item>
-    </string-array>
-
-    <string-array name="soundcore_sport_x20_double_tap_function_values">
-        <item>VOLUME_DOWN</item>
-        <item>VOLUME_UP</item>
-        <item>MEDIA_NEXT</item>
-        <item>MEDIA_PREV</item>
-        <item>PLAYPAUSE</item>
-        <item>VOICE_ASSISTANT</item>
-        <item>AMBIENT_SOUND_CONTROL</item>
-        <item>NONE</item>
-    </string-array>
-
-    <string-array name="soundcore_sport_x20_long_press_function_names">
-        <item>@string/pref_media_volumedown</item>
-        <item>@string/pref_media_volumeup</item>
-        <item>@string/pref_media_next</item>
-        <item>@string/pref_media_previous</item>
-        <item>@string/pref_media_playpause</item>
-        <item>@string/pref_title_touch_voice_assistant</item>
-        <item>@string/sony_button_mode_ambient_sound_control</item>
-        <item>@string/none</item>
-    </string-array>
-
-    <string-array name="soundcore_sport_x20_long_press_function_values">
-        <item>VOLUME_DOWN</item>
-        <item>VOLUME_UP</item>
-        <item>MEDIA_NEXT</item>
-        <item>MEDIA_PREV</item>
-        <item>PLAYPAUSE</item>
-        <item>VOICE_ASSISTANT</item>
-        <item>AMBIENT_SOUND_CONTROL</item>
-        <item>NONE</item>
-    </string-array>
-
     <string-array name="soundcore_sport_x20_equalizer_preset_names">
         <item>@string/soundcore_equalizer_preset_signature</item>
         <item>@string/soundcore_equalizer_preset_acoustic</item>
@@ -4239,32 +4079,6 @@
         <item>@string/sony_equalizer_preset_treble_boost</item>
         <item>@string/soundcore_equalizer_preset_treble_reducer</item>
         <item>@string/custom</item>
-    </string-array>
-
-    <string-array name="soundcore_sport_x20_equalizer_preset_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-        <item>6</item>
-        <item>7</item>
-        <item>8</item>
-        <item>9</item>
-        <item>10</item>
-        <item>11</item>
-        <item>12</item>
-        <item>13</item>
-        <item>14</item>
-        <item>15</item>
-        <item>16</item>
-        <item>17</item>
-        <item>18</item>
-        <item>19</item>
-        <item>20</item>
-        <item>21</item>
-        <item>254</item>
     </string-array>
 
     <string-array name="haylou_s35_anc_audio_mode_names">
@@ -4295,60 +4109,6 @@
         <item>soft</item>
     </string-array>
 
-    <string-array name="soundcore_button_brightness_names">
-        <item>@string/off</item>
-        <item>@string/soundcore_button_brightness_low</item>
-        <item>@string/soundcore_button_brightness_medium</item>
-        <item>@string/soundcore_button_brightness_high</item>
-    </string-array>
-
-    <string-array name="soundcore_button_brightness_values">
-        <item>0</item>
-        <item>20</item>
-        <item>70</item>
-        <item>100</item>
-    </string-array>
-
-    <string-array name="soundcore_motion_auto_power_off_names">
-        <item>@string/pref_button_action_disabled</item>
-        <item>@string/minutes_5</item>
-        <item>@string/minutes_10</item>
-        <item>@string/minutes_20</item>
-        <item>@string/minutes_60</item>
-    </string-array>
-
-    <string-array name="soundcore_aerofit_auto_power_off_names">
-        <item>@string/pref_button_action_disabled</item>
-        <item>@string/minutes_10</item>
-        <item>@string/minutes_20</item>
-        <item>@string/minutes_30</item>
-        <item>@string/minutes_60</item>
-    </string-array>
-
-    <string-array name="soundcore_auto_power_off_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-    </string-array>
-
-    <string-array name="soundcore_equalizer_preset_names">
-        <item>@string/soundcore_equalizer_preset_signature</item>
-        <item>@string/soundcore_equalizer_preset_xtra_bass</item>
-        <item>@string/soundcore_equalizer_preset_voice</item>
-        <item>@string/soundcore_equalizer_preset_balanced</item>
-        <item>@string/custom</item>
-    </string-array>
-
-    <string-array name="soundcore_equalizer_preset_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>254</item>
-    </string-array>
-
     <string-array name="soundcore_equalizer_direction_names">
         <item>@string/soundcore_equalizer_direction_standing</item>
         <item>@string/soundcore_equalizer_direction_lying</item>
@@ -4359,134 +4119,6 @@
         <item>0</item>
         <item>1</item>
         <item>2</item>
-    </string-array>
-
-    <string-array name="soundcore_equalizer_band1_freq_names">
-        <item>48 Hz</item>
-        <item>51 Hz</item>
-        <item>55 Hz</item>
-        <item>59 Hz</item>
-        <item>63 Hz</item>
-        <item>68 Hz</item>
-        <item>72 Hz</item>
-        <item>80 Hz</item>
-        <item>83 Hz</item>
-        <item>89 Hz</item>
-    </string-array>
-
-    <string-array name="soundcore_equalizer_band2_freq_names">
-        <item>95 Hz</item>
-        <item>102 Hz</item>
-        <item>109 Hz</item>
-        <item>117 Hz</item>
-        <item>125 Hz</item>
-        <item>134 Hz</item>
-        <item>144 Hz</item>
-        <item>150 Hz</item>
-        <item>165 Hz</item>
-        <item>177 Hz</item>
-    </string-array>
-
-    <string-array name="soundcore_equalizer_band3_freq_names">
-        <item>190 Hz</item>
-        <item>203 Hz</item>
-        <item>218 Hz</item>
-        <item>233 Hz</item>
-        <item>250 Hz</item>
-        <item>268 Hz</item>
-        <item>287 Hz</item>
-        <item>300 Hz</item>
-        <item>330 Hz</item>
-        <item>353 Hz</item>
-    </string-array>
-
-    <string-array name="soundcore_equalizer_band4_freq_names">
-        <item>379 Hz</item>
-        <item>406 Hz</item>
-        <item>435 Hz</item>
-        <item>467 Hz</item>
-        <item>500 Hz</item>
-        <item>536 Hz</item>
-        <item>574 Hz</item>
-        <item>600 Hz</item>
-        <item>659 Hz</item>
-        <item>706 Hz</item>
-    </string-array>
-
-    <string-array name="soundcore_equalizer_band5_freq_names">
-        <item>759 Hz</item>
-        <item>813 Hz</item>
-        <item>871 Hz</item>
-        <item>933 Hz</item>
-        <item>1.0 kHz</item>
-        <item>1.07 kHz</item>
-        <item>1.1 kHz</item>
-        <item>1.2 kHz</item>
-        <item>1.3 kHz</item>
-        <item>1.4 kHz</item>
-    </string-array>
-
-    <string-array name="soundcore_equalizer_band6_freq_names">
-        <item>1.5 kHz</item>
-        <item>1.6 kHz</item>
-        <item>1.75 kHz</item>
-        <item>1.86 kHz</item>
-        <item>2.0 kHz</item>
-        <item>2.15 kHz</item>
-        <item>2.3 kHz</item>
-        <item>2.5 kHz</item>
-        <item>2.6 kHz</item>
-        <item>2.8 kHz</item>
-    </string-array>
-
-    <string-array name="soundcore_equalizer_band7_freq_names">
-        <item>3.0 kHz</item>
-        <item>3.2 kHz</item>
-        <item>3.5 kHz</item>
-        <item>3.7 kHz</item>
-        <item>4.0 kHz</item>
-        <item>4.3 kHz</item>
-        <item>4.6 kHz</item>
-        <item>5.0 kHz</item>
-        <item>5.3 kHz</item>
-        <item>5.6 kHz</item>
-    </string-array>
-
-    <string-array name="soundcore_equalizer_band8_freq_names">
-        <item>6.0 kHz</item>
-        <item>6.5 kHz</item>
-        <item>7.0 kHz</item>
-        <item>7.5 kHz</item>
-        <item>8.0 kHz</item>
-        <item>8.5 kHz</item>
-        <item>9.0 kHz</item>
-        <item>9.8 kHz</item>
-        <item>10.5 kHz</item>
-        <item>11.3 kHz</item>
-    </string-array>
-
-    <string-array name="soundcore_equalizer_band9_freq_names">
-        <item>12.1 kHz</item>
-        <item>13.0 kHz</item>
-        <item>14.0 kHz</item>
-        <item>15.0 kHz</item>
-        <item>16.0 kHz</item>
-        <item>17.1 kHz</item>
-        <item>18.3 kHz</item>
-        <item>20.0 kHz</item>
-    </string-array>
-
-    <string-array name="soundcore_equalizer_freq_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-        <item>6</item>
-        <item>7</item>
-        <item>8</item>
-        <item>9</item>
     </string-array>
 
     <string-array name="moondrop_equalizer_preset_names">
@@ -4602,6 +4234,8 @@
         <item>@string/hungarian</item>
         <item>@string/armenian</item>
         <item>@string/italian</item>
+        <item>@string/khmer</item>
+        <item>@string/thai</item>
     </string-array>
 
     <string-array name="pref_transliteration_languages_values">
@@ -4631,6 +4265,8 @@
         <item>hungarian</item>
         <item>armenian</item>
         <item>italian</item>
+        <item>khmer</item>
+        <item>thai</item>
     </string-array>
 
     <string-array name="pref_transliteration_languages_default">
@@ -4805,6 +4441,30 @@
         <item>23</item>
     </string-array>
 
+    <string-array name="pref_chart_sleep_day_chart_entries">
+        <item>@string/pref_chart_sleep_day_chart_hypnogram</item>
+        <item>@string/pref_chart_sleep_day_chart_legacy</item>
+    </string-array>
+    <string-array name="pref_chart_sleep_day_chart_values">
+        <item>hypnogram</item>
+        <item>legacy</item>
+    </string-array>
+    <string-array name="pref_chart_heartrate_color_entries">
+        <item>@string/pref_chart_heartrate_color_orange</item>
+        <item>@string/pref_chart_heartrate_color_red</item>
+    </string-array>
+    <string-array name="pref_chart_heartrate_color_values">
+        <item>orange</item>
+        <item>red</item>
+    </string-array>
+    <string-array name="pref_charts_range_entries">
+        <item>@string/calendar_week</item>
+        <item>@string/calendar_month</item>
+    </string-array>
+    <string-array name="pref_charts_range_values">
+        <item>week</item>
+        <item>month</item>
+    </string-array>
     <string-array name="sleep_range_entries">
         <item>@string/pref_chart_sleep_range_rolling_24h</item>
         <item>@string/pref_chart_sleep_range_noon</item>
@@ -5308,4 +4968,25 @@
         <item>bmr</item>
         <item>impedance</item>
     </string-array>
+
+    <string-array name="pref_main_screens_items">
+        <item>@string/bottom_nav_dashboard</item>
+        <item>@string/bottom_nav_workouts</item>
+        <item>@string/bottom_nav_devices</item>
+    </string-array>
+    <string-array name="pref_main_screens_items_values">
+        <item>dashboard</item>
+        <item>workouts</item>
+        <item>devices</item>
+    </string-array>
+
+    <string-array name="prefs_pebble_app_stores">
+        <item>@string/prefs_pebble_appstore_rebble</item>
+        <item>@string/prefs_pebble_appstore_repebble</item>
+    </string-array>
+    <string-array name="prefs_pebble_app_stores_values">
+        <item>rebble</item>
+        <item>repebble</item>
+    </string-array>
+
 </resources>

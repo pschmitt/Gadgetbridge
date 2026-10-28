@@ -1,0 +1,9 @@
+Utiliza o teu reloxo intelixente, gravadora de actividade, e outros dispositivos bluetooth sen ter que usar a aplicación de código propietario do fabricante e sen precisar crear unha conta e enviarlles todos os teus datos aos seus servidores.
+Mira a lista completa de dispositivos compatibles na nósa páxina Gadgets https://gadgetbridge.org/gadgets/.
+
+Recibe as notificacións no pulso e (dependendo do dispositivo):
+
+- Recibe os datos dos sensores do dispositivo.
+- Controla a reprodución de música no dispositivo Android.
+- Consulta a meteoroloxía
+- Obtén direccións de navegación.

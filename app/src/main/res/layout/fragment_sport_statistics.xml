@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/sport_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/sport_period_tabs"
+                style="@style/Widget.App.TabLayout.SubPill"
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginVertical="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="8dp"
+                android:paddingTop="4dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/sport_period_previous"
+                    style="@style/Widget.App.PeriodStep"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/statistics_previous_period"
+                    app:icon="@drawable/ic_chevron_1" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/sport_period_title"
+                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-medium"
+                    android:maxLines="1"
+                    android:textAllCaps="false"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="14sp"
+                    app:icon="@drawable/ic_date_range"
+                    app:iconGravity="textEnd"
+                    app:iconSize="18dp"
+                    app:iconTint="?attr/colorOnSurface" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/sport_period_next"
+                    style="@style/Widget.App.PeriodStep"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/statistics_next_period"
+                    app:icon="@drawable/ic_chevron_1_right" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp">
+
+                <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartLegendView
+                    android:id="@+id/sport_chart_legend"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:paddingHorizontal="48dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/sport_chart_edit"
+                    style="?attr/materialIconButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center_vertical"
+                    android:contentDescription="@string/statistics_chart_edit"
+                    app:icon="@drawable/ic_tune"
+                    app:iconTint="?attr/colorOnSurface" />
+            </FrameLayout>
+
+            <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView
+                android:id="@+id/sport_chart"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginHorizontal="16dp" />
+
+            <LinearLayout
+                android:id="@+id/sport_tiles"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="vertical"
+                android:paddingBottom="16dp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <ProgressBar
+        android:id="@+id/loading_spinner"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
+
+</FrameLayout>

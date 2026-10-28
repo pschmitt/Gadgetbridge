@@ -1,0 +1,182 @@
+syntax = "proto2";
+
+package GDI.Proto.LiveTrack;
+option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin";
+option java_outer_classname = "GdiLiveTrack";
+
+message CapabilitiesRequest {
+    optional uint32 service_version = 1;
+}
+
+message CapabilitiesResponse {
+}
+
+message ConsentChangedNotification {
+    optional bool has_strava_consent = 2;
+}
+
+message ConsentNotification {
+    enum ConsentPageAction {
+        GRANTED = 0;
+        REJECTED = 1;
+    }
+
+    optional bool prompt_group_ride_consent = 1;
+    optional GDI.Proto.LiveTrack.ConsentNotification.ConsentPageAction consent_page_action = 2;
+}
+
+enum DeviceType {
+    PND = 0;
+    GTU10 = 1;
+    EMAIL = 2;
+    TWITTER = 4;
+    MYGARMIN = 5;
+    MYGARMINUSER = 6;
+    MYGTUUSER = 7;
+    FITNESSAPP = 8;
+    GROUPTRACK = 9;
+    CONNECTION = 10;
+    STRAVA = 11;
+    WEARABLE = 12;
+    EMERGENCY = 13;
+    ANONYMOUS = 14;
+    WALDO = 15;
+    JRMOBILEAPP = 16;
+    LIVEEVENT = 17;
+    SMS_SUBSCRIBER = 18;
+    SUBSCRIPTION_SUBSCRIBER = 19;
+}
+
+message EmergencyCountdownNotification {
+    enum State {
+        PAUSED = 0;
+        IN_PROGRESS = 1;
+        CANCELED = 2;
+        EXPIRED = 3;
+    }
+
+    optional GDI.Proto.LiveTrack.EmergencyCountdownNotification.State state = 1;
+    optional uint32 time_left_s = 2;
+    optional uint32 utc_time_s = 3;
+    optional GDI.Proto.LiveTrack.SessionType session_type = 4;
+}
+
+message GroupRideNotification {
+    optional string share_session_code = 1;
+}
+
+message LiveEventSharingNotification {
+    optional bool livetrack_requested = 1;
+}
+
+message LiveTrackService {
+    optional GDI.Proto.LiveTrack.ShareMetaConfigurationNotification share_meta_config_notification = 1;
+    optional GDI.Proto.LiveTrack.ShareSocialCredentialsNotification share_social_notification = 2;
+    optional GDI.Proto.LiveTrack.StartRequest start_request = 3;
+    optional GDI.Proto.LiveTrack.StartResponse start_response = 4;
+    optional GDI.Proto.LiveTrack.StopNotification stop_notification = 5;
+    optional GDI.Proto.LiveTrack.ShareDeviceSettingNotification share_device_setting_notification = 6;
+    optional GDI.Proto.LiveTrack.StatusNotification status_notification = 7;
+    optional GDI.Proto.LiveTrack.ConsentChangedNotification consent_changed_notification = 8;
+    optional GDI.Proto.LiveTrack.LiveEventSharingNotification live_event_sharing_notification = 9;
+    optional GDI.Proto.LiveTrack.SessionSupportRequest session_support_request = 10;
+    optional GDI.Proto.LiveTrack.SessionSupportResponse session_support_response = 11;
+    optional GDI.Proto.LiveTrack.UpdateSettingsNotification update_settings_notification = 12;
+    optional GDI.Proto.LiveTrack.EmergencyCountdownNotification emergency_countdown_notification = 13;
+    optional GDI.Proto.LiveTrack.ConsentNotification consent_notification = 14;
+    optional GDI.Proto.LiveTrack.GroupRideNotification group_ride_notification = 15;
+}
+
+message Session {
+    required string id = 1;
+    required string token = 2;
+    optional GDI.Proto.LiveTrack.DeviceType device_type = 3;
+}
+
+message SessionGroup {
+    required GDI.Proto.LiveTrack.SessionType session_type = 1;
+    required string name = 2;
+    required uint64 start_unix_timestamp = 3;
+    required uint64 duration_s = 4;
+    repeated GDI.Proto.LiveTrack.Session sessions = 5 [packed = false];
+}
+
+message SessionSupportRequest {
+}
+
+message SessionSupportResponse {
+    repeated GDI.Proto.LiveTrack.DeviceType supported_session_types = 1 [packed = false];
+    optional bool spectator_messaging_supported = 2;
+}
+
+enum SessionType {
+    UNKNOWN = -1;
+    STANDARD = 0;
+    SOS = 1;
+    INCIDENT_DETECT = 2;
+    FALL_DETECTION = 3;
+    FAMILY_EMERGENCY = 4;
+}
+
+message ShareDeviceSettingNotification {
+    optional bool auto_start_enabled = 1;
+    optional bool spectator_audio_enabled = 2;
+    optional bool spectator_text_enabled = 3;
+    optional bool course_sharing_enabled = 4;
+}
+
+message ShareMetaConfigurationNotification {
+    optional bool grouptrack_sharing_enabled = 3;
+    optional bool extend_livetrack_enabled = 4;
+    optional bool email_sharing_enabled = 5;
+    optional bool twitter_sharing_enabled = 6;
+    optional string session_name = 7;
+    optional bool grouptrack_all_connections = 8;
+}
+
+message ShareSocialCredentialsNotification {
+    optional GDI.Proto.LiveTrack.TwitterCredentials twitter = 2;
+    optional bool strava_beacon_connected = 3;
+}
+
+message StartRequest {
+    required GDI.Proto.LiveTrack.SessionGroup session = 1;
+    required GDI.Proto.LiveTrack.TrackerId tracker_id = 2;
+}
+
+message StartResponse {
+    enum Status {
+        ERROR = 0;
+        ERROR_ALREADY_IN_PROGRESS = 1;
+        SUCCESS = 2;
+    }
+
+    required GDI.Proto.LiveTrack.StartResponse.Status start_status = 1;
+}
+
+message StatusNotification {
+    optional GDI.Proto.LiveTrack.SessionGroup session = 1;
+    optional GDI.Proto.LiveTrack.TrackerId tracker_id = 2;
+}
+
+message StopNotification {
+    repeated string session_ids = 1 [packed = false];
+    optional uint64 extended_viewable_duration_s = 2;
+}
+
+message TrackerId {
+    optional string tracker_id = 1;
+    optional string unit_id = 2;
+    optional GDI.Proto.LiveTrack.DeviceType device_type = 3;
+    optional string nickname = 4;
+}
+
+message TwitterCredentials {
+    required string user_token = 1;
+    required string user_secret = 2;
+    required string app_id = 3;
+    required string app_secret = 4;
+}
+
+message UpdateSettingsNotification {
+}

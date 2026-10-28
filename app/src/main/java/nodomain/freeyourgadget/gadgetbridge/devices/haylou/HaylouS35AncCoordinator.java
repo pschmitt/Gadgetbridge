@@ -51,6 +51,21 @@ public class HaylouS35AncCoordinator extends AbstractBLClassicDeviceCoordinator 
     }
 
     @Override
+    public boolean supportsAppNotifications(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsPhoneCalls(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsCallControl(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
     public int getBatteryCount(final GBDevice device) {
         return 1;
     }

@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.GarminAuthExpiredActivity;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiHttpService;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiHttp;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.GarminPrefs;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.GarminSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.http.GarminHttpRequest;
@@ -56,7 +56,7 @@ public class OauthInterceptor implements HttpInterceptor {
     @Override
     @Nullable
     public GarminHttpResponse handle(@NonNull final GarminHttpRequest request) {
-        if (request.getRawRequest().getMethod() != GdiHttpService.HttpService.Method.POST) {
+        if (request.getRawRequest().getMethod() != GdiHttp.RawResourceRequest.HTTPMethod.POST) {
             LOG.warn("Known OAuth requests should be POST");
             return null;
         }
@@ -120,7 +120,25 @@ public class OauthInterceptor implements HttpInterceptor {
                 "YAR_INREACH_VOICE_EVENT_CREATE"
         ));
 
-        if (request.getPath().equals("/oauthTokenExchangeService/connectToIT") || request.getPath().equals("/oauth/connect_exchange/token")) {
+        if (request.getPath().equals("/oauth/connect_exchange/token")) {
+            // The connect_exchange endpoint belongs to the same service as /oauth/refresh_token/token
+            // and expects a regular snake_case OAuth response. With the camelCase connectToIT format,
+            // the watch discards the token, retries every minute and never requests weather (#6537).
+            final RefreshResponse exchangeResponse = new RefreshResponse();
+            exchangeResponse.access_token = UUID.randomUUID().toString();
+            exchangeResponse.token_type = "Bearer";
+            exchangeResponse.expires_in = 7776000;
+            exchangeResponse.scope = String.join(" ", scopes);
+            exchangeResponse.refresh_token = UUID.randomUUID().toString();
+            exchangeResponse.refresh_token_expires_in = "31536000";
+            exchangeResponse.customerId = UUID.randomUUID().toString();
+
+            final GarminHttpResponse response = new GarminHttpResponse();
+            response.setStatus(200);
+            response.setBody(GSON.toJson(exchangeResponse).getBytes(StandardCharsets.UTF_8));
+            response.getHeaders().put("Content-Type", "application/json");
+            return response;
+        } else if (request.getPath().equals("/oauthTokenExchangeService/connectToIT")) {
             final AuthorizationResponse authorizationResponse = new AuthorizationResponse();
             authorizationResponse.accessToken = UUID.randomUUID().toString();
             authorizationResponse.tokenType = "Bearer";

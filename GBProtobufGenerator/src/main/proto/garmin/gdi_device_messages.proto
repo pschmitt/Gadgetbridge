@@ -1,0 +1,35 @@
+syntax = "proto2";
+
+package GDI.Proto.DeviceMessages;
+option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin";
+option java_outer_classname = "GdiDeviceMessages";
+
+message CIQMessageRequest {
+    optional string event_id = 1;
+    optional string app_id = 2;
+    optional string payload = 3;
+}
+
+message CIQMessageResponse {
+    enum Status {
+        SUCCESS = 0;
+        FAILURE = 1;
+    }
+
+    optional string event_id = 1;
+    optional GDI.Proto.DeviceMessages.CIQMessageResponse.Status status = 2;
+}
+
+message CIQMessageSubscribeNotification {
+    optional string last_event_id = 1;
+}
+
+message CIQMessageUnsubscribeNotification {
+}
+
+message DeviceMessageService {
+    optional GDI.Proto.DeviceMessages.CIQMessageSubscribeNotification message_subscribe = 1;
+    optional GDI.Proto.DeviceMessages.CIQMessageUnsubscribeNotification message_unsubscribe = 2;
+    optional GDI.Proto.DeviceMessages.CIQMessageRequest message_request = 3;
+    optional GDI.Proto.DeviceMessages.CIQMessageResponse message_response = 4;
+}

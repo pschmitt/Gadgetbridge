@@ -18,7 +18,6 @@ package nodomain.freeyourgadget.gadgetbridge.activities.charts;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
@@ -27,38 +26,34 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.Chart;
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.listener.ChartTouchListener;
-import com.github.mikephil.charting.listener.OnChartGestureListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
+
+import kotlin.jvm.functions.Function1;
 
 import androidx.annotation.Nullable;
 
-import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartLegendView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.DaySelections;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSeries;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSpec;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.vo2max.VO2MaxChartData;
 import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.GaugeDrawer;
-import nodomain.freeyourgadget.gadgetbridge.widgets.impl.Vo2MaxGaugeWidget;
+import nodomain.freeyourgadget.gadgetbridge.widgets.impl.Vo2MaxWidget;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider;
@@ -66,7 +61,6 @@ import nodomain.freeyourgadget.gadgetbridge.devices.Vo2MaxSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser;
 import nodomain.freeyourgadget.gadgetbridge.model.Vo2MaxSample;
-import nodomain.freeyourgadget.gadgetbridge.util.Accumulator;
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 
 public class VO2MaxPeriodFragment extends AbstractChartFragment<VO2MaxPeriodFragment.VO2MaxData> {
@@ -75,20 +69,13 @@ public class VO2MaxPeriodFragment extends AbstractChartFragment<VO2MaxPeriodFrag
     private static final String ARG_TOTAL_DAYS = "totalDays";
     private static final String ARG_SHOW_GAUGES = "showGauges";
     private static final int DEFAULT_TOTAL_DAYS = 30;
-    private static final float MIN_VALUE_LABEL_SPACING_DP = 32f;
-    private static final float ESTIMATED_Y_AXIS_WIDTH_DP = 40f;
 
     private TextView mDateView;
-    private LineChart vo2MaxChart;
+    private GbChartView vo2MaxChart;
+    private ChartLegendView vo2MaxLegend;
     private int totalDays;
     private boolean showGauges;
-    private float density;
-    private final Set<Entry> labeledEntries = new HashSet<>();
     GBDevice device;
-
-    protected int CHART_TEXT_COLOR;
-    protected int LEGEND_TEXT_COLOR;
-    protected int TEXT_COLOR;
 
     private TextView vo2MaxRunningValue;
     private TextView vo2MaxCyclingValue;
@@ -118,6 +105,9 @@ public class VO2MaxPeriodFragment extends AbstractChartFragment<VO2MaxPeriodFrag
 
         mDateView = rootView.findViewById(R.id.vo2max_date_view);
         vo2MaxChart = rootView.findViewById(R.id.vo2max_chart);
+        vo2MaxChart.setZoomable(true);
+        vo2MaxChart.dismissSelectionOnTapOutside(rootView);
+        vo2MaxLegend = rootView.findViewById(R.id.vo2max_chart_legend);
         device = getChartsHost().getDevice();
 
         if (showGauges) {
@@ -139,9 +129,7 @@ public class VO2MaxPeriodFragment extends AbstractChartFragment<VO2MaxPeriodFrag
             }
         }
 
-        setupVO2MaxChart();
         refresh();
-        setupLegend(vo2MaxChart);
 
         return rootView;
     }
@@ -170,10 +158,6 @@ public class VO2MaxPeriodFragment extends AbstractChartFragment<VO2MaxPeriodFrag
     protected void init() {
         totalDays = getArguments() != null ? getArguments().getInt(ARG_TOTAL_DAYS, DEFAULT_TOTAL_DAYS) : DEFAULT_TOTAL_DAYS;
         showGauges = getArguments() != null && getArguments().getBoolean(ARG_SHOW_GAUGES, false);
-        density = getResources().getDisplayMetrics().density;
-        TEXT_COLOR = GBApplication.getTextColor(requireContext());
-        LEGEND_TEXT_COLOR = GBApplication.getTextColor(requireContext());
-        CHART_TEXT_COLOR = GBApplication.getSecondaryTextColor(requireContext());
     }
 
     @Override
@@ -207,44 +191,65 @@ public class VO2MaxPeriodFragment extends AbstractChartFragment<VO2MaxPeriodFrag
     protected void updateChartsnUIThread(VO2MaxData vo2MaxData) {
         mDateView.setText(DateTimeUtils.formatDaysUntil(totalDays, getTSEnd()));
 
-        final TimestampTranslation tsTranslation = new TimestampTranslation();
-        tsTranslation.shorten(vo2MaxData.tsFrom);
+        final ZoneId zone = ZoneId.systemDefault();
+        final long firstDay = Instant.ofEpochSecond(vo2MaxData.tsFrom).atZone(zone).toLocalDate().toEpochDay();
+        final long lastDay = Instant.ofEpochSecond(vo2MaxData.tsTo).atZone(zone).toLocalDate().toEpochDay();
+        final int n = (int) (lastDay - firstDay + 1);
+        final long[] epochDays = new long[n];
+        for (int i = 0; i < n; i++) {
+            epochDays[i] = firstDay + i;
+        }
 
-        List<Entry> runningEntries = new ArrayList<>();
-        List<Entry> cyclingEntries = new ArrayList<>();
-        List<Entry> allEntries = new ArrayList<>();
-        final Accumulator accumulator = new Accumulator();
-        vo2MaxData.records.forEach((record) -> {
-            final int x = tsTranslation.shorten((int) record.timestamp);
-            Entry entry = new Entry(x, record.value);
-            allEntries.add(entry);
-            accumulator.add(record.value);
-            switch (record.type) {
-                case RUNNING:
-                    runningEntries.add(entry);
-                    break;
-                case CYCLING:
-                    cyclingEntries.add(entry);
-                    break;
+        final boolean multiSport = supportsVO2MultiSport(device);
+        final String[] labels = multiSport
+                ? new String[]{getString(R.string.vo2max_running), getString(R.string.vo2max_cycling)}
+                : new String[]{getString(R.string.menuitem_vo2_max)};
+        final int[] colors = multiSport
+                ? new int[]{getResources().getColor(R.color.vo2max_running_char_line_color), getResources().getColor(R.color.vo2max_cycling_char_line_color)}
+                : new int[]{getResources().getColor(R.color.vo2max_running_char_line_color)};
+        final double[][] values = new double[labels.length][n];
+        final long[][] times = new long[labels.length][n];
+        for (final VO2MaxRecord record : vo2MaxData.records) {
+            final int series;
+            if (!multiSport || record.type == Vo2MaxSample.Type.RUNNING) {
+                series = 0;
+            } else if (record.type == Vo2MaxSample.Type.CYCLING) {
+                series = 1;
+            } else {
+                continue;
             }
-        });
-        final List<ILineDataSet> lineDataSets = new ArrayList<>();
-        if (supportsVO2MultiSport(device)) {
-            lineDataSets.add(createDataSet(runningEntries, getResources().getColor(R.color.vo2max_running_char_line_color), getString(R.string.vo2max_running)));
-            lineDataSets.add(createDataSet(cyclingEntries, getResources().getColor(R.color.vo2max_cycling_char_line_color), getString(R.string.vo2max_cycling)));
-        } else {
-            lineDataSets.add(createDataSet(allEntries, getResources().getColor(R.color.vo2max_running_char_line_color), getString(R.string.menuitem_vo2_max)));
+            final int i = (int) (Instant.ofEpochSecond(record.timestamp).atZone(zone).toLocalDate().toEpochDay() - firstDay);
+            if (i < 0 || i >= n || record.timestamp < times[series][i]) {
+                continue;
+            }
+            times[series][i] = record.timestamp;
+            values[series][i] = record.value;
         }
-        final LineData lineData = new LineData(lineDataSets);
-        vo2MaxChart.getXAxis().setValueFormatter(new SampleXLabelFormatter(tsTranslation, "dd/MM"));
-        vo2MaxChart.getXAxis().setAxisMinimum(0f);
-        vo2MaxChart.getXAxis().setAxisMaximum(tsTranslation.shorten(vo2MaxData.tsTo));
-        if (accumulator.getCount() > 0) {
-            vo2MaxChart.getAxisLeft().setAxisMinimum(Math.max(0, (float) accumulator.getMin() - 2));
-            vo2MaxChart.getAxisLeft().setAxisMaximum(Math.min(100, (float) accumulator.getMax() + 2));
+
+        final ChartSpec spec = VO2MaxChartData.spec(epochDays, values, labels, colors);
+        final List<Function1<Integer, String>> rowTexts = new ArrayList<>();
+        for (int s = 0; s < labels.length; s++) {
+            final double[] seriesValues = values[s];
+            rowTexts.add(i -> seriesValues[i] > 0 ? formatVO2MaxValue((float) seriesValues[i]) : getString(R.string.stats_empty_value));
         }
-        vo2MaxChart.setData(lineData);
-        updateValueLabelVisibility(true);
+        final List<Integer> rowColors = new ArrayList<>();
+        for (final int color : colors) {
+            rowColors.add(color);
+        }
+        vo2MaxChart.setSelectionContent(x -> DaySelections.of(
+                epochDays, x, Arrays.asList(labels), rowColors, rowTexts, getString(R.string.stats_empty_value)
+        ));
+        vo2MaxChart.setSpec(spec);
+
+        final List<ChartSeries> legendSeries = new ArrayList<>();
+        if (multiSport) {
+            for (final ChartSeries series : spec.getSeries()) {
+                if (!series.getPoints().isEmpty()) {
+                    legendSeries.add(series);
+                }
+            }
+        }
+        vo2MaxLegend.setSeries(legendSeries);
 
         if (showGauges) {
             updateGaugeTiles(vo2MaxData);
@@ -252,8 +257,8 @@ public class VO2MaxPeriodFragment extends AbstractChartFragment<VO2MaxPeriodFrag
     }
 
     private void updateGaugeTiles(final VO2MaxData vo2MaxData) {
-        final int[] colors = Vo2MaxGaugeWidget.colors(requireContext());
-        final float[] segments = Vo2MaxGaugeWidget.SEGMENTS;
+        final int[] colors = Vo2MaxWidget.colors(requireContext());
+        final float[] segments = Vo2MaxWidget.SEGMENTS;
         final ActivityUser activityUser = new ActivityUser();
         final int age = activityUser.getAgeAt(LocalDate.ofInstant(getEndDate().toInstant(), ZoneId.systemDefault()));
         if (supportsVO2MultiSport(device)) {
@@ -274,91 +279,6 @@ public class VO2MaxPeriodFragment extends AbstractChartFragment<VO2MaxPeriodFrag
             gaugeDrawer.drawSegmentedGauge(vo2MaxGauge, colors, segments, vO2MaxValue, false, true);
             vo2MaxValue.setText(latestRecord != null ? formatVO2MaxValue(latestRecord.value) : "-");
         }
-    }
-
-    /**
-     * Update value labels visibility.
-     */
-    private void updateValueLabelVisibility(final boolean justLoadedData) {
-        labeledEntries.clear();
-
-        final LineData lineData = vo2MaxChart.getData();
-        if (lineData == null) {
-            vo2MaxChart.invalidate();
-            return;
-        }
-
-        final float lowestVisibleX;
-        final float highestVisibleX;
-        if (justLoadedData) {
-            lowestVisibleX = vo2MaxChart.getXAxis().getAxisMinimum();
-            highestVisibleX = vo2MaxChart.getXAxis().getAxisMaximum();
-        } else {
-            lowestVisibleX = vo2MaxChart.getLowestVisibleX();
-            highestVisibleX = vo2MaxChart.getHighestVisibleX();
-        }
-
-        float contentWidthPx = vo2MaxChart.getViewPortHandler().contentWidth();
-        if (contentWidthPx <= 0) {
-            // The view itself may also not have been laid out yet on a first load.
-            contentWidthPx = getResources().getDisplayMetrics().widthPixels - ESTIMATED_Y_AXIS_WIDTH_DP * density;
-        }
-
-        final List<Entry> visibleSorted = new ArrayList<>();
-        for (final ILineDataSet dataSet : lineData.getDataSets()) {
-            for (int i = 0; i < dataSet.getEntryCount(); i++) {
-                final Entry entry = dataSet.getEntryForIndex(i);
-                if (entry.getX() >= lowestVisibleX && entry.getX() <= highestVisibleX) {
-                    visibleSorted.add(entry);
-                }
-            }
-        }
-        if (visibleSorted.isEmpty()) {
-            vo2MaxChart.invalidate();
-            return;
-        }
-        Collections.sort(visibleSorted, (a, b) -> Float.compare(a.getX(), b.getX()));
-
-        final int maxLabelSlots = contentWidthPx > 0
-            ? Math.max(2, (int) (contentWidthPx / (MIN_VALUE_LABEL_SPACING_DP * density)))
-            : visibleSorted.size();
-
-        if (visibleSorted.size() <= maxLabelSlots) {
-            labeledEntries.addAll(visibleSorted);
-        } else {
-            final int lastIndex = visibleSorted.size() - 1;
-            for (int slot = 0; slot < maxLabelSlots; slot++) {
-                final int index = Math.round(slot * (float) lastIndex / (maxLabelSlots - 1));
-                labeledEntries.add(visibleSorted.get(index));
-            }
-        }
-
-        vo2MaxChart.invalidate();
-    }
-
-    protected LineDataSet createDataSet(final List<Entry> values, int color, String label) {
-        final LineDataSet lineDataSet = new LineDataSet(values, label);
-        lineDataSet.setColor(color);
-        lineDataSet.setDrawCircles(false);
-        lineDataSet.setLineWidth(2f);
-        lineDataSet.setFillAlpha(255);
-        lineDataSet.setCircleRadius(5f);
-        lineDataSet.setDrawCircles(true);
-        lineDataSet.setDrawCircleHole(false);
-        lineDataSet.setCircleColor(color);
-        lineDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-        lineDataSet.setDrawValues(true);
-        lineDataSet.setValueTextSize(10f);
-        lineDataSet.setValueTextColor(TEXT_COLOR);
-        lineDataSet.setValueFormatter(new ValueFormatter() {
-            @Override
-            public String getPointLabel(final Entry entry) {
-                // Blank out points that updateValueLabelVisibility() decided are too close to
-                // an already-labeled neighbor at the current zoom level.
-                return labeledEntries.contains(entry) ? formatVO2MaxValue(entry.getY()) : "";
-            }
-        });
-        return lineDataSet;
     }
 
     private static String formatVO2MaxValue(final float value) {
@@ -382,77 +302,8 @@ public class VO2MaxPeriodFragment extends AbstractChartFragment<VO2MaxPeriodFrag
         return sampleProvider.getLatestSample(type, getTSEnd() * 1000L);
     }
 
-    private void setupVO2MaxChart() {
-        final XAxis xAxisBottom = vo2MaxChart.getXAxis();
-        xAxisBottom.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxisBottom.setDrawLabels(true);
-        xAxisBottom.setDrawGridLines(false);
-        xAxisBottom.setEnabled(true);
-        xAxisBottom.setDrawLimitLinesBehindData(true);
-        xAxisBottom.setTextColor(CHART_TEXT_COLOR);
-
-        final YAxis yAxisLeft = vo2MaxChart.getAxisLeft();
-        yAxisLeft.setDrawGridLines(true);
-        yAxisLeft.setAxisMaximum(100);
-        yAxisLeft.setAxisMinimum(0);
-        yAxisLeft.setDrawTopYLabelEntry(true);
-        yAxisLeft.setEnabled(true);
-        yAxisLeft.setTextColor(CHART_TEXT_COLOR);
-
-        final YAxis yAxisRight = vo2MaxChart.getAxisRight();
-        yAxisRight.setEnabled(true);
-        yAxisRight.setDrawLabels(false);
-        yAxisRight.setDrawGridLines(false);
-        yAxisRight.setDrawAxisLine(true);
-
-        vo2MaxChart.setMaxVisibleValueCount(Integer.MAX_VALUE);
-        vo2MaxChart.setScaleXEnabled(true);
-        vo2MaxChart.setScaleYEnabled(false);
-        vo2MaxChart.setDragEnabled(true);
-        vo2MaxChart.setDoubleTapToZoomEnabled(true);
-        vo2MaxChart.setOnChartGestureListener(new OnChartGestureListener() {
-            @Override
-            public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
-            }
-
-            @Override
-            public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
-                updateValueLabelVisibility(false);
-            }
-
-            @Override
-            public void onChartLongPressed(MotionEvent me) {
-            }
-
-            @Override
-            public void onChartDoubleTapped(MotionEvent me) {
-                updateValueLabelVisibility(false);
-            }
-
-            @Override
-            public void onChartSingleTapped(MotionEvent me) {
-            }
-
-            @Override
-            public void onChartFling(MotionEvent me1, MotionEvent me2, float velocityX, float velocityY) {
-            }
-
-            @Override
-            public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
-                updateValueLabelVisibility(false);
-            }
-
-            @Override
-            public void onChartTranslate(MotionEvent me, float dX, float dY) {
-                updateValueLabelVisibility(false);
-            }
-        });
-    }
-
     @Override
     protected void setupLegend(Chart<?> chart) {
-        chart.getLegend().setTextColor(LEGEND_TEXT_COLOR);
-        chart.getLegend().setWordWrapEnabled(true);
     }
 
     protected static class VO2MaxRecord {

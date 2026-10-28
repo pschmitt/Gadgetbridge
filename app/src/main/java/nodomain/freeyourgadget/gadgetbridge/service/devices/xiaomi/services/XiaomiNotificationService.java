@@ -196,14 +196,9 @@ public class XiaomiNotificationService extends AbstractXiaomiService implements 
             mPackages.poll();
         }
 
-        final String senderOrTitle = StringUtils.getFirstOf(notificationSpec.getSender(), notificationSpec.getTitle());
-        if (!senderOrTitle.isEmpty()) {
-            notification3.setTitle(senderOrTitle);
-        }
-
-        if (notificationSpec.getBody() != null) {
-            notification3.setBody(notificationSpec.getBody());
-        }
+        // The watch does not show a notification without a body, so title and body are always sent, empty or not
+        notification3.setTitle(StringUtils.getFirstOf(notificationSpec.getSender(), notificationSpec.getTitle()));
+        notification3.setBody(StringUtils.ensureNotNull(notificationSpec.getBody()));
 
         if (notificationSpec.getSourceName() != null) {
             notification3.setAppName(notificationSpec.getSourceName());

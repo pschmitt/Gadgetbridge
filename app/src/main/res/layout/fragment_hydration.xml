@@ -13,7 +13,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="@dimen/chart_section_spacing"
             android:gravity="center"
             android:textColor="?attr/textColorPrimary"
             android:textSize="20sp" />
@@ -25,54 +25,15 @@
             android:layout_gravity="center"
             android:scaleType="fitStart" />
 
-        <GridLayout
+        <LinearLayout
+            android:id="@+id/hydration_stats_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="@dimen/chart_gauge_bottom_spacing"
+            android:layout_marginEnd="15dp"
             android:layout_marginBottom="15dp"
-            android:background="@color/gauge_line_color"
-            android:columnCount="2">
-
-            <LinearLayout
-                style="@style/GridTile"
-                android:layout_marginTop="2dp"
-                android:layout_marginEnd="1dp">
-
-                <TextView
-                    android:id="@+id/hydration_total"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/stats_empty_value"
-                    android:textColor="?attr/textColorPrimary"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/hydration_total"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                style="@style/GridTile"
-                android:layout_marginStart="1dp"
-                android:layout_marginTop="2dp">
-
-                <TextView
-                    android:id="@+id/hydration_goal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/stats_empty_value"
-                    android:textColor="?attr/textColorPrimary"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/hydration_goal"
-                    android:textSize="12sp" />
-            </LinearLayout>
-        </GridLayout>
+            android:orientation="vertical" />
 
         <LinearLayout
             android:layout_width="match_parent"

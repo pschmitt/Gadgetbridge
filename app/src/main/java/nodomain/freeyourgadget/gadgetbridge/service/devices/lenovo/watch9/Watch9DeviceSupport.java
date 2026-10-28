@@ -94,8 +94,8 @@ public class Watch9DeviceSupport extends AbstractBTLESingleDeviceSupport {
 
     public Watch9DeviceSupport() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
         addSupportedService(Watch9Constants.UUID_SERVICE_WATCH9);
 
         LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(getContext());

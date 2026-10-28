@@ -205,7 +205,8 @@ public class NotificationsHandler implements MessageHandler {
             case REPLY_MESSAGES:
                 deviceEvtNotificationControl.event = GBDeviceEventNotificationControl.Event.REPLY;
                 deviceEvtNotificationControl.reply = message.getActionString();
-                if (notificationSpec.getType().equals(NotificationType.GENERIC_PHONE) || notificationSpec.getType().equals(NotificationType.GENERIC_SMS)) {
+                if (notificationSpec.getType().equals(NotificationType.GENERIC_PHONE) ||
+                        (notificationSpec.getType().equals(NotificationType.GENERIC_SMS) && notificationSpec.getPhoneNumber() != null)) {
                     deviceEvtNotificationControl.phoneNumber = notificationSpec.getPhoneNumber();
                 } else {
                     deviceEvtNotificationControl.handle = mNotificationReplyAction.lookup(notificationSpec.getId()); //handle of wearable action is needed
@@ -406,7 +407,7 @@ public class NotificationsHandler implements MessageHandler {
                     break;
                 case TITLE:
                     if (NotificationType.GENERIC_SMS.equals(notificationSpec.getType()))
-                        toReturn = StringUtils.firstNonBlank(notificationSpec.getSender(), notificationSpec.getPhoneNumber(), "-");
+                        toReturn = StringUtils.firstNonBlank(notificationSpec.getSender(), notificationSpec.getPhoneNumber(), notificationSpec.getTitle(), "-");
                     else
                         toReturn = notificationSpec.getTitle() == null ? "" : notificationSpec.getTitle();
                     break;

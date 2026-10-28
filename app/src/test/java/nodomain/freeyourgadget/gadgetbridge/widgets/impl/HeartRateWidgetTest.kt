@@ -16,6 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.widgets.impl
 
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -25,16 +26,18 @@ import nodomain.freeyourgadget.gadgetbridge.test.TestBase
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetInstance
+import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetVariant
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class HeartRateWidgetTest : TestBase() {
     private fun render(data: HeartRateWidget.Data): String {
-        val instance = WidgetInstance("test-heartrate", HeartRateWidget.id, 1)
+        val instance = WidgetInstance("test-heartrate", HeartRateWidget.id)
         val config = WidgetConfig(instance, Prefs(GBApplication.getWidgetSharedPrefs(instance.instanceId)), true, emptySet())
-        val view = HeartRateWidget.createView(LayoutInflater.from(context), FrameLayout(context))
-        HeartRateWidget.bind(view, config, data)
+        val themed = ContextThemeWrapper(context, R.style.GadgetbridgeTheme)
+        val view = HeartRateWidget.createView(LayoutInflater.from(themed), FrameLayout(themed), WidgetVariant.GAUGE)
+        HeartRateWidget.bind(view, WidgetVariant.GAUGE, config, data)
         return view.findViewById<TextView>(R.id.gauge_value).text.toString()
     }
 
@@ -45,7 +48,7 @@ class HeartRateWidgetTest : TestBase() {
 
     @Test
     fun heartRateIsShown() {
-        assertEquals("72", render(HeartRateWidget.Data(72, 190)))
+        assertEquals("72 ${context.getString(R.string.bpm)}", render(HeartRateWidget.Data(72, 190)))
     }
 
     @Test
@@ -78,6 +81,23 @@ class HeartRateWidgetTest : TestBase() {
 
     @Test
     fun heartRateAboveMaxIsStillShown() {
-        assertEquals("205", render(HeartRateWidget.Data(205, 190)))
+        assertEquals("205 ${context.getString(R.string.bpm)}", render(HeartRateWidget.Data(205, 190)))
+    }
+
+    @Test
+    fun gaugeSpansFortyToTwoHundred() {
+        assertEquals(0f, HeartRateWidget.gaugeFraction(30), 0f)
+        assertEquals(0.5f, HeartRateWidget.gaugeFraction(120), 1e-6f)
+        assertEquals(1f, HeartRateWidget.gaugeFraction(210), 0f)
+    }
+
+    @Test
+    fun gaugeSegmentsAreRestThenFiveZones_fillingTheScale() {
+        val segments = HeartRateWidget.gaugeSegments(HeartRateWidget.zoneFloors(190))
+
+        assertEquals(6, segments.size)
+        assertEquals((95 - 40) / 160f, segments[0], 1e-6f)
+        assertEquals((200 - 171) / 160f, segments[5], 1e-6f)
+        assertEquals(1f, segments.sum(), 1e-5f)
     }
 }

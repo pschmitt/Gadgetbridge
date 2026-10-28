@@ -37,24 +37,24 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryParser;
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceType;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.ChangeSummaryRequest;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.ExploreSyncService;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.Line;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.LineDataReadyRequest;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.LineDataRequestOp;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.LineDigest;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.LineDigestWriteRequest;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.LinePart;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.LineType;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.ReadStatus;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.StartSyncRequest;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.StartSyncResponse;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.StartSyncStatus;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.SyncFinishedNotification;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.SyncFinishedStatus;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.SyncType;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService.VersionStamp;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.ChangeSummaryRequest;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.ExploreSyncService;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.Line;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.LineDataReadyRequest;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.LineDataRequestOp;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.LineDigest;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.LineDigestWriteRequest;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.LinePart;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.LineType;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.ReadStatus;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.StartSyncRequest;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.StartSyncResponse;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.StartSyncStatus;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.SyncFinishedNotification;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.SyncFinishedStatus;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.SyncType;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync.VersionStamp;
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSmartProto.Smart;
 import nodomain.freeyourgadget.gadgetbridge.test.TestBase;
 
@@ -188,7 +188,7 @@ public class ExploreSyncHandlerTest extends TestBase {
         final ExploreSyncService resp = handler.handle(emptyLineDigestWrite());
 
         // Nothing to fetch — response carries no nextDataRequest.
-        Assert.assertEquals(GdiExploreSyncService.WriteStatus.WRITE_STATUS_SUCCESS,
+        Assert.assertEquals(GdiExploreSync.WriteStatus.WRITE_STATUS_SUCCESS,
                 resp.getLineDigestWriteResponse().getStatus());
         Assert.assertFalse(resp.getLineDigestWriteResponse().hasLineReadOp());
     }
@@ -456,12 +456,12 @@ public class ExploreSyncHandlerTest extends TestBase {
         // SUCCESS with no body so it doesn't stall — no startSession needed.
         Assert.assertEquals(ReadStatus.READ_STATUS_SUCCESS,
                 handler.handle(ExploreSyncService.newBuilder()
-                        .setLineDigestReadRequest(GdiExploreSyncService.LineDigestReadRequest.getDefaultInstance())
+                        .setLineDigestReadRequest(GdiExploreSync.LineDigestReadRequest.getDefaultInstance())
                         .build())
                         .getLineDigestReadResponse().getStatus());
         Assert.assertEquals(ReadStatus.READ_STATUS_SUCCESS,
                 handler.handle(ExploreSyncService.newBuilder()
-                        .setLineReadRequest(GdiExploreSyncService.LineReadRequest.getDefaultInstance())
+                        .setLineReadRequest(GdiExploreSync.LineReadRequest.getDefaultInstance())
                         .build())
                         .getLineReadResponse().getStatus());
     }
@@ -470,14 +470,14 @@ public class ExploreSyncHandlerTest extends TestBase {
     public void writeOnlyStubs_returnSuccessStatus() {
         // The watch may push catalogue/collection writes regardless of
         // whether we're in a session. Stateless WRITE_STATUS_SUCCESS replies.
-        Assert.assertEquals(GdiExploreSyncService.WriteStatus.WRITE_STATUS_SUCCESS,
+        Assert.assertEquals(GdiExploreSync.WriteStatus.WRITE_STATUS_SUCCESS,
                 handler.handle(ExploreSyncService.newBuilder()
-                        .setCollectionListWriteRequest(GdiExploreSyncService.CollectionListWriteRequest.getDefaultInstance())
+                        .setCollectionListWriteRequest(GdiExploreSync.CollectionListWriteRequest.getDefaultInstance())
                         .build())
                         .getCollectionListWriteResponse().getStatus());
-        Assert.assertEquals(GdiExploreSyncService.WriteStatus.WRITE_STATUS_SUCCESS,
+        Assert.assertEquals(GdiExploreSync.WriteStatus.WRITE_STATUS_SUCCESS,
                 handler.handle(ExploreSyncService.newBuilder()
-                        .setActiveLineDigestWriteRequest(GdiExploreSyncService.ActiveLineDigestWriteRequest.getDefaultInstance())
+                        .setActiveLineDigestWriteRequest(GdiExploreSync.ActiveLineDigestWriteRequest.getDefaultInstance())
                         .build())
                         .getActiveLineDigestWriteResponse().getStatus());
     }

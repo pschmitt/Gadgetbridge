@@ -70,11 +70,6 @@ public class GarminFenix2Coordinator extends GarminWatchCoordinator {
     }
 
     @Override
-    public boolean supportsMusicInfo(@NonNull final GBDevice device) {
-        return false;
-    }
-
-    @Override
     public boolean supportsWeather(@NonNull final GBDevice device) {
         return false;
     }

@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import nodomain.freeyourgadget.gadgetbridge.capabilities.loyaltycards.BarcodeFormat;
+import nodomain.freeyourgadget.gadgetbridge.capabilities.loyaltycards.CatimaManager;
 import nodomain.freeyourgadget.gadgetbridge.capabilities.loyaltycards.LoyaltyCard;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventUpdatePreferences;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.ZeppOsSupport;
@@ -128,6 +129,7 @@ public class ZeppOsLoyaltyCardService extends AbstractZeppOsService {
                 return;
             case CMD_SET_ACK:
                 LOG.info("Loyalty cards set ACK, status = {}", payload[1]);
+                CatimaManager.notifySynced(getContext(), getSupport().getDevice(), payload[1] == 1);
                 return;
         }
 

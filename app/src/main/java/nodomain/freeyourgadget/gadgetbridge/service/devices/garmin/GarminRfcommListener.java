@@ -100,7 +100,7 @@ public class GarminRfcommListener extends Thread {
     @Override
     public void run() {
         try {
-            serverSocket = BluetoothAdapter.getDefaultAdapter().listenUsingRfcommWithServiceRecord("Gadgetbridge Garmin", UUID_GARMIN_RFCOMM);
+            serverSocket = BluetoothAdapter.getDefaultAdapter().listenUsingRfcommWithServiceRecord("Garmin SPP", UUID_GARMIN_RFCOMM);
             LOG.info("RFCOMM listening on {}", UUID_GARMIN_RFCOMM);
         } catch (final IOException | SecurityException e) {
             LOG.error("Failed to open RFCOMM server socket", e);

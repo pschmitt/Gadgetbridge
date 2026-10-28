@@ -1,6 +1,7 @@
 package nodomain.freeyourgadget.gadgetbridge.service.devices.garmin;
 
 import static nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst.PREF_SYNC_CALENDAR;
+import static nodomain.freeyourgadget.gadgetbridge.devices.garmin.GarminPreferences.PREF_GARMIN_EXPLORE_SYNC;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -39,21 +40,22 @@ import nodomain.freeyourgadget.gadgetbridge.externalevents.gps.GBLocationProvide
 import nodomain.freeyourgadget.gadgetbridge.externalevents.gps.GBLocationService;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.CannedMessagesSpec;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiAuthenticationService;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiCalendarService;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiCredentials;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiCalendar;
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiCore;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiDataTransferService;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiDataTransfer;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiDataTypes;
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiDeviceStatus;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiFileSyncService;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiFileAccess;
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiFindMyWatch;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiHttpService;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiNotificationsService;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiInstalledAppsService;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiGncs;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiHttp;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiInstalledApps;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiRealtimeSettings;
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSmartProto.Smart;
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSmsNotification;
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiEcgService;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSyncService;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSettingsService.SettingsService;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiExploreSync;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.http.DataTransferHandler;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.http.HttpHandler;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.messages.GFDIMessage;
@@ -70,7 +72,8 @@ public class ProtocolBufferHandler implements MessageHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ProtocolBufferHandler.class);
     private final GarminSupport deviceSupport;
     private final Map<Integer, ProtobufFragment> chunkedFragmentsMap;
-    private final int maxChunkSize = 375; //tested on Vívomove Style
+    private final Map<Integer, GdiDataTransfer.FileAccessItemResponse> fileAccessResponsesByRequestId = new HashMap<>();
+    private int maxChunkSize = 375; //tested on Vívomove Style
     private int lastProtobufRequestId;
     private final AppConfigHandler appConfigHandler;
     private HttpHandler httpHandler;
@@ -80,7 +83,7 @@ public class ProtocolBufferHandler implements MessageHandler {
     private final ExploreSyncHandler exploreSyncHandler;
     private final PushNotificationHandler pushNotificationHandler;
 
-    private final Map<GdiSmsNotification.SmsNotificationService.CannedListType, String[]> cannedListTypeMap = new HashMap<>();
+    private final Map<GdiSmsNotification.CannedListType, String[]> cannedListTypeMap = new HashMap<>();
 
     public ProtocolBufferHandler(GarminSupport deviceSupport) {
         this.deviceSupport = deviceSupport;
@@ -131,22 +134,34 @@ public class ProtocolBufferHandler implements MessageHandler {
             if (smart.hasCoreService()) { //TODO: unify request and response???
                 return prepareProtobufResponse(processProtobufCoreRequest(smart.getCoreService()), message.getRequestId());
             }
-            if (smart.hasCalendarService()) {
-                return prepareProtobufResponse(processProtobufCalendarRequest(smart.getCalendarService()), message.getRequestId());
+            if (smart.hasCalendarEventsService()) {
+                return prepareProtobufResponse(processProtobufCalendarRequest(smart.getCalendarEventsService()), message.getRequestId());
             }
             if (smart.hasSmsNotificationService()) {
                 return prepareProtobufResponse(processProtobufSmsNotificationMessage(smart.getSmsNotificationService()), message.getRequestId());
             }
-            if (smart.hasHttpService()) {
-                final GdiHttpService.HttpService response = httpHandler.handle(smart.getHttpService(), message.getRequestId());
+            if (smart.hasConnectIqHttpService()) {
+                final GdiHttp.ConnectIQHTTPService response = httpHandler.handle(smart.getConnectIqHttpService(), message.getRequestId());
                 if (response != null) {
-                    return prepareProtobufResponse(Smart.newBuilder().setHttpService(response).build(), message.getRequestId());
+                    return prepareProtobufResponse(Smart.newBuilder().setConnectIqHttpService(response).build(), message.getRequestId());
                 }
                 processed = true;
                 // Response will be async
             }
+            if (smart.hasDataTransferService() && smart.getDataTransferService().hasFileAccessItemRequest()) {
+                final GdiDataTransfer.FileAccessItemResponse response = dataTransferHandler.handleFileAccessItemRequest(
+                        smart.getDataTransferService().getFileAccessItemRequest()
+                );
+                if (response.getStatus() == GdiDataTransfer.FileAccessItemResponse.Status.OK) {
+                    // The data will be pushed after the watch acknowledges this response
+                    fileAccessResponsesByRequestId.put(message.getRequestId(), response);
+                }
+                return prepareProtobufResponse(Smart.newBuilder().setDataTransferService(
+                        GdiDataTransfer.DataTransferService.newBuilder().setFileAccessItemResponse(response)
+                ).build(), message.getRequestId());
+            }
             if (smart.hasDataTransferService()) {
-                final GdiDataTransferService.DataTransferService response = dataTransferHandler.handle(smart.getDataTransferService(), message.getRequestId());
+                final GdiDataTransfer.DataTransferService response = dataTransferHandler.handle(smart.getDataTransferService(), message.getRequestId());
                 if (response == null) {
                     return null;
                 }
@@ -160,43 +175,43 @@ public class ProtocolBufferHandler implements MessageHandler {
                 processed = true;
                 processProtobufFindMyWatchResponse(smart.getFindMyWatchService());
             }
-            if (smart.hasSettingsService()) {
+            if (smart.hasRealtimeSettingsService()) {
                 processed = true;
-                processProtobufSettingsService(smart.getSettingsService());
+                processProtobufSettingsService(smart.getRealtimeSettingsService());
             }
-            if (smart.hasAuthenticationService() && smart.getAuthenticationService().hasOauthRequest()) {
+            if (smart.hasCredentialsService() && smart.getCredentialsService().hasGcOauthRequest()) {
                 LOG.debug("Got OAuth request");
                 final GarminPrefs devicePrefs = deviceSupport.getDevicePrefs();
                 if (!devicePrefs.fakeOauthEnabled()) {
                     LOG.warn("Got OAuth request, but fake OAuth is disabled");
                 } else {
-                    final GdiAuthenticationService.OAuthResponse oauthResponse = GdiAuthenticationService.OAuthResponse.newBuilder()
-                            .setKeys(GdiAuthenticationService.OAuthKeys.newBuilder()
+                    final GdiCredentials.GCOAuthCredentialsResponse oauthResponse = GdiCredentials.GCOAuthCredentialsResponse.newBuilder()
+                            .setOauthCredentials(GdiCredentials.OAuthCredentials.newBuilder()
                                     .setConsumerKey(UUID.randomUUID().toString())
                                     .setConsumerSecret(RandomStringUtils.insecure().next(35, true, true))
                                     .setOauthToken(UUID.randomUUID().toString())
                                     .setOauthSecret(RandomStringUtils.insecure().next(35, true, true))
                                     .build()
-                            ).setRegion(0).build();
+                            ).setGcsLocation(GdiCredentials.GCSLocation.PRODUCTION).build();
 
-                    return prepareProtobufResponse(Smart.newBuilder().setAuthenticationService(
-                            GdiAuthenticationService.AuthenticationService.newBuilder()
-                                    .setOauthResponse(oauthResponse)
+                    return prepareProtobufResponse(Smart.newBuilder().setCredentialsService(
+                            GdiCredentials.CredentialsService.newBuilder()
+                                    .setGcOauthResponse(oauthResponse)
                     ).build(), message.getRequestId());
                 }
             }
-            if (smart.hasNotificationsService()) {
-                return prepareProtobufResponse(processProtobufNotificationsServiceMessage(smart.getNotificationsService()), message.getRequestId());
+            if (smart.hasGncsService()) {
+                return prepareProtobufResponse(processProtobufNotificationsServiceMessage(smart.getGncsService()), message.getRequestId());
             }
-            if (smart.hasInstalledAppsService()) {
-                final GdiInstalledAppsService.InstalledAppsService installedAppsService = smart.getInstalledAppsService();
+            if (smart.hasConnectIqInstalledAppsService()) {
+                final GdiInstalledApps.ConnectIQInstalledAppsService installedAppsService = smart.getConnectIqInstalledAppsService();
 
                 if (installedAppsService.hasGetInstalledAppsResponse()) {
                     processed = true;
 
-                    final List<GdiInstalledAppsService.InstalledAppsService.InstalledApp> installedAppsList = installedAppsService
+                    final List<GdiInstalledApps.GetInstalledAppsResponse.InstalledApp> installedAppsList = installedAppsService
                             .getGetInstalledAppsResponse()
-                            .getInstalledAppsList();
+                            .getInstalledAppList();
 
                     LOG.info("Got app list with {} apps", installedAppsList.size());
 
@@ -204,48 +219,53 @@ public class ProtocolBufferHandler implements MessageHandler {
                 } else if (installedAppsService.hasDeleteAppResponse()) {
                     processed = true;
 
-                    final GdiInstalledAppsService.InstalledAppsService.DeleteAppResponse.Status status = installedAppsService.getDeleteAppResponse().getStatus();
+                    final GdiInstalledApps.DeleteAppResponse.Status status = installedAppsService.getDeleteAppResponse().getStatus();
 
                     LOG.info("Got app delete response, status = {}", status);
 
                     // Refresh app list
-                    if (status == GdiInstalledAppsService.InstalledAppsService.DeleteAppResponse.Status.OK) {
+                    if (status == GdiInstalledApps.DeleteAppResponse.Status.OK) {
                         deviceSupport.onAppInfoReq();
                     }
                 }
             }
-            if (smart.hasFileSyncService()) {
+            if (smart.hasFileAccessService()) {
+                if (smart.getFileAccessService().hasPushItemResponse()) {
+                    // Handled outside of new_sync_protocol, since this only applies to file uploads
+                    processed = true;
+                    deviceSupport.onPushItemResponse(smart.getFileAccessService().getPushItemResponse());
+                }
                 if (deviceSupport.newSyncProtocol()) {
                     processed = true;
-                    final GdiFileSyncService.FileSyncService response = fileSyncServiceHandler.handle(smart.getFileSyncService());
+                    final GdiFileAccess.Service response = fileSyncServiceHandler.handle(smart.getFileAccessService());
                     if (response != null) {
-                        return prepareProtobufResponse(Smart.newBuilder().setFileSyncService(response).build(), message.getRequestId());
+                        return prepareProtobufResponse(Smart.newBuilder().setFileAccessService(response).build(), message.getRequestId());
                     }
                 } else {
                     LOG.warn("Ignoring file sync service - new sync protocol is disabled");
                 }
             }
-            if (smart.hasEcgService()) {
+            if (smart.hasSamdService()) {
                 if (deviceSupport.newSyncProtocol()) {
                     processed = true;
-                    final GdiEcgService.EcgService response = ecgServiceHandler.handle(smart.getEcgService());
+                    final GdiEcgService.EcgService response = ecgServiceHandler.handle(smart.getSamdService());
                     if (response != null) {
-                        return prepareProtobufResponse(Smart.newBuilder().setEcgService(response).build(), message.getRequestId());
+                        return prepareProtobufResponse(Smart.newBuilder().setSamdService(response).build(), message.getRequestId());
                     }
                 } else {
                     LOG.warn("Ignoring zip transfer service - new sync protocol is disabled");
                 }
             }
-            if (smart.hasAppConfigService()) {
-                processed = appConfigHandler.process(smart.getAppConfigService());
+            if (smart.hasConnectIqAppSettingsService()) {
+                processed = appConfigHandler.process(smart.getConnectIqAppSettingsService());
             }
-            if (smart.hasPushNotificationService()) {
-                processed = pushNotificationHandler.handle(smart.getPushNotificationService());
+            if (smart.hasDeviceMessageService()) {
+                processed = pushNotificationHandler.handle(smart.getDeviceMessageService());
             }
             if (smart.hasExploreSyncService()) {
-                if (deviceSupport.getDevicePrefs().getBoolean("garmin_exploresync", false)) {
+                if (deviceSupport.getDevicePrefs().getBoolean(PREF_GARMIN_EXPLORE_SYNC, false)) {
                     processed = true;
-                    final GdiExploreSyncService.ExploreSyncService response = exploreSyncHandler.handle(smart.getExploreSyncService());
+                    final GdiExploreSync.ExploreSyncService response = exploreSyncHandler.handle(smart.getExploreSyncService());
                     if (response != null) {
                         return prepareProtobufResponse(Smart.newBuilder().setExploreSyncService(response).build(), message.getRequestId());
                     }
@@ -282,6 +302,11 @@ public class ProtocolBufferHandler implements MessageHandler {
         if (statusMessage.isOK()) {
             DataTransferHandler.onDataChunkSuccessfullyReceived(statusMessage.getRequestId());
 
+            final GdiDataTransfer.FileAccessItemResponse fileAccess = fileAccessResponsesByRequestId.remove(statusMessage.getRequestId());
+            if (fileAccess != null) {
+                deviceSupport.pushDataXferItem(fileAccess);
+            }
+
             if (chunkedFragmentsMap.containsKey(statusMessage.getRequestId())) {
                 final ProtobufFragment protobufFragment = chunkedFragmentsMap.get(statusMessage.getRequestId());
                 LOG.debug("Protobuf message #{} found in queue: {}", statusMessage.getRequestId(), GB.lazyHexdump(protobufFragment.fragmentBytes));
@@ -313,31 +338,31 @@ public class ProtocolBufferHandler implements MessageHandler {
         return chunkedFragmentsMap.get(message.getRequestId());
     }
 
-    private Smart processProtobufCalendarRequest(GdiCalendarService.CalendarService calendarService) {
-        if (calendarService.hasCalendarRequest()) {
-            GdiCalendarService.CalendarService.CalendarServiceRequest calendarServiceRequest = calendarService.getCalendarRequest();
+    private Smart processProtobufCalendarRequest(GdiCalendar.CalendarService calendarService) {
+        if (calendarService.hasCalendarEventsRequest()) {
+            GdiCalendar.CalendarEventsRequest calendarServiceRequest = calendarService.getCalendarEventsRequest();
 
             final boolean syncEnabled = GBApplication.getDeviceSpecificSharedPrefs(deviceSupport.getDevice().getAddress())
                     .getBoolean(PREF_SYNC_CALENDAR, false);
 
             if (!syncEnabled) {
                 LOG.warn("Got calendar request, but calendar sync is disabled");
-                return Smart.newBuilder().setCalendarService(
-                        GdiCalendarService.CalendarService.newBuilder().setCalendarResponse(
-                                GdiCalendarService.CalendarService.CalendarServiceResponse.newBuilder()
-                                        .addAllCalendarEvent(Collections.emptyList())
-                                        .setStatus(GdiCalendarService.CalendarService.CalendarServiceResponse.ResponseStatus.OK)
+                return Smart.newBuilder().setCalendarEventsService(
+                        GdiCalendar.CalendarService.newBuilder().setCalendarEventsResponse(
+                                GdiCalendar.CalendarEventsResponse.newBuilder()
+                                        .addAllEvents(Collections.emptyList())
+                                        .setStatus(GdiCalendar.CalendarEventsResponse.ResponseStatus.OK)
                         )
                 ).build();
             }
 
             CalendarManager upcomingEvents = new CalendarManager(deviceSupport.getContext(), deviceSupport.getDevice().getAddress());
             List<CalendarEvent> mEvents = upcomingEvents.getCalendarEventList();
-            List<GdiCalendarService.CalendarService.CalendarEvent> watchEvents = new ArrayList<>();
+            List<GdiCalendar.CalendarEvent> watchEvents = new ArrayList<>();
 
             for (CalendarEvent mEvt : mEvents) {
-                if (mEvt.getEndSeconds() < calendarServiceRequest.getBegin() ||
-                        mEvt.getBeginSeconds() > calendarServiceRequest.getEnd()) {
+                if (mEvt.getEndSeconds() < calendarServiceRequest.getStartDate() ||
+                        mEvt.getBeginSeconds() > calendarServiceRequest.getEndDate()) {
                     LOG.debug("CalendarService Skipping event {} that is out of requested time range", mEvt.getTitle());
                     continue;
                 }
@@ -355,7 +380,7 @@ public class ProtocolBufferHandler implements MessageHandler {
                 final int endDateSeconds;
 
                 if (mEvt.isAllDay()) {
-                    // For all-day events, garmin expects the start and end date to match the midnight boundaries
+                    // For all-day events, Garmin expects the start and end date to match the midnight boundaries
                     // in the user's timezone. However, the calendar event will have them in the UTC timezone,
                     // so we need to convert it
                     startDateSeconds = (int) (DateTimeUtils.utcDateTimeToLocal(mEvt.getBegin()) / 1000);
@@ -365,7 +390,7 @@ public class ProtocolBufferHandler implements MessageHandler {
                     endDateSeconds = mEvt.getEndSeconds();
                 }
 
-                final GdiCalendarService.CalendarService.CalendarEvent.Builder event = GdiCalendarService.CalendarService.CalendarEvent.newBuilder()
+                final GdiCalendar.CalendarEvent.Builder event = GdiCalendar.CalendarEvent.newBuilder()
                         .setTitle(mEvt.getTitle().substring(0, Math.min(mEvt.getTitle().length(), calendarServiceRequest.getMaxTitleLength())))
                         .setAllDay(mEvt.isAllDay())
                         .setStartDate(startDateSeconds)
@@ -385,26 +410,26 @@ public class ProtocolBufferHandler implements MessageHandler {
             }
 
             LOG.debug("CalendarService Sending {} events to watch", watchEvents.size());
-            return Smart.newBuilder().setCalendarService(
-                    GdiCalendarService.CalendarService.newBuilder().setCalendarResponse(
-                            GdiCalendarService.CalendarService.CalendarServiceResponse.newBuilder()
-                                    .addAllCalendarEvent(watchEvents)
-                                    .setStatus(GdiCalendarService.CalendarService.CalendarServiceResponse.ResponseStatus.OK)
+            return Smart.newBuilder().setCalendarEventsService(
+                    GdiCalendar.CalendarService.newBuilder().setCalendarEventsResponse(
+                            GdiCalendar.CalendarEventsResponse.newBuilder()
+                                    .addAllEvents(watchEvents)
+                                    .setStatus(GdiCalendar.CalendarEventsResponse.ResponseStatus.OK)
                     )
             ).build();
         }
         LOG.warn("Unknown CalendarService request: {}", calendarService);
-        return Smart.newBuilder().setCalendarService(
-                GdiCalendarService.CalendarService.newBuilder().setCalendarResponse(
-                        GdiCalendarService.CalendarService.CalendarServiceResponse.newBuilder()
-                                .setStatus(GdiCalendarService.CalendarService.CalendarServiceResponse.ResponseStatus.UNKNOWN_RESPONSE_STATUS)
+        return Smart.newBuilder().setCalendarEventsService(
+                GdiCalendar.CalendarService.newBuilder().setCalendarEventsResponse(
+                        GdiCalendar.CalendarEventsResponse.newBuilder()
+                                .setStatus(GdiCalendar.CalendarEventsResponse.ResponseStatus.UNKNOWN_RESPONSE_STATUS)
                 )
         ).build();
     }
 
     private void processProtobufDeviceStatusResponse(GdiDeviceStatus.DeviceStatusService deviceStatusService) {
         if (deviceStatusService.hasRemoteDeviceBatteryStatusResponse()) {
-            final GdiDeviceStatus.DeviceStatusService.RemoteDeviceBatteryStatusResponse batteryStatusResponse = deviceStatusService.getRemoteDeviceBatteryStatusResponse();
+            final GdiDeviceStatus.RemoteDeviceBatteryStatusResponse batteryStatusResponse = deviceStatusService.getRemoteDeviceBatteryStatusResponse();
             final int batteryLevel = batteryStatusResponse.getCurrentBatteryLevel();
             LOG.info("Received remote battery status {}: level={}", batteryStatusResponse.getStatus(), batteryLevel);
             final GBDeviceEventBatteryInfo batteryEvent = new GBDeviceEventBatteryInfo();
@@ -413,8 +438,8 @@ public class ProtocolBufferHandler implements MessageHandler {
             return;
         }
         if (deviceStatusService.hasActivityStatusResponse()) {
-            final GdiDeviceStatus.DeviceStatusService.ActivityStatusResponse activityStatusResponse = deviceStatusService.getActivityStatusResponse();
-            LOG.info("Received activity status: {}", activityStatusResponse.getStatus());
+            final GdiDeviceStatus.GetCurrentActivityStatusResponse activityStatusResponse = deviceStatusService.getActivityStatusResponse();
+            LOG.info("Received activity status: {}", activityStatusResponse.getActivityStatus());
             return;
         }
         LOG.warn("Unknown DeviceStatusService response: {}", deviceStatusService);
@@ -423,7 +448,7 @@ public class ProtocolBufferHandler implements MessageHandler {
     @Nullable
     private Smart processProtobufCoreRequest(@NonNull GdiCore.CoreService coreService) {
         if (coreService.hasSyncResponse()) {
-            final GdiCore.CoreService.SyncResponse syncResponse = coreService.getSyncResponse();
+            final GdiCore.SyncResponse syncResponse = coreService.getSyncResponse();
             LOG.info("Received sync status: {}", syncResponse.getStatus());
             return null;
         }
@@ -432,49 +457,49 @@ public class ProtocolBufferHandler implements MessageHandler {
             LOG.info("Got location request");
             final CurrentPosition currentPosition = new CurrentPosition();
             final Location location = currentPosition.getLastKnownLocation();
-            final GdiCore.CoreService.GetLocationResponse.Builder response = GdiCore.CoreService.GetLocationResponse.newBuilder();
+            final GdiCore.GetLocationResponse.Builder response = GdiCore.GetLocationResponse.newBuilder();
             if (location.getLatitude() == 0 && location.getLongitude() == 0) {
-                response.setStatus(GdiCore.CoreService.GetLocationResponse.Status.NO_VALID_LOCATION);
+                response.setStatus(GdiCore.GetLocationResponse.Status.NO_VALID_LOCATION);
             } else if (currentPosition.isFromPreferences() &&
                     GBApplication.getPrefs().getBoolean("use_updated_location_if_available", false)) {
                 LOG.warn("No fresh location available, replying with NO_VALID_LOCATION");
-                response.setStatus(GdiCore.CoreService.GetLocationResponse.Status.NO_VALID_LOCATION);
+                response.setStatus(GdiCore.GetLocationResponse.Status.NO_VALID_LOCATION);
             } else {
-                response.setStatus(GdiCore.CoreService.GetLocationResponse.Status.OK)
-                        .setLocationData(GarminUtils.toLocationData(location, GdiCore.CoreService.DataType.GENERAL_LOCATION));
+                response.setStatus(GdiCore.GetLocationResponse.Status.OK)
+                        .setLocationData(GarminUtils.toLocationData(location, GdiCore.LocationData.DataType.GENERAL_LOCATION));
             }
             return Smart.newBuilder().setCoreService(
                     GdiCore.CoreService.newBuilder().setGetLocationResponse(response)).build();
         }
 
         if (coreService.hasLocationUpdatedSetEnabledRequest()) {
-            final GdiCore.CoreService.LocationUpdatedSetEnabledRequest locationUpdatedSetEnabledRequest = coreService.getLocationUpdatedSetEnabledRequest();
+            final GdiCore.LocationUpdatedSetEnabledRequest locationUpdatedSetEnabledRequest = coreService.getLocationUpdatedSetEnabledRequest();
 
             LOG.info("Received locationUpdatedSetEnabledRequest status: {}", locationUpdatedSetEnabledRequest.getEnabled());
 
-            GdiCore.CoreService.LocationUpdatedSetEnabledResponse.Builder response = GdiCore.CoreService.LocationUpdatedSetEnabledResponse.newBuilder()
-                    .setStatus(GdiCore.CoreService.LocationUpdatedSetEnabledResponse.Status.OK);
+            GdiCore.LocationUpdatedSetEnabledResponse.Builder response = GdiCore.LocationUpdatedSetEnabledResponse.newBuilder()
+                    .setStatus(GdiCore.LocationUpdatedSetEnabledResponse.Status.OK);
 
             final boolean sendGpsPref = deviceSupport.getDevicePrefs().getBoolean(DeviceSettingsPreferenceConst.PREF_WORKOUT_SEND_GPS_TO_BAND, false);
 
-            GdiCore.CoreService.Request realtimeRequest = null;
+            GdiCore.LocationUpdatedSetEnabledRequest.Request realtimeRequest = null;
 
             if (locationUpdatedSetEnabledRequest.getEnabled()) {
-                for (final GdiCore.CoreService.Request request : locationUpdatedSetEnabledRequest.getRequestsList()) {
-                    final GdiCore.CoreService.LocationUpdatedSetEnabledResponse.Requested.RequestedStatus requestedStatus;
-                    if (GdiCore.CoreService.DataType.REALTIME_TRACKING.equals(request.getRequested())) {
+                for (final GdiCore.LocationUpdatedSetEnabledRequest.Request request : locationUpdatedSetEnabledRequest.getRequestsList()) {
+                    final GdiCore.LocationUpdatedSetEnabledResponse.RequestStatus.Status requestedStatus;
+                    if (GdiCore.LocationData.DataType.REALTIME_TRACKING.equals(request.getRequested())) {
                         realtimeRequest = request;
                         if (sendGpsPref) {
-                            requestedStatus = GdiCore.CoreService.LocationUpdatedSetEnabledResponse.Requested.RequestedStatus.OK;
+                            requestedStatus = GdiCore.LocationUpdatedSetEnabledResponse.RequestStatus.Status.OK;
                         } else {
-                            requestedStatus = GdiCore.CoreService.LocationUpdatedSetEnabledResponse.Requested.RequestedStatus.KO;
+                            requestedStatus = GdiCore.LocationUpdatedSetEnabledResponse.RequestStatus.Status.NOT_AVAILABLE;
                         }
                     } else {
-                        requestedStatus = GdiCore.CoreService.LocationUpdatedSetEnabledResponse.Requested.RequestedStatus.KO;
+                        requestedStatus = GdiCore.LocationUpdatedSetEnabledResponse.RequestStatus.Status.NOT_AVAILABLE;
                     }
 
                     response.addRequests(
-                            GdiCore.CoreService.LocationUpdatedSetEnabledResponse.Requested.newBuilder()
+                            GdiCore.LocationUpdatedSetEnabledResponse.RequestStatus.newBuilder()
                                     .setRequested(request.getRequested())
                                     .setStatus(requestedStatus)
                     );
@@ -498,12 +523,12 @@ public class ProtocolBufferHandler implements MessageHandler {
                     GdiCore.CoreService.newBuilder().setLocationUpdatedSetEnabledResponse(response)).build();
         }
 
-        if (coreService.hasConnectedNotification()) {
+        if (coreService.hasConnectionReadyNotification()) {
             LOG.info("Got ConnectedNotification");
             // ping-pong to notify the gadget that the connection is live and working
             return Smart.newBuilder().setCoreService(
-                    GdiCore.CoreService.newBuilder().setConnectedNotification(
-                            GdiCore.CoreService.ConnectedNotification.newBuilder().build()
+                    GdiCore.CoreService.newBuilder().setConnectionReadyNotification(
+                            GdiCore.ConnectionReadyNotification.newBuilder().build()
                     )).build();
         }
 
@@ -511,31 +536,31 @@ public class ProtocolBufferHandler implements MessageHandler {
         return null;
     }
 
-    private Smart processProtobufNotificationsServiceMessage(final GdiNotificationsService.NotificationsService notificationsService) {
-        if (notificationsService.hasPictureRequest()) {
-            final GdiNotificationsService.PictureRequest pictureRequest = notificationsService.getPictureRequest();
-            final int notificationId = pictureRequest.getNotificationId();
+    private Smart processProtobufNotificationsServiceMessage(final GdiGncs.Service notificationsService) {
+        if (notificationsService.hasMediaRequest()) {
+            final GdiGncs.MediaRequest pictureRequest = notificationsService.getMediaRequest();
+            final int notificationId = pictureRequest.getNotificationUid();
             final Bitmap bmp = deviceSupport.getNotificationAttachmentBitmap(notificationId);
             if (bmp == null) {
                 return null;
             }
 
-            final GdiNotificationsService.PictureParameters parameters = pictureRequest.getParameters();
-            final int targetHeight = (int) Math.round(bmp.getHeight() * ((double) parameters.getWidth() / bmp.getWidth()));
+            final GdiGncs.DisplayAttributes parameters = pictureRequest.getAttributes();
+            final int targetHeight = (int) Math.round(bmp.getHeight() * ((double) parameters.getWidthPx() / bmp.getWidth()));
 
-            final Bitmap scaledBmp = Bitmap.createScaledBitmap(bmp, parameters.getWidth(), targetHeight, true);
+            final Bitmap scaledBmp = Bitmap.createScaledBitmap(bmp, parameters.getWidthPx(), targetHeight, true);
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
             scaledBmp.compress(Bitmap.CompressFormat.JPEG, parameters.getQuality(), baos);
             final byte[] imageBytes = baos.toByteArray();
 
             final int transferId = DataTransferHandler.registerData(imageBytes);
 
-            final GdiNotificationsService.PictureResponse.Builder response = GdiNotificationsService.PictureResponse.newBuilder()
-                    .setStatus(1)
-                    .setNotificationId(notificationId)
-                    .setPictureType(GdiNotificationsService.PictureType.JPEG)
-                    .setDataTransferItem(
-                            GdiNotificationsService.DataTransferItem.newBuilder()
+            final GdiGncs.MediaResponse.Builder response = GdiGncs.MediaResponse.newBuilder()
+                    .setStatus(GdiGncs.MediaResponse.Status.SUCCESS)
+                    .setNotificationUid(notificationId)
+                    .setType(GdiGncs.MediaType.JPEG)
+                    .setTransferInfo(
+                        GdiDataTypes.DataTransferItem.newBuilder()
                                     .setId(transferId)
                                     .setSize(imageBytes.length)
                                     .build()
@@ -545,8 +570,8 @@ public class ProtocolBufferHandler implements MessageHandler {
                 response.setIndex(pictureRequest.getIndex());
             }
 
-            return Smart.newBuilder().setNotificationsService(
-                    GdiNotificationsService.NotificationsService.newBuilder().setPictureResponse(response.build())
+            return Smart.newBuilder().setGncsService(
+                    GdiGncs.Service.newBuilder().setMediaResponse(response.build())
             ).build();
         }
 
@@ -561,18 +586,18 @@ public class ProtocolBufferHandler implements MessageHandler {
             // Mark canned messages as supported
             deviceSupport.evaluateGBDeviceEvent(new GBDeviceEventUpdatePreferences(GarminPreferences.PREF_FEAT_CANNED_MESSAGES, true));
 
-            List<GdiSmsNotification.SmsNotificationService.CannedListType> requestedTypes = smsNotificationService.getSmsCannedListRequest().getRequestedTypesList();
+            List<GdiSmsNotification.CannedListType> requestedTypes = smsNotificationService.getSmsCannedListRequest().getRequestedTypesList();
 
             populateCannedListTypeMap(requestedTypes);
 
-            GdiSmsNotification.SmsNotificationService.SmsCannedListResponse.Builder builder = GdiSmsNotification.SmsNotificationService.SmsCannedListResponse.newBuilder()
-                    .setStatus(GdiSmsNotification.SmsNotificationService.ResponseStatus.SUCCESS);
+            GdiSmsNotification.SmsCannedListResponse.Builder builder = GdiSmsNotification.SmsCannedListResponse.newBuilder()
+                    .setStatus(GdiSmsNotification.SmsCannedListResponse.ResponseStatus.SUCCESS);
             boolean found = false;
-            for (GdiSmsNotification.SmsNotificationService.CannedListType requestedType : requestedTypes) {
+            for (GdiSmsNotification.CannedListType requestedType : requestedTypes) {
                 if (this.cannedListTypeMap.containsKey(requestedType)) {
                     found = true;
-                    builder.addLists(GdiSmsNotification.SmsNotificationService.SmsCannedList.newBuilder()
-                            .addAllResponse(Arrays.asList(Objects.requireNonNull(this.cannedListTypeMap.get(requestedType))))
+                    builder.addLists(GdiSmsNotification.SmsCannedList.newBuilder()
+                            .addAllResponses(Arrays.asList(Objects.requireNonNull(this.cannedListTypeMap.get(requestedType))))
                             .setType(requestedType)
                     );
                 } else {
@@ -580,7 +605,7 @@ public class ProtocolBufferHandler implements MessageHandler {
                 }
             }
             if (!found)
-                builder.setStatus(GdiSmsNotification.SmsNotificationService.ResponseStatus.GENERIC_ERROR);
+                builder.setStatus(GdiSmsNotification.SmsCannedListResponse.ResponseStatus.GENERIC_ERROR);
 
             return Smart.newBuilder().setSmsNotificationService(GdiSmsNotification.SmsNotificationService.newBuilder().setSmsCannedListResponse(builder)).build();
         } else {
@@ -589,14 +614,14 @@ public class ProtocolBufferHandler implements MessageHandler {
         }
     }
 
-    private void populateCannedListTypeMap(List<GdiSmsNotification.SmsNotificationService.CannedListType> requestedTypes) {
+    private void populateCannedListTypeMap(List<GdiSmsNotification.CannedListType> requestedTypes) {
         if (this.cannedListTypeMap.isEmpty()) {
-            for (GdiSmsNotification.SmsNotificationService.CannedListType type :
+            for (GdiSmsNotification.CannedListType type :
                     requestedTypes) {
                 String preferencesPrefix = "";
-                if (GdiSmsNotification.SmsNotificationService.CannedListType.SMS_MESSAGE_RESPONSE.equals(type))
+                if (GdiSmsNotification.CannedListType.SMS_MESSAGE_RESPONSE.equals(type))
                     preferencesPrefix = "canned_reply_";
-                else if (GdiSmsNotification.SmsNotificationService.CannedListType.PHONE_CALL_RESPONSE.equals(type))
+                else if (GdiSmsNotification.CannedListType.PHONE_CALL_RESPONSE.equals(type))
                     preferencesPrefix = "canned_message_dismisscall_";
                 else
                     continue;
@@ -623,7 +648,7 @@ public class ProtocolBufferHandler implements MessageHandler {
         LOG.warn("Unknown FindMyWatchService response: {}", findMyWatchService);
     }
 
-    private boolean processProtobufSettingsService(final SettingsService settingsService) {
+    private boolean processProtobufSettingsService(final GdiRealtimeSettings.RealtimeSettingsService settingsService) {
         boolean processed = false;
 
         if (settingsService.hasDefinitionResponse()) {
@@ -657,6 +682,12 @@ public class ProtocolBufferHandler implements MessageHandler {
         return prepareProtobufMessage(protobufPayload.toByteArray(), GFDIMessage.GarminMessage.PROTOBUF_REQUEST, requestId);
     }
 
+    public void setMaxPacketSize(final int maxPacketSize) {
+        // 20 = 18 bytes for ProtobufMessage header + 2 bytes for CRC
+        maxChunkSize = maxPacketSize - 20;
+        LOG.debug("Protobuf max chunk size: {}", maxChunkSize);
+    }
+
     public ProtobufMessage prepareProtobufResponse(Smart protobufPayload, int requestId) {
         if (null == protobufPayload)
             return null;
@@ -681,14 +712,14 @@ public class ProtocolBufferHandler implements MessageHandler {
     }
 
     public ProtobufMessage setCannedMessages(CannedMessagesSpec cannedMessagesSpec) {
-        final GdiSmsNotification.SmsNotificationService.CannedListType cannedListType;
+        final GdiSmsNotification.CannedListType cannedListType;
         switch (cannedMessagesSpec.getType()) {
             case CannedMessagesSpec.TYPE_REJECTEDCALLS:
-                cannedListType = GdiSmsNotification.SmsNotificationService.CannedListType.PHONE_CALL_RESPONSE;
+                cannedListType = GdiSmsNotification.CannedListType.PHONE_CALL_RESPONSE;
                 break;
             case CannedMessagesSpec.TYPE_GENERIC:
             case CannedMessagesSpec.TYPE_NEWSMS:
-                cannedListType = GdiSmsNotification.SmsNotificationService.CannedListType.SMS_MESSAGE_RESPONSE;
+                cannedListType = GdiSmsNotification.CannedListType.SMS_MESSAGE_RESPONSE;
                 break;
             default:
                 LOG.warn("Unknown canned messages type, ignoring.");
@@ -700,7 +731,7 @@ public class ProtocolBufferHandler implements MessageHandler {
         Smart smart = Smart.newBuilder()
                 .setSmsNotificationService(GdiSmsNotification.SmsNotificationService.newBuilder()
                         .setSmsCannedListChangedNotification(
-                                GdiSmsNotification.SmsNotificationService.SmsCannedListChangedNotification.newBuilder().addChangedType(cannedListType)
+                                GdiSmsNotification.SmsCannedListChangedNotification.newBuilder().addChangedTypes(cannedListType)
                         )
                 ).build();
 

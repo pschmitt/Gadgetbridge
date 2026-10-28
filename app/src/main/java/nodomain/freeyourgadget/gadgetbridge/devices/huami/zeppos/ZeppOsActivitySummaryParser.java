@@ -20,6 +20,7 @@ import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.
 
 import android.content.Context;
 
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -42,6 +43,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.huami.HuamiActivitySummaryPa
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrack;
 import nodomain.freeyourgadget.gadgetbridge.proto.HuamiProtos;
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary;
+import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.AbstractHuamiActivityDetailsParser;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.ZeppOsActivityDetailsParser;
@@ -57,7 +59,8 @@ public class ZeppOsActivitySummaryParser extends HuamiActivitySummaryParser {
         return new ZeppOsActivityDetailsParser(summary);
     }
 
-    public ZeppOsActivitySummaryParser(final Context context) {
+    public ZeppOsActivitySummaryParser(final Context context, @Nullable final GBDevice gbDevice) {
+        super(gbDevice);
         this.context = context;
     }
 

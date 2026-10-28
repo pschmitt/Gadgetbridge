@@ -39,12 +39,12 @@ public class DownloadRequestStatusMessage extends GFDIStatusMessage {
 
     public enum DownloadStatus { //was DownloadRequestResponseMessage
         OK,
-        INDEX_UNKNOWN,
-        INDEX_NOT_READABLE,
-        NO_SPACE_LEFT,
-        INVALID,
+        INDEX_NOT_FOUND,
+        NOT_READABLE,
         NOT_READY,
-        CRC_INCORRECT,
+        INVALID_REQUEST,
+        CRC_MISMATCH,
+        RANGE_EXCEEDS_FILE,
         ;
 
         public static DownloadStatus fromId(int id) {

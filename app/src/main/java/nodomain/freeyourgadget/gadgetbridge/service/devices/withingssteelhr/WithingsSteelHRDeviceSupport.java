@@ -143,8 +143,8 @@ public class WithingsSteelHRDeviceSupport extends AbstractBTLESingleDeviceSuppor
         liveWorkoutHandler = new LiveWorkoutHandler(this);
         incomingMessageHandlerFactory = IncomingMessageHandlerFactory.getInstance(this);
         addSupportedService(WithingsUUID.WITHINGS_SERVICE_UUID);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
         addANCSService();
         activityUser = new ActivityUser();
 

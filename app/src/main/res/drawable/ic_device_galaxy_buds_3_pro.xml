@@ -5,13 +5,13 @@
     android:height="28.74013dp">
     <path
         android:pathData="M3.871204 3.876877H24.79632A0.9472276 0.9472276 0 0 1 25.74355 4.824104V24.83429A0.9472276 0.9472276 0 0 1 24.79632 25.78151H3.871204A0.9472276 0.9472276 0 0 1 2.923976 24.83429V4.824104A0.9472276 0.9472276 0 0 1 3.871204 3.876877Z"
-        android:fillColor="?attr/deviceIconLight" />
+        android:fillColor="?attr/deviceIconBackgroundLight" />
     <path
         android:pathData="M3.879016 3.034944H24.80413A0.9472276 0.9472276 0 0 1 25.75136 3.982171V23.99235A0.9472276 0.9472276 0 0 1 24.80413 24.93958H3.879016A0.9472276 0.9472276 0 0 1 2.931789 23.99235V3.982171A0.9472276 0.9472276 0 0 1 3.879016 3.034944Z"
-        android:fillColor="?attr/deviceIconDark" />
+        android:fillColor="?attr/deviceIconBackgroundDark" />
     <path
         android:pathData="M3.871116 3.413072H24.79623A0.9472276 0.9472276 0 0 1 25.74346 4.3603V24.37048A0.9472276 0.9472276 0 0 1 24.79623 25.31771H3.871116A0.9472276 0.9472276 0 0 1 2.923888 24.37048V4.3603A0.9472276 0.9472276 0 0 1 3.871116 3.413072Z"
-        android:fillColor="?attr/deviceIconDark" />
+        android:fillColor="?attr/deviceIconBackgroundDark" />
     <group
         android:translateX="3.2"
         android:translateY="3">

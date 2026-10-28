@@ -41,16 +41,36 @@ object BodyFatWidget : BodyCompositionWidget() {
      * are defined for men and women only, so other profiles stay neutral.
      */
     override fun colorFor(value: Float, data: Data): Int {
-        val (essentialLow, healthyLow, obese) = when (data.gender) {
-            ActivityUser.GENDER_MALE -> Triple(2f, 6f, 25f)
-            ActivityUser.GENDER_FEMALE -> Triple(10f, 14f, 32f)
-            else -> return NEUTRAL
-        }
+        val (essentialLow, healthyLow, obese) = limits(data) ?: return NEUTRAL
         return when {
             value < essentialLow -> RED
             value < healthyLow -> ORANGE
             value < obese -> GREEN
             else -> RED
         }
+    }
+
+    override fun zones(data: Data): Zones? {
+        val (essentialLow, healthyLow, obese) = limits(data) ?: return null
+        val essential = scale(essentialLow)
+        val healthy = scale(healthyLow)
+        val high = scale(obese)
+        return Zones(
+            colors = intArrayOf(RED, ORANGE, GREEN, RED),
+            segments = floatArrayOf(essential, healthy - essential, high - healthy, 1 - high),
+            labelFor = { value ->
+                when {
+                    value < healthyLow -> R.string.low
+                    value < obese -> R.string.widget_status_healthy
+                    else -> R.string.high
+                }
+            },
+        )
+    }
+
+    private fun limits(data: Data): Triple<Float, Float, Float>? = when (data.gender) {
+        ActivityUser.GENDER_MALE -> Triple(2f, 6f, 25f)
+        ActivityUser.GENDER_FEMALE -> Triple(10f, 14f, 32f)
+        else -> null
     }
 }

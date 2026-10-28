@@ -1,75 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/workout_step_frame"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
-    android:clickable="true"
-    android:focusable="true"
-    android:gravity="center_vertical"
-    android:minHeight="56dp"
-    android:orientation="horizontal"
-    android:paddingVertical="4dp"
-    android:paddingStart="16dp"
-    android:paddingEnd="8dp">
+    android:layout_marginHorizontal="12dp">
 
-    <View
-        android:id="@+id/workout_step_indent"
-        android:layout_width="0dp"
-        android:layout_height="1dp" />
-
-    <View
-        android:id="@+id/workout_step_color_bar"
-        android:layout_width="4dp"
-        android:layout_height="32dp"
-        android:layout_marginEnd="12dp"
-        android:background="?attr/colorPrimary" />
-
-    <LinearLayout
-        android:layout_width="0dp"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/workout_step_card"
+        style="?attr/materialCardViewFilledStyle"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:clickable="true"
+        android:focusable="true"
+        app:cardElevation="0dp"
+        app:strokeColor="?attr/stat_tile_border">
 
-        <TextView
-            android:id="@+id/workout_step_title"
+        <LinearLayout
+            android:id="@+id/workout_step_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceListItem"
-            android:textSize="15sp" />
+            android:gravity="center_vertical"
+            android:minHeight="56dp"
+            android:orientation="horizontal"
+            android:paddingVertical="8dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="4dp">
 
-        <TextView
-            android:id="@+id/workout_step_detail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceBodySmall" />
-    </LinearLayout>
+            <View
+                android:id="@+id/workout_step_color_bar"
+                android:layout_width="4dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="12dp"
+                android:background="?attr/colorPrimary" />
 
-    <ImageView
-        android:id="@+id/workout_step_warning"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_marginEnd="4dp"
-        android:contentDescription="@string/workout_template_step_invalid"
-        android:src="@drawable/ic_warning"
-        android:visibility="gone"
-        app:tint="?attr/colorError" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-    <ImageButton
-        android:id="@+id/workout_step_overflow"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/widgets_more_options"
-        android:src="@drawable/ic_more_vert"
-        app:tint="?android:attr/textColorSecondary" />
+                <TextView
+                    android:id="@+id/workout_step_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceTitleSmall" />
 
-    <ImageView
-        android:id="@+id/workout_step_drag_handle"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:contentDescription="@string/widgets_drag_to_reorder"
-        android:src="@drawable/ic_drag_handle"
-        app:tint="?android:attr/textColorSecondary" />
+                <TextView
+                    android:id="@+id/workout_step_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceBodySmall" />
+            </LinearLayout>
 
-</LinearLayout>
+            <ImageView
+                android:id="@+id/workout_step_warning"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="@string/workout_template_step_invalid"
+                android:src="@drawable/ic_warning"
+                android:visibility="gone"
+                app:tint="?attr/colorError" />
+
+            <ImageButton
+                android:id="@+id/workout_step_overflow"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/widgets_more_options"
+                android:src="@drawable/ic_more_vert"
+                app:tint="?android:attr/textColorSecondary" />
+
+            <ImageView
+                android:id="@+id/workout_step_drag_handle"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/widgets_drag_to_reorder"
+                android:src="@drawable/ic_drag_handle"
+                app:tint="?android:attr/textColorSecondary" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</FrameLayout>

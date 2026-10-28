@@ -21,11 +21,12 @@ import static org.junit.Assert.assertEquals;
 import android.view.ContextThemeWrapper;
 import android.widget.TextView;
 
+import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.data.CombinedData;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
@@ -37,36 +38,32 @@ import java.util.List;
 import java.util.Map;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.HeartRateZoneChartUtils;
 import nodomain.freeyourgadget.gadgetbridge.test.TestBase;
 
 public class ValueMarkerTest extends TestBase {
     private static List<Entry> run(final int fromX, final int toX, final float y) {
         final List<Entry> entries = new ArrayList<>();
         for (int x = fromX; x <= toX; x++) {
-            entries.add(new Entry(x, y));
+            entries.add(new Entry<>(x, y, null, null));
         }
         return entries;
     }
 
     private String markerTextAt(final float x) {
-        // A gapped HR series: only the first segment is labelled. A zone band spans both.
-        final List<ILineDataSet> dataSets = new ArrayList<>();
-        dataSets.add(new HeartRateZoneChartUtils.ZoneAreaDataSet(run(0, 30, 100)));
+        // A gapped HR series: only the first segment is labelled.
+        final List<ILineDataSet<?>> dataSets = new ArrayList<>();
         dataSets.add(new LineDataSet(run(0, 10, 120), "HR"));
-        dataSets.add(new LineDataSet(run(20, 30, 140), null));
+        dataSets.add(new LineDataSet(run(20, 30, 140), ""));
         final CombinedData data = new CombinedData();
-        data.setData(new LineData(dataSets));
+        data.setLineData(new LineData(dataSets));
 
-        final Map<String, ValueFormatter> formatters = Collections.singletonMap("HR", new ValueFormatter() {
-            @Override
-            public String getFormattedValue(final float value) {
-                return String.valueOf((int) value);
-            }
-        });
-        final ValueMarker marker = new ValueMarker(new ContextThemeWrapper(getContext(), R.style.GadgetbridgeTheme),
-                data, formatters, Collections.singletonMap("HR", "bpm"));
-        marker.refreshContent(new Entry(x, 0), new Highlight(x, 0, 0));
+        final Map<String, IAxisValueFormatter> formatters = Collections.singletonMap("HR", (value, axis) -> String.valueOf((int) value));
+        final ContextThemeWrapper context = new ContextThemeWrapper(getContext(), R.style.GadgetbridgeTheme);
+        final CombinedChart chart = new CombinedChart(context);
+        chart.setData(data);
+        final ValueMarker marker = new ValueMarker(context, data, formatters, Collections.singletonMap("HR", "bpm"));
+        chart.setMarker(marker);
+        marker.refreshContent(new Entry<>(x, 0, null, null), new Highlight(x, 0, 0));
         return ((TextView) marker.findViewById(R.id.marker_content)).getText().toString();
     }
 

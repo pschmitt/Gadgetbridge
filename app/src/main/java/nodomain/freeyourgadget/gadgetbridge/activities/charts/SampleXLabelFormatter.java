@@ -18,14 +18,15 @@ package nodomain.freeyourgadget.gadgetbridge.activities.charts;
 
 import android.annotation.SuppressLint;
 
-import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-public class SampleXLabelFormatter extends ValueFormatter {
+public class SampleXLabelFormatter implements IAxisValueFormatter {
     private final TimestampTranslation tsTranslation;
     @SuppressLint("SimpleDateFormat")
     private final SimpleDateFormat annotationDateFormat;
@@ -39,7 +40,7 @@ public class SampleXLabelFormatter extends ValueFormatter {
 
     // TODO: this does not work. Cannot use precomputed labels
     @Override
-    public String getFormattedValue(final float value) {
+    public String getFormattedValue(final float value, final AxisBase axis) {
         cal.clear();
         final int ts = (int) value;
         cal.setTimeInMillis(tsTranslation.toOriginalValue(ts) * 1000L);

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="HardcodedText">
+
+    <Preference
+        android:icon="@drawable/ic_delete"
+        android:key="pref_debug_dashboard_layout_reset"
+        android:persistent="false" />
+
+    <PreferenceCategory
+        android:key="pref_debug_dashboard_layout_header_widgets"
+        android:title="Widgets"
+        app:iconSpaceReserved="false" />
+
+</androidx.preference.PreferenceScreen>

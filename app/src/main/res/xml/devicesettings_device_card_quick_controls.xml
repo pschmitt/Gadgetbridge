@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:icon="@drawable/ic_tune"
+        android:key="pref_device_card_show_quick_controls"
+        android:title="@string/pref_device_card_show_quick_controls_title" />
+
+    <Preference
+        android:dependency="pref_device_card_show_quick_controls"
+        android:icon="@drawable/ic_widgets"
+        android:key="pref_device_card_quick_controls"
+        android:persistent="false"
+        android:summary="@string/pref_device_card_quick_controls_summary"
+        android:title="@string/pref_device_card_quick_controls_title" />
+</androidx.preference.PreferenceScreen>

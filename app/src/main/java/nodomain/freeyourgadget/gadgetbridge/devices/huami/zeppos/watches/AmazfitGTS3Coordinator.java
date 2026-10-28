@@ -37,7 +37,7 @@ public class AmazfitGTS3Coordinator extends ZeppOsCoordinator {
     @Override
     public Set<Integer> getDeviceSources() {
         return new HashSet<>(Arrays.asList(
-                224, // chinese mainland version
+                224, // Chinese mainland version
                 225
         ));
     }

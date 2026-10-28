@@ -52,7 +52,7 @@ class Bm6Support : AbstractBTLESingleDeviceSupport(LOG) {
 
         addSupportedService(UUID_SERVICE_BM6)
 
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION)
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid)
         deviceInfoProfile = DeviceInfoProfile<Bm6Support>(this)
         deviceInfoProfile.addListener(mListener)
         addSupportedProfile(deviceInfoProfile)

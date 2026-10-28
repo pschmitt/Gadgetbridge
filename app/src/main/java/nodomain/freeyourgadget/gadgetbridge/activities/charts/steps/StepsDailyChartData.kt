@@ -1,13 +1,13 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.charts.steps
 
 import nodomain.freeyourgadget.gadgetbridge.activities.charts.ActivityAnalysis
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.vico.AxisSpec
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.vico.ChartPoint
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.vico.ChartSeries
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.vico.ChartSpec
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.vico.ChartValueFormat
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.vico.LimitLineSpec
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.vico.SeriesStyle
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.AxisSpec
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartPoint
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSeries
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSpec
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartValueFormat
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.LimitLineSpec
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.SeriesStyle
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityAmount
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser

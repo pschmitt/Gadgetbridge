@@ -10,7 +10,7 @@
         android:title="Send CallSpec" />
 
     <Preference
-        android:icon="@drawable/ic_refresh"
+        android:icon="@drawable/ic_settings_backup_restore"
         android:key="pref_debug_call_reset"
         android:persistent="false"
         android:title="@string/reset_fields" />

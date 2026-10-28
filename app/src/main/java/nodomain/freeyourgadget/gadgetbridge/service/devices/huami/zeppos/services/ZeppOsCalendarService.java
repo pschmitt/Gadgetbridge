@@ -16,20 +16,35 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.services;
 
+import android.util.Pair;
+import android.widget.Toast;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
+import de.greenrobot.dao.query.QueryBuilder;
+import nodomain.freeyourgadget.gadgetbridge.GBApplication;
+import nodomain.freeyourgadget.gadgetbridge.GBException;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
+import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
+import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventUpdatePreferences;
+import nodomain.freeyourgadget.gadgetbridge.entities.CalendarSyncState;
+import nodomain.freeyourgadget.gadgetbridge.entities.CalendarSyncStateDao;
+import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.CalendarReceiver;
 import nodomain.freeyourgadget.gadgetbridge.model.CalendarEventSpec;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.BLETypeConversions;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.ZeppOsSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.AbstractZeppOsService;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.ZeppOsTransactionBuilder;
+import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
 
 public class ZeppOsCalendarService extends AbstractZeppOsService {
@@ -82,7 +97,11 @@ public class ZeppOsCalendarService extends AbstractZeppOsService {
                 break;
             case CMD_EVENTS_RESPONSE:
                 LOG.info("Got calendar events from band");
-                decodeAndUpdateCalendarEvents(payload);
+                try {
+                    decodeAndUpdateCalendarEvents(payload);
+                } catch (GBException e) {
+                    LOG.error("zepp decodeAndUpdateCalendarEvents error", e);
+                }
                 return;
             case CMD_CREATE_EVENT_ACK:
                 LOG.info("Calendar create event ACK, status = {}", payload[1]);
@@ -95,7 +114,8 @@ public class ZeppOsCalendarService extends AbstractZeppOsService {
         }
     }
 
-    public void requestCalendarEvents() {
+
+    public void syncCalendar() {
         LOG.info("Requesting calendar events from band");
 
         write("request calendar events", new byte[]{CMD_EVENTS_REQUEST, 0x00, 0x00});
@@ -196,38 +216,45 @@ public class ZeppOsCalendarService extends AbstractZeppOsService {
         write("delete calendar event", buf.array());
     }
 
-    private void decodeAndUpdateCalendarEvents(final byte[] payload) {
-        final int numEvents = payload[1];
-        // FIXME there's a 0 after this, is it actually a 2-byte short?
+    private void decodeAndUpdateCalendarEvents(final byte[] payload) throws GBException {
+        final int numEvents = payload[1] + (payload[2] << 8);
+
+        LOG.debug("Zepp calendar events count {}", numEvents);
 
         if (payload.length < 1 + numEvents * 34) {
             LOG.warn("Unexpected payload length of {} for {} calendar events", payload.length, numEvents);
             return;
         }
 
+        /**
+         * Events ids on the watch.
+         */
+        final List<Integer> idsWatch = new ArrayList<>(numEvents);
+
         int i = 3;
-        while (i < payload.length) {
+        for (int j = 0; j < numEvents; j++) {
             if (payload.length - i < 34) {
                 LOG.error("Not enough bytes remaining to parse a calendar event ({})", payload.length - i);
                 return;
             }
 
             final int eventId = BLETypeConversions.toUint32(payload, i);
+            idsWatch.add(eventId);
             i += 4;
 
-            final String title = StringUtils.untilNullTerminator(payload, i);
+            final Pair<String, Integer> title = StringUtils.untilNullTerminatorWithLength(payload, i);
             if (title == null) {
                 LOG.error("Failed to decode title");
                 return;
             }
-            i += title.length() + 1;
+            i += title.second + 1;
 
-            final String description = StringUtils.untilNullTerminator(payload, i);
+            final Pair<String, Integer> description = StringUtils.untilNullTerminatorWithLength(payload, i);
             if (description == null) {
                 LOG.error("Failed to decode description");
                 return;
             }
-            i += description.length() + 1;
+            i += description.second + 1;
 
             final int startTime = BLETypeConversions.toUint32(payload, i);
             i += 4;
@@ -238,23 +265,87 @@ public class ZeppOsCalendarService extends AbstractZeppOsService {
             final int reminderTime = BLETypeConversions.toUint32(payload, i);
             i += 4;
 
-            // ? 00 00 00 00 ff ff ff ff
-            i += 12;
+            i += 8;
 
             boolean allDay = (payload[i] == 0x01);
             i++;
 
-            // ? 00 82 00 00 00 00
-            i += 6;
+            final Pair<String, Integer> unknown = StringUtils.untilNullTerminatorWithLength(payload, i);
+            if (unknown == null) {
+                LOG.error("Failed to decode unknown");
+                return;
+            }
+            i += unknown.second + 1;
 
-            LOG.info("Calendar Event {}: {}", eventId, title);
+            if (!unknown.first.isEmpty()) {
+                LOG.debug("unknown is not empty: {}", unknown);
+            }
+
+            i += 5;
+
+            Pair<String, Integer> address = new Pair<>("", 0);
+            if (version == 3) {
+                address = StringUtils.untilNullTerminatorWithLength(payload, i);
+                if (address == null) {
+                    LOG.error("Failed to decode address");
+                    return;
+                }
+                i += address.second + 1;
+            }
+
+
+            LOG.info("Calendar Event {}: {}. address = {}, all day = {}", eventId, title.first, address.first, allDay);
         }
 
         if (i != payload.length) {
-            LOG.error("Unexpected calendar events payload trailer, {} bytes were not consumed", payload.length - i);
-            return;
+            LOG.warn("Unexpected calendar events payload trailer, {} bytes were not consumed", payload.length - i);
         }
 
-        // TODO update database?
+        // Copied from BangleJSDeviceSupport
+
+        ArrayList<Integer> idsList = new ArrayList<>(numEvents);
+
+        try (DBHandler dbHandler = GBApplication.acquireDB()) {
+            DaoSession session = dbHandler.getDaoSession();
+            Long deviceId = DBHelper.getDevice(getSupport().getDevice(), session).getId();
+
+            QueryBuilder<CalendarSyncState> qb = session.getCalendarSyncStateDao().queryBuilder();
+            //FIXME just use that and don't query every time?
+            List<CalendarSyncState> states = qb.where(
+                CalendarSyncStateDao.Properties.DeviceId.eq(deviceId)).build().list();
+
+            LOG.info("zepp calendar sync: "+ idsWatch.size() +" events on the device, "+ states.size() +" on our db");
+            for (int j = 0; j < idsWatch.size(); j++) {
+                int id = idsWatch.get(j);
+                qb = session.getCalendarSyncStateDao().queryBuilder(); //is this needed again?
+                CalendarSyncState calendarSyncState = qb.where(
+                    qb.and(CalendarSyncStateDao.Properties.DeviceId.eq(deviceId),
+                        CalendarSyncStateDao.Properties.CalendarEntryId.eq(id))).build().unique();
+                if(calendarSyncState == null) {
+                    deleteEvent(CalendarEventSpec.TYPE_UNKNOWN, id);
+                    LOG.info("event id="+ id +" is on device id="+ deviceId +", removing it there");
+                } else {
+                    //used for later, no need to check twice the ones that do not match
+                    idsList.add(id);
+                }
+            }
+
+            //remove all elements not in ids from database (we don't have them)
+            for(CalendarSyncState calendarSyncState : states) {
+                long id = calendarSyncState.getCalendarEntryId();
+                if(!idsList.contains((int) id)) {
+                    qb = session.getCalendarSyncStateDao().queryBuilder(); //is this needed again?
+                    qb.where(qb.and(CalendarSyncStateDao.Properties.DeviceId.eq(deviceId),
+                            CalendarSyncStateDao.Properties.CalendarEntryId.eq(id)))
+                        .buildDelete().executeDeleteWithoutDetachingEntities();
+                    LOG.info("event id={} is not on device id={}, removing from our db", id, deviceId);
+                }
+            }
+
+        } catch (Exception e1) {
+            GB.toast("Database Error while forcefully syncing Calendar", Toast.LENGTH_SHORT, GB.ERROR, e1);
+        }
+
+        CalendarReceiver.forceSync(this.getSupport().getDevice());
     }
 }

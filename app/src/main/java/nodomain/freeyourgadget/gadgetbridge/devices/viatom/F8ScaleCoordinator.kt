@@ -1,8 +1,6 @@
 package nodomain.freeyourgadget.gadgetbridge.devices.viatom
 
 import android.text.InputType
-import de.greenrobot.dao.AbstractDao
-import de.greenrobot.dao.Property
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.DeviceSettingsSpec
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.ListEntry
@@ -11,8 +9,6 @@ import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator.DeviceKind
 import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession
-import nodomain.freeyourgadget.gadgetbridge.entities.F8WeightSampleDao
-import nodomain.freeyourgadget.gadgetbridge.entities.GenericImpedanceSampleDao
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.WeightSample
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport
@@ -20,18 +16,6 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.viatom.F8Support
 import java.util.regex.Pattern
 
 class F8ScaleCoordinator : AbstractBLEDeviceCoordinator() {
-    override fun getAllDeviceDao(session: DaoSession): MutableMap<AbstractDao<*, *>?, Property?> {
-        return object : HashMap<AbstractDao<*, *>?, Property?>() {
-            init {
-                put(session.f8WeightSampleDao, F8WeightSampleDao.Properties.DeviceId)
-                put(
-                    session.genericImpedanceSampleDao,
-                    GenericImpedanceSampleDao.Properties.DeviceId
-                )
-            }
-        }
-    }
-
     override fun getWeightSampleProvider(
         device: GBDevice, session: DaoSession
     ): TimeSampleProvider<out WeightSample?> {
@@ -45,7 +29,7 @@ class F8ScaleCoordinator : AbstractBLEDeviceCoordinator() {
             icon = R.drawable.ic_badge
         ) {
             for (i in 1..numUsers()) {
-                //empty inactive row. Just to show a seprator
+                //empty inactive row. Just to show a separator
                 action(
                     key = "user${i}"
                 )

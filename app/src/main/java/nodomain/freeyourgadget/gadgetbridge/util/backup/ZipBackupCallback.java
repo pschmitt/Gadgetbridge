@@ -16,6 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.util.backup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public interface ZipBackupCallback {
@@ -24,4 +25,6 @@ public interface ZipBackupCallback {
     void onSuccess(@Nullable final String warnings);
 
     void onFailure(@Nullable final String errorMessage);
+
+    void onConfirmationRequired(@NonNull final String message);
 }

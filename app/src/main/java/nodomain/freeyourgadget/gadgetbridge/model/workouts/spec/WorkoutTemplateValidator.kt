@@ -203,6 +203,7 @@ object WorkoutTemplateValidator {
         val option = duration?.let { d -> stepSpec.durations.find { it.type == d.type } }
         return when {
             duration == null || option == null -> R.string.workout_error_duration_not_supported
+            duration.plus && !option.plus -> R.string.workout_error_duration_not_supported
             !valueInRange(option.value, duration.value) -> R.string.workout_error_value_out_of_range
             else -> null
         }

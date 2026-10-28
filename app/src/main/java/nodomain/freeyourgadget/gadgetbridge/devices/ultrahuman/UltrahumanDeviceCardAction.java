@@ -32,6 +32,7 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 
 public class UltrahumanDeviceCardAction implements DeviceCardAction {
 
+    private final String Id;
     private final int Icon;
     private final int Description;
     private final int Question;
@@ -41,7 +42,8 @@ public class UltrahumanDeviceCardAction implements DeviceCardAction {
     @Nullable
     private final Class<?> IntentClass;
 
-    UltrahumanDeviceCardAction(int icon, int description, int question, String action) {
+    UltrahumanDeviceCardAction(String id, int icon, int description, int question, String action) {
+        Id = id;
         Icon = icon;
         Description = description;
         Question = question;
@@ -49,12 +51,19 @@ public class UltrahumanDeviceCardAction implements DeviceCardAction {
         IntentClass = null;
     }
 
-    UltrahumanDeviceCardAction(int icon, int description, Class<?> cls) {
+    UltrahumanDeviceCardAction(String id, int icon, int description, Class<?> cls) {
+        Id = id;
         Icon = icon;
         Description = description;
         Question = 0;
         IntentAction = null;
         IntentClass = cls;
+    }
+
+    @NonNull
+    @Override
+    public String getId() {
+        return Id;
     }
 
     @Override

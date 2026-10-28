@@ -49,6 +49,7 @@ public class MusicUtils {
 
         String title = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
         String artist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+        final String album = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
 
         if (TextUtils.isEmpty(title)) {
             title = getNameWithoutExtension(fileName);
@@ -62,7 +63,7 @@ public class MusicUtils {
             extension = extension.toLowerCase();
         }
 
-        final AudioInfo audioInfo = new AudioInfo(fileName, fileSize, title, artist, mimeType, extension);
+        final AudioInfo audioInfo = new AudioInfo(fileName, fileSize, title, artist, album, mimeType, extension);
 
         try {
             final MediaExtractor mex = new MediaExtractor();

@@ -21,19 +21,20 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity;
@@ -43,32 +44,28 @@ import nodomain.freeyourgadget.gadgetbridge.capabilities.widgets.WidgetPart;
 import nodomain.freeyourgadget.gadgetbridge.capabilities.widgets.WidgetPartSubtype;
 import nodomain.freeyourgadget.gadgetbridge.capabilities.widgets.WidgetScreen;
 import nodomain.freeyourgadget.gadgetbridge.capabilities.widgets.WidgetType;
+import nodomain.freeyourgadget.gadgetbridge.databinding.ActivityWidgetScreenDetailsBinding;
+import nodomain.freeyourgadget.gadgetbridge.databinding.ItemWidgetScreenSlotBinding;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 
 public class WidgetScreenDetailsActivity extends AbstractGBActivity {
     private static final Logger LOG = LoggerFactory.getLogger(WidgetScreenDetailsActivity.class);
 
+    private static final int SLOT_UNIT_HEIGHT_DP = 72;
+    private static final int SLOT_MARGIN_DP = 4;
+
+    private ActivityWidgetScreenDetailsBinding binding;
+
     private WidgetScreen widgetScreen;
     private WidgetManager widgetManager;
-
-    private View cardWidgetTopLeft;
-    private View cardWidgetTopRight;
-    private View cardWidgetCenter;
-    private View cardWidgetBotLeft;
-    private View cardWidgetBotRight;
-
-    private TextView labelWidgetScreenLayout;
-    private TextView labelWidgetTopLeft;
-    private TextView labelWidgetTopRight;
-    private TextView labelWidgetCenter;
-    private TextView labelWidgetBotLeft;
-    private TextView labelWidgetBotRight;
+    private List<WidgetLayout> supportedLayouts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_widget_screen_details);
+        binding = ActivityWidgetScreenDetailsBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         final GBDevice device = getIntent().getParcelableExtra(GBDevice.EXTRA_DEVICE);
         if (device == null) {
@@ -86,12 +83,10 @@ public class WidgetScreenDetailsActivity extends AbstractGBActivity {
 
         widgetManager = device.getDeviceCoordinator().getWidgetManager(device);
 
-        // Save button
-        final FloatingActionButton fab = findViewById(R.id.fab_save);
-        fab.setOnClickListener(view -> {
+        binding.fabSave.setOnClickListener(view -> {
             for (final WidgetPart part : widgetScreen.getParts()) {
                 if (part.getId() == null) {
-                    GB.toast(getBaseContext().getString(R.string.widget_missing_parts), Toast.LENGTH_LONG, GB.WARN);
+                    GB.toast(getString(R.string.widget_missing_parts), Toast.LENGTH_LONG, GB.WARN);
                     return;
                 }
             }
@@ -101,41 +96,24 @@ public class WidgetScreenDetailsActivity extends AbstractGBActivity {
             finish();
         });
 
-        // Layouts
-        final List<WidgetLayout> supportedLayouts = widgetManager.getSupportedWidgetLayouts();
+        supportedLayouts = widgetManager.getSupportedWidgetLayouts();
         final String[] layoutStrings = new String[supportedLayouts.size()];
         for (int i = 0; i < supportedLayouts.size(); i++) {
-            layoutStrings[i] = getBaseContext().getString(supportedLayouts.get(i).getName());
+            layoutStrings[i] = getString(supportedLayouts.get(i).getName());
         }
-        final ArrayAdapter<String> layoutAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, layoutStrings);
-
-        final View cardLayout = findViewById(R.id.card_layout);
-        cardLayout.setOnClickListener(view -> {
-            new MaterialAlertDialogBuilder(WidgetScreenDetailsActivity.this).setAdapter(layoutAdapter, (dialogInterface, i) -> {
-                if (widgetScreen.getLayout() != supportedLayouts.get(i)) {
-                    final ArrayList<WidgetPart> defaultParts = new ArrayList<>();
-                    for (final WidgetType widgetType : supportedLayouts.get(i).getWidgetTypes()) {
-                        defaultParts.add(new WidgetPart(null, "", widgetType));
-                    }
-                    widgetScreen.setParts(defaultParts);
+        binding.widgetLayoutSpinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, layoutStrings));
+        binding.widgetLayoutSpinner.setOnItemClickListener((parent, view, position, id) -> {
+            final WidgetLayout selectedLayout = supportedLayouts.get(position);
+            if (widgetScreen.getLayout() != selectedLayout) {
+                final ArrayList<WidgetPart> defaultParts = new ArrayList<>();
+                for (final WidgetType widgetType : selectedLayout.getWidgetTypes()) {
+                    defaultParts.add(new WidgetPart(null, "", widgetType));
                 }
-                widgetScreen.setLayout(supportedLayouts.get(i));
-                updateUiFromWidget();
-            }).setTitle(R.string.widget_layout).create().show();
+                widgetScreen.setParts(defaultParts);
+                widgetScreen.setLayout(selectedLayout);
+            }
+            updateUiFromWidget();
         });
-
-        cardWidgetTopLeft = findViewById(R.id.card_widget_top_left);
-        cardWidgetTopRight = findViewById(R.id.card_widget_top_right);
-        cardWidgetCenter = findViewById(R.id.card_widget_center);
-        cardWidgetBotLeft = findViewById(R.id.card_widget_bottom_left);
-        cardWidgetBotRight = findViewById(R.id.card_widget_bottom_right);
-
-        labelWidgetScreenLayout = findViewById(R.id.widget_screen_layout);
-        labelWidgetTopLeft = findViewById(R.id.widget_top_left);
-        labelWidgetTopRight = findViewById(R.id.widget_top_right);
-        labelWidgetCenter = findViewById(R.id.widget_center);
-        labelWidgetBotLeft = findViewById(R.id.widget_bottom_left);
-        labelWidgetBotRight = findViewById(R.id.widget_bottom_right);
 
         updateUiFromWidget();
     }
@@ -170,111 +148,139 @@ public class WidgetScreenDetailsActivity extends AbstractGBActivity {
     }
 
     private void updateUiFromWidget() {
-        labelWidgetScreenLayout.setText(widgetScreen.getLayout().getName());
+        // false, so that the adapter does not filter the list to the current layout
+        binding.widgetLayoutSpinner.setText(getString(widgetScreen.getLayout().getName()), false);
 
-        switch (widgetScreen.getLayout()) {
-            case TOP_1_BOT_2:
-            case TOP_2X2_BOT_2:
-                updateWidget(cardWidgetTopLeft, labelWidgetTopLeft, -1);
-                updateWidget(cardWidgetTopRight, labelWidgetTopRight, -1);
-                updateWidget(cardWidgetCenter, labelWidgetCenter, 0);
-                updateWidget(cardWidgetBotLeft, labelWidgetBotLeft, 1);
-                updateWidget(cardWidgetBotRight, labelWidgetBotRight, 2);
-                break;
-            case TOP_2_BOT_1:
-            case TOP_2_BOT_2X2:
-                updateWidget(cardWidgetTopLeft, labelWidgetTopLeft, 0);
-                updateWidget(cardWidgetTopRight, labelWidgetTopRight, 1);
-                updateWidget(cardWidgetCenter, labelWidgetCenter, 2);
-                updateWidget(cardWidgetBotLeft, labelWidgetBotLeft, -1);
-                updateWidget(cardWidgetBotRight, labelWidgetBotRight, -1);
-                break;
-            case TOP_2_BOT_2:
-                updateWidget(cardWidgetTopLeft, labelWidgetTopLeft, 0);
-                updateWidget(cardWidgetTopRight, labelWidgetTopRight, 1);
-                updateWidget(cardWidgetCenter, labelWidgetCenter, -1);
-                updateWidget(cardWidgetBotLeft, labelWidgetBotLeft, 2);
-                updateWidget(cardWidgetBotRight, labelWidgetBotRight, 3);
-                break;
-            case ONE_BY_TWO_SINGLE:
-            case TWO_BY_TWO_SINGLE:
-            case TWO_BY_THREE_SINGLE:
-                updateWidget(cardWidgetTopLeft, labelWidgetTopLeft, -1);
-                updateWidget(cardWidgetTopRight, labelWidgetTopRight, -1);
-                updateWidget(cardWidgetCenter, labelWidgetCenter, 0);
-                updateWidget(cardWidgetBotLeft, labelWidgetBotLeft, -1);
-                updateWidget(cardWidgetBotRight, labelWidgetBotRight, -1);
-                break;
-            case TWO:
-            case TOP_1_BOT_2X2:
-            case TOP_2X2_BOT_1:
-                updateWidget(cardWidgetTopLeft, labelWidgetTopLeft, -1);
-                updateWidget(cardWidgetTopRight, labelWidgetTopRight, 0);
-                updateWidget(cardWidgetCenter, labelWidgetCenter, 1);
-                updateWidget(cardWidgetBotLeft, labelWidgetBotLeft, -1);
-                updateWidget(cardWidgetBotRight, labelWidgetBotRight, -1);
-                break;
-            default:
-                throw new IllegalStateException("Unknown layout " + widgetScreen.getLayout());
+        binding.widgetSlots.removeAllViews();
+        for (final int[] row : getRows(widgetScreen.getLayout())) {
+            final LinearLayout rowView = new LinearLayout(this);
+            rowView.setOrientation(LinearLayout.HORIZONTAL);
+            for (final int partIdx : row) {
+                if (partIdx < widgetScreen.getParts().size()) {
+                    rowView.addView(createSlot(rowView, partIdx));
+                }
+            }
+            binding.widgetSlots.addView(rowView);
         }
     }
 
-    private void updateWidget(final View card, final TextView label, final int partIdx) {
-        final boolean validPart = partIdx >= 0 && partIdx < widgetScreen.getParts().size();
-
-        card.setVisibility(validPart ? View.VISIBLE : View.GONE);
-
-        if (!validPart) {
-            card.setOnClickListener(null);
-            label.setText(R.string.not_set);
-            return;
+    /**
+     * Returns the indexes of the widget parts in each row of the screen, from top to bottom.
+     */
+    private static int[][] getRows(final WidgetLayout layout) {
+        switch (layout) {
+            case TOP_1_BOT_2:
+            case TOP_2X2_BOT_2:
+                return new int[][]{{0}, {1, 2}};
+            case TOP_2_BOT_1:
+            case TOP_2_BOT_2X2:
+                return new int[][]{{0, 1}, {2}};
+            case TOP_2_BOT_2:
+                return new int[][]{{0, 1}, {2, 3}};
+            case ONE_BY_TWO_SINGLE:
+            case TWO_BY_TWO_SINGLE:
+            case TWO_BY_THREE_SINGLE:
+                return new int[][]{{0}};
+            case TWO:
+            case TOP_1_BOT_2X2:
+            case TOP_2X2_BOT_1:
+                return new int[][]{{0}, {1}};
+            default:
+                throw new IllegalStateException("Unknown layout " + layout);
         }
+    }
 
+    private static int getHeightUnits(final WidgetType type) {
+        switch (type) {
+            case TALL:
+            case LARGE:
+                return 2;
+            case PORTRAIT_LARGE:
+                return 3;
+            case SMALL:
+            case WIDE:
+            default:
+                return 1;
+        }
+    }
+
+    private View createSlot(final LinearLayout rowView, final int partIdx) {
         final WidgetPart widgetPart = widgetScreen.getParts().get(partIdx);
+        final ItemWidgetScreenSlotBinding slot = ItemWidgetScreenSlotBinding.inflate(getLayoutInflater(), rowView, false);
+
+        final float density = getResources().getDisplayMetrics().density;
+        final int units = getHeightUnits(widgetPart.getType());
+        final int heightDp = units * SLOT_UNIT_HEIGHT_DP + (units - 1) * 2 * SLOT_MARGIN_DP;
+        final LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) slot.getRoot().getLayoutParams();
+        params.height = Math.round(heightDp * density);
+        params.weight = 1;
+        slot.getRoot().setLayoutParams(params);
 
         if (widgetPart.getId() == null) {
-            label.setText(R.string.not_set);
+            slot.widgetSlotName.setText(R.string.not_set);
+            slot.widgetSlotName.setTextColor(MaterialColors.getColor(slot.widgetSlotName, com.google.android.material.R.attr.colorOnSurfaceVariant));
         } else {
-            label.setText(widgetPart.getFullName());
+            slot.widgetSlotName.setText(widgetPart.getFullName());
         }
 
-        // Select widget part
+        slot.getRoot().setOnClickListener(view -> showPartPicker(partIdx));
 
-        final List<WidgetPart> supportedParts = widgetManager.getSupportedWidgetParts(widgetPart.getType());
-        final String[] layoutStrings = new String[supportedParts.size()];
+        return slot.getRoot();
+    }
+
+    private void showPartPicker(final int partIdx) {
+        final WidgetPart currentPart = widgetScreen.getParts().get(partIdx);
+        final List<WidgetPart> supportedParts = widgetManager.getSupportedWidgetParts(currentPart.getType());
+        final String[] partStrings = new String[supportedParts.size()];
+        int checkedPart = -1;
         for (int i = 0; i < supportedParts.size(); i++) {
-            layoutStrings[i] = supportedParts.get(i).getName();
+            partStrings[i] = supportedParts.get(i).getName();
+            if (currentPart.getId() != null && currentPart.getId().equals(supportedParts.get(i).getId())) {
+                checkedPart = i;
+            }
         }
-        final ArrayAdapter<String> partAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, layoutStrings);
 
-        card.setOnClickListener(view -> {
-            new MaterialAlertDialogBuilder(WidgetScreenDetailsActivity.this).setAdapter(partAdapter, (dialogInterface, i) -> {
+        new MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.widget)
+            .setSingleChoiceItems(partStrings, checkedPart, (dialog, i) -> {
+                dialog.dismiss();
                 final WidgetPart selectedPart = supportedParts.get(i);
 
                 final List<WidgetPartSubtype> supportedSubtypes = selectedPart.getSupportedSubtypes();
                 if (supportedSubtypes.isEmpty()) {
-                    // No subtypes selected
-
                     widgetScreen.getParts().set(partIdx, selectedPart);
                     updateUiFromWidget();
                     return;
                 }
 
                 // If the selected part supports subtypes, the user must select a subtype
+                showSubtypePicker(partIdx, currentPart, selectedPart);
+            })
+            .setNegativeButton(android.R.string.cancel, null)
+            .show();
+    }
 
-                final String[] subtypeStrings = new String[supportedSubtypes.size()];
-                for (int j = 0; j < supportedSubtypes.size(); j++) {
-                    subtypeStrings[j] = supportedSubtypes.get(j).getName();
-                }
-                final ArrayAdapter<String> subtypesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, subtypeStrings);
+    private void showSubtypePicker(final int partIdx, final WidgetPart currentPart, final WidgetPart selectedPart) {
+        final List<WidgetPartSubtype> supportedSubtypes = selectedPart.getSupportedSubtypes();
+        final String[] subtypeStrings = new String[supportedSubtypes.size()];
+        int checkedSubtype = -1;
+        for (int j = 0; j < supportedSubtypes.size(); j++) {
+            subtypeStrings[j] = supportedSubtypes.get(j).getName();
+            if (Objects.equals(currentPart.getId(), selectedPart.getId()) && currentPart.getSubtype() != null &&
+                Objects.equals(currentPart.getSubtype().getId(), supportedSubtypes.get(j).getId())) {
+                checkedSubtype = j;
+            }
+        }
 
-                new MaterialAlertDialogBuilder(WidgetScreenDetailsActivity.this).setAdapter(subtypesAdapter, (dialogInterface1, j) -> {
-                    final WidgetPartSubtype selectedSubtype = supportedSubtypes.get(j);
-                    selectedPart.setSubtype(selectedSubtype);
-                    widgetScreen.getParts().set(partIdx, selectedPart);
-                    updateUiFromWidget();
-                }).setTitle(R.string.widget_subtype).create().show();
-            }).setTitle(R.string.widget).create().show();
-        });
+        new MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.widget_subtype)
+            .setSingleChoiceItems(subtypeStrings, checkedSubtype, (dialog, j) -> {
+                dialog.dismiss();
+                selectedPart.setSubtype(supportedSubtypes.get(j));
+                widgetScreen.getParts().set(partIdx, selectedPart);
+                updateUiFromWidget();
+            })
+            .setNegativeButton(android.R.string.cancel, null)
+            .show();
     }
 }

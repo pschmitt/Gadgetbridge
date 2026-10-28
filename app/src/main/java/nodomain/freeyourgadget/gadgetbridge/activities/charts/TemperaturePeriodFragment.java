@@ -16,7 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities.charts;
 
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,35 +27,28 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.github.mikephil.charting.charts.Chart;
-import com.github.mikephil.charting.charts.CombinedChart;
-import com.github.mikephil.charting.charts.ScatterChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.LegendEntry;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.CandleData;
-import com.github.mikephil.charting.data.CandleDataSet;
-import com.github.mikephil.charting.data.CandleEntry;
-import com.github.mikephil.charting.data.CombinedData;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.ScatterData;
-import com.github.mikephil.charting.data.ScatterDataSet;
-import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import lineageos.weather.util.TemperatureUtils;
+import kotlin.jvm.functions.Function1;
+
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartLegendView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.DaySelections;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSpec;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.temperature.TemperatureChartData;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileData;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileGridUtilKt;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
@@ -74,15 +66,13 @@ public class TemperaturePeriodFragment extends AbstractChartFragment<Temperature
     static final int SEC_PER_DAY = 24 * 60 * 60;
     static final float DATA_INVALID = Float.NaN;
 
-    private int BACKGROUND_COLOR;
-    private int CHART_TEXT_COLOR;
-    private int LEGEND_TEXT_COLOR;
     private int TEMPERATURE_COLOR;
     private int TEMPERATURE_AVG_COLOR;
 
     private TextView dateView;
     private LinearLayout statsContainer;
-    private CombinedChart temperatureChart;
+    private GbChartView temperatureChart;
+    private ChartLegendView temperatureLegend;
     private int totalDays;
 
     private final TemperatureUnit temperatureUnit = GBApplication.getPrefs().getTemperatureUnit();
@@ -108,9 +98,6 @@ public class TemperaturePeriodFragment extends AbstractChartFragment<Temperature
 
     @Override
     protected void init() {
-        BACKGROUND_COLOR = GBApplication.getBackgroundColor(requireContext());
-        LEGEND_TEXT_COLOR = GBApplication.getTextColor(requireContext());
-        CHART_TEXT_COLOR = GBApplication.getSecondaryTextColor(requireContext());
         TEMPERATURE_COLOR = ContextCompat.getColor(requireContext(), R.color.chart_temperature);
         TEMPERATURE_AVG_COLOR = ContextCompat.getColor(requireContext(), R.color.chart_temperature_average);
     }
@@ -125,10 +112,11 @@ public class TemperaturePeriodFragment extends AbstractChartFragment<Temperature
         dateView = rootView.findViewById(R.id.temperature_period_date_view);
         statsContainer = rootView.findViewById(R.id.temperature_period_stats_container);
         temperatureChart = rootView.findViewById(R.id.temperature_period_chart);
+        temperatureChart.setZoomable(totalDays > 7);
+        temperatureChart.dismissSelectionOnTapOutside(rootView);
+        temperatureLegend = rootView.findViewById(R.id.temperature_period_chart_legend);
 
-        setupChart();
         refresh();
-        setupLegend(temperatureChart);
 
         return rootView;
     }
@@ -193,19 +181,27 @@ public class TemperaturePeriodFragment extends AbstractChartFragment<Temperature
         final Accumulator minAccumulator = new Accumulator();
         final Accumulator maxAccumulator = new Accumulator();
 
-        final ArrayList<CandleEntry> candleEntries = new ArrayList<>();
-        final ArrayList<Entry> avgEntries = new ArrayList<>();
-
-        for (int i = 0; i < data.days.size(); i++) {
+        final int n = data.days.size();
+        final long firstDay = Instant.ofEpochSecond(startTs).atZone(ZoneId.systemDefault()).toLocalDate().toEpochDay();
+        final long[] epochDays = new long[n];
+        final double[] dayMinimum = new double[n];
+        final double[] dayMaximum = new double[n];
+        final double[] dayAverage = new double[n];
+        for (int i = 0; i < n; i++) {
             final TemperatureDayData dayData = data.days.get(i);
+            epochDays[i] = firstDay + i;
+            dayMinimum[i] = Double.NaN;
+            dayMaximum[i] = Double.NaN;
+            dayAverage[i] = Double.NaN;
             if (hasData(dayData.minimum) && hasData(dayData.maximum)) {
                 minAccumulator.add(dayData.minimum);
                 maxAccumulator.add(dayData.maximum);
-                candleEntries.add(new CandleEntry(i, dayData.maximum, dayData.minimum, dayData.minimum, dayData.maximum));
+                dayMinimum[i] = dayData.minimum;
+                dayMaximum[i] = dayData.maximum;
             }
             if (hasData(dayData.average)) {
                 avgAccumulator.add(dayData.average);
-                avgEntries.add(new Entry(i, dayData.average));
+                dayAverage[i] = dayData.average;
             }
         }
 
@@ -221,135 +217,27 @@ public class TemperaturePeriodFragment extends AbstractChartFragment<Temperature
         statsContainer.removeAllViews();
         StatTileGridUtilKt.addStatTileGrid(statsContainer, requireContext(), stats, 0);
 
-        temperatureChart.getXAxis().setValueFormatter(createDayFormatter(startTs));
-        configureYAxis(minimum, maximum);
-
-        final CombinedData combinedData = new CombinedData();
-
-        if (!candleEntries.isEmpty()) {
-            final CandleDataSet candleDataSet = new CandleDataSet(candleEntries, getString(R.string.menuitem_temperature));
-            candleDataSet.setDrawValues(false);
-            candleDataSet.setDrawIcons(false);
-            candleDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-            candleDataSet.setShadowColor(TEMPERATURE_COLOR);
-            candleDataSet.setShadowWidth(2f);
-            candleDataSet.setDecreasingColor(TEMPERATURE_COLOR);
-            candleDataSet.setDecreasingPaintStyle(Paint.Style.FILL);
-            candleDataSet.setIncreasingColor(TEMPERATURE_COLOR);
-            candleDataSet.setIncreasingPaintStyle(Paint.Style.FILL);
-            candleDataSet.setNeutralColor(TEMPERATURE_COLOR);
-            candleDataSet.setBarSpace(0.15f);
-            candleDataSet.setShowCandleBar(true);
-            combinedData.setData(new CandleData(candleDataSet));
-        }
-
-        if (!avgEntries.isEmpty()) {
-            final ScatterDataSet scatterDataSet = new ScatterDataSet(avgEntries, getString(R.string.hr_average));
-            scatterDataSet.setScatterShape(ScatterChart.ScatterShape.CIRCLE);
-            scatterDataSet.setScatterShapeSize(15f);
-            scatterDataSet.setColor(TEMPERATURE_AVG_COLOR);
-            scatterDataSet.setDrawValues(false);
-            scatterDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-            combinedData.setData(new ScatterData(scatterDataSet));
-        }
-
-        if (candleEntries.isEmpty() && avgEntries.isEmpty()) {
-            temperatureChart.setData(null);
-        } else {
-            temperatureChart.setData(combinedData);
-        }
-    }
-
-    private ValueFormatter createDayFormatter(final int startTs) {
-        final String format = totalDays == 7 ? "EEE" : "dd";
-        final SimpleDateFormat formatDay = new SimpleDateFormat(format, Locale.getDefault());
-        return new ValueFormatter() {
-            @Override
-            public String getFormattedValue(final float value) {
-                final int dayIndex = Math.round(value);
-                if (dayIndex < 0 || dayIndex >= totalDays) {
-                    return "";
-                }
-                final int ts = startTs + SEC_PER_DAY * dayIndex;
-                return formatDay.format(new Date(ts * 1000L));
-            }
-        };
-    }
-
-    private void setupChart() {
-        temperatureChart.setBackgroundColor(BACKGROUND_COLOR);
-        temperatureChart.getDescription().setEnabled(false);
-        temperatureChart.setDrawOrder(new CombinedChart.DrawOrder[]{
-                CombinedChart.DrawOrder.CANDLE,
-                CombinedChart.DrawOrder.SCATTER
-        });
-
-        if (totalDays <= 7) {
-            temperatureChart.setTouchEnabled(false);
-            temperatureChart.setPinchZoom(false);
-        }
-        temperatureChart.setDoubleTapToZoomEnabled(false);
-
-        final XAxis xAxisBottom = temperatureChart.getXAxis();
-        xAxisBottom.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxisBottom.setDrawLabels(true);
-        xAxisBottom.setDrawGridLines(false);
-        xAxisBottom.setEnabled(true);
-        xAxisBottom.setDrawLimitLinesBehindData(true);
-        xAxisBottom.setTextColor(CHART_TEXT_COLOR);
-        xAxisBottom.setGranularity(1f);
-        xAxisBottom.setGranularityEnabled(true);
-        xAxisBottom.setAxisMinimum(-0.5f);
-        xAxisBottom.setAxisMaximum(totalDays - 0.5f);
-
-        final YAxis yAxisLeft = temperatureChart.getAxisLeft();
-        yAxisLeft.setDrawGridLines(true);
-        yAxisLeft.setDrawTopYLabelEntry(true);
-        yAxisLeft.setTextColor(CHART_TEXT_COLOR);
-        yAxisLeft.setEnabled(true);
-        yAxisLeft.setGranularity(1f);
-        yAxisLeft.setGranularityEnabled(true);
-
-        configureYAxis(DATA_INVALID, DATA_INVALID);
-
-        final YAxis yAxisRight = temperatureChart.getAxisRight();
-        yAxisRight.setEnabled(true);
-        yAxisRight.setDrawLabels(false);
-        yAxisRight.setDrawGridLines(false);
-        yAxisRight.setDrawAxisLine(true);
-    }
-
-    private void configureYAxis(final float minimum, final float maximum) {
-        final YAxis yAxisLeft = temperatureChart.getAxisLeft();
-        if (hasData(minimum) && hasData(maximum)) {
-            final float axisGap = temperatureUnit == TemperatureUnit.CELSIUS ? 3f : 6f;
-            yAxisLeft.setAxisMinimum((float) Math.floor(minimum) - axisGap);
-            yAxisLeft.setAxisMaximum((float) Math.ceil(maximum) + axisGap);
-        } else {
-            final boolean isMetric = temperatureUnit == TemperatureUnit.CELSIUS;
-            yAxisLeft.setAxisMinimum((float) (isMetric ? 30f : TemperatureUtils.celsiusToFahrenheit(30d)));
-            yAxisLeft.setAxisMaximum((float) (isMetric ? 45f : TemperatureUtils.celsiusToFahrenheit(45f)));
-        }
+        final String rangeLabel = getString(R.string.menuitem_temperature);
+        final String averageLabel = getString(R.string.hr_average);
+        final ChartSpec spec = TemperatureChartData.periodSpec(
+                epochDays, dayMinimum, dayMaximum, dayAverage, temperatureUnit == TemperatureUnit.CELSIUS ? 3 : 6,
+                rangeLabel, TEMPERATURE_COLOR, averageLabel, TEMPERATURE_AVG_COLOR
+        );
+        final List<Function1<Integer, String>> rowTexts = new ArrayList<>();
+        rowTexts.add(i -> Double.isNaN(dayMinimum[i])
+                ? emptyValue
+                : new DecimalFormat("0.0").format(dayMinimum[i]) + " \u2013 " + formatTemperature((float) dayMaximum[i]));
+        rowTexts.add(i -> Double.isNaN(dayAverage[i]) ? emptyValue : formatTemperature((float) dayAverage[i]));
+        temperatureChart.setSelectionContent(x -> DaySelections.of(
+                epochDays, x, Arrays.asList(rangeLabel, averageLabel), Arrays.asList(TEMPERATURE_COLOR, TEMPERATURE_AVG_COLOR),
+                rowTexts, emptyValue
+        ));
+        temperatureChart.setSpec(spec);
+        temperatureLegend.setSeries(spec.getSeries());
     }
 
     @Override
     protected void setupLegend(final Chart<?> chart) {
-        final List<LegendEntry> legendEntries = new ArrayList<>(2);
-
-        final LegendEntry rangeEntry = new LegendEntry();
-        rangeEntry.label = getString(R.string.menuitem_temperature);
-        rangeEntry.formColor = TEMPERATURE_COLOR;
-        legendEntries.add(rangeEntry);
-
-        final LegendEntry avgEntry = new LegendEntry();
-        avgEntry.label = getString(R.string.hr_average);
-        avgEntry.formColor = TEMPERATURE_AVG_COLOR;
-        avgEntry.form = Legend.LegendForm.CIRCLE;
-        legendEntries.add(avgEntry);
-
-        temperatureChart.getLegend().setCustom(legendEntries);
-        temperatureChart.getLegend().setTextColor(LEGEND_TEXT_COLOR);
-        temperatureChart.getLegend().setWordWrapEnabled(true);
     }
 
     @Override

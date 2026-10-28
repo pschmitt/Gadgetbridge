@@ -377,6 +377,21 @@ public final class BtBRQueue {
     }
 
     /**
+     * Closes the socket and leaves the device state alone. The read thread then ends the
+     * connection exactly as if the remote side had dropped it, so auto-reconnect applies.
+     */
+    public void closeSocket() {
+        final BluetoothSocket socket = mBtSocket;
+        if (socket != null) {
+            try {
+                socket.close();
+            } catch (final IOException e) {
+                LOG.error("IO exception while closing socket in closeSocket(): ", e);
+            }
+        }
+    }
+
+    /**
      * Check whether a connection to the device exists and whether a socket connection has been
      * initialized and connected
      * @return true if the Bluetooth device is connected and the socket is ready, false otherwise

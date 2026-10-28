@@ -47,6 +47,10 @@ import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.appmanager.config.DynamicAppConfig;
 import nodomain.freeyourgadget.gadgetbridge.capabilities.loyaltycards.LoyaltyCard;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventCameraRemote;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.MessagePrivacyMode;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationAppRepository;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationAppRules;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationSettings;
 import nodomain.freeyourgadget.gadgetbridge.model.Alarm;
 import nodomain.freeyourgadget.gadgetbridge.model.CalendarEventSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.CallSpec;
@@ -152,10 +156,16 @@ public class GBDeviceService implements DeviceService {
 
     @Override
     public void onNotification(@NonNull NotificationSpec notificationSpec) {
-        String messagePrivacyMode = GBApplication.getPrefs().getString("pref_message_privacy_mode",
-                GBApplication.getContext().getString(R.string.p_message_privacy_mode_off));
-        boolean hideMessageDetails = messagePrivacyMode.equals(GBApplication.getContext().getString(R.string.p_message_privacy_mode_complete));
-        boolean hideMessageBodyOnly = messagePrivacyMode.equals(GBApplication.getContext().getString(R.string.p_message_privacy_mode_bodyonly));
+        if (!NotificationAppRepository.INSTANCE.ensureLoaded()) {
+            LOG.warn("Dropping notification, the notification app configs are not loaded");
+            return;
+        }
+        final MessagePrivacyMode messagePrivacyMode = NotificationAppRules.INSTANCE.resolveSettings(
+                NotificationAppRepository.INSTANCE.get(notificationSpec.getSourceAppId()),
+                NotificationSettings.Companion.fromPrefs(GBApplication.getPrefs())
+        ).getPrivacy();
+        final boolean hideMessageDetails = messagePrivacyMode == MessagePrivacyMode.COMPLETE;
+        final boolean hideMessageBodyOnly = messagePrivacyMode == MessagePrivacyMode.BODY_ONLY;
 
         NotificationSpec privacyCleared = notificationSpec.copyOf();
 
@@ -320,6 +330,13 @@ public class GBDeviceService implements DeviceService {
         Intent intent = createIntent().setAction(ACTION_INSTALL)
                 .putExtra(EXTRA_URI, uri)
                 .putExtra(EXTRA_OPTIONS, options);
+        invokeService(intent);
+    }
+
+    @Override
+    public void onInstall(final long sessionId) {
+        final Intent intent = createIntent().setAction(ACTION_INSTALL_SESSION)
+                .putExtra(EXTRA_INSTALL_SESSION_ID, sessionId);
         invokeService(intent);
     }
 

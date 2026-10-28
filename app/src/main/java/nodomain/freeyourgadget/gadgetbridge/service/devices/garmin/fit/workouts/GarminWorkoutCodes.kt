@@ -4,14 +4,18 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutDurationType
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutEffort
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutEquipment
+import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutLoadCategory
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutPoolLengthUnit
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutStepType
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutSwimDrill
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutSwimStroke
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.DisplayMeasure
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.ExerciseLoadCategory
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.Intensity
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.SwimStroke
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.WktStepDuration
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.WktSwimDrill
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.WktSwimEffort
 import kotlin.math.roundToLong
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.WorkoutEquipment as FitWorkoutEquipment
 
@@ -42,6 +46,16 @@ object GarminWorkoutCodes {
         WorkoutDurationType.SEND_OFF_TIME -> WktStepDuration.REPETITION_TIME
         WorkoutDurationType.CSS_SEND_OFF_TIME -> WktStepDuration.CSS_REPETITION_TIME
         else -> WktStepDuration.OPEN
+    }
+
+    /**
+     * `workout_step.exercise_load_category`.
+     */
+    fun loadCategoryCode(category: WorkoutLoadCategory): ExerciseLoadCategory = when (category) {
+        WorkoutLoadCategory.LIGHT -> ExerciseLoadCategory.LIGHT
+        WorkoutLoadCategory.MODERATE -> ExerciseLoadCategory.MODERATE
+        WorkoutLoadCategory.HEAVY -> ExerciseLoadCategory.HEAVY
+        WorkoutLoadCategory.VERY_HEAVY -> ExerciseLoadCategory.VERY_HEAVY
     }
 
     /**
@@ -106,15 +120,15 @@ object GarminWorkoutCodes {
     /**
      * `workout_step.secondary_target_value` of a `SWIM_EFFORT` target.
      */
-    fun effortCode(effort: WorkoutEffort): Long = when (effort) {
-        WorkoutEffort.RECOVERY -> 0
-        WorkoutEffort.EASY -> 2
-        WorkoutEffort.MODERATE -> 3
-        WorkoutEffort.HARD -> 4
-        WorkoutEffort.VERY_HARD -> 5
-        WorkoutEffort.ALL_OUT -> 6
-        WorkoutEffort.ASCENDING -> 8
-        WorkoutEffort.DESCENDING -> 9
+    fun effortCode(effort: WorkoutEffort): WktSwimEffort = when (effort) {
+        WorkoutEffort.RECOVERY -> WktSwimEffort.RECOVERY
+        WorkoutEffort.EASY -> WktSwimEffort.EASY
+        WorkoutEffort.MODERATE -> WktSwimEffort.MODERATE
+        WorkoutEffort.HARD -> WktSwimEffort.HARD
+        WorkoutEffort.VERY_HARD -> WktSwimEffort.VERY_HARD
+        WorkoutEffort.ALL_OUT -> WktSwimEffort.ALL_OUT
+        WorkoutEffort.ASCENDING -> WktSwimEffort.ASCENDING
+        WorkoutEffort.DESCENDING -> WktSwimEffort.DESCENDING
     }
 
     /**
@@ -153,7 +167,8 @@ object GarminWorkoutCodes {
         this?.takeIf { it > 0 }?.let { (distanceFactor / it).roundToLong() }
 
     /**
-     * `workout.pool_length_unit`, a FIT `display_measure`: 0 metric, 1 statute.
+     * `workout.pool_length_unit`.
      */
-    fun poolLengthUnitCode(unit: WorkoutPoolLengthUnit): Int = if (unit.yards) 1 else 0
+    fun poolLengthUnitCode(unit: WorkoutPoolLengthUnit): DisplayMeasure =
+        if (unit.yards) DisplayMeasure.imperial else DisplayMeasure.metric
 }

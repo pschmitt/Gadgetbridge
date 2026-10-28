@@ -31,6 +31,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -47,6 +48,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.CompositeDateValidator;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
@@ -62,7 +64,6 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -75,7 +76,6 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBFragment;
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.vico.AbstractVicoChartFragment;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
@@ -110,6 +110,13 @@ public class ActivityChartsActivity extends AbstractGBActivity implements Charts
     List<String> enabledTabsList;
 
     private GBDevice mGBDevice;
+    private ViewPager2 viewPager;
+    private final OnBackPressedCallback backToOverview = new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
+            viewPager.setCurrentItem(enabledTabsList.indexOf(DefaultChartsProvider.OVERVIEW), false);
+        }
+    };
     private ViewGroup dateBar;
     private List<Button> nextButtons;
 
@@ -151,6 +158,9 @@ public class ActivityChartsActivity extends AbstractGBActivity implements Charts
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_charts);
+        final int dateBarColor = MaterialColors.getColor(this, R.attr.datestep_row_bg, "ActivityChartsActivity");
+        findViewById(android.R.id.content).setBackgroundColor(dateBarColor);
+        getWindow().setNavigationBarColor(dateBarColor);
         if (BarShade.continuesToolbar(this, R.attr.tab_bar_bg)) {
             setTopShade(findViewById(R.id.charts_tab_shade));
         }
@@ -203,7 +213,7 @@ public class ActivityChartsActivity extends AbstractGBActivity implements Charts
         enableSwipeRefresh(true);
 
         // Set up the ViewPager with the section's adapter.
-        final ViewPager2 viewPager = findViewById(R.id.charts_pager);
+        viewPager = findViewById(R.id.charts_pager);
         TabLayout tabLayout = findViewById(R.id.charts_pagerTabStrip);
 
         viewPager.setAdapter(getPagerAdapter());
@@ -213,26 +223,35 @@ public class ActivityChartsActivity extends AbstractGBActivity implements Charts
                 tab.setText(getPageTitle(position));
             }).attach();
 
+        getOnBackPressedDispatcher().addCallback(this, backToOverview);
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(final int position) {
+                backToOverview.setEnabled(false);
+            }
+        });
+
         if (tabFragmentIdToOpen > -1) {
             viewPager.setCurrentItem(tabFragmentIdToOpen);  // open the tab as specified in the intent
         }
 
-        viewPager.setUserInputEnabled(singleFragmentName == null && GBApplication.getPrefs().getBoolean("charts_allow_swipe", true));
+        viewPager.setUserInputEnabled(enabledTabsList.size() > 1 && GBApplication.getPrefs().getBoolean("charts_allow_swipe", true));
 
-        if (singleFragmentName != null) {
+        if (enabledTabsList.size() == 1) {
             tabLayout.setVisibility(TextView.GONE);
         }
 
-        if (actionbarTitle != 0) {
-            final ActionBar actionBar = getSupportActionBar();
-
-            if (actionBar != null) {
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            if (actionbarTitle != 0) {
                 actionBar.setTitle(actionbarTitle);
+            } else if (enabledTabsList.size() == 1) {
+                actionBar.setTitle(getPageTitle(0));
             }
         }
 
         mLoadingProgressBar = findViewById(R.id.loading_progressbar);
-        dateBar = findViewById(R.id.charts_date_bar);
+        dateBar = findViewById(R.id.charts_date_bar_container);
         mDateControl = findViewById(R.id.charts_text_date);
         mDateControl.setOnClickListener(v -> {
             String detailedDuration = formatDetailedDuration();
@@ -379,6 +398,7 @@ public class ActivityChartsActivity extends AbstractGBActivity implements Charts
             return true;
         } else if (itemId == R.id.prefs_charts_menu) {
             final Intent settingsIntent = new Intent(this, ChartsPreferencesActivity.class);
+            settingsIntent.putExtra(GBDevice.EXTRA_DEVICE, getDevice());
             chartsPreferencesLauncher.launch(settingsIntent);
             return true;
         }
@@ -388,7 +408,7 @@ public class ActivityChartsActivity extends AbstractGBActivity implements Charts
 
     private void showDatePicker() {
         final MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker()
-            .setSelection(toUtcMillis(getEndDate().getTime()));
+            .setSelection(DateTimeUtils.toUtcDayStartMillis(getEndDate().getTime()));
 
         final CalendarConstraints constraints = getAvailableDataConstraints();
         if (constraints != null) {
@@ -397,7 +417,7 @@ public class ActivityChartsActivity extends AbstractGBActivity implements Charts
 
         final MaterialDatePicker<Long> datePicker = builder.build();
         datePicker.addOnPositiveButtonClickListener(selection -> {
-            final LocalDate date = Instant.ofEpochMilli(selection).atZone(ZoneOffset.UTC).toLocalDate();
+            final LocalDate date = DateTimeUtils.utcMillisToLocalDate(selection);
             final Calendar currentDate = Calendar.getInstance();
             currentDate.setTime(getEndDate());
             currentDate.set(date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth());
@@ -425,8 +445,8 @@ public class ActivityChartsActivity extends AbstractGBActivity implements Charts
             return null;
         }
 
-        final long start = toUtcMillis(range.getStartMillis());
-        final long end = toUtcMillis(range.getEndMillis());
+        final long start = DateTimeUtils.toUtcDayStartMillis(range.getStartMillis());
+        final long end = DateTimeUtils.toUtcDayStartMillis(range.getEndMillis());
         return new CalendarConstraints.Builder()
             .setStart(start)
             .setEnd(end)
@@ -449,8 +469,8 @@ public class ActivityChartsActivity extends AbstractGBActivity implements Charts
             if (fragment instanceof AbstractChartFragment) {
                 return ((AbstractChartFragment<?>) fragment).getAvailableDataRange(getDevice(), db);
             }
-            if (fragment instanceof AbstractVicoChartFragment) {
-                return ((AbstractVicoChartFragment<?>) fragment).getAvailableDataRange(getDevice(), db);
+            if (fragment instanceof AbstractCoroutineChartFragment) {
+                return ((AbstractCoroutineChartFragment<?>) fragment).getAvailableDataRange(getDevice(), db);
             }
             if (fragment instanceof AbstractCollectionFragment) {
                 return findAvailableDataRange(fragment.getChildFragmentManager(), db);
@@ -459,22 +479,20 @@ public class ActivityChartsActivity extends AbstractGBActivity implements Charts
         return null;
     }
 
-    /**
-     * Converts a timestamp to the UTC midnight of its local date, as {@link MaterialDatePicker} expects.
-     */
-    private static long toUtcMillis(final long timestampMillis) {
-        return Instant.ofEpochMilli(timestampMillis)
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
-            .atStartOfDay(ZoneOffset.UTC)
-            .toInstant()
-            .toEpochMilli();
-    }
-
     @Override
     public void enableSwipeRefresh(final boolean enable) {
         final boolean refreshOnSwipe = GBApplication.getPrefs().refreshOnSwipe();
         swipeLayout.setEnabled(enable && refreshOnSwipe && allowRefresh());
+    }
+
+    @Override
+    public void showChart(final String chartName) {
+        final int position = enabledTabsList.indexOf(chartName);
+        if (position >= 0) {
+            viewPager.setCurrentItem(position, false);
+            // Enable after setCurrentItem, which calls onPageSelected and disables it
+            backToOverview.setEnabled(true);
+        }
     }
 
     protected boolean supportsRefresh() {
@@ -535,6 +553,24 @@ public class ActivityChartsActivity extends AbstractGBActivity implements Charts
             return enabledTabsList.size();
         }
 
+        /**
+         * The IDs depend on the chart, so that a restored fragment is not used in a position
+         * where the tabs list has a different chart.
+         */
+        @Override
+        public long getItemId(final int position) {
+            return enabledTabsList.get(position).hashCode();
+        }
+
+        @Override
+        public boolean containsItem(final long itemId) {
+            for (final String tab : enabledTabsList) {
+                if (tab.hashCode() == itemId) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     /**

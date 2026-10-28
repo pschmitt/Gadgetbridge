@@ -1,0 +1,286 @@
+syntax = "proto2";
+
+package GDI.Proto.LaunchMonitor;
+option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiLaunchMonitorService";
+option java_outer_classname = "GdiLaunchMonitor";
+
+message AlertDetails {
+    optional GDI.Proto.LaunchMonitor.State state = 1;
+    optional GDI.Proto.LaunchMonitor.Metrics metrics = 2;
+    optional GDI.Proto.LaunchMonitor.Error error = 3;
+    optional GDI.Proto.LaunchMonitor.CalibrationStatus tilt_calibration = 4;
+    optional GDI.Proto.LaunchMonitor.HoleFindStatus hole_find_status = 5;
+}
+
+message BallMetrics {
+    enum GolfBallType {
+        UNKNOWN = 0;
+        CONVENTIONAL = 1;
+        MARKED = 2;
+    }
+
+    enum LaunchSpeedType {
+        LAUNCH_SPEED_MEASURED = 0;
+        LAUNCH_SPEED_ESTIMATED = 1;
+    }
+
+    enum SpinCalculationType {
+        RATIO = 0;
+        BALL_FLIGHT = 1;
+        OTHER = 2;
+        MEASURED = 3;
+    }
+
+    optional float launch_angle = 1;
+    optional float launch_direction = 2;
+    optional float ball_speed = 3;
+    optional float spin_axis = 4;
+    optional float total_spin = 5;
+    optional GDI.Proto.LaunchMonitor.BallMetrics.SpinCalculationType spin_calculation_type = 6;
+    optional GDI.Proto.LaunchMonitor.BallMetrics.GolfBallType golf_ball_type = 7;
+    optional GDI.Proto.LaunchMonitor.BallMetrics.LaunchSpeedType launch_speed_type = 8;
+}
+
+message CalibrationStatus {
+    enum CalibrationResult {
+        SUCCESS = 0;
+        ERROR = 1;
+        UNIT_MOVING = 2;
+    }
+
+    enum StatusType {
+        IN_BOUNDS = 1;
+        RECALIBRATION_SUGGESTED = 2;
+        RECALIBRATION_REQUIRED = 3;
+    }
+
+    optional GDI.Proto.LaunchMonitor.CalibrationStatus.StatusType status = 1;
+    optional GDI.Proto.LaunchMonitor.CalibrationStatus.CalibrationResult result = 2;
+}
+
+message ClubMetrics {
+    optional float club_head_speed = 1;
+    optional float club_angle_face = 2;
+    optional float club_angle_path = 3;
+    optional float attack_angle = 4;
+    optional float impact_height = 5;
+    optional float impact_offset = 6;
+}
+
+message Error {
+    enum ErrorCode {
+        UNKNOWN = 0;
+        OVERHEATING = 1;
+        RADAR_SATURATION = 2;
+        PLATFORM_TILTED = 3;
+    }
+
+    enum Severity {
+        WARNING = 0;
+        SERIOUS = 1;
+        FATAL = 2;
+    }
+
+    optional GDI.Proto.LaunchMonitor.Error.ErrorCode code = 1;
+    optional GDI.Proto.LaunchMonitor.Error.Severity severity = 2;
+    optional GDI.Proto.LaunchMonitor.Tilt deviceTilt = 3;
+}
+
+message HoleFindStatus {
+    enum StatusType {
+        SEARCHING = 0;
+        TRACKING = 1;
+        FOUND = 2;
+        NOT_FOUND = 3;
+    }
+
+    optional GDI.Proto.LaunchMonitor.HoleFindStatus.StatusType status = 1;
+    optional float tracking_percentage = 2;
+}
+
+message HolePosition {
+    optional float hole_x = 1;
+    optional float hole_y = 2;
+}
+
+message Metrics {
+    enum ShotType {
+        PRACTICE = 0;
+        NORMAL = 1;
+        PUTT = 2;
+    }
+
+    optional uint32 shot_id = 1;
+    optional GDI.Proto.LaunchMonitor.Metrics.ShotType shot_type = 2;
+    optional GDI.Proto.LaunchMonitor.BallMetrics ball_metrics = 3;
+    optional GDI.Proto.LaunchMonitor.ClubMetrics club_metrics = 4;
+    optional GDI.Proto.LaunchMonitor.SwingMetrics swing_metrics = 5;
+    optional GDI.Proto.LaunchMonitor.PuttPath putt_path = 6;
+    optional GDI.Proto.LaunchMonitor.HolePosition hole_position = 7;
+    optional GDI.Proto.LaunchMonitor.Stimp stimp = 8;
+}
+
+message ModeRequest {
+    enum Mode {
+        RANGE = 1;
+        PUTTING = 2;
+        HOLEFINDING = 3;
+        STIMPMEASUREMENT = 4;
+    }
+
+    optional GDI.Proto.LaunchMonitor.ModeRequest.Mode mode = 1;
+}
+
+message ModeResponse {
+    enum Status {
+        SUCCESS = 0;
+        ALREADY_IN_MODE = 1;
+        ERROR = 2;
+    }
+
+    optional GDI.Proto.LaunchMonitor.ModeResponse.Status status = 1;
+}
+
+message PuttPath {
+    enum BreakDirection {
+        LEFT = 0;
+        RIGHT = 1;
+        STRAIGHT = 2;
+    }
+
+    repeated float skidding_x_path_m = 1 [packed = true];
+    repeated float skidding_y_path_m = 2 [packed = true];
+    repeated float rolling_x_path_m = 3 [packed = true];
+    repeated float rolling_y_path_m = 4 [packed = true];
+    repeated float extrapolated_x_path_m = 5 [packed = true];
+    repeated float extrapolated_y_path_m = 6 [packed = true];
+    optional uint32 roll_start_time_ms = 7;
+    optional uint32 roll_end_time_ms = 8;
+    optional uint32 track_end_time_ms = 9;
+    optional bool track_ended_early = 10;
+    optional float roll_start_speed = 11;
+    optional float skid_distance_m = 12;
+    optional float roll_distance_m = 13;
+    optional float entry_speed_distance_m = 14;
+    optional float break_at_entry_speed = 15;
+    optional GDI.Proto.LaunchMonitor.PuttPath.BreakDirection break_direction_at_entry_speed = 16;
+}
+
+message ResetTiltCalibrationRequest {
+    optional bool should_reset = 1;
+}
+
+message ResetTiltCalibrationResponse {
+    enum Status {
+        CAN_RESET = 1;
+        ALREADY_RESET = 2;
+        RESET_SUCCESSFUL = 3;
+        CANNOT_RESET = 4;
+    }
+
+    optional GDI.Proto.LaunchMonitor.ResetTiltCalibrationResponse.Status status = 1;
+}
+
+message Service {
+    optional GDI.Proto.LaunchMonitor.StatusRequest status_request = 1;
+    optional GDI.Proto.LaunchMonitor.StatusResponse status_response = 2;
+    optional GDI.Proto.LaunchMonitor.WakeUpRequest wake_up_request = 3;
+    optional GDI.Proto.LaunchMonitor.WakeUpResponse wake_up_response = 4;
+    optional GDI.Proto.LaunchMonitor.TiltRequest tilt_request = 5;
+    optional GDI.Proto.LaunchMonitor.TiltResponse tilt_response = 6;
+    optional GDI.Proto.LaunchMonitor.StartTiltCalibrationRequest start_tilt_cal_request = 7;
+    optional GDI.Proto.LaunchMonitor.StartTiltCalibrationResponse start_tilt_cal_response = 8;
+    optional GDI.Proto.LaunchMonitor.ResetTiltCalibrationRequest reset_tilt_cal_request = 9;
+    optional GDI.Proto.LaunchMonitor.ResetTiltCalibrationResponse reset_tilt_cal_response = 10;
+    optional GDI.Proto.LaunchMonitor.ShotConfigRequest shot_config_request = 11;
+    optional GDI.Proto.LaunchMonitor.ShotConfigResponse shot_config_response = 12;
+    optional GDI.Proto.LaunchMonitor.ModeRequest mode_request = 13;
+    optional GDI.Proto.LaunchMonitor.ModeResponse mode_response = 14;
+}
+
+message ShotConfigRequest {
+    optional float temperature = 1;
+    optional float humidity = 2;
+    optional float altitude = 3;
+    optional float air_density = 4;
+    optional float tee_range = 5;
+}
+
+message ShotConfigResponse {
+    optional bool success = 1;
+}
+
+message StartTiltCalibrationRequest {
+}
+
+message StartTiltCalibrationResponse {
+    enum CalibrationStatus {
+        STARTED = 0;
+        IN_PROGRESS = 1;
+        ERROR = 2;
+    }
+
+    optional GDI.Proto.LaunchMonitor.StartTiltCalibrationResponse.CalibrationStatus status = 1;
+}
+
+message State {
+    enum StateType {
+        STANDBY = 0;
+        INTERFERENCE_TEST = 1;
+        WAITING = 2;
+        RECORDING = 3;
+        PROCESSING = 4;
+        ERROR = 5;
+    }
+
+    optional GDI.Proto.LaunchMonitor.State.StateType state = 1;
+}
+
+message StatusRequest {
+}
+
+message StatusResponse {
+    optional GDI.Proto.LaunchMonitor.State state = 1;
+}
+
+message Stimp {
+    optional float stimp = 1;
+}
+
+message SwingMetrics {
+    optional uint32 back_swing_start_time_ms = 1;
+    optional uint32 down_swing_start_time_ms = 2;
+    optional uint32 impact_time_ms = 3;
+    optional uint32 follow_through_end_time_ms = 4;
+    optional uint32 end_recording_time_ms = 5;
+    optional float follow_through_length_m = 7;
+    optional uint32 swing_time_ms = 8;
+    optional float swing_plane_deg = 9;
+    optional float low_point_m = 10;
+    optional float forward_stroke_length_m = 11;
+}
+
+message Tilt {
+    optional float roll = 1;
+    optional float pitch = 2;
+}
+
+message TiltRequest {
+}
+
+message TiltResponse {
+    optional GDI.Proto.LaunchMonitor.Tilt tilt = 1;
+}
+
+message WakeUpRequest {
+}
+
+message WakeUpResponse {
+    enum ResponseStatus {
+        SUCCESS = 0;
+        ALREADY_AWAKE = 1;
+        UNKNOWN_ERROR = 2;
+    }
+
+    optional GDI.Proto.LaunchMonitor.WakeUpResponse.ResponseStatus status = 1;
+}

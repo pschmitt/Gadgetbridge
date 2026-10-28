@@ -16,11 +16,14 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.deviceevents;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.telephony.SmsManager;
 
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.slf4j.Logger;
@@ -64,6 +67,10 @@ public class GBDeviceEventNotificationControl extends GBDeviceEvent {
                 }
                 if (phoneNumber != null) {
                     LOG.info("Got notification reply for SMS from {} : {}", phoneNumber, reply);
+                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                        LOG.warn("SMS permission not granted, unable to reply to {}", phoneNumber);
+                        return;
+                    }
                     SmsManager.getDefault().sendTextMessage(phoneNumber, null, reply, null, null);
                     return;
                 } else {

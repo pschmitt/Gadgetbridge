@@ -1,6 +1,8 @@
 package nodomain.freeyourgadget.gadgetbridge.devices.shokz
 
+import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
+import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsActivity
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsScreen
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.DeviceSettingsSpec
@@ -11,6 +13,12 @@ import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.compon
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.multipointPairing
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.deviceSettings
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLClassicDeviceCoordinator
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControl
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControlDialog
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControlOption
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControlToggleGroup
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControlTrailingAction
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControls
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport
 import nodomain.freeyourgadget.gadgetbridge.service.devices.shokz.ShokzEqualizer
@@ -108,6 +116,89 @@ abstract class ShokzCoordinator : AbstractBLClassicDeviceCoordinator() {
         0x00, 0x00,
     )
 
+    private fun supportsBluetoothEqualizer(equalizer: ShokzEqualizer): Boolean =
+        ShokzMediaSource.BLUETOOTH in equalizer.sources &&
+            (supportsBassTreble() || equalizer != ShokzEqualizer.BASS && equalizer != ShokzEqualizer.TREBLE) &&
+            (supportsCustomEqualizer() || equalizer != ShokzEqualizer.CUSTOM) &&
+            (supportsClassicAndVolumeBoost() || equalizer != ShokzEqualizer.CLASSIC && equalizer != ShokzEqualizer.VOLUME_BOOST)
+
+    private fun mediaSource(device: GBDevice): ShokzMediaSource =
+        if (!supportsMp3()) {
+            ShokzMediaSource.BLUETOOTH
+        } else {
+            ShokzMediaSource.fromPreference(
+                GBApplication.getDevicePrefs(device)
+                    .getString(DeviceSettingsPreferenceConst.PREF_MEDIA_SOURCE, "bluetooth")
+            ) ?: ShokzMediaSource.BLUETOOTH
+        }
+
+    override fun getQuickControls(device: GBDevice): List<QuickControl> {
+        val controls = mutableListOf<QuickControl>()
+
+        if (supportsMp3()) {
+            controls.add(
+                QuickControlToggleGroup.forPreference(
+                    key = DeviceSettingsPreferenceConst.PREF_MEDIA_SOURCE,
+                    title = R.string.media_source,
+                    icon = R.drawable.ic_music_note,
+                    defaultValue = ShokzMediaSource.BLUETOOTH.name.lowercase(),
+                    options = ShokzMediaSource.entries.map { source ->
+                        val icon = when (source) {
+                            ShokzMediaSource.BLUETOOTH -> R.drawable.ic_bluetooth
+                            ShokzMediaSource.MP3 -> R.drawable.ic_music_note
+                        }
+                        QuickControlOption(source.name.lowercase(), source.label, icon)
+                    },
+                )
+            )
+        }
+
+        controls.add(
+            QuickControlDialog.forPreference(
+                key = DeviceSettingsPreferenceConst.PREF_SHOKZ_EQUALIZER_BLUETOOTH,
+                icon = R.drawable.ic_graphic_eq,
+                title = if (supportsMp3()) R.string.sony_equalizer_bluetooth else R.string.sony_equalizer,
+                defaultValue = ShokzEqualizer.STANDARD.name.lowercase(),
+                options = ShokzEqualizer.entries
+                    .filter { supportsBluetoothEqualizer(it) }
+                    .map { QuickControlOption(it.name.lowercase(), it.label) },
+                visible = { d -> mediaSource(d) == ShokzMediaSource.BLUETOOTH },
+                trailingAction = QuickControlTrailingAction(
+                    icon = R.drawable.ic_settings,
+                    description = R.string.pref_header_equalizer,
+                    visible = { _, value -> ShokzEqualizer.fromPreference(value) == ShokzEqualizer.CUSTOM },
+                    onClick = { d, context ->
+                        DeviceSettingsActivity.start(context, d)
+                    },
+                ),
+            )
+        )
+
+        if (supportsMp3()) {
+            controls.add(
+                QuickControlDialog.forPreference(
+                    key = DeviceSettingsPreferenceConst.PREF_SHOKZ_EQUALIZER_MP3,
+                    icon = R.drawable.ic_graphic_eq,
+                    title = R.string.sony_equalizer_mp3,
+                    defaultValue = ShokzEqualizer.STANDARD.name.lowercase(),
+                    options = ShokzEqualizer.entries
+                        .filter { ShokzMediaSource.MP3 in it.sources }
+                        .map { QuickControlOption(it.name.lowercase(), it.label) },
+                    visible = { d -> mediaSource(d) == ShokzMediaSource.MP3 },
+                )
+            )
+            controls.addAll(
+                QuickControls.fromDeviceSettings(
+                    device,
+                    keys = emptyList(),
+                    optionalKeys = listOf(DeviceSettingsPreferenceConst.PREF_MEDIA_PLAYBACK_MODE),
+                )
+            )
+        }
+
+        return controls
+    }
+
     override fun getDeviceSettings(device: GBDevice): DeviceSettingsSpec = deviceSettings {
         multipointPairing()
         languages(Language.EN, Language.ZH, Language.JA, Language.KO)
@@ -126,12 +217,7 @@ abstract class ShokzCoordinator : AbstractBLClassicDeviceCoordinator() {
             key = DeviceSettingsPreferenceConst.PREF_SHOKZ_EQUALIZER_BLUETOOTH,
             title = R.string.sony_equalizer_bluetooth,
             defaultValue = ShokzEqualizer.STANDARD,
-            filter = {
-                ShokzMediaSource.BLUETOOTH in it.sources &&
-                    (supportsBassTreble() || it != ShokzEqualizer.BASS && it != ShokzEqualizer.TREBLE) &&
-                    (supportsCustomEqualizer() || it != ShokzEqualizer.CUSTOM) &&
-                    (supportsClassicAndVolumeBoost() || it != ShokzEqualizer.CLASSIC && it != ShokzEqualizer.VOLUME_BOOST)
-            },
+            filter = { supportsBluetoothEqualizer(it) },
             visibleWhen = { prefs ->
                 !supportsMp3() || ShokzMediaSource.fromPreference(
                     prefs.getString(DeviceSettingsPreferenceConst.PREF_MEDIA_SOURCE, "")
@@ -221,4 +307,10 @@ abstract class ShokzCoordinator : AbstractBLClassicDeviceCoordinator() {
             connectedOnly = false,
         )
     }
+
+    override fun supportsAppNotifications(device: GBDevice): Boolean = true
+
+    override fun supportsPhoneCalls(device: GBDevice): Boolean = true
+
+    override fun supportsCallControl(device: GBDevice): Boolean = true
 }

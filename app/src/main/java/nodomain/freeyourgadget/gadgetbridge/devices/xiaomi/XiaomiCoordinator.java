@@ -24,6 +24,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelUuid;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,16 +35,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.Property;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.appmanager.AppManagerActivity;
@@ -58,20 +56,15 @@ import nodomain.freeyourgadget.gadgetbridge.devices.SleepAsAndroidFeature;
 import nodomain.freeyourgadget.gadgetbridge.devices.InstallHandler;
 import nodomain.freeyourgadget.gadgetbridge.devices.GenericTrainingLoadAcuteSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider;
+import nodomain.freeyourgadget.gadgetbridge.devices.SleepSessionProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.WorkoutLoadSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.XiaomiDailySummarySampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary;
-import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummaryDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.GenericTrainingLoadAcuteSample;
-import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiActivityFileDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiActivitySampleDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiDailySummarySample;
-import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiDailySummarySampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiManualSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiSleepStageSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.XiaomiSleepTimeSampleDao;
+import nodomain.freeyourgadget.gadgetbridge.devices.GenericRespiratoryRateSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries;
@@ -140,21 +133,14 @@ public abstract class XiaomiCoordinator extends AbstractBLEDeviceCoordinator {
     }
 
     @Override
-    public Map<AbstractDao<?, ?>, Property> getAllDeviceDao(@NonNull final DaoSession session) {
-        Map<AbstractDao<?, ?>, Property> map = new HashMap<>(7);
-        map.put(session.getBaseActivitySummaryDao(), BaseActivitySummaryDao.Properties.DeviceId);
-        map.put(session.getXiaomiActivitySampleDao(), XiaomiActivitySampleDao.Properties.DeviceId);
-        map.put(session.getXiaomiActivityFileDao(), XiaomiActivityFileDao.Properties.DeviceId);
-        map.put(session.getXiaomiDailySummarySampleDao(), XiaomiDailySummarySampleDao.Properties.DeviceId);
-        map.put(session.getXiaomiManualSampleDao(), XiaomiManualSampleDao.Properties.DeviceId);
-        map.put(session.getXiaomiSleepStageSampleDao(), XiaomiSleepStageSampleDao.Properties.DeviceId);
-        map.put(session.getXiaomiSleepTimeSampleDao(), XiaomiSleepTimeSampleDao.Properties.DeviceId);
-        return map;
-    }
-
-    @Override
     public SampleProvider<? extends ActivitySample> getSampleProvider(@NonNull final GBDevice device, DaoSession session) {
         return new XiaomiSampleProvider(device, session);
+    }
+
+    @NonNull
+    @Override
+    public SleepSessionProvider getSleepSessionProvider(@NonNull final GBDevice device, @NonNull final DaoSession session) {
+        return new XiaomiSleepSessionProvider(device, session);
     }
 
     @Override
@@ -222,8 +208,7 @@ public abstract class XiaomiCoordinator extends AbstractBLEDeviceCoordinator {
 
     @Override
     public TimeSampleProvider<? extends RespiratoryRateSample> getRespiratoryRateSampleProvider(@NonNull final GBDevice device, final DaoSession session) {
-        // TODO XiaomiSleepRespiratoryRateSampleProvider
-        return super.getRespiratoryRateSampleProvider(device, session);
+        return new GenericRespiratoryRateSampleProvider(device, session);
     }
 
     @Nullable
@@ -285,6 +270,21 @@ public abstract class XiaomiCoordinator extends AbstractBLEDeviceCoordinator {
     @Override
     public boolean supportsWatchfaceManagement(@NonNull final GBDevice device) {
         return supportsAppsManagement(device);
+    }
+
+    /**
+     * Returns the known watchface preview sizes that match the device. Empty when the sizes are not known.
+     */
+    public List<Size> getWatchfacePreviewSizes() {
+        return Collections.emptyList();
+    }
+
+    /**
+     * Returns the screen resolution of the device, or null if it is not known.
+     */
+    @Nullable
+    public Size getScreenSize() {
+        return null;
     }
 
     @Override
@@ -414,8 +414,7 @@ public abstract class XiaomiCoordinator extends AbstractBLEDeviceCoordinator {
 
     @Override
     public boolean supportsSleepRespiratoryRate(@NonNull GBDevice device) {
-        // TODO it does
-        return false;
+        return true;
     }
 
     @Override
@@ -487,7 +486,7 @@ public abstract class XiaomiCoordinator extends AbstractBLEDeviceCoordinator {
     public Set<SleepAsAndroidFeature> getSleepAsAndroidFeatures(@NonNull final GBDevice device) {
         // Default set for Xiaomi protobuf devices. Raw accelerometer is streamed via the
         // synthetic-workout raw-sensor protocol (sport=810, subtype 53; see
-        // XiaomiHealthService.startRawSensor). Devices that do not honor it should override
+        // XiaomiSleepAsAndroidManager.start). Devices that do not honor it should override
         // this to remove ACCELEROMETER.
         return EnumSet.of(
                 SleepAsAndroidFeature.HEART_RATE,
@@ -537,6 +536,18 @@ public abstract class XiaomiCoordinator extends AbstractBLEDeviceCoordinator {
         return ArrayUtils.addAll(
                 super.getSupportedDeviceSpecificConnectionSettings(),
                 ArrayUtils.toPrimitive(settings.toArray(new Integer[0]))
+        );
+    }
+
+    @Override
+    public int[] getSupportedDebugSettings(final GBDevice device) {
+        if (getConnectionType().equals(ConnectionType.BLE)) {
+            return super.getSupportedDebugSettings(device);
+        }
+        // Only SPP V2 drops packets, see XiaomiSppProtocolV2
+        return ArrayUtils.add(
+                super.getSupportedDebugSettings(device),
+                R.xml.devicesettings_debug_drop_packets
         );
     }
 
@@ -620,6 +631,9 @@ public abstract class XiaomiCoordinator extends AbstractBLEDeviceCoordinator {
         notifications.add(R.xml.devicesettings_autoremove_notifications);
         if (getCannedRepliesSlotCount(device) > 0) {
             notifications.add(R.xml.devicesettings_canned_dismisscall_16);
+        }
+        if (supportsNavigation(device)) {
+            notifications.add(R.xml.devicesettings_navigation_notifications);
         }
         notifications.add(R.xml.devicesettings_transliteration);
 
@@ -730,6 +744,41 @@ public abstract class XiaomiCoordinator extends AbstractBLEDeviceCoordinator {
     @Override
     public WidgetManager getWidgetManager(@NonNull final GBDevice device) {
         return new XiaomiWidgetManager(device);
+    }
+
+    @Override
+    public boolean supportsNavigation(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsAppNotifications(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsPhoneCalls(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsCallControl(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsSmsReply(@NonNull final GBDevice device) {
+        return getCannedRepliesSlotCount(device) > 0;
+    }
+
+    @Override
+    public boolean supportsPhoneSilentMode(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsGpsSharing(@NonNull final GBDevice device) {
+        return true;
     }
 
     protected static Prefs getPrefs(@NonNull final GBDevice device) {

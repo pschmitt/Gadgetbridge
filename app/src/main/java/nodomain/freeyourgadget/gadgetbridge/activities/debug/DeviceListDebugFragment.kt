@@ -17,13 +17,14 @@ class DeviceListDebugFragment : AbstractDebugFragment() {
 
         val devices = GBApplication.app().deviceManager.devices.sortedBy { it.aliasOrName }
 
-        if (!devices.isEmpty()) {
+        if (devices.isNotEmpty()) {
             for (device in devices) {
-                addDynamicPref(
+                addDynamicDevicePref(
                     preferenceScreen,
                     device.aliasOrName,
                     device.address,
-                    device.deviceCoordinator.defaultIconResource
+                    device.deviceCoordinator.defaultIconResource,
+                    device.isConnected
                 ) {
                     goTo(
                         DeviceDebugFragment().apply {

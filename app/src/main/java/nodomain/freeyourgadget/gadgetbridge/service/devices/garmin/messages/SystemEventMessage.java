@@ -44,6 +44,7 @@ public class SystemEventMessage extends GFDIMessage {
         SETUP_WIZARD_START,
         SETUP_WIZARD_COMPLETE,
         SETUP_WIZARD_SKIPPED,
-        TIME_UPDATED
+        TIME_UPDATED,  // 16 - 0x10
+        TRIGGER_REBOOT; // 17 - 0x11
     }
 }

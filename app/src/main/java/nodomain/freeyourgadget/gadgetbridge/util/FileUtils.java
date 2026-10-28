@@ -64,12 +64,13 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.FitFile;
 public class FileUtils {
     private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);
 
-    private static final List<String> KNOWN_PACKAGES = Arrays.asList(
+    public static final List<String> KNOWN_PACKAGES = Arrays.asList(
             "nodomain.freeyourgadget.gadgetbridge",
             "nodomain.freeyourgadget.gadgetbridge.nightly",
             "nodomain.freeyourgadget.gadgetbridge.nightly_nopebble",
             "com.espruino.gadgetbridge.banglejs",
-            "com.espruino.gadgetbridge.banglejs.nightly"
+            "com.espruino.gadgetbridge.banglejs.nightly",
+            "com.espruino.gadgetbridge.banglejs.nightly_nopebble"
     );
 
     /**
@@ -357,19 +358,44 @@ public class FileUtils {
         }
     }
 
-    public static boolean deleteRecursively(File dir) {
+    /**
+     * Returns the total number of files and directories in a file tree, including the root.
+     */
+    public static int countFilesRecursively(final File file) {
+        if (!file.exists()) {
+            return 0;
+        }
+        int count = 1;
+        final File[] children = file.listFiles();
+        if (children != null) {
+            for (final File child : children) {
+                count += countFilesRecursively(child);
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Deletes a file tree. Calls onFileDeleted after each file or directory is deleted.
+     */
+    public static boolean deleteRecursively(final File dir, @Nullable final Runnable onFileDeleted) {
         if (!dir.exists()) {
             return true;
         }
-        if (dir.isFile()) {
-            return dir.delete();
-        }
-        for (File sub : dir.listFiles()) {
-            if (!deleteRecursively(sub)) {
-                return false;
+        if (dir.isDirectory()) {
+            for (final File sub : dir.listFiles()) {
+                if (!deleteRecursively(sub, onFileDeleted)) {
+                    return false;
+                }
             }
         }
-        return dir.delete();
+        if (!dir.delete()) {
+            return false;
+        }
+        if (onFileDeleted != null) {
+            onFileDeleted.run();
+        }
+        return true;
     }
 
     @Nullable
@@ -403,7 +429,7 @@ public class FileUtils {
 
     /**
      * Replaces some wellknown invalid characters in the given filename
-     * to underscrores.
+     * to underscores.
      * @param name the file name to make valid
      * @return the valid file name
      */

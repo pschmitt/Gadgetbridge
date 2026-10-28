@@ -36,12 +36,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.Property;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
@@ -54,7 +50,6 @@ import nodomain.freeyourgadget.gadgetbridge.devices.InstallHandler;
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.AbstractActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
-import nodomain.freeyourgadget.gadgetbridge.entities.MiBandActivitySampleDao;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceCandidate;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser;
@@ -106,13 +101,6 @@ public class MiBandCoordinator extends AbstractBLEDeviceCoordinator {
     }
 
     @Override
-    public Map<AbstractDao<?, ?>, Property> getAllDeviceDao(@NonNull final DaoSession session) {
-        Map<AbstractDao<?, ?>, Property> map = new HashMap<>(1);
-        map.put(session.getMiBandActivitySampleDao(), MiBandActivitySampleDao.Properties.DeviceId);
-        return map;
-    }
-
-    @Override
     public Class<? extends Activity> getPairingActivity() {
         return MiBandPairingActivity.class;
     }
@@ -160,6 +148,21 @@ public class MiBandCoordinator extends AbstractBLEDeviceCoordinator {
 
     @Override
     public boolean supportsFindDevice(@NonNull GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsAppNotifications(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsCalendarEvents(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsPhoneCalls(@NonNull final GBDevice device) {
         return true;
     }
 
@@ -245,8 +248,11 @@ public class MiBandCoordinator extends AbstractBLEDeviceCoordinator {
         deviceSpecificSettings.addRootScreen(R.xml.devicesettings_wearlocation);
         deviceSpecificSettings.addRootScreen(R.xml.devicesettings_heartrate_sleep);
         deviceSpecificSettings.addRootScreen(R.xml.devicesettings_miband_vibrationpatterns);
-        deviceSpecificSettings.addRootScreen(R.xml.devicesettings_reserve_alarms_calendar);
         deviceSpecificSettings.addRootScreen(R.xml.devicesettings_fake_timeoffset);
+
+        final List<Integer> calendar = deviceSpecificSettings.addRootScreen(DeviceSpecificSettingsScreen.CALENDAR);
+        calendar.add(R.xml.devicesettings_sync_calendar);
+        calendar.add(R.xml.devicesettings_reserve_alarms_calendar);
 
         final List<Integer> connection = deviceSpecificSettings.addRootScreen(DeviceSpecificSettingsScreen.CONNECTION);
         connection.add(R.xml.devicesettings_lowlatency_fwupdate);

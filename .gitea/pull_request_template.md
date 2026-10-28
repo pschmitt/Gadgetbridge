@@ -3,6 +3,8 @@
 
     Please make sure that you:
 
+    - Read CONTRIBUTING.md in the root of this repository.
+
     - Use `git rebase` to bring your branch up to date, do not use a merge commit for that.
 
     - Do not add translations by editing the language variants of strings.xml as that 
@@ -11,6 +13,6 @@
 
     - Do not use `e.printStacktrace()`, use slf4j logger or `GB.toast` for logging
       as per https://gadgetbridge.org/internals/development/project-overview/#logging
-    
+
     You can erase this comment from PR description, thank you!
 -->

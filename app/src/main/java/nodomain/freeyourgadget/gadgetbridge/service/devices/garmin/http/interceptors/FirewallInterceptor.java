@@ -32,7 +32,7 @@ import java.io.InputStream;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.internet.InternetFirewall;
 import nodomain.freeyourgadget.gadgetbridge.internet.InternetRequestType;
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiHttpService;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiHttp;
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSmartProto.Smart;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.GarminSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.deviceevents.ProtobufResponseEvent;
@@ -145,23 +145,23 @@ public class FirewallInterceptor implements HttpInterceptor {
             return;
         }
 
-        final GdiHttpService.HttpService successResponse = HttpHandler.createSuccessResponse(request, garminHttpResponse);
+        final GdiHttp.ConnectIQHTTPService successResponse = HttpHandler.createSuccessResponse(request, garminHttpResponse);
         if (successResponse != null) {
             sendHttpServiceRequest(request, successResponse);
         } else {
-            final GdiHttpService.HttpService errorResponse = HttpHandler.createErrorResponse(request);
+            final GdiHttp.ConnectIQHTTPService errorResponse = HttpHandler.createErrorResponse(request);
             sendHttpServiceRequest(request, errorResponse);
         }
     }
 
     private void handleHttpException(@NonNull final GarminHttpRequest request) {
-        final GdiHttpService.HttpService errorResponse = HttpHandler.createErrorResponse(request);
+        final GdiHttp.ConnectIQHTTPService errorResponse = HttpHandler.createErrorResponse(request);
         sendHttpServiceRequest(request, errorResponse);
     }
 
     private void sendHttpServiceRequest(@NonNull final GarminHttpRequest request,
-                                        @NonNull final GdiHttpService.HttpService httpService) {
-        final Smart smart = Smart.newBuilder().setHttpService(httpService).build();
+                                        @NonNull final GdiHttp.ConnectIQHTTPService httpService) {
+        final Smart smart = Smart.newBuilder().setConnectIqHttpService(httpService).build();
         deviceSupport.evaluateGBDeviceEvent(new ProtobufResponseEvent(
                 smart, request.getMessageRequestId()
         ));

@@ -136,8 +136,9 @@ public class XiaomiActivityTrackProvider implements ActivityTrackProvider {
     }
 
     /**
-     * The registered raw file of the given type for the workout, or null when there is no
-     * registry row or the file is missing on disk.
+     * The raw file of the given type for the workout, or null when there is none on disk. The
+     * registry is consulted first. Files fetched before the registry existed have no row, so
+     * the fetch dump directory is searched next, using the type and subtype of the summary.
      */
     @Nullable
     public static File getRawFile(@NonNull final GBDevice device,
@@ -152,24 +153,47 @@ public class XiaomiActivityTrackProvider implements ActivityTrackProvider {
         try (DBHandler dbh = GBApplication.acquireDbReadOnly()) {
             final DaoSession session = dbh.getDaoSession();
             final Device dbDevice = DBHelper.findDevice(device, session);
-            if (dbDevice == null) {
-                return null;
-            }
-            final List<XiaomiActivityFile> files = session.getXiaomiActivityFileDao().queryBuilder()
-                    .where(XiaomiActivityFileDao.Properties.DeviceId.eq(dbDevice.getId()),
-                            XiaomiActivityFileDao.Properties.Timestamp.eq(ts),
-                            XiaomiActivityFileDao.Properties.DetailType.eq(detailType.getCode()))
-                    .list();
-            for (final XiaomiActivityFile f : files) {
-                final File file = FileUtils.tryFixPath(f.getFilePath());
-                if (file != null) {
-                    return file;
+            if (dbDevice != null) {
+                final List<XiaomiActivityFile> files = session.getXiaomiActivityFileDao().queryBuilder()
+                        .where(XiaomiActivityFileDao.Properties.DeviceId.eq(dbDevice.getId()),
+                                XiaomiActivityFileDao.Properties.Timestamp.eq(ts),
+                                XiaomiActivityFileDao.Properties.DetailType.eq(detailType.getCode()))
+                        .list();
+                for (final XiaomiActivityFile f : files) {
+                    final File file = FileUtils.tryFixPath(f.getFilePath());
+                    if (file != null) {
+                        return file;
+                    }
                 }
             }
         } catch (final Exception e) {
             LOG.error("Failed {} raw file lookup for ts={}", detailType, ts, e);
         }
-        return null;
+        return findDumpedRawFile(device, summary, detailType);
+    }
+
+    @Nullable
+    private static File findDumpedRawFile(@NonNull final GBDevice device,
+                                          @NonNull final BaseActivitySummary summary,
+                                          @NonNull final XiaomiActivityFileId.DetailType detailType) {
+        final byte[] rawSummary = summary.getRawSummaryData();
+        if (rawSummary == null || rawSummary.length < 7) {
+            return null;
+        }
+        try {
+            final XiaomiActivityFileId summaryId = XiaomiActivityFileId.from(rawSummary);
+            final File exportDirectory = device.getDeviceCoordinator().getWritableExportDirectory(device, false);
+            return XiaomiActivityFileId.findOutputFile(
+                    new File(exportDirectory, "rawFetchOperations"),
+                    summary.getStartTime(),
+                    summaryId.getTypeCode(),
+                    summaryId.getSubtypeCode(),
+                    detailType.getCode()
+            );
+        } catch (final Exception e) {
+            LOG.error("Failed {} raw file search on disk", detailType, e);
+            return null;
+        }
     }
 
     public static boolean hasAnyNonNullIslandLocation(final ActivityTrack track) {

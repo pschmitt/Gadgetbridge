@@ -1,4 +1,4 @@
-/*  Copyright (C) 2026 Dany Mestas
+/*  Copyright (C) 2026 Dany Mestas, Thomas Kuehne
 
     This file is part of Gadgetbridge.
 
@@ -18,10 +18,12 @@ package nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.baseType
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 /**
  * Round-trip tests for the FIT base-type encode path.
@@ -45,6 +47,21 @@ import java.nio.ByteOrder;
  * encoder. The tests therefore double as regression guards.
  */
 public class BaseTypeEncodeRoundTripTest {
+    private static double decodeEncode(final BaseType type, final byte[] encoded,
+                                    final double scale, final int offset) {
+        final ByteBuffer enc = ByteBuffer.wrap(encoded).order(ByteOrder.LITTLE_ENDIAN);
+        final Object decoded = type.decode(enc, scale, offset);
+        final ByteBuffer reEnc =ByteBuffer.allocate(16).order(ByteOrder.LITTLE_ENDIAN);
+
+        type.encode(reEnc, decoded, scale, offset);
+        reEnc.flip();
+
+        var actual = Arrays.copyOf(reEnc.array(), reEnc.remaining());
+        Assert.assertArrayEquals(encoded, actual);
+        final Object reDecoded = type.decode(reEnc, scale, offset);
+
+        return ((Number) reDecoded).doubleValue();
+    }
 
     private static double roundTrip(final BaseType type, final Object physical,
                                     final double scale, final int offset) {
@@ -80,9 +97,9 @@ public class BaseTypeEncodeRoundTripTest {
     @Test
     public void uint16_altitudeScale5Offset500_preservesHalfMeter() {
         // FIT record.altitude (UINT16 scale=5 offset=500).
-        // Encoder: (123.5 + 500) * 5 = 3117.5 → stored 3117. Pre-fix: ((int)123.5+500)*5 = 3115.
-        // Decoded: 3117/5 - 500 = 123.4. Pre-fix: 3115/5 - 500 = 123.
-        assertEquals(123.4, roundTrip(BaseType.UINT16, 123.5, 5, 500), 0.05);
+        // Encoder: (123.5 + 500) * 5 = 3117.5 → stored 3118. Pre-fix: ((int)123.5+500)*5 = 3115.
+        // Decoded: 3117/5 - 500 = 123.6. Pre-fix: 3115/5 - 500 = 123.
+        assertEquals(123.6, roundTrip(BaseType.UINT16, 123.5, 5, 500), 0.05);
     }
 
     @Test
@@ -142,5 +159,153 @@ public class BaseTypeEncodeRoundTripTest {
     @Test
     public void uint64_integerInputUnchanged() {
         assertEquals(123456789L, ((Number) roundTrip(BaseType.UINT64, 123456789L, 1, 0)).longValue());
+    }
+
+    @Test
+    public void decodeEncodeNonIntegerScale() {
+        Assert.assertEquals(2.33333, decodeEncode(BaseType.UINT8, new byte[]{5}, 1.5, 1), 0.0001);
+        Assert.assertEquals(2.33333, decodeEncode(BaseType.UINT16, new byte[]{5, 0}, 1.5, 1), 0.0001);
+        Assert.assertEquals(2.33333, decodeEncode(BaseType.UINT32, new byte[]{5, 0, 0, 0}, 1.5, 1), 0.0001);
+
+    }
+
+    @Test
+    public void decodeEncodeUint8() {
+        // scale 10, offset 0
+        Assert.assertEquals(0.1, decodeEncode(BaseType.UINT8, new byte[]{1}, 10, 0), 0.0001);
+        Assert.assertEquals(0.2, decodeEncode(BaseType.UINT8, new byte[]{2}, 10, 0), 0.0001);
+        Assert.assertEquals(0.3, decodeEncode(BaseType.UINT8, new byte[]{3}, 10, 0), 0.0001);
+        Assert.assertEquals(0.4, decodeEncode(BaseType.UINT8, new byte[]{4}, 10, 0), 0.0001);
+        Assert.assertEquals(0.5, decodeEncode(BaseType.UINT8, new byte[]{5}, 10, 0), 0.0001);
+        Assert.assertEquals(0.6, decodeEncode(BaseType.UINT8, new byte[]{6}, 10, 0), 0.0001);
+        Assert.assertEquals(0.7, decodeEncode(BaseType.UINT8, new byte[]{7}, 10, 0), 0.0001);
+        Assert.assertEquals(0.8, decodeEncode(BaseType.UINT8, new byte[]{8}, 10, 0), 0.0001);
+        Assert.assertEquals(0.9, decodeEncode(BaseType.UINT8, new byte[]{9}, 10, 0), 0.0001);
+        Assert.assertEquals(1.0, decodeEncode(BaseType.UINT8, new byte[]{10}, 10, 0), 0.0001);
+        Assert.assertEquals(1.1, decodeEncode(BaseType.UINT8, new byte[]{11}, 10, 0), 0.0001);
+
+        // scale 10, offset -1
+        Assert.assertEquals(1.1, decodeEncode(BaseType.UINT8, new byte[]{1}, 10, -1), 0.0001);
+        Assert.assertEquals(1.2, decodeEncode(BaseType.UINT8, new byte[]{2}, 10, -1), 0.0001);
+        Assert.assertEquals(1.3, decodeEncode(BaseType.UINT8, new byte[]{3}, 10, -1), 0.0001);
+        Assert.assertEquals(1.4, decodeEncode(BaseType.UINT8, new byte[]{4}, 10, -1), 0.0001);
+        Assert.assertEquals(1.5, decodeEncode(BaseType.UINT8, new byte[]{5}, 10, -1), 0.0001);
+        Assert.assertEquals(1.6, decodeEncode(BaseType.UINT8, new byte[]{6}, 10, -1), 0.0001);
+        Assert.assertEquals(1.7, decodeEncode(BaseType.UINT8, new byte[]{7}, 10, -1), 0.0001);
+        Assert.assertEquals(1.8, decodeEncode(BaseType.UINT8, new byte[]{8}, 10, -1), 0.0001);
+        Assert.assertEquals(1.9, decodeEncode(BaseType.UINT8, new byte[]{9}, 10, -1), 0.0001);
+        Assert.assertEquals(2.0, decodeEncode(BaseType.UINT8, new byte[]{10}, 10, -1), 0.0001);
+        Assert.assertEquals(2.1, decodeEncode(BaseType.UINT8, new byte[]{11}, 10, -1), 0.0001);
+
+        // scale -2, offset 1
+        Assert.assertEquals(-1.5, decodeEncode(BaseType.UINT8, new byte[]{1}, -2, 1), 0.0001);
+        Assert.assertEquals(-2.0, decodeEncode(BaseType.UINT8, new byte[]{2}, -2, 1), 0.0001);
+        Assert.assertEquals(-2.5, decodeEncode(BaseType.UINT8, new byte[]{3}, -2, 1), 0.0001);
+        Assert.assertEquals(-3.0, decodeEncode(BaseType.UINT8, new byte[]{4}, -2, 1), 0.0001);
+    }
+
+    @Test
+    public void decodeEncodeUInt16() {
+        // scale 10, offset 0
+        Assert.assertEquals(0.1, decodeEncode(BaseType.UINT16, new byte[]{1, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(0.2, decodeEncode(BaseType.UINT16, new byte[]{2, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(0.3, decodeEncode(BaseType.UINT16, new byte[]{3, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(0.4, decodeEncode(BaseType.UINT16, new byte[]{4, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(0.5, decodeEncode(BaseType.UINT16, new byte[]{5, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(0.6, decodeEncode(BaseType.UINT16, new byte[]{6, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(0.7, decodeEncode(BaseType.UINT16, new byte[]{7, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(0.8, decodeEncode(BaseType.UINT16, new byte[]{8, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(0.9, decodeEncode(BaseType.UINT16, new byte[]{9, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(1.0, decodeEncode(BaseType.UINT16, new byte[]{10, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(1.1, decodeEncode(BaseType.UINT16, new byte[]{11, 0}, 10, 0), 0.0001);
+
+        // scale 10, offset -1
+        Assert.assertEquals(1.1, decodeEncode(BaseType.UINT16, new byte[]{1, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(1.2, decodeEncode(BaseType.UINT16, new byte[]{2, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(1.3, decodeEncode(BaseType.UINT16, new byte[]{3, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(1.4, decodeEncode(BaseType.UINT16, new byte[]{4, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(1.5, decodeEncode(BaseType.UINT16, new byte[]{5, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(1.6, decodeEncode(BaseType.UINT16, new byte[]{6, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(1.7, decodeEncode(BaseType.UINT16, new byte[]{7, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(1.8, decodeEncode(BaseType.UINT16, new byte[]{8, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(1.9, decodeEncode(BaseType.UINT16, new byte[]{9, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(2.0, decodeEncode(BaseType.UINT16, new byte[]{10, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(2.1, decodeEncode(BaseType.UINT16, new byte[]{11, 0}, 10, -1), 0.0001);
+
+        // scale -2, offset 1
+        Assert.assertEquals(-1.5, decodeEncode(BaseType.UINT16, new byte[]{1, 0}, -2, 1), 0.0001);
+        Assert.assertEquals(-2.0, decodeEncode(BaseType.UINT16, new byte[]{2, 0}, -2, 1), 0.0001);
+        Assert.assertEquals(-2.5, decodeEncode(BaseType.UINT16, new byte[]{3, 0}, -2, 1), 0.0001);
+        Assert.assertEquals(-3.0, decodeEncode(BaseType.UINT16, new byte[]{4, 0}, -2, 1), 0.0001);
+    }
+
+    @Test
+    public void decodeEncodeUInt32() {
+        // scale 10, offset 0
+        Assert.assertEquals(0.1, decodeEncode(BaseType.UINT32, new byte[]{1, 0, 0, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(0.2, decodeEncode(BaseType.UINT32, new byte[]{2, 0, 0, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(0.3, decodeEncode(BaseType.UINT32, new byte[]{3, 0, 0, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(0.4, decodeEncode(BaseType.UINT32, new byte[]{4, 0, 0, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(0.5, decodeEncode(BaseType.UINT32, new byte[]{5, 0, 0, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(0.6, decodeEncode(BaseType.UINT32, new byte[]{6, 0, 0, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(0.7, decodeEncode(BaseType.UINT32, new byte[]{7, 0, 0, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(0.8, decodeEncode(BaseType.UINT32, new byte[]{8, 0, 0, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(0.9, decodeEncode(BaseType.UINT32, new byte[]{9, 0, 0, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(1.0, decodeEncode(BaseType.UINT32, new byte[]{10, 0, 0, 0}, 10, 0), 0.0001);
+        Assert.assertEquals(1.1, decodeEncode(BaseType.UINT32, new byte[]{11, 0, 0, 0}, 10, 0), 0.0001);
+
+        // scale 10, offset -1
+        Assert.assertEquals(1.1, decodeEncode(BaseType.UINT32, new byte[]{1, 0, 0, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(1.2, decodeEncode(BaseType.UINT32, new byte[]{2, 0, 0, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(1.3, decodeEncode(BaseType.UINT32, new byte[]{3, 0, 0, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(1.4, decodeEncode(BaseType.UINT32, new byte[]{4, 0, 0, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(1.5, decodeEncode(BaseType.UINT32, new byte[]{5, 0, 0, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(1.6, decodeEncode(BaseType.UINT32, new byte[]{6, 0, 0, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(1.7, decodeEncode(BaseType.UINT32, new byte[]{7, 0, 0, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(1.8, decodeEncode(BaseType.UINT32, new byte[]{8, 0, 0, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(1.9, decodeEncode(BaseType.UINT32, new byte[]{9, 0, 0, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(2.0, decodeEncode(BaseType.UINT32, new byte[]{10, 0, 0, 0}, 10, -1), 0.0001);
+        Assert.assertEquals(2.1, decodeEncode(BaseType.UINT32, new byte[]{11, 0, 0, 0}, 10, -1), 0.0001);
+
+        // scale -2, offset 1
+        Assert.assertEquals(-1.5, decodeEncode(BaseType.UINT32, new byte[]{1, 0, 0, 0}, -2, 1), 0.0001);
+        Assert.assertEquals(-2.0, decodeEncode(BaseType.UINT32, new byte[]{2, 0, 0, 0}, -2, 1), 0.0001);
+        Assert.assertEquals(-2.5, decodeEncode(BaseType.UINT32, new byte[]{3, 0, 0, 0}, -2, 1), 0.0001);
+        Assert.assertEquals(-3.0, decodeEncode(BaseType.UINT32, new byte[]{4, 0, 0, 0}, -2, 1), 0.0001);
+    }
+
+    @Test
+    public void byteDecodeEncode() {
+        // scale 10, offset 0
+        Assert.assertEquals(0.1, decodeEncode(BaseType.BYTE, new byte[]{1}, 10, 0), 0.0001);
+        Assert.assertEquals(0.2, decodeEncode(BaseType.BYTE, new byte[]{2}, 10, 0), 0.0001);
+        Assert.assertEquals(0.3, decodeEncode(BaseType.BYTE, new byte[]{3}, 10, 0), 0.0001);
+        Assert.assertEquals(0.4, decodeEncode(BaseType.BYTE, new byte[]{4}, 10, 0), 0.0001);
+        Assert.assertEquals(0.5, decodeEncode(BaseType.BYTE, new byte[]{5}, 10, 0), 0.0001);
+        Assert.assertEquals(0.6, decodeEncode(BaseType.BYTE, new byte[]{6}, 10, 0), 0.0001);
+        Assert.assertEquals(0.7, decodeEncode(BaseType.BYTE, new byte[]{7}, 10, 0), 0.0001);
+        Assert.assertEquals(0.8, decodeEncode(BaseType.BYTE, new byte[]{8}, 10, 0), 0.0001);
+        Assert.assertEquals(0.9, decodeEncode(BaseType.BYTE, new byte[]{9}, 10, 0), 0.0001);
+        Assert.assertEquals(1.0, decodeEncode(BaseType.BYTE, new byte[]{10}, 10, 0), 0.0001);
+        Assert.assertEquals(1.1, decodeEncode(BaseType.BYTE, new byte[]{11}, 10, 0), 0.0001);
+
+        // scale 10, offset -1
+        Assert.assertEquals(1.1, decodeEncode(BaseType.BYTE, new byte[]{1}, 10, -1), 0.0001);
+        Assert.assertEquals(1.2, decodeEncode(BaseType.BYTE, new byte[]{2}, 10, -1), 0.0001);
+        Assert.assertEquals(1.3, decodeEncode(BaseType.BYTE, new byte[]{3}, 10, -1), 0.0001);
+        Assert.assertEquals(1.4, decodeEncode(BaseType.BYTE, new byte[]{4}, 10, -1), 0.0001);
+        Assert.assertEquals(1.5, decodeEncode(BaseType.BYTE, new byte[]{5}, 10, -1), 0.0001);
+        Assert.assertEquals(1.6, decodeEncode(BaseType.BYTE, new byte[]{6}, 10, -1), 0.0001);
+        Assert.assertEquals(1.7, decodeEncode(BaseType.BYTE, new byte[]{7}, 10, -1), 0.0001);
+        Assert.assertEquals(1.8, decodeEncode(BaseType.BYTE, new byte[]{8}, 10, -1), 0.0001);
+        Assert.assertEquals(1.9, decodeEncode(BaseType.BYTE, new byte[]{9}, 10, -1), 0.0001);
+        Assert.assertEquals(2.0, decodeEncode(BaseType.BYTE, new byte[]{10}, 10, -1), 0.0001);
+        Assert.assertEquals(2.1, decodeEncode(BaseType.BYTE, new byte[]{11}, 10, -1), 0.0001);
+
+        // scale -2, offset 1
+        Assert.assertEquals(-1.5, decodeEncode(BaseType.BYTE, new byte[]{1}, -2, 1), 0.0001);
+        Assert.assertEquals(-2.0, decodeEncode(BaseType.BYTE, new byte[]{2}, -2, 1), 0.0001);
+        Assert.assertEquals(-2.5, decodeEncode(BaseType.BYTE, new byte[]{3}, -2, 1), 0.0001);
+        Assert.assertEquals(-3.0, decodeEncode(BaseType.BYTE, new byte[]{4}, -2, 1), 0.0001);
     }
 }

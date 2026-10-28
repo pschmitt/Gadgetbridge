@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +60,8 @@ public class GBLocationService extends BroadcastReceiver {
     public static final String EXTRA_INTERVAL = "extra_interval";
 
     private final Context context;
-    private final Map<GBDevice, List<GBLocationProvider>> providersByDevice = new HashMap<>();
+    // A device runs at most one provider of each type, so several can feed it at once (GPS and network).
+    private final Map<GBDevice, Map<GBLocationProviderType, GBLocationProvider>> providersByDevice = new HashMap<>();
 
     public GBLocationService(final Context context) {
         this.context = context;
@@ -88,16 +90,28 @@ public class GBLocationService extends BroadcastReceiver {
 
                 LOG.debug("Starting location provider {} for {}", providerType, device.getAliasOrName());
 
+                final Map<GBLocationProviderType, GBLocationProvider> deviceProviders = Objects.requireNonNull(
+                        providersByDevice.computeIfAbsent(device, ignored -> new EnumMap<>(GBLocationProviderType.class))
+                );
+                final GBLocationProvider runningProvider = deviceProviders.remove(providerType);
+                if (runningProvider != null) {
+                    LOG.debug("Replacing the running location provider {} for {}", providerType, device.getAliasOrName());
+                    runningProvider.stop();
+                }
+
                 final GBLocationListener locationListener = new GBLocationListener(device);
                 final GBLocationProvider locationProvider = providerType.newInstance(context, locationListener);
                 try {
                     locationProvider.start(updateInterval);
                 } catch (final Exception e) {
                     LOG.error("Failed to start location provider {} for {}", providerType, device.getAliasOrName(), e);
+                    if (deviceProviders.isEmpty()) {
+                        providersByDevice.remove(device);
+                    }
+                    updateNotification();
                     return;
                 }
-                final List<GBLocationProvider> existingProviders = providersByDevice.computeIfAbsent(device, ignored -> new ArrayList<>());
-                Objects.requireNonNull(existingProviders).add(locationProvider);
+                deviceProviders.put(providerType, locationProvider);
                 updateNotification();
                 return;
             case ACTION_STOP:
@@ -119,9 +133,9 @@ public class GBLocationService extends BroadcastReceiver {
     public void stopDevice(final GBDevice device) {
         LOG.debug("Stopping location providers for {}", device.getAliasOrName());
 
-        final List<GBLocationProvider> providers = providersByDevice.remove(device);
+        final Map<GBLocationProviderType, GBLocationProvider> providers = providersByDevice.remove(device);
         if (providers != null) {
-            for (final GBLocationProvider provider : providers) {
+            for (final GBLocationProvider provider : providers.values()) {
                 provider.stop();
             }
         }

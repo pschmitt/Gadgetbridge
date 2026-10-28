@@ -1,14 +1,11 @@
 package nodomain.freeyourgadget.gadgetbridge.devices.garmin.hrm
 
-import de.greenrobot.dao.AbstractDao
-import de.greenrobot.dao.Property
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider
 import nodomain.freeyourgadget.gadgetbridge.devices.generic_hr.GenericHeartRateActivitySampleProvider
 import nodomain.freeyourgadget.gadgetbridge.entities.AbstractActivitySample
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession
-import nodomain.freeyourgadget.gadgetbridge.entities.GenericHeartRateSampleDao
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport
 import nodomain.freeyourgadget.gadgetbridge.service.devices.generic_hr.GenericHeartRateSupport
@@ -53,13 +50,5 @@ abstract class GarminHrmCoordinator: AbstractBLEDeviceCoordinator() {
 
     override fun getSampleProvider(device: GBDevice, session: DaoSession): SampleProvider<out AbstractActivitySample>? {
         return GenericHeartRateActivitySampleProvider(device, session)
-    }
-
-    override fun getAllDeviceDao(session: DaoSession): MutableMap<AbstractDao<*, *>, Property> {
-        return object : HashMap<AbstractDao<*, *>, Property>() {
-            init {
-                put(session.genericHeartRateSampleDao, GenericHeartRateSampleDao.Properties.DeviceId)
-            }
-        }
     }
 }

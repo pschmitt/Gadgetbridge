@@ -10,10 +10,10 @@ import androidx.preference.PreferenceCategory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
+import nodomain.freeyourgadget.gadgetbridge.activities.discovery.PickDeviceType
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceType
-import nodomain.freeyourgadget.gadgetbridge.util.DeviceTypeDialog
 import nodomain.freeyourgadget.gadgetbridge.util.GB
 import nodomain.freeyourgadget.gadgetbridge.util.kotlin.getParcelableCompat
 import nodomain.freeyourgadget.gadgetbridge.util.preferences.MacAddressTextWatcher
@@ -23,6 +23,10 @@ import org.slf4j.LoggerFactory
 
 class DeviceDebugFragment : AbstractDebugFragment() {
     private lateinit var gbDevice: GBDevice
+
+    private val pickDeviceType = registerForActivityResult(PickDeviceType()) { selection ->
+        selection?.let { setDeviceType(gbDevice, it.deviceType) }
+    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.debug_preferences_device, rootKey)
@@ -55,10 +59,9 @@ class DeviceDebugFragment : AbstractDebugFragment() {
         // Device Type
         findPreference<Preference>(PREF_DEBUG_DEVICE_TYPE)?.summary = gbDevice.type.name
         findPreference<Preference>(PREF_DEBUG_DEVICE_TYPE)?.setOnPreferenceClickListener {
-            DeviceTypeDialog(requireActivity(), R.string.set_device_type, gbDevice.address)
-                .show(gbDevice.type) { _: String, deviceType: DeviceType ->
-                    setDeviceType(gbDevice, deviceType)
-                }
+            pickDeviceType.launch(
+                PickDeviceType.Input(R.string.set_device_type, gbDevice.address, preselected = gbDevice.type)
+            )
             true
         }
 
@@ -70,6 +73,7 @@ class DeviceDebugFragment : AbstractDebugFragment() {
             }
             addDynamicPref(headerDetails, detail.name.replace(": *$".toRegex(), ""), detail.details)
         }
+        headerDetails?.isVisible = headerDetails.preferenceCount > 0
 
         val headerCoordinator = findPreference<PreferenceCategory>(PREF_HEADER_COORDINATOR)
         val coordinator = gbDevice.deviceCoordinator

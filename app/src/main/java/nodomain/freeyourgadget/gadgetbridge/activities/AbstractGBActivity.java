@@ -23,11 +23,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.StyleRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -83,51 +85,65 @@ public abstract class AbstractGBActivity extends AppCompatActivity implements GB
         init(activity, NONE);
     }
 
-    public static void init(GBActivity activity, int flags) {
+    @StyleRes
+    public static int getThemeResource(final int flags, final boolean dark) {
         if (GBApplication.areDynamicColorsEnabled()) {
-            if (GBApplication.isDarkThemeEnabled()) {
+            if (dark) {
                 if ((flags & NO_ACTIONBAR) != 0) {
                     if (GBApplication.isAmoledBlackEnabled())
-                        activity.setTheme(R.style.GadgetbridgeThemeDynamicDarkAmoled_NoActionBar);
+                        return R.style.GadgetbridgeThemeDynamicDarkAmoled_NoActionBar;
                     else
-                        activity.setTheme(R.style.GadgetbridgeThemeDynamicDark_NoActionBar);
+                        return R.style.GadgetbridgeThemeDynamicDark_NoActionBar;
                 } else {
                     if (GBApplication.isAmoledBlackEnabled())
-                        activity.setTheme(R.style.GadgetbridgeThemeDynamicDarkAmoled);
+                        return R.style.GadgetbridgeThemeDynamicDarkAmoled;
                     else
-                        activity.setTheme(R.style.GadgetbridgeThemeDynamicDark);
+                        return R.style.GadgetbridgeThemeDynamicDark;
                 }
             } else {
                 if ((flags & NO_ACTIONBAR) != 0) {
-                    activity.setTheme(R.style.GadgetbridgeThemeDynamicLight_NoActionBar);
+                    return R.style.GadgetbridgeThemeDynamicLight_NoActionBar;
                 } else {
-                    activity.setTheme(R.style.GadgetbridgeThemeDynamicLight);
+                    return R.style.GadgetbridgeThemeDynamicLight;
                 }
             }
-        } else if (GBApplication.isDarkThemeEnabled()) {
+        } else if (dark) {
             if ((flags & NO_ACTIONBAR) != 0) {
                 if (GBApplication.isAmoledBlackEnabled())
-                    activity.setTheme(R.style.GadgetbridgeThemeBlack_NoActionBar);
+                    return R.style.GadgetbridgeThemeBlack_NoActionBar;
                 else
-                    activity.setTheme(R.style.GadgetbridgeThemeDark_NoActionBar);
+                    return R.style.GadgetbridgeThemeDark_NoActionBar;
             } else {
                 if (GBApplication.isAmoledBlackEnabled())
-                    activity.setTheme(R.style.GadgetbridgeThemeBlack);
+                    return R.style.GadgetbridgeThemeBlack;
                 else
-                    activity.setTheme(R.style.GadgetbridgeThemeDark);
+                    return R.style.GadgetbridgeThemeDark;
             }
         } else {
             if ((flags & NO_ACTIONBAR) != 0) {
-                activity.setTheme(R.style.GadgetbridgeTheme_NoActionBar);
+                return R.style.GadgetbridgeTheme_NoActionBar;
             } else {
-                activity.setTheme(R.style.GadgetbridgeTheme);
+                return R.style.GadgetbridgeTheme;
             }
         }
+    }
 
+    public static void applyThemeOverlays(final Resources.Theme theme, final boolean dark) {
         // Dynamic Color already ties tab/button/chip colors to the wallpaper palette, so the
-        // user's chosen accent preset only applies to the static Light/Dark themes above.
-        if (!GBApplication.areDynamicColorsEnabled() && activity instanceof Activity) {
-            ((Activity) activity).getTheme().applyStyle(GBApplication.getAccentColorOverlay(), true);
+        // user's chosen accent preset only applies to the static Light/Dark themes.
+        if (!GBApplication.areDynamicColorsEnabled()) {
+            theme.applyStyle(GBApplication.getAccentColorOverlay(dark), true);
+        }
+        if (GBApplication.areContrastingSurfacesEnabled(dark)) {
+            theme.applyStyle(GBApplication.getContrastingSurfacesOverlay(dark), true);
+        }
+    }
+
+    public static void init(GBActivity activity, int flags) {
+        final boolean dark = GBApplication.isDarkThemeEnabled();
+        activity.setTheme(getThemeResource(flags, dark));
+        if (activity instanceof Activity) {
+            applyThemeOverlays(((Activity) activity).getTheme(), dark);
         }
 
         activity.setLanguage(GBApplication.getLanguage(), false);

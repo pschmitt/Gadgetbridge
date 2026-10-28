@@ -8,13 +8,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
-import nodomain.freeyourgadget.gadgetbridge.database.DBHelper
+import nodomain.freeyourgadget.gadgetbridge.activities.ActivitySummariesFilter
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummaryDao
+import nodomain.freeyourgadget.gadgetbridge.entities.Device
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryJsonSummary
-import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryParser
+import nodomain.freeyourgadget.gadgetbridge.util.healthconnect.HealthConnectWorkoutSync
 import org.slf4j.LoggerFactory
 import java.util.Date
 
@@ -40,8 +41,12 @@ class WorkoutListViewModel : ViewModel() {
     /** Upload state per summary id, for the indicator on each row of the list. */
     val uploadStatuses: LiveData<Map<Long, WorkoutUploadStatus>> = _uploadStatuses
 
+    private val _healthConnectFailures = MutableLiveData<Set<Long>>(emptySet())
+
+    /** Ids of the summaries whose Health Connect sync failed, for the indicator on each row of the list. */
+    val healthConnectFailures: LiveData<Set<Long>> = _healthConnectFailures
+
     fun loadSummaries(
-        gbDevice: GBDevice,
         activityKindFilter: Int,
         dateFromFilter: Long,
         dateToFilter: Long,
@@ -64,7 +69,6 @@ class WorkoutListViewModel : ViewModel() {
             try {
                 val summaries = withContext(Dispatchers.IO) {
                     loadSummariesFromDatabase(
-                        gbDevice,
                         activityKindFilter,
                         dateFromFilter,
                         dateToFilter,
@@ -76,6 +80,9 @@ class WorkoutListViewModel : ViewModel() {
 
                 _uploadStatuses.value = withContext(Dispatchers.IO) {
                     resolveUploadStatuses(summaries)
+                }
+                _healthConnectFailures.value = withContext(Dispatchers.IO) {
+                    HealthConnectWorkoutSync.failedIn(summaries)
                 }
 
                 val allSummaries: MutableList<BaseActivitySummary> = mutableListOf()
@@ -90,7 +97,7 @@ class WorkoutListViewModel : ViewModel() {
 
                 _summaries.value = allSummaries
 
-                loadDashboardStats(gbDevice, summaries, silent)
+                loadDashboardStats(summaries, silent)
             } catch (e: Exception) {
                 LOG.error("Error loading summaries", e)
                 _error.value = "Error loading summaries: ${e.localizedMessage}"
@@ -102,7 +109,7 @@ class WorkoutListViewModel : ViewModel() {
         }
     }
 
-    private fun loadDashboardStats(gbDevice: GBDevice, summaries: List<BaseActivitySummary>, silent: Boolean) {
+    private fun loadDashboardStats(summaries: List<BaseActivitySummary>, silent: Boolean) {
         if (!silent) {
             _isDashboardLoading.value = true
         }
@@ -110,8 +117,7 @@ class WorkoutListViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val stats = withContext(Dispatchers.Default) {
-                    val parser = gbDevice.deviceCoordinator.getActivitySummaryParser(gbDevice, GBApplication.app())
-                    DashboardStats.from(parser, summaries)
+                    DashboardStats.from(summaries)
                 }
                 _dashboardStats.value = stats
             } catch (e: Exception) {
@@ -149,7 +155,6 @@ class WorkoutListViewModel : ViewModel() {
     }
 
     private fun loadSummariesFromDatabase(
-        gbDevice: GBDevice,
         activityKindFilter: Int,
         dateFromFilter: Long,
         dateToFilter: Long,
@@ -159,17 +164,13 @@ class WorkoutListViewModel : ViewModel() {
     ): List<BaseActivitySummary> {
         return GBApplication.acquireDbReadOnly().use { dbHandler ->
             val summaryDao = dbHandler.daoSession.baseActivitySummaryDao
-            val dbDevice = DBHelper.findDevice(gbDevice, dbHandler.daoSession)
 
             val queryBuilder = summaryDao.queryBuilder()
 
             // Apply device filter
             when {
-                deviceFilter != 0L && deviceFilter != ALL_DEVICES -> {
+                deviceFilter != 0L && deviceFilter != ActivitySummariesFilter.ALL_DEVICES -> {
                     queryBuilder.where(BaseActivitySummaryDao.Properties.DeviceId.eq(deviceFilter))
-                }
-                dbDevice != null -> {
-                    queryBuilder.where(BaseActivitySummaryDao.Properties.DeviceId.eq(dbDevice.id))
                 }
             }
             queryBuilder.orderDesc(BaseActivitySummaryDao.Properties.StartTime)
@@ -207,7 +208,12 @@ class WorkoutListViewModel : ViewModel() {
         val activityIcon: Int
     ) {
         companion object {
-            fun from(summaryParser: ActivitySummaryParser, activities: List<BaseActivitySummary>): DashboardStats {
+            private fun getGBDevice(device: Device): GBDevice {
+                return GBApplication.app().deviceManager.devices
+                    .first { it.address.equals(device.identifier, ignoreCase = true) }
+            }
+
+            fun from(activities: List<BaseActivitySummary>): DashboardStats {
                 var durationSum = 0L
                 var caloriesBurntSum = 0.0
                 var distanceSum = 0.0
@@ -218,6 +224,11 @@ class WorkoutListViewModel : ViewModel() {
                 var activitySame = true
 
                 for (summary in activities) {
+                    if (summary.device == null) continue // skip invalid data
+                    // FIXME: this is probably inefficient, but we need the correct parser for every summary
+                    val gbDevice = getGBDevice(summary.device)
+                    val summaryParser = gbDevice.deviceCoordinator.getActivitySummaryParser(gbDevice, GBApplication.app())
+
                     // first and last items are empty, for dashboard
                     if (summary.id == Long.MIN_VALUE || summary.id == Long.MAX_VALUE) continue
 

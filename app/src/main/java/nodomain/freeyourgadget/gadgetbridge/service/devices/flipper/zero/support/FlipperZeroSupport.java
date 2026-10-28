@@ -125,8 +125,8 @@ public class FlipperZeroSupport extends FlipperZeroBaseSupport{
                 evaluateGBDeviceEvent(batteryEvent);
             }
         });
-        addSupportedService(GattService.UUID_SERVICE_BATTERY_SERVICE);
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION);
+        addSupportedService(GattService.SERVICE_BATTERY.uuid);
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
         addSupportedProfile(batteryInfoProfile);
 
         addSupportedService(UUID.fromString(UUID_SERIAL_SERVICE));
@@ -140,7 +140,7 @@ public class FlipperZeroSupport extends FlipperZeroBaseSupport{
         }
 
         builder.setDeviceState(GBDevice.State.INITIALIZING);
-        builder.read(GattCharacteristic.UUID_CHARACTERISTIC_FIRMWARE_REVISION_STRING);
+        builder.read(GattCharacteristic.CHARACTERISTIC_FIRMWARE_REVISION_STRING.uuid);
 
         batteryInfoProfile.requestBatteryInfo(builder);
         batteryInfoProfile.enableNotify(builder, true);
@@ -153,7 +153,7 @@ public class FlipperZeroSupport extends FlipperZeroBaseSupport{
 
     @Override
     public boolean onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value, int status) {
-        if(characteristic.getUuid().equals(GattCharacteristic.UUID_CHARACTERISTIC_FIRMWARE_REVISION_STRING)){
+        if(characteristic.getUuid().equals(GattCharacteristic.CHARACTERISTIC_FIRMWARE_REVISION_STRING.uuid)){
             String revision = BLETypeConversions.getStringValue(value, 0);
             getDevice().setFirmwareVersion(revision);
             getDevice().sendDeviceUpdateIntent(getContext());

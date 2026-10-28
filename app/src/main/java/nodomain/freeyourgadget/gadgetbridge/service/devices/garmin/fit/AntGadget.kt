@@ -97,7 +97,7 @@ data class AntGadget(val manufacturer: Int, val product: Int, val name: String) 
         }
 
         // extract extended ANT device ID from the ANT ID:
-        // top nibble of the transmission type followed by botton 2 bytes
+        // top nibble of the transmission type followed by bottom 2 bytes
         // (0xF000_FFFF -> 0xF_FFFF) - shown in decimal format by many Garmin UIs
         // see also Sensor Settings (record 147) / Name (field 2) and ANT ID (field 0)
         fun getExtendedAntDeviceId(ant: Long): Int {

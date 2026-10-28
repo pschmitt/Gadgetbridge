@@ -17,7 +17,6 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.charts;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -26,14 +25,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IFillFormatter;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -48,13 +41,6 @@ import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 public final class HeartRateZoneChartUtils {
 
     private HeartRateZoneChartUtils() {
-    }
-
-    /** One HR-zone band. Drawn behind the HR line, never part of the legend or the value marker. */
-    public static final class ZoneAreaDataSet extends LineDataSet {
-        public ZoneAreaDataSet(final List<Entry> entries) {
-            super(entries, null);
-        }
     }
 
     public static final class ZoneAnalysis {
@@ -107,62 +93,6 @@ public final class HeartRateZoneChartUtils {
         }
 
         return new ZoneAnalysis(secondsInZone);
-    }
-
-    /**
-     * Builds 5 stacked-area datasets that fill below the HR signal up to each zone's bounds.
-     * For zone z at any x: line y = clamp(hr, zoneBottom, zoneTop), fill terminates at zoneBottom.
-     * When hr is below the zone, line sits AT zoneBottom and no area is rendered.
-     * The bands are {@link ZoneAreaDataSet}s with {@link Legend.LegendForm#NONE}; add them to the chart
-     * before the HR line so they are drawn behind it.
-     */
-    public static List<ILineDataSet> buildZoneAreas(Context ctx,
-                                                    HeartRateZones zones,
-                                                    List<Entry> hrEntries,
-                                                    int chartMax,
-                                                    YAxis.AxisDependency axisDependency) {
-        final List<ILineDataSet> areas = new ArrayList<>(5);
-        if (zones == null || hrEntries.isEmpty()) {
-            return areas;
-        }
-        float peak = Float.NEGATIVE_INFINITY;
-        for (final Entry hrEntry : hrEntries) {
-            peak = Math.max(peak, hrEntry.getY());
-        }
-        for (int z = 1; z <= 5; z++) {
-            final int top = HeartRateZonesResolver.upperBoundOf(z, zones, chartMax);
-            final int bottom = HeartRateZonesResolver.lowerBoundOf(z, zones);
-            if (top <= bottom) {
-                continue;
-            }
-            // A zone the heart rate never enters would contribute a flat line at its lower bound,
-            // which is invisible but still stretches the axis up to that bound.
-            if (peak <= bottom) {
-                continue;
-            }
-            final List<Entry> entries = new ArrayList<>(hrEntries.size());
-            for (int i = 0; i < hrEntries.size(); i++) {
-                final Entry hrEntry = hrEntries.get(i);
-                final float clamped = Math.max(bottom, Math.min(hrEntry.getY(), top));
-                entries.add(new Entry(hrEntry.getX(), clamped));
-            }
-            final ZoneAreaDataSet area = new ZoneAreaDataSet(entries);
-            area.setForm(Legend.LegendForm.NONE);
-            area.setAxisDependency(axisDependency);
-            area.setDrawCircles(false);
-            area.setDrawValues(false);
-            area.setLineWidth(0f);
-            area.setColor(Color.TRANSPARENT);
-            area.setMode(LineDataSet.Mode.LINEAR);
-            area.setDrawFilled(true);
-            area.setFillColor(HeartRateZonesResolver.colorForZone(ctx, z));
-            area.setFillAlpha(0x40);
-            final float fillBottom = bottom;
-            area.setFillFormatter((IFillFormatter) (dataSet, dataProvider) -> fillBottom);
-            area.setHighlightEnabled(false);
-            areas.add(area);
-        }
-        return areas;
     }
 
     /**
@@ -246,7 +176,7 @@ public final class HeartRateZoneChartUtils {
         row.addView(swatch);
 
         final TextView label = new TextView(ctx);
-        label.setText(formatZoneLabel(ctx, zoneIdx, zones));
+        label.setText(formatZoneLabel(ctx, HeartRateZonesResolver.labelForZone(ctx, zoneIdx), zoneIdx, zones));
         label.setTextColor(textColor);
         label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
         label.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
@@ -270,10 +200,13 @@ public final class HeartRateZoneChartUtils {
         return row;
     }
 
-    private static String formatZoneLabel(Context ctx, int zoneIdx, HeartRateZones zones) {
-        final String name = HeartRateZonesResolver.labelForZone(ctx, zoneIdx);
+    /**
+     * The zone name, followed by its bpm range (e.g. "Aerobic (134 – 152)")
+     */
+    public static String formatZoneLabel(final Context ctx, final String name, final int zoneIdx, final HeartRateZones zones) {
         final String range = switch (zoneIdx) {
-            case 1 -> String.format(Locale.getDefault(), "< %d", zones.getZone2());
+            case 0 -> String.format(Locale.getDefault(), "< %d", zones.getZone1());
+            case 1 -> ctx.getString(R.string.range_integer, zones.getZone1(), zones.getZone2());
             case 2 -> ctx.getString(R.string.range_integer, zones.getZone2(), zones.getZone3());
             case 3 -> ctx.getString(R.string.range_integer, zones.getZone3(), zones.getZone4());
             case 4 -> ctx.getString(R.string.range_integer, zones.getZone4(), zones.getZone5());

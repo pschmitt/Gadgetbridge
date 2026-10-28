@@ -15,14 +15,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiHttpService;
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiHttp;
 import nodomain.freeyourgadget.gadgetbridge.util.HttpUtils;
 
 public class GarminHttpRequest {
     private static final Logger LOG = LoggerFactory.getLogger(GarminHttpRequest.class);
 
-    private final GdiHttpService.HttpService.RawRequest rawRequest;
-    private final GdiHttpService.HttpService.WebRequest webRequest;
+    private final GdiHttp.RawResourceRequest rawRequest;
+    private final GdiHttp.ConnectIQHTTPRequest webRequest;
 
     private final int messageRequestId;
 
@@ -30,26 +30,26 @@ public class GarminHttpRequest {
     private final Uri uri;
     private final Map<String, String> headers;
 
-    public GarminHttpRequest(final GdiHttpService.HttpService.RawRequest rawRequest,
+    public GarminHttpRequest(final GdiHttp.RawResourceRequest rawRequest,
                              final int messageRequestId) {
         this.messageRequestId = messageRequestId;
         this.rawRequest = rawRequest;
         this.webRequest = null;
         this.method = rawRequest.getMethod().name();
         this.uri = Uri.parse(rawRequest.getUrl());
-        this.headers = headersToMap(rawRequest.getHeaderList());
+        this.headers = headersToMap(rawRequest.getHeadersList());
     }
 
-    public GarminHttpRequest(final GdiHttpService.HttpService.WebRequest webRequest,
+    public GarminHttpRequest(final GdiHttp.ConnectIQHTTPRequest webRequest,
                              final int messageRequestId) throws GarminJsonException {
         this.messageRequestId = messageRequestId;
         this.rawRequest = null;
         this.webRequest = webRequest;
-        this.method = webRequest.getMethod().name();
+        this.method = webRequest.getHttpMethod().name();
         this.uri = Uri.parse(webRequest.getUrl());
         this.headers = new LinkedHashMap<>();
-        if (!webRequest.getHeaders().isEmpty()) {
-            final JsonElement garminHeaders = GarminJson.decode(webRequest.getHeaders().toByteArray());
+        if (!webRequest.getHttpHeaderFields().isEmpty()) {
+            final JsonElement garminHeaders = GarminJson.decode(webRequest.getHttpHeaderFields().toByteArray());
             if (garminHeaders instanceof JsonObject jsonObject) {
                 for (String key : jsonObject.keySet()) {
                     headers.put(key, jsonObject.get(key).getAsString());
@@ -62,11 +62,11 @@ public class GarminHttpRequest {
         return messageRequestId;
     }
 
-    public GdiHttpService.HttpService.RawRequest getRawRequest() {
+    public GdiHttp.RawResourceRequest getRawRequest() {
         return rawRequest;
     }
 
-    public GdiHttpService.HttpService.WebRequest getWebRequest() {
+    public GdiHttp.ConnectIQHTTPRequest getWebRequest() {
         return webRequest;
     }
 
@@ -87,7 +87,7 @@ public class GarminHttpRequest {
     }
 
     public byte[] getBody() {
-        return rawRequest != null ? rawRequest.getRawBody().toByteArray() : webRequest.getBody().toByteArray();
+        return rawRequest != null ? rawRequest.getRawBody().toByteArray() : webRequest.getHttpBody().toByteArray();
     }
 
     public byte[] getBodyToSend() {
@@ -97,7 +97,7 @@ public class GarminHttpRequest {
             }
             return rawRequest.getRawBody().toByteArray();
         } else {
-            final byte[] webRequestBodyBytes = webRequest.getBody().toByteArray();
+            final byte[] webRequestBodyBytes = webRequest.getHttpBody().toByteArray();
             if (webRequestBodyBytes != null) {
                 try {
                     return GarminJson.decode(webRequestBodyBytes).toString().getBytes(StandardCharsets.UTF_8);
@@ -122,9 +122,9 @@ public class GarminHttpRequest {
         return headers;
     }
 
-    private static Map<String, String> headersToMap(final List<GdiHttpService.HttpService.Header> headers) {
+    private static Map<String, String> headersToMap(final List<GdiHttp.RawResourceRequest.HTTPHeader> headers) {
         final Map<String, String> ret = new HashMap<>();
-        for (final GdiHttpService.HttpService.Header header : headers) {
+        for (final GdiHttp.RawResourceRequest.HTTPHeader header : headers) {
             ret.put(header.getKey().toLowerCase(Locale.ROOT), header.getValue());
         }
         return ret;

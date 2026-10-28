@@ -22,7 +22,7 @@
         android:title="Pull fields from phone" />
 
     <Preference
-        android:icon="@drawable/ic_refresh"
+        android:icon="@drawable/ic_settings_backup_restore"
         android:key="pref_debug_music_reset"
         android:persistent="false"
         android:title="@string/reset_fields" />

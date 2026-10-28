@@ -1,13 +1,24 @@
 package nodomain.freeyourgadget.gadgetbridge.util
 
 import android.content.Context
+import android.net.Uri
 import android.os.Build
 import android.provider.DocumentsContract
 import androidx.core.net.toUri
 import nodomain.freeyourgadget.gadgetbridge.R
-import nodomain.freeyourgadget.gadgetbridge.activities.automations.AbstractAutoExportSettingsFragment.Companion.LOG
+import org.slf4j.LoggerFactory
+import java.io.IOException
 
 object UriUtils {
+    private val LOG = LoggerFactory.getLogger(UriUtils::class.java)
+
+    fun fileNameOf(context: Context, uri: Uri): String = try {
+        UriHelper.get(uri, context).fileName
+    } catch (e: IOException) {
+        LOG.warn("Failed to get the name of {}", uri, e)
+        uri.toString()
+    }
+
     /**
      * Either returns the file path of the selected document, or the display name, or an error string
      */

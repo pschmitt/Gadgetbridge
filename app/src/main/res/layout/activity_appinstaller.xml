@@ -40,13 +40,21 @@
             android:layout_below="@+id/itemListView"
             android:layout_gravity="center_horizontal" />
 
+        <CheckBox
+            android:id="@+id/installConfirmationCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/infoTextView"
+            android:layout_marginTop="8dp"
+            android:visibility="gone" />
+
         <ImageView
             android:id="@+id/fwappStatusIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="false"
             android:layout_alignParentTop="false"
-            android:layout_below="@+id/infoTextView"
+            android:layout_below="@+id/installConfirmationCheckBox"
             android:layout_centerHorizontal="true"
             android:contentDescription="@string/status_icon" />
 

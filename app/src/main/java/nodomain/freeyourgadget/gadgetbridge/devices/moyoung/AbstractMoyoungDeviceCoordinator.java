@@ -26,12 +26,8 @@ import androidx.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.Property;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.activities.HeartRateDialog;
 import nodomain.freeyourgadget.gadgetbridge.R;
@@ -59,12 +55,6 @@ import nodomain.freeyourgadget.gadgetbridge.devices.moyoung.settings.MoyoungSett
 import nodomain.freeyourgadget.gadgetbridge.devices.moyoung.settings.MoyoungSettingTimeRange;
 import nodomain.freeyourgadget.gadgetbridge.devices.moyoung.settings.MoyoungSettingUserInfo;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
-import nodomain.freeyourgadget.gadgetbridge.entities.MoyoungActivitySampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.MoyoungBloodPressureSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.MoyoungHeartRateSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.MoyoungSleepStageSampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.MoyoungSpo2SampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.MoyoungStressSampleDao;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryParser;
@@ -83,6 +73,12 @@ public abstract class AbstractMoyoungDeviceCoordinator extends AbstractBLEDevice
     @Override
     public List<DeviceCardAction> getCustomActions() {
         return Collections.singletonList(new DeviceCardAction() {
+            @NonNull
+            @Override
+            public String getId() {
+                return "moyoung_spo2";
+            }
+
             @Override
             public int getIcon(@NonNull final GBDevice device) {
                 return R.drawable.ic_spo2;
@@ -111,18 +107,6 @@ public abstract class AbstractMoyoungDeviceCoordinator extends AbstractBLEDevice
                 new HeartRateDialog(device, context, HeartRateDialog.Measurement.SPO2).show();
             }
         });
-    }
-
-    @Override
-    public Map<AbstractDao<?, ?>, Property> getAllDeviceDao( @NonNull final DaoSession session) {
-        return new HashMap<>() {{
-            put(session.getMoyoungActivitySampleDao(), MoyoungActivitySampleDao.Properties.DeviceId);
-            put(session.getMoyoungHeartRateSampleDao(), MoyoungHeartRateSampleDao.Properties.DeviceId);
-            put(session.getMoyoungSpo2SampleDao(), MoyoungSpo2SampleDao.Properties.DeviceId);
-            put(session.getMoyoungBloodPressureSampleDao(), MoyoungBloodPressureSampleDao.Properties.DeviceId);
-            put(session.getMoyoungSleepStageSampleDao(), MoyoungSleepStageSampleDao.Properties.DeviceId);
-            put(session.getMoyoungStressSampleDao(), MoyoungStressSampleDao.Properties.DeviceId);
-        }};
     }
 
     @NonNull
@@ -209,6 +193,21 @@ public abstract class AbstractMoyoungDeviceCoordinator extends AbstractBLEDevice
 
     @Override
     public boolean supportsWeather(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsAppNotifications(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsPhoneCalls(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsCallControl(@NonNull final GBDevice device) {
         return true;
     }
 

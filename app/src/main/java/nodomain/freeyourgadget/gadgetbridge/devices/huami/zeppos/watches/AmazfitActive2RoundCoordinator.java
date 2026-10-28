@@ -43,9 +43,9 @@ public class AmazfitActive2RoundCoordinator extends ZeppOsCoordinator {
     @Override
     public Set<Integer> getDeviceSources() {
         return new HashSet<>(Arrays.asList(
-                8913152, // chinese mainland version
+                8913152, // Chinese mainland version
                 8913153,
-                8913155, // chinese mainland version
+                8913155, // Chinese mainland version
                 8913159,
                 10092800,
                 10092801,

@@ -114,15 +114,6 @@
             android:defaultValue="when_screen_off"
             android:entries="@array/notification_mode"
             android:entryValues="@array/notification_mode_values"
-            android:key="notification_mode_sms"
-            android:title="@string/pref_title_notifications_sms"
-            app:iconSpaceReserved="false"
-            app:useSimpleSummaryProvider="true" />
-
-        <ListPreference
-            android:defaultValue="when_screen_off"
-            android:entries="@array/notification_mode"
-            android:entryValues="@array/notification_mode_values"
             android:key="notification_mode_pebblemsg"
             android:summary="@string/pref_summary_notifications_pebblemsg"
             android:title="@string/pref_title_notifications_pebblemsg"
@@ -177,23 +168,6 @@
     <PreferenceCategory
         android:title="@string/pref_header_notification_application_settings"
         app:iconSpaceReserved="false">
-
-        <ListPreference
-            android:defaultValue="true"
-            android:entries="@array/notification_list_is_blacklist_names"
-            android:entryValues="@array/notification_list_is_blacklist_values"
-            android:key="notification_list_is_blacklist"
-            android:title="@string/pref_title_notification_use_as"
-            app:iconSpaceReserved="false"
-            app:useSimpleSummaryProvider="true" />
-
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:key="notification_media_ignores_application_list"
-            android:layout="@layout/preference_checkbox"
-            android:summary="@string/pref_summary_notification_media_ignores_application_list"
-            android:title="@string/pref_title_notification_media_ignores_application_list"
-            app:iconSpaceReserved="false" />
 
         <Preference
             android:key="pref_key_blacklist"

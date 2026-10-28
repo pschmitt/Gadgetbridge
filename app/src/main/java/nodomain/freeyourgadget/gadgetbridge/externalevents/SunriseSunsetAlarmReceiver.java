@@ -23,13 +23,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import net.e175.klaus.solarpositioning.DeltaT;
 import net.e175.klaus.solarpositioning.SolarEvents;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -37,6 +35,7 @@ import java.util.TimeZone;
 import nodomain.freeyourgadget.gadgetbridge.BuildConfig;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.model.CalendarEventSpec;
+import nodomain.freeyourgadget.gadgetbridge.model.WeatherSpec;
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
 
 public class SunriseSunsetAlarmReceiver extends BroadcastReceiver {
@@ -82,13 +81,8 @@ public class SunriseSunsetAlarmReceiver extends BroadcastReceiver {
         float longitude = longlat[0];
         float latitude = longlat[1];
 
-        final ZonedDateTime zonedTomorrow = dateTimeTomorrow.toZonedDateTime();
-        final SolarEvents.Day solarDayTomorrow = SolarEvents.spa().forDate(
-                zonedTomorrow.toLocalDate(),
-                zonedTomorrow.getZone(),
-                latitude,
-                longitude,
-                DeltaT.estimate(zonedTomorrow.toLocalDate())
+        final SolarEvents.Day solarDayTomorrow = WeatherSpec.solarDay(
+                dateTimeTomorrow.toZonedDateTime(), latitude, longitude
         );
 
         CalendarEventSpec calendarEventSpec = new CalendarEventSpec();

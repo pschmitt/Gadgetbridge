@@ -6,6 +6,6 @@ FitWorkoutStep{duration_type=REPS, duration_value=12, target_type=OPEN, target_v
 FitWorkoutStep{duration_type=TIME, duration_value=45000, target_type=OPEN, target_value=0, intensity=ACTIVE, exercise_category=35, exercise_name=2, weight_display_unit=KILOGRAM, message_index=2},
 FitWorkoutStep{duration_type=REPS, duration_value=10, target_type=OPEN, target_value=0, intensity=ACTIVE, exercise_category=31, exercise_name=86, weight_display_unit=KILOGRAM, message_index=3},
 FitWorkoutStep{duration_type=OPEN, target_type=OPEN, target_value=0, intensity=COOLDOWN, weight_display_unit=KILOGRAM, message_index=4},
-FitExerciseTitle{exercise_category=36, exercise_name=11, message_index=0},
-FitExerciseTitle{exercise_category=35, exercise_name=2, message_index=1},
-FitExerciseTitle{exercise_category=31, exercise_name=86, message_index=2}]
+FitExerciseTitle{exercise_category=36, exercise_name=11, wkt_step_name=Child's Pose, message_index=0},
+FitExerciseTitle{exercise_category=35, exercise_name=2, wkt_step_name=Arm Stretch, message_index=1},
+FitExerciseTitle{exercise_category=31, exercise_name=86, wkt_step_name=Hip Circles, message_index=2}]

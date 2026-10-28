@@ -1,4 +1,4 @@
-/*  Copyright (C) 2023-2025 Petr Kadlec, Thomas Kuehne
+/*  Copyright (C) 2023-2026 Petr Kadlec, Mormegil, José Rebelo, Thomas Kuehne, Daniele Gobbetti
 
     This file is part of Gadgetbridge.
 
@@ -16,12 +16,18 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.garmin;
 
+import androidx.annotation.NonNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEvent;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventUpdatePreferences;
@@ -110,47 +116,57 @@ public enum GarminCapability {
     ANTI_THEFT_ALARM,
     INREACH,
     EVENT_SHARING,
-    UNK_82,
-    UNK_83,
-    UNK_84,
-    UNK_85,
-    UNK_86,
-    UNK_87,
-    UNK_88,
-    UNK_89,
-    NEO_SYNC,
-    UNK_91,
+    HSA_FEATURE_MESSAGE,
+    HANDS_CALIBRATION,
+    LOCATION_UPDATE_PROVIDER,
+    LIVE_TRACK_COURSE_SHARING,
+    SIMPLE_SETUP_FEATURE_LIST,
+    WIND_DATA_APP_SUPPORT,
+    HTTP_RAW_RESOURCE_REQUEST,
+    SAMD,
+    SYNC_2,
+    NAVIGATION_SYNC,
     REALTIME_SETTINGS,
-    UNK_93,
-    UNK_94,
-    UNK_95,
-    UNK_96,
-    UNK_97,
-    UNK_98,
-    UNK_99,
-    UNK_100,
-    UNK_101,
-    UNK_102,
-    UNK_103,
-    UNK_104,
-    UNK_105,
-    UNK_106,
-    UNK_107,
-    UNK_108,
-    UNK_109,
-    UNK_110,
-    UNK_111,
-    UNK_112,
-    UNK_113,
-    UNK_114,
-    UNK_115,
-    UNK_116,
-    UNK_117,
-    UNK_118,
-    UNK_119,
+    HAND_CALIBRATION_IMG_DETECT,
+    TOYSTORE_MOBILE,
+    FEATURE_CAPABILITIES_EXCHANGE,
+    DEEP_LINKING,
+    GARMIN_CONNECT_SERVER,
+    CREDENTIALS_OAUTH2_SUPPORT,
+    GENERIC_CREDENTIALS,
+    CAPABILITY_100, // supported by Forerunner 170 Music
+    CAPABILITY_101, // supported by Forerunner 170 Music
+    CAPABILITY_102,
+    CAPABILITY_103,
+    CAPABILITY_104,
+    CAPABILITY_105, // supported by Forerunner 170 Music
+    CAPABILITY_106,
+    CAPABILITY_107,
+    CAPABILITY_108,
+    CAPABILITY_109,
+    CAPABILITY_110,
+    CAPABILITY_111,
+    CAPABILITY_112, // supported by Forerunner 170 Music
+    CAPABILITY_113,
+    CAPABILITY_114,
+    CAPABILITY_115, // supported by Forerunner 170 Music
+    CAPABILITY_116,
+    CAPABILITY_117, // supported by Forerunner 170 Music
+    CAPABILITY_118,
+    CAPABILITY_119,
+    CAPABILITY_120,
+    CAPABILITY_121,
+    CAPABILITY_122,
+    CAPABILITY_123,
+    CAPABILITY_124,
+    CAPABILITY_125,
+    CAPABILITY_126,
+    CAPABILITY_127,
+    CAPABILITY_128, // supported by Forerunner 170 Music
     ;
 
-    public static final Set<GarminCapability> OUR_CAPABILITIES = new HashSet<>(values().length);
+    private static final Logger LOG = LoggerFactory.getLogger(GarminCapability.class);
+    public static final SortedSet<GarminCapability> OUR_CAPABILITIES = new TreeSet<>();
     private static final Map<Integer, GarminCapability> FROM_ORDINAL = new HashMap<>(values().length);
 
     static {
@@ -159,32 +175,42 @@ public enum GarminCapability {
             OUR_CAPABILITIES.add(cap);
         }
 
+        // not implemented: GPS_EPHEMERIS_EPO_REQUEST, GPS_EPHEMERIS_DATA_REQUEST
+        OUR_CAPABILITIES.remove(GPS_EPHEMERIS_DOWNLOAD);
+
+        // not implemented: LIVE_TRACK_STOP, LIVE_TRACK_AUTO_STOP, LIVE_TRACK_AUTO_START
+        OUR_CAPABILITIES.remove(LIVETRACK);
+        OUR_CAPABILITIES.remove(LIVETRACK_AUTO_START);
+
         // so far dumps from Garmin Connect have only supported
-        // UNK_112 and UNK_113
-        OUR_CAPABILITIES.remove(UNK_104);
-        OUR_CAPABILITIES.remove(UNK_105);
-        OUR_CAPABILITIES.remove(UNK_106);
-        OUR_CAPABILITIES.remove(UNK_107);
-        OUR_CAPABILITIES.remove(UNK_108);
-        OUR_CAPABILITIES.remove(UNK_109);
-        OUR_CAPABILITIES.remove(UNK_110);
-        OUR_CAPABILITIES.remove(UNK_111);
-        OUR_CAPABILITIES.remove(UNK_114);
-        OUR_CAPABILITIES.remove(UNK_115);
-        OUR_CAPABILITIES.remove(UNK_116);
-        OUR_CAPABILITIES.remove(UNK_117);
-        OUR_CAPABILITIES.remove(UNK_118);
-        OUR_CAPABILITIES.remove(UNK_119);
+        // CAPABILITY_112 and CAPABLITY_113
+        OUR_CAPABILITIES.remove(CAPABILITY_104);
+        OUR_CAPABILITIES.remove(CAPABILITY_105);
+        OUR_CAPABILITIES.remove(CAPABILITY_106);
+        OUR_CAPABILITIES.remove(CAPABILITY_107);
+        OUR_CAPABILITIES.remove(CAPABILITY_108);
+        OUR_CAPABILITIES.remove(CAPABILITY_109);
+        OUR_CAPABILITIES.remove(CAPABILITY_110);
+        OUR_CAPABILITIES.remove(CAPABILITY_111);
+        OUR_CAPABILITIES.remove(CAPABILITY_114);
+        OUR_CAPABILITIES.remove(CAPABILITY_115);
+        OUR_CAPABILITIES.remove(CAPABILITY_116);
+        OUR_CAPABILITIES.remove(CAPABILITY_117);
+        OUR_CAPABILITIES.remove(CAPABILITY_118);
+        OUR_CAPABILITIES.remove(CAPABILITY_119);
     }
 
-    public static Set<GarminCapability> setFromBinary(final byte[] bytes) {
-        final Set<GarminCapability> result = new HashSet<>(GarminCapability.values().length);
+    @NonNull
+    public static SortedSet<GarminCapability> setFromBinary(@NonNull final byte[] bytes) {
+        final SortedSet<GarminCapability> result = new TreeSet<>();
         int current = 0;
         for (int b : bytes) {
             for (int i = 0; i < 8; i++) {
                 if ((b & (1 << i)) != 0) {
                     if (FROM_ORDINAL.containsKey(current)) {
                         result.add(FROM_ORDINAL.get(current));
+                    } else {
+                        LOG.warn("gadget supported GarminCapability {} not found", current);
                     }
                 }
                 ++current;
@@ -193,9 +219,9 @@ public enum GarminCapability {
         return result;
     }
 
-    public static Set<GarminCapability> setFromLong(final long capabilitiesMask) {
-        final Set<GarminCapability> result =
-                new HashSet<>(GarminCapability.values().length);
+    @NonNull
+    public static SortedSet<GarminCapability> setFromLong(final long capabilitiesMask) {
+        final SortedSet<GarminCapability> result = new TreeSet<>();
 
         for (int i = 0; i < Long.SIZE; i++) {
             if ((capabilitiesMask & (1L << i)) != 0) {
@@ -208,8 +234,8 @@ public enum GarminCapability {
         return result;
     }
 
-
-    public static byte[] setToBinary(final Set<GarminCapability> capabilities) {
+    @NonNull
+    public static byte[] setToBinary(@NonNull final Set<GarminCapability> capabilities) {
         final GarminCapability[] values = values();
         final byte[] result = new byte[(values.length + 7) / 8];
         int bytePos = 0;
@@ -227,7 +253,8 @@ public enum GarminCapability {
         return result;
     }
 
-    public static String setToString(final Set<GarminCapability> capabilities) {
+    @NonNull
+    public static String setToString(@NonNull final SortedSet<GarminCapability> capabilities) {
         final StringBuilder result = new StringBuilder();
         for (final GarminCapability cap : capabilities) {
             if (result.length() > 0) result.append(", ");
@@ -236,8 +263,9 @@ public enum GarminCapability {
         return result.toString();
     }
 
-    public static List<GBDeviceEvent> getGBDeviceEvent(final Set<GarminCapability> capabilities) {
-        final Set<Object> capabilitiesPref = new HashSet<>();
+    @NonNull
+    public static List<GBDeviceEvent> getGBDeviceEvent(@NonNull final Set<GarminCapability> capabilities) {
+        final SortedSet<Object> capabilitiesPref = new TreeSet<>();
         for (final GarminCapability capability : capabilities) {
             capabilitiesPref.add(capability.name());
         }

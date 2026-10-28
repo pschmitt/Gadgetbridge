@@ -4,12 +4,12 @@ import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.UNIT_SECONDS_PER_500_METERS;
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.UNIT_SECONDS_PER_KM;
 
-import com.github.mikephil.charting.formatter.ValueFormatter;
-
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutValueFormatter;
 
-public class SpeedYLabelFormatter extends ValueFormatter {
+public class SpeedYLabelFormatter implements IAxisValueFormatter {
     String unit;
     private final WorkoutValueFormatter workoutValueFormatter = new WorkoutValueFormatter();
 
@@ -18,7 +18,11 @@ public class SpeedYLabelFormatter extends ValueFormatter {
     }
 
     @Override
-    public String getFormattedValue(float value) {
+    public String getFormattedValue(float value, final AxisBase axis) {
+        return format(value);
+    }
+
+    public String format(double value) {
         if(unit.equals(UNIT_SECONDS_PER_100_METERS)) {
             value = value > 0 ? Math.round(100.0 / value) : 0;
         } else if (unit.equals(UNIT_SECONDS_PER_500_METERS)) {

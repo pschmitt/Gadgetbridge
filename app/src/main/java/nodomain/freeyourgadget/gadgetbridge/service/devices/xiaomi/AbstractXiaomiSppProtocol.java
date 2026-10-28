@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi;
 
+import nodomain.freeyourgadget.gadgetbridge.service.btbr.TransactionBuilder;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.XiaomiChannelHandler.Channel;
 
 public abstract class AbstractXiaomiSppProtocol {
@@ -43,8 +44,12 @@ public abstract class AbstractXiaomiSppProtocol {
     public abstract void reset();
     public abstract int findNextPacketOffset(final byte[] buffer);
     public abstract ParseResult processPacket(final byte[] buffer);
-    public abstract byte[] encodePacket(Channel channel, byte[] chunk);
+    public abstract void writePacket(TransactionBuilder builder, Channel channel, byte[] chunk);
     public boolean initializeSession() {
         return true;
+    }
+
+    /// Releases timers and pending state when the protocol instance is replaced or the device goes away.
+    public void dispose() {
     }
 }

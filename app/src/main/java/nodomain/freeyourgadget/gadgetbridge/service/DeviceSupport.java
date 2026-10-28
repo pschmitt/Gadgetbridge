@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 
 import nodomain.freeyourgadget.gadgetbridge.devices.EventHandler;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
+import nodomain.freeyourgadget.gadgetbridge.install.InstallSession;
 
 /**
  * Provides the communication support for a specific device. Instances will <b>only</b>
@@ -171,4 +172,9 @@ public interface DeviceSupport extends EventHandler {
      * does not support it.
      */
     SleepAsAndroidSender getSleepAsAndroidSender();
+
+    /**
+     * Sends the session items to the device. Reports the outcome of each item to the session.
+     */
+    void onInstall(@NonNull InstallSession session);
 }

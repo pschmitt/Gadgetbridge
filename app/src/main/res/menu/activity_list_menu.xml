@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/activity_action_statistics"
+        android:icon="@drawable/ic_bar_chart"
+        android:title="@string/activity_summaries_statistics"
+        app:iconTint="?attr/actionmenu_icon_color"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/activity_action_filter"
         android:icon="@drawable/ic_filter_alt"
         android:title="@string/pref_header_filter"

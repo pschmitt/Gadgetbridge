@@ -72,6 +72,7 @@ import nodomain.freeyourgadget.gadgetbridge.util.AlarmUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
 import nodomain.freeyourgadget.gadgetbridge.util.calendar.CalendarManager;
+import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
 
 import static nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst.PREF_SYNC_CALENDAR;
 
@@ -107,8 +108,8 @@ public class ZeTimeDeviceSupport extends AbstractBTLESingleDeviceSupport {
 
     public ZeTimeDeviceSupport() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
         addSupportedService(ZeTimeConstants.UUID_SERVICE_BASE);
         addSupportedService(ZeTimeConstants.UUID_SERVICE_EXTEND);
         addSupportedService(ZeTimeConstants.UUID_SERVICE_HEART_RATE);
@@ -509,18 +510,20 @@ public class ZeTimeDeviceSupport extends AbstractBTLESingleDeviceSupport {
         }
     }
 
-    @Override
-    public void onAddCalendarEvent(CalendarEventSpec calendarEventSpec) {
-        // This is not used currently since we cannot add and remove calendar event one by one pebble style.
-        byte[] calendarEvent = encodeCalendarEvent(calendarEventSpec.getTitle(), calendarEventSpec.getTimestamp(), (byte) (calendarEventSpec.getType() + 1)); // HACK)
-        try {
-            TransactionBuilder builder = performInitialized("sendCalendarEvent");
-            sendMsgToWatch(builder, calendarEvent);
-            builder.queue();
-        } catch (IOException e) {
-            GB.toast(getContext(), "Error sending calendar event: " + e.getLocalizedMessage(), Toast.LENGTH_LONG, GB.ERROR, e);
-        }
-    }
+    // FIXME: This is disabled since we enabled supportsCalendarEvents, which would call it,
+    //  but it is was not used before / untested.
+    //@Override
+    //public void onAddCalendarEvent(CalendarEventSpec calendarEventSpec) {
+    //    // This is not used currently since we cannot add and remove calendar event one by one pebble style.
+    //    byte[] calendarEvent = encodeCalendarEvent(calendarEventSpec.getTitle(), calendarEventSpec.getTimestamp(), (byte) (calendarEventSpec.getType() + 1)); // HACK)
+    //    try {
+    //        TransactionBuilder builder = performInitialized("sendCalendarEvent");
+    //        sendMsgToWatch(builder, calendarEvent);
+    //        builder.queue();
+    //    } catch (IOException e) {
+    //        GB.toast(getContext(), "Error sending calendar event: " + e.getLocalizedMessage(), Toast.LENGTH_LONG, GB.ERROR, e);
+    //    }
+    //}
 
     private byte[] encodeCalendarEvent(String title, int timestamp, byte opcode) {
         Calendar time = GregorianCalendar.getInstance();
@@ -653,13 +656,14 @@ public class ZeTimeDeviceSupport extends AbstractBTLESingleDeviceSupport {
     @Override
     public void onNotification(NotificationSpec notificationSpec) {
 
+        final byte[] bodyBytes = StringUtils.ensureNotNull(notificationSpec.getBody()).getBytes(StandardCharsets.UTF_8);
         int subject_length = 0;
-        int body_length = notificationSpec.getBody().getBytes(StandardCharsets.UTF_8).length;
+        int body_length = bodyBytes.length;
         if (body_length > 255) {
             body_length = 255;
         }
         int notification_length = body_length;
-        byte[] subject = null;
+        byte[] subject = new byte[0];
         byte[] notification;
         //noinspection ExtractMethodRecommender
         Calendar time = GregorianCalendar.getInstance();
@@ -715,7 +719,7 @@ public class ZeTimeDeviceSupport extends AbstractBTLESingleDeviceSupport {
         notification[7] = (byte) subject_length;
         notification[8] = (byte) body_length;
         System.arraycopy(subject, 0, notification, 9, subject_length);
-        System.arraycopy(notificationSpec.getBody().getBytes(StandardCharsets.UTF_8), 0, notification, 9 + subject_length, body_length);
+        System.arraycopy(bodyBytes, 0, notification, 9 + subject_length, body_length);
         System.arraycopy(datetimeBytes, 0, notification, 9 + subject_length + body_length, datetimeBytes.length);
         notification[notification_length - 1] = ZeTimeConstants.CMD_END;
 

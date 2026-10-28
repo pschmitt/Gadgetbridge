@@ -35,6 +35,7 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractPreferenceFragment
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractSettingsActivityV2
+import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsActivity
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.ListEntry
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.QuickSettingDescriptor
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.QuickSettingType
@@ -67,8 +68,9 @@ class QuickSettingsPreferencesActivity : AbstractSettingsActivityV2() {
     override fun onCreate(savedInstanceState: Bundle?) {
         // When launched via a long-press on a specific tile (ACTION_QS_TILE_PREFERENCES),
         // the system includes EXTRA_COMPONENT_NAME with the tile service's ComponentName (API 26+).
-        // Inject EXTRA_PREF_SCREEN before super.onCreate() so AbstractSettingsActivityV2
-        // routes straight to that tile's sub-screen.
+        // An assigned tile opens the device settings for its device. An unassigned tile gets
+        // EXTRA_PREF_SCREEN before super.onCreate(), so AbstractSettingsActivityV2 routes
+        // straight to that tile's sub-screen.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
             intent?.action == TileService.ACTION_QS_TILE_PREFERENCES
         ) {
@@ -78,10 +80,26 @@ class QuickSettingsPreferencesActivity : AbstractSettingsActivityV2() {
                 ?.removePrefix("$packageName.activities.quicksettings.DeviceTileService")
                 ?.toIntOrNull()
             if (tileIdx != null) {
-                intent.putExtra(EXTRA_PREF_SCREEN, "qs_tile_$tileIdx")
+                if (savedInstanceState == null && openAssignedSetting(tileIdx)) {
+                    finish()
+                } else {
+                    intent.putExtra(EXTRA_PREF_SCREEN, "qs_tile_$tileIdx")
+                }
             }
         }
         super.onCreate(savedInstanceState)
+    }
+
+    /**
+     * Opens the device settings for the device assigned to the tile. Returns false if the
+     * tile has no valid assignment.
+     */
+    private fun openAssignedSetting(tileIdx: Int): Boolean {
+        val (address, key) = DeviceTilePrefs.load(tileIdx) ?: return false
+        val device = GBApplication.app().deviceManager.getDeviceByAddress(address) ?: return false
+        QuickSettings.find(address, key) ?: return false
+        DeviceSettingsActivity.start(this, device)
+        return true
     }
 
     override fun newFragment(): PreferenceFragmentCompat = QuickSettingsFragment()

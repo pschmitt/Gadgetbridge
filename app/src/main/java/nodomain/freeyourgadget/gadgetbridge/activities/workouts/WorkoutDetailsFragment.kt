@@ -35,10 +35,10 @@ import androidx.core.content.FileProvider
 import androidx.core.graphics.createBitmap
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.Dispatchers
@@ -47,17 +47,13 @@ import kotlinx.coroutines.withContext
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity
-import nodomain.freeyourgadget.gadgetbridge.activities.endurain.EndurainApiClient
-import nodomain.freeyourgadget.gadgetbridge.activities.endurain.EndurainSetupViewModel
-import nodomain.freeyourgadget.gadgetbridge.activities.endurain.WandererApiClient
-import nodomain.freeyourgadget.gadgetbridge.activities.endurain.WandererTokenManager
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.IntervalChartUtils
 import nodomain.freeyourgadget.gadgetbridge.activities.fit.FitViewerActivity
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.charts.DefaultWorkoutCharts
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.entries.ActivitySummaryGroup
 import nodomain.freeyourgadget.gadgetbridge.databinding.FragmentWorkoutDetailsBinding
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary
 import nodomain.freeyourgadget.gadgetbridge.entities.Device
-import nodomain.freeyourgadget.gadgetbridge.export.FitExporter
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryData
@@ -70,6 +66,8 @@ import nodomain.freeyourgadget.gadgetbridge.util.BarShade
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils
 import nodomain.freeyourgadget.gadgetbridge.util.FileUtils
 import nodomain.freeyourgadget.gadgetbridge.util.GB
+import nodomain.freeyourgadget.gadgetbridge.util.elevation.ElevationTiles
+import nodomain.freeyourgadget.gadgetbridge.util.healthconnect.HealthConnectWorkoutDeletion
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.FileOutputStream
@@ -186,22 +184,33 @@ class WorkoutDetailsFragment : Fragment(), MenuProvider {
                             mutableListOf()
                         )
                     }
+                    // Reading the track means parsing the device's raw file a second time, so it is
+                    // only done when the workout has no charts of its own. That is also the only
+                    // path that yields interval phases: a parser that builds its own charts reports
+                    // laps through its summary instead.
                     if (parsedWorkout.charts.isEmpty()) {
                         try {
-                            val activityTrackProvider =
-                                gbDevice.deviceCoordinator.getActivityTrackProvider(gbDevice, requireContext())
-                            if (activityTrackProvider != null) {
-                                val activityPoints = activityTrackProvider.getActivityTrack(parsedWorkout.summary)?.allPoints
-                                if (!activityPoints.isNullOrEmpty()) {
-                                    val defaultCharts = DefaultWorkoutCharts.buildDefaultCharts(
-                                        requireContext(),
-                                        activityPoints,
-                                        ActivityKind.fromCode(parsedWorkout.summary.activityKind),
-                                        parsedWorkout.data,
-                                        gbDevice
-                                    )
-                                    return@withContext Workout(parsedWorkout.summary, parsedWorkout.data, defaultCharts)
+                            val activityTrack = gbDevice.deviceCoordinator
+                                .getActivityTrackProvider(gbDevice, requireContext())
+                                ?.getActivityTrack(parsedWorkout.summary)
+                            val activityPoints = activityTrack?.allPoints
+                            if (activityTrack != null && !activityPoints.isNullOrEmpty()) {
+                                // Altitude from imported elevation tiles replaces what the device recorded
+                                if (ElevationTiles.correct(requireContext(), gbDevice, ActivityKind.fromCode(parsedWorkout.summary.activityKind), activityPoints)) {
+                                    ElevationTiles.applyToSummary(parsedWorkout.data, activityPoints)
                                 }
+                                val intervals = IntervalChartUtils.deriveIntervals(
+                                    activityTrack.segments, activityTrack.segmentInfos
+                                )
+                                IntervalChartUtils.addToSummaryData(requireContext(), parsedWorkout.data, intervals)
+                                val defaultCharts = DefaultWorkoutCharts.buildDefaultCharts(
+                                    requireContext(),
+                                    activityPoints,
+                                    ActivityKind.fromCode(parsedWorkout.summary.activityKind),
+                                    parsedWorkout.data,
+                                    gbDevice
+                                )
+                                return@withContext Workout(parsedWorkout.summary, parsedWorkout.data, defaultCharts, intervals)
                             }
                         } catch (e: Exception) {
                             LOG.error("Failed to build default charts", e)
@@ -286,6 +295,11 @@ class WorkoutDetailsFragment : Fragment(), MenuProvider {
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         val workout = currentWorkout ?: return false
 
+        WorkoutUploadTargets.ALL.firstOrNull { it.uploadMenuItemRes == menuItem.itemId }?.let {
+            uploadTo(it)
+            return true
+        }
+
         return when (menuItem.itemId) {
             R.id.activity_action_take_screenshot -> {
                 takeSharedScreenshot()
@@ -303,12 +317,12 @@ class WorkoutDetailsFragment : Fragment(), MenuProvider {
             }
 
             R.id.activity_action_upload_to_endurain -> {
-                uploadToEndurain()
+                uploadTo(EndurainUploadTarget)
                 true
             }
 
             R.id.activity_action_upload_to_wanderer -> {
-                uploadToWanderer()
+                uploadTo(WandererUploadTarget)
                 true
             }
 
@@ -421,6 +435,38 @@ class WorkoutDetailsFragment : Fragment(), MenuProvider {
                 true
             }
 
+            R.id.activity_action_delete -> {
+                currentWorkout?.let {
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(getString(R.string.sports_activity_confirm_single_delete_title))
+                        .setMessage(getString(R.string.sports_activity_confirm_single_delete_description))
+                        .setIcon(R.drawable.ic_delete_forever)
+                        .setPositiveButton(R.string.yes) { _, _ ->
+                            val healthConnectSnapshot = HealthConnectWorkoutDeletion.snapshot(it.summary)
+                            try {
+                                it.summary.delete()
+                                healthConnectSnapshot?.let { snapshot ->
+                                    HealthConnectWorkoutDeletion.deleteWorkoutsFromHealthConnect(
+                                        requireContext(),
+                                        listOf(snapshot)
+                                    )
+                                }
+                            } catch (_: Exception) {
+                                // pass delete error
+                            }
+                            // Signal WorkoutListFragment that it needs to refresh
+                            val intent = Intent(GBApplication.ACTION_NEW_DATA)
+                            intent.putExtra(GBDevice.EXTRA_DEVICE, gbDevice)
+                            LocalBroadcastManager.getInstance(GBApplication.getContext())
+                                .sendBroadcast(intent)
+                            requireActivity().finish()
+                        }
+                        .setNegativeButton(R.string.no, null)
+                        .show()
+                }
+                true
+            }
+
             android.R.id.home -> {
                 requireActivity().finish()
                 true
@@ -471,26 +517,20 @@ class WorkoutDetailsFragment : Fragment(), MenuProvider {
         overflowMenu2?.findItem(R.id.activity_summary_detail_action_add_photo)?.isVisible = workout.summary.headerPhoto == null
         overflowMenu2?.findItem(R.id.activity_summary_detail_action_remove_photo)?.isVisible = workout.summary.headerPhoto != null
 
-        // Endurain accepts FIT (built from the summary alone if needed), so it is offered
-        // for any workout. Wanderer only supports GPX uploads, so it requires a GPS track.
-        val endurainVm: EndurainSetupViewModel by viewModels()
-        val endurainServer = GBApplication.getPrefs().preferences
-            .getString(WorkoutUploader.PREF_ENDURAIN_SERVER, null)
-        val wandererServer = GBApplication.getPrefs().preferences
-            .getString(WorkoutUploader.PREF_WANDERER_SERVER, null)
+        // A service that stores tracks has nothing to take from a workout without one. The others
+        // are offered for any workout, since a FIT can be synthesized from the summary alone.
+        val context = requireContext()
         viewLifecycleOwner.lifecycleScope.launch {
-            val enduranVisible = withContext(Dispatchers.IO) {
-                endurainServer != null && endurainVm.endurainTokenManager.isLoggedIn()
+            val offered = withContext(Dispatchers.IO) {
+                WorkoutUploadTargets.ALL.filter {
+                    (!it.requiresTrack || hasGpx) && it.isLoggedIn(context)
+                }
             }
-            val wandererVisible = withContext(Dispatchers.IO) {
-                hasGpx && wandererServer != null && WandererTokenManager(requireContext()).isLoggedIn()
+            WorkoutUploadTargets.ALL.forEach { target ->
+                overflowMenu?.findItem(target.uploadMenuItemRes)?.isVisible = target in offered
             }
-            overflowMenu?.findItem(R.id.activity_action_upload_to_endurain)?.isVisible = enduranVisible
-            overflowMenu?.findItem(R.id.activity_action_upload_to_wanderer)?.isVisible = wandererVisible
-            overflowMenu?.findItem(R.id.activity_action_upload_status)?.isVisible = enduranVisible || wandererVisible
-
+            overflowMenu?.findItem(R.id.activity_action_upload_status)?.isVisible = offered.isNotEmpty()
         }
-
     }
 
     /**
@@ -664,7 +704,7 @@ class WorkoutDetailsFragment : Fragment(), MenuProvider {
     private fun viewGpxTrack() {
         val workout = currentWorkout ?: return
         val activityTrackProvider = gbDevice.deviceCoordinator.getActivityTrackProvider(gbDevice, requireContext())
-        val gpxFile = ActivitySummaryUtils.getShareableGpxFile(activityTrackProvider, workout.summary)
+        val gpxFile = ActivitySummaryUtils.getShareableGpxFile(activityTrackProvider, gbDevice, workout.summary)
 
         if (gpxFile == null) {
             GB.toast(requireContext(),
@@ -688,7 +728,7 @@ class WorkoutDetailsFragment : Fragment(), MenuProvider {
     private fun shareGpxTrack() {
         val workout = currentWorkout ?: return
         val activityTrackProvider = gbDevice.deviceCoordinator.getActivityTrackProvider(gbDevice, requireContext())
-        val gpxFile = ActivitySummaryUtils.getShareableGpxFile(activityTrackProvider, workout.summary)
+        val gpxFile = ActivitySummaryUtils.getShareableGpxFile(activityTrackProvider, gbDevice, workout.summary)
 
         if (gpxFile == null) {
             GB.toast(requireContext(), getString(R.string.no_gpx_track_in_activity_toast), Toast.LENGTH_LONG, GB.INFO)
@@ -708,115 +748,78 @@ class WorkoutDetailsFragment : Fragment(), MenuProvider {
         }
     }
 
-    private fun uploadToEndurain() {
+    /**
+     * Sends the workout to [target], which uploads it, brings the activity the service already
+     * holds in line with it, or leaves the service alone when it is already in step. Asking twice
+     * therefore does not leave a second activity behind, and an activity deleted on the service is
+     * uploaded again. See [WorkoutUploader.syncWorkout].
+     */
+    private fun uploadTo(target: WorkoutUploadTarget) {
         val workout = currentWorkout ?: return
+        val context = requireContext()
+        val serviceName = getString(target.nameRes)
 
         lifecycleScope.launch {
-            val activityFile = try {
-                buildFitFile(workout)
-            } catch (e: Exception) {
-                LOG.error("Failed to build FIT for Endurain upload", e)
-                GB.toast(
-                    getString(R.string.endurain_unable_to_upload_gpx_file_toast, e.localizedMessage),
-                    Toast.LENGTH_LONG,
-                    GB.ERROR,
-                    e
+            val outcome = withContext(Dispatchers.IO) {
+                val provider = gbDevice.deviceCoordinator.getActivityTrackProvider(gbDevice, context)
+                WorkoutUploader.syncWorkout(
+                    context, gbDevice, provider, target, workout.summary, workout.data,
+                    verifyRemote = true
                 )
-                return@launch
             }
+            if (!isAdded) return@launch
 
-            WorkoutUploader.uploadToEndurain(requireContext(), workout.summary, activityFile) { result ->
-                val summaryId = workout.summary.id
-                if (result.success && summaryId != null) {
-                    // See WorkoutUploadWorker: a photo the service did not take leaves both
-                    // fingerprints unset so the next sync comes back for it.
-                    val photoLanded =
-                        workout.summary.headerPhoto == null || result.photoMediaId != null
-                    WorkoutUploadStore.recordSuccess(
-                        summaryId, WorkoutUploadStore.SERVICE_ENDURAIN, result.remoteActivityId,
-                        if (photoLanded) {
-                            WorkoutUploadStore.photoHashOf(workout.summary.headerPhoto)
-                        } else {
-                            null
-                        },
-                        result.photoMediaId,
-                        if (photoLanded) WorkoutUploadStore.sourceHashOf(workout.summary) else null,
-                        WorkoutUploadStore.fileHashOf(activityFile),
-                        WorkoutUploader.summaryHasTrack(workout.summary)
-                    )
-                } else if (summaryId != null) {
-                    WorkoutUploadStore.recordFailure(
-                        summaryId, WorkoutUploadStore.SERVICE_ENDURAIN, result.reason
-                    )
+            when (outcome) {
+                is WorkoutUploader.SyncOutcome.Uploaded -> {
+                    uploadStateChanged()
+                    GB.toast(getString(target.uploadedRes), Toast.LENGTH_SHORT, GB.INFO)
                 }
-                activity?.runOnUiThread {
-                    // The workout list shows the upload state per row, so it has to reload.
-                    if (isAdded) {
-                        notifyWorkoutChanged()
-                        workoutViewModel.refreshWorkout(workoutId)
-                    }
-                    if (result.success)
+
+                is WorkoutUploader.SyncOutcome.Resynced -> {
+                    uploadStateChanged()
+                    val refusal = outcome.refusal
+                    if (refusal != null) {
+                        GB.toast(refusal, Toast.LENGTH_LONG, GB.WARN)
+                    } else {
                         GB.toast(
-                            getString(R.string.endurain_successfully_uploaded_toast),
+                            getString(R.string.workout_upload_toast_updated, serviceName),
                             Toast.LENGTH_SHORT,
                             GB.INFO
                         )
-                    else
-                        GB.toast(
-                            result.reason ?: getString(R.string.endurain_error_while_uploading_toast),
-                            Toast.LENGTH_LONG,
-                            GB.ERROR
-                        )
+                    }
+                }
+
+                is WorkoutUploader.SyncOutcome.AlreadyInStep -> GB.toast(
+                    getString(R.string.workout_upload_toast_already_uploaded, serviceName),
+                    Toast.LENGTH_SHORT,
+                    GB.INFO
+                )
+
+                is WorkoutUploader.SyncOutcome.NotApplicable -> {
+                    val message = if (target.requiresTrack && !WorkoutUploader.summaryHasTrack(workout.summary)) {
+                        getString(R.string.no_activity_track_in_activity_toast)
+                    } else {
+                        getString(R.string.workout_upload_toast_no_payload, serviceName)
+                    }
+                    GB.toast(message, Toast.LENGTH_LONG, GB.INFO)
+                }
+
+                is WorkoutUploader.SyncOutcome.Failed -> {
+                    uploadStateChanged()
+                    GB.toast(
+                        target.uploadFailedMessage(context, outcome.reason),
+                        Toast.LENGTH_LONG,
+                        GB.ERROR
+                    )
                 }
             }
         }
     }
 
-    private fun uploadToWanderer() {
-        val workout = currentWorkout ?: return
-        val activityTrackProvider = gbDevice.deviceCoordinator.getActivityTrackProvider(gbDevice, requireContext())
-
-        // Wanderer only supports GPX uploads, so always send GPX (never a FIT file).
-        val activityFile = ActivitySummaryUtils.getShareableGpxFile(activityTrackProvider, workout.summary)
-        if (activityFile == null) {
-            GB.toast(getString(R.string.no_activity_track_in_activity_toast), Toast.LENGTH_LONG, GB.INFO)
-            return
-        }
-
-        WorkoutUploader.uploadToWanderer(requireContext(), activityFile) { result ->
-            val summaryId = workout.summary.id
-            if (result.success && summaryId != null) {
-                WorkoutUploadStore.recordSuccess(
-                    summaryId, WorkoutUploadStore.SERVICE_WANDERER, result.remoteActivityId, null,
-                    null,
-                    WorkoutUploadStore.sourceHashOf(workout.summary),
-                    WorkoutUploadStore.fileHashOf(activityFile),
-                    true
-                )
-            } else if (summaryId != null) {
-                WorkoutUploadStore.recordFailure(
-                    summaryId, WorkoutUploadStore.SERVICE_WANDERER, result.reason
-                )
-            }
-            activity?.runOnUiThread {
-                if (isAdded) {
-                    notifyWorkoutChanged()
-                    workoutViewModel.refreshWorkout(workoutId)
-                }
-                if (result.success)
-                    GB.toast(
-                        getString(R.string.wanderer_toast_successfully_uploaded),
-                        Toast.LENGTH_LONG,
-                        GB.INFO
-                    )
-                else
-                    GB.toast(
-                        getString(R.string.wanderer_toast_upload_error, result.reason),
-                        Toast.LENGTH_LONG,
-                        GB.ERROR
-                    )
-            }
-        }
+    /** Re-reads the upload state behind the header indicator and the workout list rows. */
+    private fun uploadStateChanged() {
+        notifyWorkoutChanged()
+        workoutViewModel.refreshWorkout(workoutId)
     }
 
     private fun shareRawSummary(workout: Workout) {

@@ -37,6 +37,8 @@ public class GBDeviceMusicData extends GBDeviceEvent {
     public String deviceInfo = null;
     public int maxMusicCount = 0;
     public int maxPlaylistCount = 0;
+    public boolean deleteSupported = true;
+    public String[] uploadMimeTypes = {"audio/*"};
 
     @Override
     public void evaluate(final Context context, final GBDevice device) {
@@ -65,6 +67,8 @@ public class GBDeviceMusicData extends GBDeviceEvent {
             intent.putExtra("maxPlaylistCount", this.maxPlaylistCount);
         }
 
+        intent.putExtra("deleteSupported", this.deleteSupported);
+        intent.putExtra("uploadMimeTypes", this.uploadMimeTypes);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 }

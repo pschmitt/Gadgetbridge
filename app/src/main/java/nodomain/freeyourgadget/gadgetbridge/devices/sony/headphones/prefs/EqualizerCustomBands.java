@@ -42,7 +42,7 @@ public class EqualizerCustomBands {
         }
 
         if (bass < -10 || bass > 10) {
-            throw new IllegalArgumentException(String.format("Clear Bass value shoulud be between -10 and 10, got %d", bass));
+            throw new IllegalArgumentException(String.format("Clear Bass value should be between -10 and 10, got %d", bass));
         }
 
         this.bands = bands;

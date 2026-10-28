@@ -9,6 +9,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.textfield.TextInputEditText
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity
@@ -20,6 +21,7 @@ import nodomain.freeyourgadget.gadgetbridge.activities.workouts.templates.editor
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.templates.editors.errorTextView
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.templates.editors.formatPairValue
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.templates.editors.formatScalarValue
+import nodomain.freeyourgadget.gadgetbridge.activities.workouts.templates.editors.formatTypedValue
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.templates.editors.hideKeyboard
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.templates.editors.setFieldError
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.templates.editors.showChoicePicker
@@ -40,6 +42,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutTarget
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutTargetType
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.WorkoutWeightType
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.exercises.WorkoutExerciseCatalog
+import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.DurationOption
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.SportSpec
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.StepFieldsSpec
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.ValueSpec
@@ -70,6 +73,8 @@ class WorkoutStepEditActivity : AbstractGBActivity() {
     private var suppressErrors = true
 
     private var durationGroup: TypeGroup<WorkoutDurationType>? = null
+    private var durationPlusRow: View? = null
+    private var durationPlusBox: MaterialCheckBox? = null
     private var targetGroup: TypeGroup<WorkoutTargetType>? = null
     private var secondaryTargetGroup: TypeGroup<WorkoutTargetType>? = null
     private var exerciseGroup: ExerciseGroup? = null
@@ -211,9 +216,10 @@ class WorkoutStepEditActivity : AbstractGBActivity() {
                 this, dynamicFields, getString(R.string.activity_detail_duration_label),
                 stepSpec.durations.map { it.type to it.value },
                 initialDurationType, null, node.duration?.value, null,
-                onValueChanged = ::onFieldChanged,
+                onValueChanged = ::onDurationChanged,
             )
         }
+        buildDurationPlus(stepSpec.durations)
 
         targetGroup = if (stepSpec.primaryTargets.all { it.type == WorkoutTargetType.NONE }) {
             null
@@ -256,6 +262,49 @@ class WorkoutStepEditActivity : AbstractGBActivity() {
         refreshFieldErrors()
     }
 
+    private fun onDurationChanged() {
+        refreshDurationPlus()
+        onFieldChanged()
+    }
+
+    /**
+     * The [DurationOption] of the selected duration type.
+     */
+    private fun selectedDurationOption(): DurationOption? {
+        val type = durationGroup?.selectedType() ?: return null
+        return sportSpec.stepSpec(selectedStepType).durations.find { it.type == type }
+    }
+
+    /**
+     * Adds the [DurationOption.plus] checkbox, when one of [durations] has it.
+     */
+    private fun buildDurationPlus(durations: List<DurationOption>) {
+        durationPlusRow = null
+        durationPlusBox = null
+        if (durations.none { it.plus }) return
+
+        val row = layoutInflater.inflate(R.layout.item_workout_step_checkbox, dynamicFields, false)
+        row.findViewById<TextView>(R.id.workout_step_checkbox_title).setText(R.string.workout_duration_reps_plus)
+        row.findViewById<TextView>(R.id.workout_step_checkbox_summary)
+            .setText(R.string.workout_duration_reps_plus_summary)
+        val box = row.findViewById<MaterialCheckBox>(R.id.workout_step_checkbox)
+        box.isChecked = node.duration?.plus == true
+        row.setOnClickListener {
+            hideKeyboard(row)
+            box.toggle()
+            onFieldChanged()
+        }
+        dynamicFields.addView(row)
+
+        durationPlusRow = row
+        durationPlusBox = box
+        refreshDurationPlus()
+    }
+
+    private fun refreshDurationPlus() {
+        durationPlusRow?.visibility = if (selectedDurationOption()?.plus == true) View.VISIBLE else View.GONE
+    }
+
     /**
      * Clears the secondary target when it applies to the same metric as the new primary target.
      */
@@ -288,6 +337,9 @@ class WorkoutStepEditActivity : AbstractGBActivity() {
         }
 
         if (fields.weightTypes.isNotEmpty()) {
+            // The weight value of an enum weight type is the index of the entry
+            val weightEnumSpec = node.weightType?.let { fields.weightSpecs[it] } as? ValueSpec.EnumValues<*>
+            val weightEnumValue = node.weightValue?.let { weightEnumSpec?.values?.getOrNull(it) as? Enum<*> }?.name
             weightGroup = TypeGroup(
                 this,
                 dynamicFields,
@@ -297,6 +349,7 @@ class WorkoutStepEditActivity : AbstractGBActivity() {
                 null,
                 node.weightValue?.toLong(),
                 null,
+                weightEnumValue,
                 onValueChanged = ::onFieldChanged,
             )
         }
@@ -355,7 +408,8 @@ class WorkoutStepEditActivity : AbstractGBActivity() {
         node.note = noteEditor.value.ifBlank { null }
 
         val durationType = durationGroup?.selectedType()
-        node.duration = durationType?.let { WorkoutDuration(it, durationGroup?.currentLow()) }
+        val plus = selectedDurationOption()?.plus == true && durationPlusBox?.isChecked == true
+        node.duration = durationType?.let { WorkoutDuration(it, durationGroup?.currentLow(), plus) }
 
         val targetType = targetGroup?.selectedType() ?: WorkoutTargetType.NONE
         node.target = WorkoutTarget(
@@ -379,7 +433,7 @@ class WorkoutStepEditActivity : AbstractGBActivity() {
 
         node.exerciseId = exerciseGroup?.exerciseId()
         node.weightType = weightGroup?.selectedType()
-        node.weightValue = weightGroup?.currentLow()?.toInt()
+        node.weightValue = weightGroup?.let { it.currentEnumIndex() ?: it.currentLow()?.toInt() }
         node.swimStroke = strokeEditor?.value
         node.swimDrill = drillEditor?.value
         node.swimEquipment = equipmentEditor?.value
@@ -458,8 +512,8 @@ internal class ExerciseGroup(
 
 /**
  * A field with a type and a value, for a duration, a target or a weight. A tap opens the type
- * dialog over [options], then the value dialog of the picked type. The field displays the type
- * label followed by the value.
+ * dialog over [options], then the value dialog of the picked type. The field displays the
+ * [formatTypedValue] text.
  *
  * [isAvailable] filters [options] when the type dialog opens. [onValueChanged] runs after either
  * dialog is confirmed.
@@ -592,8 +646,8 @@ private class TypeGroup<T : LabeledEntry>(
     }
 
     private fun refresh() {
-        val typeLabel = options.getOrNull(selectedIndex)?.first?.let { context.getString(it.label) }
-        field.setText(listOfNotNull(typeLabel, currentValueText()).joinToString(" "))
+        val type = options.getOrNull(selectedIndex)?.first
+        field.setText(type?.let { formatTypedValue(context, it, low, currentValueText()) }.orEmpty())
     }
 
     private fun currentValueText(): String? {
@@ -605,7 +659,7 @@ private class TypeGroup<T : LabeledEntry>(
                 if (l != null && h != null) formatPairValue(context, spec, l, h) else null
             }
 
-            is ValueSpec.Zone -> zone?.let { formatScalarValue(context, spec, it.toLong()) }
+            is ValueSpec.Zone -> zone?.toString()
             is ValueSpec.EnumValues<*> -> enumValue
                 ?.let { name -> spec.values.find { (it as Enum<*>).name == name } }
                 ?.let { context.getString(it.label) }
@@ -635,4 +689,12 @@ private class TypeGroup<T : LabeledEntry>(
      * The name of the selected entry of a [ValueSpec.EnumValues].
      */
     fun currentEnumValue(): String? = enumValue
+
+    /**
+     * The index of the selected entry in the [ValueSpec.EnumValues] of the selected type.
+     */
+    fun currentEnumIndex(): Int? {
+        val spec = options.getOrNull(selectedIndex)?.second as? ValueSpec.EnumValues<*> ?: return null
+        return spec.values.indexOfFirst { (it as Enum<*>).name == enumValue }.takeIf { it >= 0 }
+    }
 }

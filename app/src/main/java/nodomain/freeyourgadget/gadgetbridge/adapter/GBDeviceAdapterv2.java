@@ -26,22 +26,21 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
-import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.Icon;
 import android.os.Build;
+import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Pair;
 import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,35 +53,25 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.NumberPicker;
-import android.widget.ProgressBar;
-import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.utils.MPPointF;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
-import com.jaredrummler.android.colorpicker.ColorPickerDialog;
-import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +85,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -105,33 +93,25 @@ import nodomain.freeyourgadget.gadgetbridge.BuildConfig;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.DeviceDeleteActivity;
-import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutListActivity;
-import nodomain.freeyourgadget.gadgetbridge.activities.BatteryInfoActivity;
-import nodomain.freeyourgadget.gadgetbridge.activities.ConfigureAlarms;
-import nodomain.freeyourgadget.gadgetbridge.activities.ConfigureReminders;
 import nodomain.freeyourgadget.gadgetbridge.activities.ControlCenterv2;
-import nodomain.freeyourgadget.gadgetbridge.activities.HeartRateDialog;
 import nodomain.freeyourgadget.gadgetbridge.activities.OpenFwAppInstallerActivity;
-import nodomain.freeyourgadget.gadgetbridge.activities.VibrationActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.charts.ActivityChartsActivity;
+import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.ActivityGauge;
+import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.GaugeDrawer;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
-import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCardAction;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceManager;
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.DeviceCardLayout;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.Device;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceFolder;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser;
-import nodomain.freeyourgadget.gadgetbridge.model.BatteryState;
 import nodomain.freeyourgadget.gadgetbridge.model.DailyTotals;
-import nodomain.freeyourgadget.gadgetbridge.model.DeviceType;
-import nodomain.freeyourgadget.gadgetbridge.model.FindDeviceTarget;
-import nodomain.freeyourgadget.gadgetbridge.model.RecordedDataTypes;
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.FormatUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
@@ -144,10 +124,17 @@ import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
 public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.ViewHolder> {
     private static final Logger LOG = LoggerFactory.getLogger(GBDeviceAdapterv2.class);
 
+    private static final String STATE_EXPANDED_DEVICE = "devices_expanded_device";
+    private static final String STATE_EXPANDED_FOLDER = "devices_expanded_folder";
+    private static final String STATE_REVEALED_CARD_ITEMS = "devices_revealed_card_items";
+
     private final Context context;
+    private final GaugeDrawer gaugeDrawer = new GaugeDrawer();
     private List<GBDevice> deviceList;
     private List<GBDevice> devicesListWithFolders;
     private String expandedDeviceAddress = "";
+    private final Set<String> revealedCardItemsAddresses = new HashSet<>();
+    private String pendingCompanionAddress = null;
     private String expandedFolderName = "";
     private ViewGroup parent;
     private HashMap<String, DailyTotals> deviceActivityMap = new HashMap<>();
@@ -161,6 +148,23 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         this.deviceActivityMap = deviceMap;
     }
 
+    public void saveInstanceState(final Bundle outState) {
+        outState.putString(STATE_EXPANDED_DEVICE, expandedDeviceAddress);
+        outState.putString(STATE_EXPANDED_FOLDER, expandedFolderName);
+        outState.putStringArrayList(STATE_REVEALED_CARD_ITEMS, new ArrayList<>(revealedCardItemsAddresses));
+    }
+
+    public void restoreInstanceState(final Bundle savedInstanceState) {
+        expandedDeviceAddress = savedInstanceState.getString(STATE_EXPANDED_DEVICE, "");
+        expandedFolderName = savedInstanceState.getString(STATE_EXPANDED_FOLDER, "");
+        revealedCardItemsAddresses.clear();
+        final ArrayList<String> revealed = savedInstanceState.getStringArrayList(STATE_REVEALED_CARD_ITEMS);
+        if (revealed != null) {
+            revealedCardItemsAddresses.addAll(revealed);
+        }
+        rebuildFolders();
+    }
+
     public void rebuildFolders() {
         this.devicesListWithFolders = enrichDeviceListWithFolder(deviceList);
     }
@@ -168,7 +172,7 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
     @SuppressLint("NotifyDataSetChanged")
     public final void refreshSingleDevice(final GBDevice device) {
         final int i = devicesListWithFolders.indexOf(device);
-        if (i > 0) {
+        if (i >= 0) {
             notifyItemChanged(i);
         } else {
             // Somehow the device was not on the list - rebuild everything
@@ -183,7 +187,7 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
 
         for (GBDevice device : deviceList) {
             String folder = device.getParentFolder();
-            if (StringUtils.isNullOrEmpty(folder)){
+            if (StringUtils.isNullOrEmpty(folder)) {
                 enrichedList.add(device);
                 continue;
             }
@@ -211,79 +215,87 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         return new ViewHolder(view);
     }
 
-    private int countDevicesInFolder(String folderName, boolean needsToBeConnected){
+    private int countDevicesInFolder(String folderName, boolean needsToBeConnected) {
         int count = 0;
-        for(GBDevice device : deviceList){
-            if(folderName.equals(device.getParentFolder()) && ((!needsToBeConnected) || device.isConnected())){
+        for (GBDevice device : deviceList) {
+            if (folderName.equals(device.getParentFolder()) && ((!needsToBeConnected) || device.isConnected())) {
                 count++;
             }
         }
         return count;
     }
 
-    private void showDeviceFolder(ViewHolder holder, final GBDeviceFolder folder){
-        holder.container.setVisibility(View.VISIBLE);
-        holder.deviceNameLabel.setText(folder.getName());
-        holder.infoIcons.setVisibility(View.GONE);
-        holder.deviceInfoBox.setVisibility(View.GONE);
-        holder.cardViewActivityCardLayout.setVisibility(View.GONE);
-        holder.deviceImageView.setImageResource(R.drawable.ic_device_folder);
-
-        if (countDevicesInFolder(folder.getName(), true) == 0) {
+    private static void setDeviceIcon(final ViewHolder holder, @DrawableRes final int iconRes, final boolean connected) {
+        final Context iconContext = connected ? holder.connectedIconContext : holder.deviceImageView.getContext();
+        holder.deviceImageView.setImageDrawable(AppCompatResources.getDrawable(iconContext, iconRes));
+        holder.deviceImageView.setBackground(AppCompatResources.getDrawable(iconContext, R.drawable.device_card_icon_bg));
+        if (connected) {
+            holder.deviceImageView.setColorFilter(null);
+        } else {
             final ColorMatrix colorMatrix = new ColorMatrix();
             colorMatrix.setSaturation(0);
             holder.deviceImageView.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
-        } else {
-            holder.deviceImageView.setColorFilter(null);
         }
+    }
+
+    private void showDeviceFolder(ViewHolder holder, final GBDeviceFolder folder) {
+        holder.container.setVisibility(View.VISIBLE);
+        holder.deviceNameLabel.setText(folder.getName());
+        holder.infoIcons.setVisibility(View.GONE);
+        holder.quickControls.setVisibility(View.GONE);
+        holder.companionHint.setVisibility(View.GONE);
+        holder.deviceImageView.setOnLongClickListener(null);
+        holder.deviceInfoBox.setVisibility(View.GONE);
+        holder.cardViewActivityCardLayout.setVisibility(View.GONE);
+        setDeviceIcon(holder, R.drawable.ic_device_folder, countDevicesInFolder(folder.getName(), true) > 0);
         holder.deviceInfoView.setVisibility(View.GONE);
         int countInFolder = countDevicesInFolder(folder.getName(), false);
         int connectedInFolder = countDevicesInFolder(folder.getName(), true);
         holder.deviceStatusLabel.setText(context.getString(R.string.controlcenter_connected_fraction, connectedInFolder, countInFolder));
+        DeviceStatusDot.apply(holder.deviceStatusDot, connectedInFolder > 0);
 
-        holder.container.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (expandedFolderName.equals(folder.getName())){
-                    // collapse open folder
-                    expandedFolderName = "";
-                } else {
-                    expandedFolderName = folder.getName();
-                }
-                rebuildFolders();
-                notifyDataSetChanged();
+        final View.OnClickListener toggleFolder = v -> {
+            if (expandedFolderName.equals(folder.getName())) {
+                // collapse open folder
+                expandedFolderName = "";
+            } else {
+                expandedFolderName = folder.getName();
             }
-        });
+            rebuildFolders();
+            notifyDataSetChanged();
+        };
+        holder.container.setOnClickListener(toggleFolder);
+        holder.deviceImageView.setOnClickListener(toggleFolder);
         holder.container.setOnLongClickListener(null);
     }
 
-    private void setItemMargin(ViewHolder holder, GBDevice device){
+    private void setItemMargin(ViewHolder holder, GBDevice device) {
         Resources r = context.getResources();
         int widthDp = 8;
-        if(!StringUtils.isNullOrEmpty(device.getParentFolder())){
-            widthDp = 16;
+        if (!StringUtils.isNullOrEmpty(device.getParentFolder())) {
+            widthDp = 20;
         }
         float px = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                widthDp,
-                r.getDisplayMetrics()
+            TypedValue.COMPLEX_UNIT_DIP,
+            widthDp,
+            r.getDisplayMetrics()
         );
         CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) holder.container.getLayoutParams();
         layoutParams.setMarginStart((int) px);
         holder.container.setLayoutParams(layoutParams);
 
         int alpha = 0;
-        if(device instanceof GBDeviceFolder && device.getName().equals(expandedFolderName)){
+        if (device instanceof GBDeviceFolder && device.getName().equals(expandedFolderName)) {
             alpha = 50;
-        }else if(!StringUtils.isNullOrEmpty(device.getParentFolder()) && expandedFolderName.equals(device.getParentFolder())){
+        } else if (!StringUtils.isNullOrEmpty(device.getParentFolder()) && expandedFolderName.equals(device.getParentFolder())) {
             alpha = 50;
         }
 
         holder.root.setBackgroundColor(Color.argb(alpha, 0, 0, 0));
     }
 
-    void handleDeviceConnect(GBDevice device){
-        if (!device.getDeviceCoordinator().isConnectable()){
+    void handleDeviceConnect(GBDevice device) {
+        if (!device.getDeviceCoordinator().isConnectable()) {
             device.setState(GBDevice.State.WAITING_FOR_SCAN);
             device.sendDeviceUpdateIntent(GBApplication.getContext(), GBDevice.DeviceUpdateSubject.CONNECTION_STATE);
             return;
@@ -298,19 +310,19 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
 
         setItemMargin(holder, device);
 
-        if(device instanceof GBDeviceFolder){
+        if (device instanceof GBDeviceFolder) {
             showDeviceFolder(holder, (GBDeviceFolder) device);
             return;
         }
 
         String parentFolder = device.getParentFolder();
-        if(!StringUtils.isNullOrEmpty(parentFolder)){
-            if(parentFolder.equals(expandedFolderName)){
+        if (!StringUtils.isNullOrEmpty(parentFolder)) {
+            if (parentFolder.equals(expandedFolderName)) {
                 holder.container.setVisibility(View.VISIBLE);
-            }else{
+            } else {
                 holder.container.setVisibility(View.GONE);
             }
-        }else{
+        } else {
             holder.container.setVisibility(View.VISIBLE);
         }
 
@@ -345,259 +357,41 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
             }
         });
 
-        holder.deviceImageView.setImageResource(device.getDeviceCoordinator().getDefaultIconResource());
-        if (device.isInitialized()) {
-            holder.deviceImageView.setColorFilter(null);
-        } else {
-            final ColorMatrix colorMatrix = new ColorMatrix();
-            colorMatrix.setSaturation(0);
-
-            holder.deviceImageView.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
-        }
+        setDeviceIcon(holder, device.getDeviceCoordinator().getDefaultIconResource(), device.isInitialized());
 
         holder.deviceNameLabel.setText(getUniqueDeviceName(device));
 
         if (device.isBusy()) {
             holder.deviceStatusLabel.setText(device.getBusyTask());
-            holder.busyIndicator.setVisibility(View.VISIBLE);
         } else {
             holder.deviceStatusLabel.setText(device.getStateString(context));
-            holder.busyIndicator.setVisibility(View.INVISIBLE);
         }
+        DeviceStatusDot.apply(holder.deviceStatusDot, device);
 
-        //begin of action row
-        //battery
-        // multiple battery support: at this point we support up to three batteries
-        // to support more batteries, the battery UI would need to be extended
-
-        holder.batteryStatusBox0.setVisibility(coordinator.getBatteryCount(device) > 0 ? View.VISIBLE : View.GONE);
-        holder.batteryStatusBox1.setVisibility(coordinator.getBatteryCount(device) > 1 ? View.VISIBLE : View.GONE);
-        holder.batteryStatusBox2.setVisibility(coordinator.getBatteryCount(device) > 2 ? View.VISIBLE : View.GONE);
-
-        LinearLayout[] batteryStatusBoxes = {holder.batteryStatusBox0, holder.batteryStatusBox1, holder.batteryStatusBox2};
-        TextView[] batteryStatusLabels = {holder.batteryStatusLabel0, holder.batteryStatusLabel1, holder.batteryStatusLabel2};
-        ImageView[] batteryIcons = {holder.batteryIcon0, holder.batteryIcon1, holder.batteryIcon2};
-
-        for (int batteryIndex = 0; batteryIndex < coordinator.getBatteryCount(device); batteryIndex++) {
-
-            int batteryLevel = device.getBatteryLevel(batteryIndex);
-            float batteryVoltage = device.getBatteryVoltage(batteryIndex);
-            BatteryState batteryState = device.getBatteryState(batteryIndex);
-            int batteryIcon = device.getBatteryIcon(batteryIndex);
-            int batteryLabel = device.getBatteryLabel(batteryIndex); //unused for now
-            batteryIcons[batteryIndex].setImageResource(R.drawable.level_list_battery);
-            batteryStatusLabels[batteryIndex].setAlpha(1.0f);
-
-            if (batteryIcon != GBDevice.BATTERY_ICON_DEFAULT){
-                batteryIcons[batteryIndex].setImageResource(batteryIcon);
-            }
-
-            if (batteryLevel != GBDevice.BATTERY_UNKNOWN) {
-                batteryStatusLabels[batteryIndex].setText(device.getBatteryLevel(batteryIndex) + "%");
-                if (BatteryState.BATTERY_CHARGING.equals(batteryState) ||
-                        BatteryState.BATTERY_CHARGING_FULL.equals(batteryState)) {
-                    batteryIcons[batteryIndex].setImageLevel(device.getBatteryLevel(batteryIndex) + 100);
-                } else {
-                    if (BatteryState.NO_BATTERY.equals(batteryState)) {
-                        // There is a level to show, but the device has indicated that it does not
-                        // know the status of the battery. This can be used to indicate the last
-                        // known state of charge for things like a headphones case that is not
-                        // actively connected but there is a previously known level.
-                        batteryStatusLabels[batteryIndex].setAlpha(0.3f);
-                        batteryIcons[batteryIndex].setImageLevel(300);
-                    } else {
-                        batteryIcons[batteryIndex].setImageLevel(device.getBatteryLevel(batteryIndex));
-                    }
-                }
-            } else if (BatteryState.NO_BATTERY.equals(batteryState) && batteryVoltage != GBDevice.BATTERY_UNKNOWN) {
-                batteryStatusLabels[batteryIndex].setText(String.format(Locale.getDefault(), "%.2f", batteryVoltage));
-                batteryIcons[batteryIndex].setImageLevel(200);
-            } else {
-                //should be the "default" status, shown when the device is not connected
-                batteryStatusLabels[batteryIndex].setText("");
-                batteryIcons[batteryIndex].setImageLevel(300);
-            }
-            final int finalBatteryIndex = batteryIndex;
-            batteryStatusBoxes[batteryIndex].setOnClickListener(new View.OnClickListener() {
-                                                               @Override
-                                                               public void onClick(View v) {
-                                                                   Intent startIntent;
-                                                                   startIntent = new Intent(context, BatteryInfoActivity.class);
-                                                                   startIntent.putExtra(GBDevice.EXTRA_DEVICE, device);
-                                                                   startIntent.putExtra(GBDevice.BATTERY_INDEX, finalBatteryIndex);
-                                                                   context.startActivity(startIntent);
-                                                               }
-                                                           }
-            );
-
-            // Hide the battery status level, if it has no text
-            if (TextUtils.isEmpty(batteryStatusLabels[batteryIndex].getText())) {
-                batteryStatusLabels[batteryIndex].setVisibility(View.GONE);
-            } else {
-                batteryStatusLabels[batteryIndex].setVisibility(View.VISIBLE);
-            }
-        }
-        final boolean withingsLiveOnlyHeartRate = coordinator.supportsLiveOnlyHeartRateDisplay(device);
-        holder.heartRateStatusBox.setVisibility((device.isInitialized() && coordinator.supportsRealtimeData(device) && (!withingsLiveOnlyHeartRate || coordinator.supportsManualHeartRateMeasurement(device))) ? View.VISIBLE : View.GONE);
+        //begin of action row: batteries, presets, status values and custom actions are all rendered
+        //dynamically from the coordinator's declared card items, see DeviceCardItemBinder
+        String hrSampleText = null;
         if (parent.getContext() instanceof ControlCenterv2) {
             ActivitySample sample = ((ControlCenterv2) parent.getContext()).getCurrentHRSample(device);
             if (sample != null) {
-                holder.heartRateStatusLabel.setText(String.valueOf(sample.getHeartRate()));
-                if (withingsLiveOnlyHeartRate) {
-                    holder.heartRateStatusBox.setVisibility(View.VISIBLE);
-                }
-            } else {
-                if (withingsLiveOnlyHeartRate) {
-                    holder.heartRateStatusBox.setVisibility(View.GONE);
-                }
-                holder.heartRateStatusLabel.setText("");
-            }
-
-            // Hide the level, if it has no text
-            if (TextUtils.isEmpty(holder.heartRateStatusLabel.getText())) {
-                holder.heartRateStatusLabel.setVisibility(View.GONE);
-            } else {
-                holder.heartRateStatusLabel.setVisibility(View.VISIBLE);
+                hrSampleText = String.valueOf(sample.getHeartRate());
             }
         }
-
-        if (withingsLiveOnlyHeartRate) {
-            holder.heartRateStatusBox.setOnClickListener(null);
-            holder.heartRateStatusBox.setClickable(false);
-            holder.heartRateStatusBox.setFocusable(false);
-        } else {
-            holder.heartRateStatusBox.setOnClickListener(new View.OnClickListener() {
-                                                             @Override
-                                                             public void onClick(View v) {
-                                                                 GBApplication.deviceService(device).onHeartRateTest();
-                                                                 HeartRateDialog dialog = new HeartRateDialog(device, context);
-                                                                 dialog.show();
-                                                             }
-                                                         }
-            );
-            holder.heartRateStatusBox.setClickable(true);
-            holder.heartRateStatusBox.setFocusable(true);
-        }
-
-        //device specific settings
-        holder.deviceSpecificSettingsView.setVisibility(coordinator.getSupportedDeviceSpecificSettings(device)  != null ? View.VISIBLE : View.GONE);
-        holder.deviceSpecificSettingsView.setOnClickListener(new View.OnClickListener()
-
-                                                {
-                                                    @Override
-                                                    public void onClick(View v) {
-                                                        Intent startIntent;
-                                                        startIntent = new Intent(context, DeviceSettingsActivity.class);
-                                                        startIntent.putExtra(GBDevice.EXTRA_DEVICE, device);
-                                                        startIntent.putExtra(DeviceSettingsActivity.MENU_ENTRY_POINT, DeviceSettingsActivity.MENU_ENTRY_POINTS.DEVICE_SETTINGS);
-                                                        context.startActivity(startIntent);
-                                                    }
-                                                }
+        DeviceCardItemBinder.bind(
+            holder.infoIcons,
+            DeviceCardLayout.ITEMS.apply(device, coordinator.getCardItems(device)),
+            device,
+            context,
+            hrSampleText
+        );
+        QuickControlBinder.bind(
+            holder.quickControls,
+            DeviceCardLayout.QUICK_CONTROLS.apply(device, coordinator.getQuickControls(device)),
+            device,
+            context
         );
 
-        //fetch activity data
-        holder.fetchActivityDataBox.setVisibility((device.isInitialized() && coordinator.supportsDataFetching(device)) ? View.VISIBLE : View.GONE);
-        holder.fetchActivityData.setOnClickListener(new View.OnClickListener()
-
-                                                    {
-                                                        @Override
-                                                        public void onClick(View v) {
-                                                            showTransientSnackbar(R.string.busy_task_fetch_activity_data);
-                                                            GBApplication.deviceService(device).onFetchRecordedData(RecordedDataTypes.TYPE_SYNC);
-                                                        }
-                                                    }
-        );
-
-
-        //take screenshot
-        holder.takeScreenshotView.setVisibility((device.isInitialized() && coordinator.supportsScreenshots(device)) ? View.VISIBLE : View.GONE);
-        holder.takeScreenshotView.setOnClickListener(new View.OnClickListener()
-
-                                                     {
-                                                         @Override
-                                                         public void onClick(View v) {
-                                                             showTransientSnackbar(R.string.controlcenter_snackbar_requested_screenshot);
-                                                             GBApplication.deviceService(device).onScreenshotReq();
-                                                         }
-                                                     }
-        );
-
-        //manage apps
-        holder.manageAppsView.setVisibility((device.isInitialized() && coordinator.supportsAppsManagement(device)) ? View.VISIBLE : View.GONE);
-        holder.manageAppsView.setOnClickListener(new View.OnClickListener()
-
-                                                 {
-                                                     @Override
-                                                     public void onClick(View v) {
-                                                         DeviceCoordinator coordinator = device.getDeviceCoordinator();
-                                                         Class<? extends Activity> appsManagementActivity = coordinator.getAppsManagementActivity(device);
-                                                         if (appsManagementActivity != null) {
-                                                             Intent startIntent = new Intent(context, appsManagementActivity);
-                                                             startIntent.putExtra(GBDevice.EXTRA_DEVICE, device);
-                                                             context.startActivity(startIntent);
-                                                         }
-                                                     }
-                                                 }
-        );
-
-        //set alarms
-        holder.setAlarmsView.setVisibility(coordinator.getAlarmSlotCount(device) > 0 ? View.VISIBLE : View.GONE);
-        holder.setAlarmsView.setOnClickListener(new View.OnClickListener()
-
-                                                {
-                                                    @Override
-                                                    public void onClick(View v) {
-                                                        Intent startIntent;
-                                                        startIntent = new Intent(context, ConfigureAlarms.class);
-                                                        startIntent.putExtra(GBDevice.EXTRA_DEVICE, device);
-                                                        context.startActivity(startIntent);
-                                                    }
-                                                }
-        );
-
-        //set reminders
-        holder.setRemindersView.setVisibility(coordinator.getReminderSlotCount(device) > 0 ? View.VISIBLE : View.GONE);
-        holder.setRemindersView.setOnClickListener(new View.OnClickListener()
-
-                                                {
-                                                    @Override
-                                                    public void onClick(View v) {
-                                                        Intent startIntent;
-                                                        startIntent = new Intent(context, ConfigureReminders.class);
-                                                        startIntent.putExtra(GBDevice.EXTRA_DEVICE, device);
-                                                        context.startActivity(startIntent);
-                                                    }
-                                                }
-        );
-
-        //show graphs
-        holder.showActivityGraphs.setVisibility(coordinator.supportsCharts(device) ? View.VISIBLE : View.GONE);
-        holder.showActivityGraphs.setOnClickListener(new View.OnClickListener()
-
-                                                     {
-                                                         @Override
-                                                         public void onClick(View v) {
-                                                             Intent startIntent;
-                                                             startIntent = new Intent(context, ActivityChartsActivity.class);
-                                                             startIntent.putExtra(GBDevice.EXTRA_DEVICE, device);
-                                                             context.startActivity(startIntent);
-                                                         }
-                                                     }
-        );
-
-        //show activity tracks
-        holder.showActivityTracks.setVisibility(coordinator.supportsRecordedActivities(device) ? View.VISIBLE : View.GONE);
-        holder.showActivityTracks.setOnClickListener(new View.OnClickListener()
-                                                     {
-                                                         @Override
-                                                         public void onClick(View v) {
-                                                             Intent startIntent;
-                                                             startIntent = new Intent(context, WorkoutListActivity.class);
-                                                             startIntent.putExtra(GBDevice.EXTRA_DEVICE, device);
-                                                             context.startActivity(startIntent);
-                                                         }
-                                                     }
-        );
+        bindCompanionHint(holder, device);
 
         ItemWithDetailsAdapter infoAdapter = new ItemWithDetailsAdapter(context, device.getDeviceInfos());
         infoAdapter.setHorizontalAlignment(true);
@@ -605,7 +399,29 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         justifyListViewHeightBasedOnChildren(holder.deviceInfoList);
         holder.deviceInfoList.setFocusable(false);
 
-        holder.infoIcons.setVisibility(View.VISIBLE);
+        if (DeviceCardLayout.isShown(device)) {
+            holder.infoIcons.setVisibility(View.VISIBLE);
+            holder.deviceImageView.setOnClickListener(null);
+        } else {
+            final boolean revealed = revealedCardItemsAddresses.contains(device.getAddress());
+            holder.infoIcons.setVisibility(revealed ? View.VISIBLE : View.GONE);
+            holder.deviceImageView.setOnClickListener(v -> {
+                if (!revealedCardItemsAddresses.remove(device.getAddress())) {
+                    revealedCardItemsAddresses.add(device.getAddress());
+                }
+                notifyItemChanged(holder.getBindingAdapterPosition());
+            });
+        }
+        // The card items have a bottom margin. When they are hidden, we need to add a margin to the quick controls.
+        final ViewGroup.MarginLayoutParams quickControlsParams = (ViewGroup.MarginLayoutParams) holder.quickControls.getLayoutParams();
+        quickControlsParams.topMargin = holder.infoIcons.getVisibility() == View.VISIBLE
+            ? 0
+            : context.getResources().getDimensionPixelSize(R.dimen.quick_control_spacing);
+        holder.quickControls.setLayoutParams(quickControlsParams);
+        holder.deviceImageView.setOnLongClickListener(v -> {
+            DeviceSettingsActivity.start(context, device);
+            return true;
+        });
 
         final boolean detailsShown = expandedDeviceAddress.equals(device.getAddress());
         boolean showInfoIcon = device.hasDeviceInfos() && !device.isBusy();
@@ -619,332 +435,49 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
             }
         });
 
-        holder.findDevice.setVisibility(device.isInitialized() && coordinator.supportsFindDevice(device) ? View.VISIBLE : View.GONE);
-        holder.findDevice.setOnClickListener(v -> showFindDeviceDialog(device, coordinator));
-
-        holder.calibrateDevice.setVisibility(device.isInitialized() && (coordinator.getCalibrationActivity() != null) ? View.VISIBLE : View.GONE);
-        holder.calibrateDevice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent startIntent = new Intent(context, coordinator.getCalibrationActivity());
-                startIntent.putExtra(GBDevice.EXTRA_DEVICE, device);
-                context.startActivity(startIntent);
-            }
-        });
-
-        holder.fmFrequencyBox.setVisibility(View.GONE);
-        if (device.isInitialized() && device.getExtraInfo("fm_frequency") != null) {
-            holder.fmFrequencyBox.setVisibility(View.VISIBLE);
-            holder.fmFrequencyLabel.setText(String.format(Locale.getDefault(), "%.1f", (float) device.getExtraInfo("fm_frequency")));
-        }
-        final TextView fmFrequencyLabel = holder.fmFrequencyLabel;
-        final float FREQ_MIN = 87.5F;
-        final float FREQ_MAX = 108.0F;
-        final int FREQ_MIN_INT = (int) Math.floor(FREQ_MIN);
-        final int FREQ_MAX_INT = (int) Math.round(FREQ_MAX);
-        final AlertDialog alert[] = new AlertDialog[1];
-
-        holder.fmFrequencyBox.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
-                final LayoutInflater inflater = LayoutInflater.from(context);
-                final View frequency_picker_view = inflater.inflate(R.layout.dialog_frequency_picker, null);
-                builder.setTitle(R.string.preferences_fm_frequency);
-                final float[] fm_presets = new float[3];
-
-                fm_presets[0] = GBApplication.getDeviceSpecificSharedPrefs(device.getAddress()).getFloat("fm_preset0", 99);
-                fm_presets[1] = GBApplication.getDeviceSpecificSharedPrefs(device.getAddress()).getFloat("fm_preset1", 100);
-                fm_presets[2] = GBApplication.getDeviceSpecificSharedPrefs(device.getAddress()).getFloat("fm_preset2", 101);
-
-                final NumberPicker frequency_decimal_picker = frequency_picker_view.findViewById(R.id.frequency_dec);
-                frequency_decimal_picker.setMinValue(FREQ_MIN_INT);
-                frequency_decimal_picker.setMaxValue(FREQ_MAX_INT);
-
-                final NumberPicker frequency_fraction_picker = frequency_picker_view.findViewById(R.id.frequency_fraction);
-                frequency_fraction_picker.setMinValue(0);
-                frequency_fraction_picker.setMaxValue(9);
-
-                final NumberPicker.OnValueChangeListener picker_listener = new NumberPicker.OnValueChangeListener() {
-                    @Override
-                    public void onValueChange(NumberPicker numberPicker, int oldVal, int newVal) {
-
-                        int decimal_value = numberPicker.getValue();
-                        if (decimal_value == FREQ_MIN_INT) {
-                            frequency_fraction_picker.setMinValue(5);
-                            frequency_fraction_picker.setMaxValue(9);
-                        } else if (decimal_value == FREQ_MAX_INT) {
-                            frequency_fraction_picker.setMinValue(0);
-                            frequency_fraction_picker.setMaxValue(0);
-                        } else {
-                            frequency_fraction_picker.setMinValue(0);
-                            frequency_fraction_picker.setMaxValue(9);
-                        }
-                    }
-                };
-
-                frequency_decimal_picker.setOnValueChangedListener(picker_listener);
-
-                final Button[] button_presets = new Button[]{
-                        frequency_picker_view.findViewById(R.id.frequency_preset1),
-                        frequency_picker_view.findViewById(R.id.frequency_preset2),
-                        frequency_picker_view.findViewById(R.id.frequency_preset3)
-                };
-
-                for (int i = 0; i < button_presets.length; i++) {
-                    final int index = i;
-                    button_presets[index].setText(String.valueOf(fm_presets[index]));
-                    button_presets[index].setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            final float frequency = fm_presets[index];
-                            device.setExtraInfo("fm_frequency", fm_presets[index]);
-                            fmFrequencyLabel.setText(String.format(Locale.getDefault(), "%.1f", (float) frequency));
-                            GBApplication.deviceService(device).onSetFmFrequency(frequency);
-                            alert[0].dismiss();
-                        }
-                    });
-                    button_presets[index].setOnLongClickListener(new View.OnLongClickListener() {
-                        @Override
-                        public boolean onLongClick(View view) {
-                            final float frequency = (float) (frequency_decimal_picker.getValue() + (0.1 * frequency_fraction_picker.getValue()));
-                            fm_presets[index] = frequency;
-                            button_presets[index].setText(String.valueOf(frequency));
-                            SharedPreferences.Editor editor = GBApplication.getDeviceSpecificSharedPrefs(device.getAddress()).edit();
-                            editor.putFloat((String.format("fm_preset%s", index)), frequency);
-                            editor.apply();
-                            return true;
-                        }
-                    });
-
-                }
-
-                final float frequency = (float) device.getExtraInfo("fm_frequency");
-                final int decimal = (int) frequency;
-                final int fraction = Math.round((frequency - decimal) * 10);
-                frequency_decimal_picker.setValue(decimal);
-                picker_listener.onValueChange(frequency_decimal_picker, frequency_decimal_picker.getValue(), decimal);
-                frequency_fraction_picker.setValue(fraction);
-
-                builder.setView(frequency_picker_view);
-
-                builder.setPositiveButton(context.getResources().getString(android.R.string.ok),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                float frequency = (float) (frequency_decimal_picker.getValue() + (0.1 * frequency_fraction_picker.getValue()));
-                                if (frequency < FREQ_MIN || frequency > FREQ_MAX) {
-                                    new MaterialAlertDialogBuilder(context)
-                                            .setTitle(R.string.pref_invalid_frequency_title)
-                                            .setMessage(R.string.pref_invalid_frequency_message)
-                                            .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                }
-                                            })
-                                            .show();
-                                } else {
-                                    device.setExtraInfo("fm_frequency", frequency);
-                                    fmFrequencyLabel.setText(String.format(Locale.getDefault(), "%.1f", frequency));
-                                    GBApplication.deviceService(device).onSetFmFrequency(frequency);
-                                }
-                            }
-                        });
-                builder.setNegativeButton(context.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                alert[0] = builder.create();
-                alert[0].show();
-            }
-        });
-
-        holder.ledColor.setVisibility(View.GONE);
-        if (device.isInitialized() && device.getExtraInfo("led_color") != null && coordinator.supportsLedColor(device)) {
-            holder.ledColor.setVisibility(View.VISIBLE);
-            final GradientDrawable ledColor = (GradientDrawable) holder.ledColor.getDrawable().mutate();
-            ledColor.setColor((int) device.getExtraInfo("led_color"));
-            holder.ledColor.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ColorPickerDialog.Builder builder = ColorPickerDialog.newBuilder();
-                    builder.setDialogTitle(R.string.preferences_led_color);
-
-                    int[] presets = coordinator.getColorPresets();
-
-                    builder.setColor((int) device.getExtraInfo("led_color"));
-                    builder.setShowAlphaSlider(false);
-                    builder.setShowColorShades(false);
-                    if (coordinator.supportsRgbLedColor(device)) {
-                        builder.setAllowCustom(true);
-                        if (presets.length == 0) {
-                            builder.setDialogType(ColorPickerDialog.TYPE_CUSTOM);
-                        }
-                    } else {
-                        builder.setAllowCustom(false);
-                    }
-
-                    if (presets.length > 0) {
-                        builder.setAllowPresets(true);
-                        builder.setPresets(presets);
-                    }
-
-                    ColorPickerDialog dialog = builder.create();
-                    dialog.setColorPickerDialogListener(new ColorPickerDialogListener() {
-                        @Override
-                        public void onColorSelected(int dialogId, int color) {
-                            ledColor.setColor(color);
-                            device.setExtraInfo("led_color", color);
-                            GBApplication.deviceService(device).onSetLedColor(color);
-                        }
-
-                        @Override
-                        public void onDialogDismissed(int dialogId) {
-                            // Nothing to do
-                        }
-                    });
-                    dialog.show(((AppCompatActivity) context).getSupportFragmentManager(), "color-picker-dialog");
-                }
-            });
-        }
-
-        holder.powerOff.setVisibility(View.GONE);
-        if (device.isInitialized() && coordinator.supportsPowerOff(device)) {
-            holder.powerOff.setVisibility(View.VISIBLE);
-            holder.powerOff.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    new MaterialAlertDialogBuilder(context)
-                            .setTitle(R.string.controlcenter_power_off_confirm_title)
-                            .setMessage(R.string.controlcenter_power_off_confirm_description)
-                            .setIcon(R.drawable.ic_power_settings_new)
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(final DialogInterface dialog, final int whichButton) {
-                                    GBApplication.deviceService(device).onPowerOff();
-                                }
-                            })
-                            .setNegativeButton(android.R.string.no, null)
-                            .show();
-                }
-            });
-        }
-
         holder.cardViewActivityCardLayout.setVisibility(coordinator.supportsActivityTracking(device) ? View.VISIBLE : View.GONE);
         holder.cardViewActivityCardLayout.setMinimumWidth(coordinator.supportsActivityTracking(device) ? View.VISIBLE : View.GONE);
-
-        // custom actions
-        final List<DeviceCardAction> customActions = coordinator.getCustomActions();
-        if (customActions.size() > holder.customActions.length) {
-            LOG.error("{} has more than {} actions!", device, holder.customActions.length);
-        }
-        for (int i = 0; i < Math.min(customActions.size(), holder.customActions.length); i++) {
-            final DeviceCardAction action = customActions.get(i);
-            holder.customActions[i].layout.setVisibility(action.isVisible(device) ? View.VISIBLE : View.GONE);
-            holder.customActions[i].image.setImageResource(action.getIcon(device));
-            final String description = action.getDescription(device, context);
-            holder.customActions[i].layout.setContentDescription(description);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                holder.customActions[i].layout.setTooltipText(description);
-            }
-
-            final String label = action.getLabel(device, context);
-            if (!StringUtils.isNullOrEmpty(label)) {
-                holder.customActions[i].label.setVisibility(View.VISIBLE);
-                holder.customActions[i].label.setText(label);
-            } else {
-                holder.customActions[i].label.setVisibility(View.GONE);
-            }
-
-            holder.customActions[i].layout.setOnClickListener(v -> action.onClick(device, context));
-        }
-        for (int i = Math.min(customActions.size(), holder.customActions.length); i < holder.customActions.length; i++) {
-            holder.customActions[i].layout.setVisibility(View.GONE);
-        }
 
         if (coordinator.supportsActivityTracking(device)) {
             setActivityCard(holder, device, dailyTotals);
         }
     }
 
+    private void bindCompanionHint(final ViewHolder holder, final GBDevice device) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O
+            || !(context instanceof Activity)
+            || !CompanionPairingHint.shouldShow(context, device)) {
+            holder.companionHint.setVisibility(View.GONE);
+            return;
+        }
+        holder.companionHint.setVisibility(View.VISIBLE);
+        holder.companionHintDismiss.setOnClickListener(v -> {
+            CompanionPairingHint.dismiss(device);
+            notifyItemChanged(holder.getBindingAdapterPosition());
+        });
+        holder.companionHintPair.setOnClickListener(v -> {
+            pendingCompanionAddress = device.getAddress();
+            CompanionPairingHint.pair((Activity) context, device);
+        });
+    }
+
+    public void onResume() {
+        if (pendingCompanionAddress == null) {
+            return;
+        }
+        final String address = pendingCompanionAddress;
+        pendingCompanionAddress = null;
+        CompanionPairingHint.onChooserClosed(context, address);
+        for (int i = 0; i < devicesListWithFolders.size(); i++) {
+            if (address.equals(devicesListWithFolders.get(i).getAddress())) {
+                notifyItemChanged(i);
+            }
+        }
+    }
+
     private boolean showInstallerItem(GBDevice device) {
         final DeviceCoordinator coordinator = device.getDeviceCoordinator();
         return coordinator.supportsAppsManagement(device) || coordinator.supportsFlashing(device);
-    }
-
-    /**
-     * Shows the dialog that asks the user to confirm the "find device" function.
-     * Devices that support {@link DeviceCoordinator#supportsFindDevicePerEarbud}
-     * also let the user select a earbud, or both.
-     */
-    private void showFindDeviceDialog(final GBDevice device, final DeviceCoordinator coordinator) {
-        final String message = context.getString(R.string.find_lost_device_message, device.getAliasOrName());
-        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context)
-                .setCancelable(true)
-                .setTitle(R.string.controlcenter_find_device)
-                .setNegativeButton(R.string.cancel, (dialog, which) -> {});
-
-        if (!coordinator.supportsFindDevicePerEarbud(device)) {
-            if (coordinator.getDeviceKind(device) == DeviceCoordinator.DeviceKind.HEADPHONES) {
-                // For headphones, display a warning
-                builder.setMessage(message + "\n\n" + context.getString(R.string.earfun_find_headphones_hint));
-            } else {
-                builder.setMessage(message);
-            }
-            builder.setPositiveButton(R.string.ok, (dialog, which) -> startFindDevice(device, FindDeviceTarget.ALL))
-                    .show();
-            return;
-        }
-
-        final View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_find_device, parent, false);
-        final TextView messageView = dialogView.findViewById(R.id.find_device_message);
-        messageView.setText(message);
-        final RadioGroup targetGroup = dialogView.findViewById(R.id.find_device_target_group);
-
-        builder.setView(dialogView)
-                .setPositiveButton(R.string.ok, (dialog, which) -> {
-                    final int checkedId = targetGroup.getCheckedRadioButtonId();
-                    final FindDeviceTarget target;
-                    if (checkedId == R.id.find_device_target_left) {
-                        target = FindDeviceTarget.LEFT;
-                    } else if (checkedId == R.id.find_device_target_right) {
-                        target = FindDeviceTarget.RIGHT;
-                    } else {
-                        target = FindDeviceTarget.ALL;
-                    }
-                    startFindDevice(device, target);
-                })
-                .show();
-    }
-
-    /**
-     * Starts the "find device" function and shows a snackbar that lets the user
-     * stop it.
-     */
-    private void startFindDevice(final GBDevice device, final FindDeviceTarget target) {
-        if (device.getType() == DeviceType.VIBRATISSIMO) {
-            final Intent startIntent = new Intent(context, VibrationActivity.class);
-            startIntent.putExtra(GBDevice.EXTRA_DEVICE, device);
-            context.startActivity(startIntent);
-            return;
-        }
-
-        GBApplication.deviceService(device).onFindDevice(true, target);
-
-        Snackbar.make(parent, R.string.control_center_find_lost_device, Snackbar.LENGTH_INDEFINITE)
-                .setAction(R.string.find_lost_device_you_found_it, v -> GBApplication.deviceService(device).onFindDevice(false, target))
-                .setCallback(new Snackbar.Callback() {
-                    @Override
-                    public void onDismissed(final Snackbar snackbar, final int event) {
-                        GBApplication.deviceService(device).onFindDevice(false, target);
-                        super.onDismissed(snackbar, event);
-                    }
-                })
-                .show();
     }
 
     private void showDeviceSubmenu(final View v, final GBDevice device) {
@@ -986,6 +519,9 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
                         GBApplication.deviceService(device).onTestNewFunction(null);
                         showTransientSnackbar(R.string.controlcenter_test_new_function);
                     }
+                    return true;
+                } else if (itemId == R.id.controlcenter_device_submenu_device_settings) {
+                    DeviceSettingsActivity.start(context, device);
                     return true;
                 } else if (itemId == R.id.controlcenter_device_submenu_set_alias) {
                     showSetAliasDialog(device);
@@ -1029,16 +565,17 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
 
     private void showRemoveDeviceDialog(final GBDevice device) {
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context)
-                .setCancelable(true)
-                .setTitle(context.getString(R.string.controlcenter_delete_device_name, device.getAliasOrName()))
-                .setMessage(R.string.controlcenter_delete_device_dialogmessage)
-                .setPositiveButton(R.string.delete,
-                        (dialog, which) -> removeDevice(device, true))
-                .setNegativeButton(R.string.cancel, (dialog, which) -> {});
+            .setCancelable(true)
+            .setTitle(context.getString(R.string.controlcenter_delete_device_name, device.getAliasOrName()))
+            .setMessage(R.string.controlcenter_delete_device_dialogmessage)
+            .setPositiveButton(R.string.delete,
+                (dialog, which) -> removeDevice(device, true))
+            .setNegativeButton(R.string.cancel, (dialog, which) -> {
+            });
 
         if (deviceHasFiles(device)) {
             builder.setNeutralButton(R.string.delete_device_and_retain_files,
-                    (dialog, which) -> removeDevice(device, false));
+                (dialog, which) -> removeDevice(device, false));
         }
         builder.show();
     }
@@ -1087,7 +624,7 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         final LinearLayout newFolderLayout = new LinearLayout(context);
         newFolderLayout.setOrientation(LinearLayout.HORIZONTAL);
         newFolderLayout.setPadding(context.getResources().getDimensionPixelSize(R.dimen.dialog_margin),
-                0, context.getResources().getDimensionPixelSize(R.dimen.dialog_margin), 0);
+            0, context.getResources().getDimensionPixelSize(R.dimen.dialog_margin), 0);
 
         final TextView newFolderLabel = new TextView(context);
         newFolderLabel.setText(R.string.controlcenter_folder_name);
@@ -1095,7 +632,7 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         newFolderInput.setInputType(InputType.TYPE_CLASS_TEXT);
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+            ViewGroup.LayoutParams.WRAP_CONTENT);
         newFolderInput.setLayoutParams(params);
 
         newFolderInput.addTextChangedListener(new TextWatcher() {
@@ -1137,7 +674,7 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         }
 
         final SpinnerWithIconAdapter deviceListAdapter = new SpinnerWithIconAdapter((Activity) context,
-                R.layout.spinner_with_image_layout, R.id.spinner_item_text, foldersList);
+            R.layout.spinner_with_image_layout, R.id.spinner_item_text, foldersList);
         deviceListSpinner.setAdapter(deviceListAdapter);
 
         deviceListSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -1171,40 +708,40 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         linearLayout.addView(newFolderLayout);
 
         new MaterialAlertDialogBuilder(context)
-                .setCancelable(true)
-                .setTitle(R.string.controlcenter_set_folder_title)
-                .setView(linearLayout)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+            .setCancelable(true)
+            .setTitle(R.string.controlcenter_set_folder_title)
+            .setView(linearLayout)
+            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
 
-                        try (DBHandler dbHandler = GBApplication.acquireDB()) {
-                            DaoSession session = dbHandler.getDaoSession();
-                            Device dbDevice = DBHelper.getDevice(device, session);
-                            String parentFolder = selectedFolder[0];
-                            dbDevice.setParentFolder(parentFolder);
-                            dbDevice.update();
-                            device.setParentFolder(parentFolder);
-                            expandedFolderName = parentFolder;
-                        } catch (Exception ex) {
-                            GB.toast(context, context.getString(R.string.error_setting_parent_folder, ex.getLocalizedMessage()), Toast.LENGTH_LONG, GB.ERROR, ex);
-                        } finally {
-                            Intent refreshIntent = new Intent(DeviceManager.ACTION_REFRESH_DEVICELIST);
-                            LocalBroadcastManager.getInstance(context).sendBroadcast(refreshIntent);
-                        }
+                    try (DBHandler dbHandler = GBApplication.acquireDB()) {
+                        DaoSession session = dbHandler.getDaoSession();
+                        Device dbDevice = DBHelper.getDevice(device, session);
+                        String parentFolder = selectedFolder[0];
+                        dbDevice.setParentFolder(parentFolder);
+                        dbDevice.update();
+                        device.setParentFolder(parentFolder);
+                        expandedFolderName = parentFolder;
+                    } catch (Exception ex) {
+                        GB.toast(context, context.getString(R.string.error_setting_parent_folder, ex.getLocalizedMessage()), Toast.LENGTH_LONG, GB.ERROR, ex);
+                    } finally {
+                        Intent refreshIntent = new Intent(DeviceManager.ACTION_REFRESH_DEVICELIST);
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(refreshIntent);
                     }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .show();
+                }
+            })
+            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            })
+            .show();
     }
 
-    private boolean folderListContainsName(ArrayList<SpinnerWithIconItem> list, String name){
-        for (SpinnerWithIconItem item: list) {
-            if (item.getText().equals(name)){
+    private boolean folderListContainsName(ArrayList<SpinnerWithIconItem> list, String name) {
+        for (SpinnerWithIconItem item : list) {
+            if (item.getText().equals(name)) {
                 return true;
             }
         }
@@ -1227,12 +764,13 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         startIntent.putExtra(DeviceSettingsActivity.MENU_ENTRY_POINT, DeviceSettingsActivity.MENU_ENTRY_POINTS.APPLICATION_SETTINGS);
         context.startActivity(startIntent);
     }
+
     private void showSetAliasDialog(final GBDevice device) {
         final EditText input = new EditText(context);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         input.setText(device.getAlias());
         FrameLayout container = new FrameLayout(context);
-        FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.leftMargin = context.getResources().getDimensionPixelSize(R.dimen.dialog_margin);
         params.rightMargin = context.getResources().getDimensionPixelSize(R.dimen.dialog_margin);
         input.setLayoutParams(params);
@@ -1240,34 +778,34 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
 
         new MaterialAlertDialogBuilder(context)
-                .setView(container)
-                .setCancelable(true)
-                .setTitle(context.getString(R.string.controlcenter_set_alias))
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        try (DBHandler dbHandler = GBApplication.acquireDB()) {
-                            DaoSession session = dbHandler.getDaoSession();
-                            Device dbDevice = DBHelper.getDevice(device, session);
-                            String alias = input.getText().toString();
-                            dbDevice.setAlias(alias);
-                            dbDevice.update();
-                            device.setAlias(alias);
-                        } catch (Exception ex) {
-                            GB.toast(context, context.getString(R.string.error_setting_alias) + ex.getLocalizedMessage(), Toast.LENGTH_LONG, GB.ERROR, ex);
-                        } finally {
-                            Intent refreshIntent = new Intent(DeviceManager.ACTION_REFRESH_DEVICELIST);
-                            LocalBroadcastManager.getInstance(context).sendBroadcast(refreshIntent);
-                        }
+            .setView(container)
+            .setCancelable(true)
+            .setTitle(context.getString(R.string.controlcenter_set_alias))
+            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    try (DBHandler dbHandler = GBApplication.acquireDB()) {
+                        DaoSession session = dbHandler.getDaoSession();
+                        Device dbDevice = DBHelper.getDevice(device, session);
+                        String alias = input.getText().toString();
+                        dbDevice.setAlias(alias);
+                        dbDevice.update();
+                        device.setAlias(alias);
+                    } catch (Exception ex) {
+                        GB.toast(context, context.getString(R.string.error_setting_alias) + ex.getLocalizedMessage(), Toast.LENGTH_LONG, GB.ERROR, ex);
+                    } finally {
+                        Intent refreshIntent = new Intent(DeviceManager.ACTION_REFRESH_DEVICELIST);
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(refreshIntent);
                     }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // do nothing
-                    }
-                })
-                .show();
+                }
+            })
+            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // do nothing
+                }
+            })
+            .show();
     }
 
     @Override
@@ -1286,54 +824,31 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         MaterialCardView container;
 
         ImageView deviceImageView;
+        final Context connectedIconContext;
         TextView deviceNameLabel;
         TextView deviceStatusLabel;
+        View deviceStatusDot;
 
-        //actions
-        LinearLayout batteryStatusBox0;
-        TextView batteryStatusLabel0;
-        ImageView batteryIcon0;
-        LinearLayout batteryStatusBox1;
-        TextView batteryStatusLabel1;
-        ImageView batteryIcon1;
-        LinearLayout batteryStatusBox2;
-        TextView batteryStatusLabel2;
-        ImageView batteryIcon2;
-        ImageView deviceSpecificSettingsView;
-        LinearLayout fetchActivityDataBox;
-        ImageView fetchActivityData;
-        ProgressBar busyIndicator;
-        ImageView takeScreenshotView;
-        ImageView manageAppsView;
-        ImageView setAlarmsView;
-        ImageView setRemindersView;
-        ImageView showActivityGraphs;
-        ImageView showActivityTracks;
-        ImageView calibrateDevice;
-        LinearLayout heartRateStatusBox;
-        ImageView heartRateIcon;
-        TextView heartRateStatusLabel;
+        // Icon row: batteries, presets, status items and custom actions are all rendered
+        // dynamically into this container by DeviceCardItemBinder.
         FlexboxLayout infoIcons;
 
+        LinearLayout quickControls;
+
+        final LinearLayout companionHint;
+        final Button companionHintDismiss;
+        final Button companionHintPair;
 
         ImageView deviceInfoView;
         //overflow
         final RelativeLayout deviceInfoBox;
         ListView deviceInfoList;
-        ImageView findDevice;
-        LinearLayout fmFrequencyBox;
-        TextView fmFrequencyLabel;
-        ImageView ledColor;
-        ImageView powerOff;
-
-        // Custom actions
-        CustomActionHolder[] customActions;
 
         //activity card
         LinearLayout cardViewActivityCardLayout;
-        PieChart TotalStepsChart;
-        PieChart TotalDistanceChart;
-        PieChart SleepTimeChart;
+        ActivityGauge TotalStepsChart;
+        ActivityGauge TotalDistanceChart;
+        ActivityGauge SleepTimeChart;
 
         ViewHolder(View view) {
             super(view);
@@ -1343,83 +858,28 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
             container = view.findViewById(R.id.card_view);
 
             deviceImageView = view.findViewById(R.id.device_image);
+            connectedIconContext = new ContextThemeWrapper(deviceImageView.getContext(), R.style.ThemeOverlay_App_DeviceCardIcon_Connected);
             deviceNameLabel = view.findViewById(R.id.device_name);
             deviceStatusLabel = view.findViewById(R.id.device_status);
+            deviceStatusDot = view.findViewById(R.id.device_status_dot);
 
-            //actions
-            batteryStatusBox0 = view.findViewById(R.id.device_battery_status_box);
-            batteryStatusLabel0 = view.findViewById(R.id.battery_status);
-            batteryIcon0 = view.findViewById(R.id.device_battery_status);
-            batteryStatusBox1 = view.findViewById(R.id.device_battery_status_box1);
-            batteryStatusLabel1 = view.findViewById(R.id.battery_status1);
-            batteryIcon1 = view.findViewById(R.id.device_battery_status1);
-            batteryStatusBox2 = view.findViewById(R.id.device_battery_status_box2);
-            batteryStatusLabel2 = view.findViewById(R.id.battery_status2);
-            batteryIcon2 = view.findViewById(R.id.device_battery_status2);
-
-
-
-            deviceSpecificSettingsView = view.findViewById(R.id.device_specific_settings);
-            fetchActivityDataBox = view.findViewById(R.id.device_action_fetch_activity_box);
-            fetchActivityData = view.findViewById(R.id.device_action_fetch_activity);
-            busyIndicator = view.findViewById(R.id.device_busy_indicator);
-            takeScreenshotView = view.findViewById(R.id.device_action_take_screenshot);
-            manageAppsView = view.findViewById(R.id.device_action_manage_apps);
-            setAlarmsView = view.findViewById(R.id.device_action_set_alarms);
-            setRemindersView = view.findViewById(R.id.device_action_set_reminders);
-            showActivityGraphs = view.findViewById(R.id.device_action_show_activity_graphs);
-            showActivityTracks = view.findViewById(R.id.device_action_show_activity_tracks);
             deviceInfoView = view.findViewById(R.id.device_info_image);
-            calibrateDevice = view.findViewById(R.id.device_action_calibrate);
 
             deviceInfoBox = view.findViewById(R.id.device_item_infos_box);
             //overflow
             deviceInfoList = view.findViewById(R.id.device_item_infos);
-            findDevice = view.findViewById(R.id.device_action_find);
-            fmFrequencyBox = view.findViewById(R.id.device_fm_frequency_box);
-            fmFrequencyLabel = view.findViewById(R.id.fm_frequency);
-            ledColor = view.findViewById(R.id.device_led_color);
-            powerOff = view.findViewById(R.id.device_action_power_off);
-            heartRateStatusBox = view.findViewById(R.id.device_heart_rate_status_box);
-            heartRateStatusLabel = view.findViewById(R.id.heart_rate_status);
-            heartRateIcon = view.findViewById(R.id.device_heart_rate_status);
             infoIcons = view.findViewById(R.id.device_info_icons);
+            quickControls = view.findViewById(R.id.device_quick_controls);
 
-            customActions = new CustomActionHolder[]{
-                    new CustomActionHolder(
-                            view.findViewById(R.id.device_custom_action_0_box),
-                            view.findViewById(R.id.device_custom_action_0_image),
-                            view.findViewById(R.id.device_custom_action_0_label)
-                    ),
-                    new CustomActionHolder(
-                            view.findViewById(R.id.device_custom_action_1_box),
-                            view.findViewById(R.id.device_custom_action_1_image),
-                            view.findViewById(R.id.device_custom_action_1_label)
-                    ),
-                    new CustomActionHolder(
-                            view.findViewById(R.id.device_custom_action_2_box),
-                            view.findViewById(R.id.device_custom_action_2_image),
-                            view.findViewById(R.id.device_custom_action_2_label)
-                    )
-            };
+            companionHint = view.findViewById(R.id.companion_hint);
+            companionHintDismiss = view.findViewById(R.id.companion_hint_dismiss);
+            companionHintPair = view.findViewById(R.id.companion_hint_pair);
 
             cardViewActivityCardLayout = view.findViewById(R.id.card_view_activity_card_layout);
 
-            TotalStepsChart = view.findViewById(R.id.activity_dashboard_piechart1);
-            TotalDistanceChart = view.findViewById(R.id.activity_dashboard_piechart2);
-            SleepTimeChart = view.findViewById(R.id.activity_dashboard_piechart3);
-        }
-
-        static class CustomActionHolder {
-            private final LinearLayout layout;
-            private final ImageView image;
-            private final TextView label;
-
-            CustomActionHolder(final LinearLayout layout, final ImageView image, final TextView label) {
-                this.layout = layout;
-                this.image = image;
-                this.label = label;
-            }
+            TotalStepsChart = new ActivityGauge(view.findViewById(R.id.device_card_gauge_steps));
+            TotalDistanceChart = new ActivityGauge(view.findViewById(R.id.device_card_gauge_distance));
+            SleepTimeChart = new ActivityGauge(view.findViewById(R.id.device_card_gauge_sleep));
         }
     }
 
@@ -1504,14 +964,11 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         double distanceMeters = (distanceCm > 0 ? distanceCm : steps * stepLength) * 0.01;
         String distanceFormatted = FormatUtils.getFormattedDistanceLabel(distanceMeters);
 
-        setUpChart(holder.TotalStepsChart);
-        setChartsData(holder.TotalStepsChart, steps, stepGoal, context.getString(R.string.steps), NumberFormat.getInstance().format(steps), context);
+        holder.TotalStepsChart.update(gaugeDrawer, steps, stepGoal, NumberFormat.getInstance().format(steps), context.getString(R.string.steps));
 
-        setUpChart(holder.TotalDistanceChart);
-        setChartsData(holder.TotalDistanceChart, distanceForChart, distanceGoal, context.getString(R.string.distance), distanceFormatted, context);
+        holder.TotalDistanceChart.update(gaugeDrawer, distanceForChart, distanceGoal, distanceFormatted, context.getString(R.string.distance));
 
-        setUpChart(holder.SleepTimeChart);
-        setChartsData(holder.SleepTimeChart, sleep, sleepGoalMinutes, context.getString(R.string.prefs_activity_in_device_card_sleep_title), String.format("%1s", getHM(sleep)), context);
+        holder.SleepTimeChart.update(gaugeDrawer, sleep, sleepGoalMinutes, String.format("%1s", getHM(sleep)), context.getString(R.string.prefs_activity_in_device_card_sleep_title));
 
 
         boolean showActivitySteps = GBApplication.getDeviceSpecificSharedPrefs(device.getAddress()).getBoolean(DeviceSettingsPreferenceConst.PREFS_ACTIVITY_IN_DEVICE_CARD_STEPS, true);
@@ -1519,13 +976,13 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         boolean showActivityDistance = GBApplication.getDeviceSpecificSharedPrefs(device.getAddress()).getBoolean(DeviceSettingsPreferenceConst.PREFS_ACTIVITY_IN_DEVICE_CARD_DISTANCE, true);
 
         //do the multiple mini-charts for activities in a loop
-        Hashtable<PieChart, Pair<Boolean, Integer>> activitiesStatusMiniCharts = new Hashtable<>();
-        activitiesStatusMiniCharts.put(holder.TotalStepsChart, new Pair<>(showActivitySteps && steps > 0, ActivityChartsActivity.getChartsTabIndex("stepsweek", device, context)));
-        activitiesStatusMiniCharts.put(holder.SleepTimeChart, new Pair<>(showActivitySleep && sleep > 0, ActivityChartsActivity.getChartsTabIndex("sleep", device, context)));
-        activitiesStatusMiniCharts.put(holder.TotalDistanceChart, new Pair<>(showActivityDistance && distanceForChart > 0, ActivityChartsActivity.getChartsTabIndex("activity", device, context)));
+        Hashtable<View, Pair<Boolean, Integer>> activitiesStatusMiniCharts = new Hashtable<>();
+        activitiesStatusMiniCharts.put(holder.TotalStepsChart.container, new Pair<>(showActivitySteps && steps > 0, ActivityChartsActivity.getChartsTabIndex("stepsweek", device, context)));
+        activitiesStatusMiniCharts.put(holder.SleepTimeChart.container, new Pair<>(showActivitySleep && sleep > 0, ActivityChartsActivity.getChartsTabIndex("sleep", device, context)));
+        activitiesStatusMiniCharts.put(holder.TotalDistanceChart.container, new Pair<>(showActivityDistance && distanceForChart > 0, ActivityChartsActivity.getChartsTabIndex("activity", device, context)));
 
-        for (Map.Entry<PieChart, Pair<Boolean, Integer>> miniCharts : activitiesStatusMiniCharts.entrySet()) {
-            PieChart miniChart = miniCharts.getKey();
+        for (Map.Entry<View, Pair<Boolean, Integer>> miniCharts : activitiesStatusMiniCharts.entrySet()) {
+            View miniChart = miniCharts.getKey();
             final Pair<Boolean, Integer> parameters = miniCharts.getValue();
             miniChart.setVisibility(parameters.first ? View.VISIBLE : View.GONE);
             miniChart.setOnClickListener(new View.OnClickListener() {
@@ -1545,87 +1002,24 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
     private String getHM(long value) {
         return DateTimeUtils.formatDurationHoursMinutes(value, TimeUnit.MINUTES);
     }
-    private void setUpChart(PieChart DashboardChart) {
-        DashboardChart.setTouchEnabled(false);
-        DashboardChart.setNoDataText("");
-        DashboardChart.getLegend().setEnabled(false);
-        DashboardChart.setDrawHoleEnabled(true);
-        DashboardChart.setHoleColor(Color.WHITE);
-        DashboardChart.getDescription().setText("");
-        DashboardChart.setTransparentCircleColor(Color.WHITE);
-        DashboardChart.setTransparentCircleAlpha(110);
-        DashboardChart.setHoleRadius(70f);
-        DashboardChart.setTransparentCircleRadius(75f);
-        DashboardChart.setDrawCenterText(true);
-        DashboardChart.setRotationEnabled(true);
-        DashboardChart.setHighlightPerTapEnabled(true);
-        DashboardChart.setCenterTextOffset(0, 0);
-    }
-    private void setChartsData(PieChart pieChart, float value, float target, String label, String stringValue, Context context) {
-        final String CHART_COLOR_START = "#e74c3c";
-        final String CHART_COLOR_END = "#2ecc71";
-
-        ArrayList<PieEntry> entries = new ArrayList<>();
-        entries.add(new PieEntry((float) value, context.getResources().getDrawable(R.drawable.ic_star_gold)));
-
-        if (value < target) {
-            entries.add(new PieEntry((float) (target - value)));
-        }
-
-        pieChart.setCenterText(String.format("%s\n%s", stringValue, label));
-        float colorValue = Math.max(0, Math.min(1, value / target));
-        int chartColor = interpolateColor(Color.parseColor(CHART_COLOR_START), Color.parseColor(CHART_COLOR_END), colorValue);
-
-        PieDataSet dataSet = new PieDataSet(entries, "");
-        dataSet.setDrawIcons(false);
-        dataSet.setIconsOffset(new MPPointF(0, -66));
-
-        if (colorValue == 1) {
-            dataSet.setDrawIcons(true);
-        }
-        dataSet.setSliceSpace(0f);
-        dataSet.setSelectionShift(5f);
-        dataSet.setColors(chartColor, Color.LTGRAY);
-
-        PieData data = new PieData(dataSet);
-        data.setValueTextSize(0f);
-        data.setValueTextColor(Color.WHITE);
-
-        pieChart.setData(data);
-        pieChart.invalidate();
-    }
-    private float interpolate(float a, float b, float proportion) {
-        return (a + ((b - a) * proportion));
-    }
-
-    private int interpolateColor(int a, int b, float proportion) {
-        float[] hsva = new float[3];
-        float[] hsvb = new float[3];
-        Color.colorToHSV(a, hsva);
-        Color.colorToHSV(b, hsvb);
-        for (int i = 0; i < 3; i++) {
-            hsvb[i] = interpolate(hsva[i], hsvb[i], proportion);
-        }
-        return Color.HSVToColor(hsvb);
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.R)
     void createDynamicShortcut(GBDevice device) {
         Intent intent = new Intent(context, ControlCenterv2.class)
-                .setAction(ACTION_CONNECT)
-                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                .putExtra("device", device.getAddress());
+            .setAction(ACTION_CONNECT)
+            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            .putExtra("device", device.getAddress());
 
         ShortcutManager shortcutManager = (ShortcutManager) context.getApplicationContext().getSystemService(Context.SHORTCUT_SERVICE);
 
         DeviceCoordinator coordinator = device.getDeviceCoordinator();
 
         shortcutManager.pushDynamicShortcut(new ShortcutInfo.Builder(context, device.getAddress())
-                .setLongLived(false)
-                .setShortLabel(device.getAliasOrName())
-                .setIntent(intent)
-                .setIcon(Icon.createWithResource(context, coordinator.getDefaultIconResource()))
-                .build()
+            .setLongLived(false)
+            .setShortLabel(device.getAliasOrName())
+            .setIntent(intent)
+            .setIcon(Icon.createWithResource(context, coordinator.getDefaultIconResource()))
+            .build()
         );
     }
 

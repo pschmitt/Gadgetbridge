@@ -85,7 +85,6 @@ import nodomain.freeyourgadget.gadgetbridge.service.btle.profiles.alertnotificat
 import nodomain.freeyourgadget.gadgetbridge.service.devices.common.SimpleNotification;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.miband.operations.FetchActivityOperation;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.miband.operations.UpdateFirmwareOperation;
-import nodomain.freeyourgadget.gadgetbridge.service.serial.GBDeviceProtocol;
 import nodomain.freeyourgadget.gadgetbridge.util.AlarmUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
@@ -132,11 +131,11 @@ public class MiBandSupport extends AbstractBTLESingleDeviceSupport {
 
     public MiBandSupport() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
         addSupportedService(MiBandService.UUID_SERVICE_MIBAND_SERVICE);
         addSupportedService(MiBandService.UUID_SERVICE_HEART_RATE);
-        addSupportedService(GattService.UUID_SERVICE_IMMEDIATE_ALERT);
+        addSupportedService(GattService.SERVICE_IMMEDIATE_ALERT.uuid);
     }
 
     @Override
@@ -321,7 +320,7 @@ public class MiBandSupport extends AbstractBTLESingleDeviceSupport {
     private MiBandSupport requestDeviceInfo(TransactionBuilder builder) {
         LOG.debug("Requesting Device Info!");
         builder.read(MiBandService.UUID_CHARACTERISTIC_DEVICE_INFO);
-        builder.read(GattCharacteristic.UUID_CHARACTERISTIC_DEVICE_NAME);
+        builder.read(GattCharacteristic.CHARACTERISTIC_DEVICE_NAME.uuid);
         return this;
     }
 
@@ -329,7 +328,7 @@ public class MiBandSupport extends AbstractBTLESingleDeviceSupport {
         LOG.debug("Requesting HR Info!");
         BluetoothGattCharacteristic HRInfo = getCharacteristic(MiBandService.UUID_CHAR_HEART_RATE_MEASUREMENT);
         builder.read(HRInfo);
-        BluetoothGattCharacteristic HR_Point = getCharacteristic(GattCharacteristic.UUID_CHARACTERISTIC_HEART_RATE_CONTROL_POINT);
+        BluetoothGattCharacteristic HR_Point = getCharacteristic(GattCharacteristic.CHARACTERISTIC_HEART_RATE_CONTROL_POINT);
         builder.read(HR_Point);
         return this;
     }
@@ -831,7 +830,7 @@ public class MiBandSupport extends AbstractBTLESingleDeviceSupport {
         if (MiBandService.UUID_CHARACTERISTIC_DEVICE_INFO.equals(characteristicUUID)) {
             handleDeviceInfo(value, status);
             return true;
-        } else if (GattCharacteristic.UUID_CHARACTERISTIC_DEVICE_NAME.equals(characteristicUUID)) {
+        } else if (GattCharacteristic.CHARACTERISTIC_DEVICE_NAME.uuid.equals(characteristicUUID)) {
             handleDeviceName(value, status);
             return true;
         } else if (MiBandService.UUID_CHARACTERISTIC_BATTERY.equals(characteristicUUID)) {

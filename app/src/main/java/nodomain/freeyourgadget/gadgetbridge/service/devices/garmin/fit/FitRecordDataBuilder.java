@@ -51,7 +51,7 @@ public class FitRecordDataBuilder {
                         new RecordHeader(true, localMessageType),
                         ByteOrder.BIG_ENDIAN,
                         nativeFITMessage,
-                        values.entrySet().stream().map(e -> nativeFITMessage.getFieldDefinition(e.getKey(), e.getValue().length)).collect(Collectors.toList()),
+                        values.entrySet().stream().map(e -> nativeFITMessage.getFieldDefinition(e.getKey(), e.getValue())).collect(Collectors.toList()),
                         null
                 ),
                 new RecordHeader(false, localMessageType)

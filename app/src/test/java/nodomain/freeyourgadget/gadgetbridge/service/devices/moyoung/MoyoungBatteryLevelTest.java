@@ -45,7 +45,7 @@ public class MoyoungBatteryLevelTest extends TestBase {
         device = createDummyGDevice("00:00:00:00:00:01");
         support = new MoyoungDeviceSupport();
         support.setContext(device, BluetoothAdapter.getDefaultAdapter(), getContext());
-        batteryLevel = new BluetoothGattCharacteristic(GattCharacteristic.UUID_CHARACTERISTIC_BATTERY_LEVEL,
+        batteryLevel = new BluetoothGattCharacteristic(GattCharacteristic.CHARACTERISTIC_BATTERY_LEVEL.uuid,
                 BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_NOTIFY,
                 BluetoothGattCharacteristic.PERMISSION_READ);
     }

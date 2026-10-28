@@ -20,8 +20,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.install.FwAppInstallerActivity;
@@ -31,6 +37,8 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.GenericItem;
 
 public class XiaomiInstallHandler implements InstallHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(XiaomiInstallHandler.class);
+
     protected final Uri mUri;
     protected final Context mContext;
     protected final XiaomiFWHelper helper;
@@ -94,9 +102,69 @@ public class XiaomiInstallHandler implements InstallHandler {
 
         installItem.setDetails(helper.getDetails());
 
-        installActivity.setInfoText(mContext.getString(R.string.firmware_install_warning, "(unknown)"));
+        if (!helper.isWatchface()) {
+            installActivity.setInfoText(mContext.getString(R.string.firmware_install_warning, "(unknown)"));
+            installActivity.setInstallItem(installItem);
+            installActivity.setInstallEnabled(true);
+            return;
+        }
+
+        final XiaomiCoordinator coordinator = getXiaomiCoordinator(device);
+        final List<Size> knownPreviewSizes = coordinator.getWatchfacePreviewSizes();
+        final Size screenSize = coordinator.getScreenSize();
+        final Size previewSize = helper.getPreviewSize();
+        LOG.debug(
+            "Watchface preview size: {}, known preview sizes: {}, screen size: {}",
+            previewSize,
+            knownPreviewSizes,
+            screenSize
+        );
+
         installActivity.setInstallItem(installItem);
+
+        final boolean resolutionMatches = previewSize != null &&
+            (knownPreviewSizes.contains(previewSize) || previewSize.equals(screenSize));
+        final boolean checkScreenSize = !resolutionMatches && screenSize != null && previewSize != null;
+        if (checkScreenSize && !sameAspectRatio(previewSize, screenSize)) {
+            installActivity.setInfoText(mContext.getString(R.string.fwinstaller_file_not_compatible_to_device));
+            installActivity.setInstallEnabled(false);
+            return;
+        }
+
+        if (helper.getId() == null) {
+            installActivity.setInfoText(mContext.getString(R.string.fwapp_install_device_not_supported));
+            installActivity.setInstallEnabled(false);
+            return;
+        }
+
+        if (resolutionMatches) {
+            installActivity.setInfoText(mContext.getString(R.string.watchface_install_resolution_matches));
+        } else if (checkScreenSize) {
+            installActivity.setInfoText(mContext.getString(R.string.watchface_install_aspect_ratio_matches));
+        } else {
+            installActivity.setInfoText(mContext.getString(R.string.watchface_install_compatibility_unknown));
+        }
+
+        installActivity.setInstallConfirmation(mContext.getString(R.string.watchface_install_confirm_risk));
         installActivity.setInstallEnabled(true);
+    }
+
+    private static XiaomiCoordinator getXiaomiCoordinator(final GBDevice device) {
+        if (device.getDeviceCoordinator() instanceof final XiaomiCoordinator coordinator) {
+            return coordinator;
+        }
+        throw new IllegalArgumentException("Coordinator is not a XiaomiCoordinator");
+    }
+
+    private static boolean sameAspectRatio(final Size previewSize, final Size screenSize) {
+        if (previewSize.getWidth() > screenSize.getWidth() || previewSize.getHeight() > screenSize.getHeight()) {
+            return false;
+        }
+
+        // A scaled-down preview rounds to whole pixels, so the aspect ratio is not exact
+        final double previewRatio = (double) previewSize.getWidth() / previewSize.getHeight();
+        final double screenRatio = (double) screenSize.getWidth() / screenSize.getHeight();
+        return Math.abs(previewRatio / screenRatio - 1) <= 0.02;
     }
 
     @Override

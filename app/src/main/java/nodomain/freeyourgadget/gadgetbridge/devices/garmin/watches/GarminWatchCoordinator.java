@@ -213,11 +213,6 @@ public abstract class GarminWatchCoordinator extends GarminCoordinator {
     }
 
     @Override
-    public boolean supportsFindDevice(@NonNull GBDevice device) {
-        return true;
-    }
-
-    @Override
     public boolean supportsSleepAsAndroid(@NonNull final GBDevice device) {
         return true;
     }
@@ -243,11 +238,6 @@ public abstract class GarminWatchCoordinator extends GarminCoordinator {
 
     @Override
     public boolean supportsWeather(@NonNull final GBDevice device) {
-        return true;
-    }
-
-    @Override
-    public boolean supportsMusicInfo(@NonNull GBDevice device) {
         return true;
     }
 

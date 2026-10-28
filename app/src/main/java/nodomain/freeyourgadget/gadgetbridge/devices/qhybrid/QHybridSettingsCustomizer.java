@@ -39,16 +39,6 @@ public class QHybridSettingsCustomizer implements DeviceSpecificSettingsCustomiz
     public void customizeSettings(final DeviceSpecificSettingsHandler handler, final Prefs prefs, final String rootKey) {
         handler.addPreferenceHandlerFor("use_activity_hand_as_notification_counter");
 
-        final Preference legacyPref = handler.findPreference("notifications");
-        if (legacyPref != null) {
-            legacyPref.setOnPreferenceClickListener(preference -> {
-                final Intent intent = new Intent(handler.getContext(), QHybridNotificationsConfigActivity.class);
-                intent.putExtra(GBDevice.EXTRA_DEVICE, handler.getDevice());
-                handler.getContext().startActivity(intent);
-                return true;
-            });
-        }
-
         final ListPreference upperButtonPref = handler.findPreference("top_button_function");
         if (upperButtonPref != null) {
             upperButtonPref.setOnPreferenceChangeListener((preference, newValue) -> {
@@ -75,26 +65,6 @@ public class QHybridSettingsCustomizer implements DeviceSpecificSettingsCustomiz
                 final Intent intent = new Intent(QHybridSupport.QHYBRID_COMMAND_OVERWRITE_BUTTONS);
                 intent.putExtra(GBDevice.EXTRA_DEVICE, handler.getDevice());
                 LocalBroadcastManager.getInstance(handler.getContext()).sendBroadcast(intent);
-                return true;
-            });
-        }
-
-        final Preference calibrationPref = handler.findPreference("pref_key_qhybrid_calibration");
-        if (calibrationPref != null) {
-            calibrationPref.setOnPreferenceClickListener(preference -> {
-                final Intent intent = new Intent(handler.getContext(), CalibrationActivity.class);
-                intent.putExtra(GBDevice.EXTRA_DEVICE, handler.getDevice());
-                handler.getContext().startActivity(intent);
-                return true;
-            });
-        }
-
-        final Preference commutePref = handler.findPreference("pref_key_qhybrid_commute_actions");
-        if (commutePref != null) {
-            commutePref.setOnPreferenceClickListener(preference -> {
-                final Intent intent = new Intent(handler.getContext(), CommuteActionsActivity.class);
-                intent.putExtra(GBDevice.EXTRA_DEVICE, handler.getDevice());
-                handler.getContext().startActivity(intent);
                 return true;
             });
         }

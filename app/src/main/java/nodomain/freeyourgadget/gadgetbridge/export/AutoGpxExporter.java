@@ -43,6 +43,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrack;
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.FileUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
+import nodomain.freeyourgadget.gadgetbridge.util.elevation.ElevationTiles;
 
 public class AutoGpxExporter {
     private static final Logger LOG = LoggerFactory.getLogger(AutoGpxExporter.class);
@@ -84,6 +85,9 @@ public class AutoGpxExporter {
         if (directory == null) {
             return;
         }
+
+        // Altitude from imported elevation tiles replaces what the device recorded
+        ElevationTiles.correct(context, gbDevice, summary != null ? ActivityKind.fromCode(summary.getActivityKind()) : null, activityTrack);
 
         final List<ActivityPoint> points = activityTrack.getAllPoints();
         final Optional<ActivityPoint> firstValidPoint = points.stream().filter(p -> p.getLocation() != null).findFirst();

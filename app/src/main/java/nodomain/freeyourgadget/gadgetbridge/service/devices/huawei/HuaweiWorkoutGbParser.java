@@ -24,10 +24,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +45,7 @@ import de.greenrobot.dao.query.QueryBuilder;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.charts.TimestampTranslation;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartPoint;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.charts.DefaultWorkoutCharts;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.entries.ActivitySummaryProgressEntry;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.entries.ActivitySummaryTableRowEntry;
@@ -77,10 +74,10 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivityPoint;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryData;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryParser;
+import nodomain.freeyourgadget.gadgetbridge.model.DistanceUnit;
 import nodomain.freeyourgadget.gadgetbridge.model.heartratezones.HeartRateZones;
 import nodomain.freeyourgadget.gadgetbridge.model.heartratezones.HeartRateZonesSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.workout.WorkoutChart;
-import nodomain.freeyourgadget.gadgetbridge.model.DistanceUnit;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
 
@@ -197,42 +194,39 @@ public class HuaweiWorkoutGbParser implements ActivitySummaryParser {
     }
 
     private static WorkoutChart createSwolfChart(final Context context,
-                                                 final List<Entry> swolfDataPoints) {
-        final String label = String.format("%s", context.getString(R.string.swolfIndex));
-        final LineDataSet dataset = DefaultWorkoutCharts.createLineDataSet(context, swolfDataPoints, label, ContextCompat.getColor(context, R.color.chart_line_swolf));
+                                                 final List<ChartPoint> swolfDataPoints) {
+        final WorkoutChart.Series dataset = new WorkoutChart.Series(swolfDataPoints, ContextCompat.getColor(context, R.color.chart_line_swolf));
         return new WorkoutChart(
                 "swolf",
                 context.getString(R.string.swolfIndex),
                 ActivitySummaryEntries.GROUP_SWIMMING,
-                new LineData(dataset),
+                dataset,
                 null,
                 getUnitString(context, ActivitySummaryEntries.UNIT_NONE)
         );
     }
 
     private static WorkoutChart createStrokeRateChart(final Context context,
-                                                      final List<Entry> strokesDataPoints) {
-        final String label = String.format("%s (%s)", context.getString(R.string.stroke_rate), getUnitString(context, ActivitySummaryEntries.UNIT_STROKES_PER_MINUTE));
-        final LineDataSet dataset = DefaultWorkoutCharts.createLineDataSet(context, strokesDataPoints, label, ContextCompat.getColor(context, R.color.chart_line_stroke_rate));
+                                                      final List<ChartPoint> strokesDataPoints) {
+        final WorkoutChart.Series dataset = new WorkoutChart.Series(strokesDataPoints, ContextCompat.getColor(context, R.color.chart_line_stroke_rate));
         return new WorkoutChart(
                 "strokesRate",
                 context.getString(R.string.stroke_rate),
                 ActivitySummaryEntries.GROUP_STROKES,
-                new LineData(dataset),
+                dataset,
                 null,
                 getUnitString(context, ActivitySummaryEntries.UNIT_STROKES_PER_MINUTE)
         );
     }
 
     private static WorkoutChart createFrequencyChart(final Context context,
-                                                     final List<Entry> frequencyDataPoints) {
-        final String label = String.format("%s (%s)", context.getString(R.string.Speed), getUnitString(context, ActivitySummaryEntries.UNIT_JUMPS_PER_MINUTE));
-        final LineDataSet dataset = DefaultWorkoutCharts.createLineDataSet(context, frequencyDataPoints, label, ContextCompat.getColor(context, R.color.chart_line_speed));
+                                                     final List<ChartPoint> frequencyDataPoints) {
+        final WorkoutChart.Series dataset = new WorkoutChart.Series(frequencyDataPoints, ContextCompat.getColor(context, R.color.chart_line_speed));
         return new WorkoutChart(
                 "frequency",
                 context.getString(R.string.Speed),
                 ActivitySummaryEntries.GROUP_JUMPS,
-                new LineData(dataset),
+                dataset,
                 null,
                 getUnitString(context, ActivitySummaryEntries.UNIT_JUMPS_PER_MINUTE)
         );
@@ -243,21 +237,21 @@ public class HuaweiWorkoutGbParser implements ActivitySummaryParser {
 
         final List<WorkoutChart> charts = new LinkedList<>();
         final TimestampTranslation tsTranslation = new TimestampTranslation();
-        final List<Entry> swolfDataPoints = new ArrayList<>();
-        final List<Entry> strokeRateDataPoints = new ArrayList<>();
-        final List<Entry> frequencyDataPoints = new ArrayList<>();
+        final List<ChartPoint> swolfDataPoints = new ArrayList<>();
+        final List<ChartPoint> strokeRateDataPoints = new ArrayList<>();
+        final List<ChartPoint> frequencyDataPoints = new ArrayList<>();
 
         for (int i = 0; i <= activityPoints.size() - 1; i++) {
             final HuaweiActivityPoint point = activityPoints.get(i);
             final long tsShorten = tsTranslation.shorten((int) point.getTime().getTime());
             if (point.getSwolf() >= 0) {
-                swolfDataPoints.add(new Entry(tsShorten, point.getSwolf()));
+                swolfDataPoints.add(new ChartPoint(tsShorten / 1000.0, point.getSwolf(), null));
             }
             if (point.getStrokeRate() >= 0) {
-                strokeRateDataPoints.add(new Entry(tsShorten, point.getStrokeRate()));
+                strokeRateDataPoints.add(new ChartPoint(tsShorten / 1000.0, point.getStrokeRate(), null));
             }
             if (point.getFrequency() >= 0) {
-                frequencyDataPoints.add(new Entry(tsShorten, point.getFrequency()));
+                frequencyDataPoints.add(new ChartPoint(tsShorten / 1000.0, point.getFrequency(), null));
             }
         }
         if (!swolfDataPoints.isEmpty()) {
@@ -326,9 +320,9 @@ public class HuaweiWorkoutGbParser implements ActivitySummaryParser {
             if (recoveryHR != null && recoveryHR.length > 0) {
                 // starts from workoutEndTime - 5000
                 byte[] recHR = StringUtils.hexToBytes(new String(recoveryHR));
-                final List<Entry> heartRateDataPoints = new ArrayList<>();
+                final List<ChartPoint> heartRateDataPoints = new ArrayList<>();
                 for (int i = 0; i < recHR.length; i++) {
-                    heartRateDataPoints.add(new Entry(i * 5000, recHR[i] & 0xFF));
+                    heartRateDataPoints.add(new ChartPoint(i * 5.0, recHR[i] & 0xFF, null));
                 }
                 charts.add(createRecoveryHeartRateChart(context, heartRateDataPoints));
             }
@@ -705,14 +699,13 @@ public class HuaweiWorkoutGbParser implements ActivitySummaryParser {
     }
 
     private static WorkoutChart createRecoveryHeartRateChart(final Context context,
-                                                             final List<Entry> heartRateDataPoints) {
-        final String label = String.format("%s(%s)", context.getString(R.string.recovery_heart_rate), getUnitString(context, ActivitySummaryEntries.UNIT_BPM));
-        final LineDataSet dataset = DefaultWorkoutCharts.createLineDataSet(context, heartRateDataPoints, label, ContextCompat.getColor(context, R.color.chart_line_heart_rate));
+                                                             final List<ChartPoint> heartRateDataPoints) {
+        final WorkoutChart.Series dataset = new WorkoutChart.Series(heartRateDataPoints, ContextCompat.getColor(context, R.color.chart_line_heart_rate));
         return new WorkoutChart(
                 "recovery_heart_rate",
                 context.getString(R.string.recovery_heart_rate),
                 ActivitySummaryEntries.GROUP_RECOVERY_HEART_RATE,
-                new LineData(dataset),
+                dataset,
                 null,
                 getUnitString(context, ActivitySummaryEntries.UNIT_BPM)
         );

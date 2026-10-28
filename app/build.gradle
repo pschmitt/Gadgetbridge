@@ -5,7 +5,6 @@ import java.nio.file.Files
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kaitai)
 }
@@ -49,7 +48,7 @@ tasks.register("buildGitChangelog"){
         def allCommits
         try {
             allCommits = providers.exec {
-                commandLine('git', 'log', '--pretty=format:%h %s')
+                commandLine('git', 'log', '--pretty=format:%H %s')
             }.standardOutput.asText.get()
         } catch (ignored) {
             logger.warn("Skipping git changelog: git is not available")
@@ -68,7 +67,8 @@ tasks.register("buildGitChangelog"){
                 return true
             }
 
-            final def (commitHash, commitMessage) = line.split(" ", 2)
+            final def (fullCommitHash, commitMessage) = line.split(" ", 2)
+            final def commitHash = fullCommitHash.take(10)
             if (commitMessage.contains("Translated using Weblate")) {
                 if (includedTranslations == 0) {
                     final def releaseNode = new Node(changelogNode, 'release', [version: commitHash, versioncode: commitVersionCode--])
@@ -91,8 +91,8 @@ tasks.register("buildGitChangelog"){
 final def getGitHashShort = { ->
     try {
         return providers.exec {
-            commandLine('git', 'rev-parse', '--short', 'HEAD')
-        }.standardOutput.asText.get().trim()
+            commandLine('git', 'rev-parse', 'HEAD')
+        }.standardOutput.asText.get().trim().take(10)
     } catch (ignored) {
         return null
     }
@@ -142,8 +142,8 @@ android {
         minSdk = 23
 
         // Note: always bump BOTH versionCode and versionName!
-        versionName "0.94.0"
-        versionCode 253
+        versionName "0.95.1"
+        versionCode 255
         vectorDrawables.useSupportLibrary = true
         buildConfigField "String", "GIT_HASH_SHORT", "\"${getGitHashShort()}\""
         buildConfigField "String", "GIT_DIRTY_STATUS", "\"${getGitDirtyFlag()}\""
@@ -264,7 +264,6 @@ android {
     buildFeatures {
         aidl = true
         buildConfig = true
-        compose = true
         viewBinding = true
         // AGP 9 defaults to false, but we still use it in the androidComponents.onVariants block below
         resValues = true
@@ -310,8 +309,10 @@ dependencies {
     testImplementation libs.mockito
     testImplementation libs.robolectric
     testImplementation libs.hamcrest
+    testImplementation libs.kotlinx.coroutines.test
 
     implementation libs.androidx.core.ktx
+    implementation libs.androidx.core.splashscreen
 
     implementation libs.androidx.appcompat
     implementation libs.androidx.preference.ktx
@@ -325,17 +326,11 @@ dependencies {
     implementation libs.androidx.viewpager2
     implementation libs.androidx.work.runtime.ktx
     implementation libs.androidx.lifecycle.process
-    implementation libs.androidx.lifecycle.runtime.compose
-    implementation libs.androidx.lifecycle.viewmodel.compose
+    implementation libs.androidx.lifecycle.runtime.ktx
+    implementation libs.androidx.lifecycle.viewmodel.ktx
     implementation libs.androidx.security.crypto
     implementation libs.androidx.browser
     implementation libs.androidx.exifinterface
-
-    implementation platform(libs.androidx.compose.bom)
-    implementation libs.androidx.compose.ui
-    implementation libs.androidx.compose.ui.tooling.preview
-    debugImplementation libs.androidx.compose.ui.tooling
-    implementation libs.androidx.compose.foundation
 
     implementation libs.material
     implementation libs.flexbox
@@ -345,9 +340,11 @@ dependencies {
     implementation libs.logback.android
     implementation libs.slf4j.api
     implementation libs.mpandroidchart
-    implementation libs.vico.compose
     implementation libs.durationformatter
     implementation libs.ckchangelog
+    implementation libs.coil
+    implementation libs.androidx.media3.exoplayer
+    implementation libs.androidx.media3.ui
     implementation libs.solarpositioning
     implementation libs.cbor
     // use pristine greendao instead of our custom version, since our custom jitpack-packaged
@@ -366,6 +363,7 @@ dependencies {
     implementation libs.androidsvg
     implementation libs.jsoup
     implementation libs.kaitai.struct.runtime
+    implementation libs.zxing.core
 
     // Bouncy Castle is included directly in GB, to avoid pulling the entire dependency
     // It's included in the org.bouncycastle.shaded package, to fix conflicts with roboelectric

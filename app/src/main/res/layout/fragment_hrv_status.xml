@@ -26,35 +26,46 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginTop="@dimen/chart_section_spacing"
-            android:layout_marginBottom="@dimen/chart_section_spacing"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="-7dp"
             android:orientation="vertical"
             >
 
             <ImageView
                 android:id="@+id/hrv_status_gauge_bar"
-                android:layout_width="150dp"
-                android:layout_height="75dp"
-                android:layout_centerHorizontal="true"
-                android:scaleType="fitStart" />
+                android:layout_width="180dp"
+                android:layout_height="180dp"
+                android:layout_centerHorizontal="true" />
 
-            <TextView
-                android:id="@+id/hrv_gauge_value"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignTop="@id/hrv_status_gauge_bar"
+                android:layout_alignBottom="@id/hrv_status_gauge_bar"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="28dp"
-                android:text="@string/stats_empty_value"
-                android:textColor="?attr/textColorPrimary"
-                android:textSize="30sp" />
+                android:gravity="center"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/hrv_gauge_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/hrv_gauge_value"
-                android:layout_centerHorizontal="true"
-                android:text="" />
+                <TextView
+                    android:id="@+id/hrv_gauge_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:text="@string/stats_empty_value"
+                    android:textColor="?attr/textColorPrimary"
+                    android:textSize="30sp" />
+
+                <TextView
+                    android:id="@+id/hrv_gauge_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-4dp"
+                    android:includeFontPadding="false"
+                    android:text=""
+                    android:textColor="?attr/textColorSecondary"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
 
         </RelativeLayout>
 
@@ -67,25 +78,57 @@
             android:layout_marginEnd="15dp"
             android:orientation="vertical" />
 
+        <nodomain.freeyourgadget.gadgetbridge.activities.workouts.SectionHeaderView
+            android:id="@+id/hrv_chart_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:sectionTitle="@string/last_night_timeline" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="250sp">
 
-            <com.github.mikephil.charting.charts.CombinedChart
+            <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView
                 android:id="@+id/hrv_weekly_line_chart"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_weight="2" />
         </LinearLayout>
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/hrv_status_chart_data_type_group"
-            android:layout_width="fill_parent"
+        <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartLegendView
+            android:id="@+id/hrv_chart_legend"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginBottom="10dp"
-            app:selectionRequired="true" />
+            android:layout_marginTop="8dp" />
+
+        <nodomain.freeyourgadget.gadgetbridge.activities.charts.ChartChipScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:clipToPadding="false"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/hrv_status_chart_data_type_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleLine="true"
+                android:layout_marginBottom="10dp"
+                app:selectionRequired="true" />
+
+        </nodomain.freeyourgadget.gadgetbridge.activities.charts.ChartChipScrollView>
+
+        <LinearLayout
+            android:id="@+id/hrv_status_period_stats_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginBottom="15dp"
+            android:orientation="vertical"
+            android:visibility="gone" />
 
     </LinearLayout>
 </ScrollView>

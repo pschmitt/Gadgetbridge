@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Locale;
@@ -177,7 +178,7 @@ public class CasioIntervalTimerActivity extends AbstractGBActivity {
         repeat.setOnValueChangedListener((picker, oldVal, newVal) -> updateTotal.run());
         updateTotal.run();
 
-        new androidx.appcompat.app.AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.pref_casio_interval_timer_title)
                 .setView(root)
                 .setPositiveButton(android.R.string.ok, (d, w) -> {

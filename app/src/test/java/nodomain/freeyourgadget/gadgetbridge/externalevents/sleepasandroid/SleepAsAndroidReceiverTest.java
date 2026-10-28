@@ -16,13 +16,21 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.externalevents.sleepasandroid;
 
+import android.app.AlarmManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.robolectric.RuntimeEnvironment;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.test.TestBase;
+import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
 
 /**
  * The receiver is registered as exported, so these extras arrive from another application and are
@@ -126,8 +134,169 @@ public class SleepAsAndroidReceiverTest extends TestBase {
                 SleepAsAndroidAction.UPDATE_ALARM,
                 SleepAsAndroidAction.HINT,
                 SleepAsAndroidAction.CHECK_CONNECTED,
+                AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED,
         }) {
             Assert.assertTrue("filter is missing " + action, filter.hasAction(action));
         }
+    }
+
+    private static final long NOW = 1_760_000_000_000L;
+    private static final long ALARM = NOW + 10 * 60_000L;
+
+    /** Receiver with the system alarm clock and the clock under test control, recording what it forwards. */
+    private static class AlarmClockReceiver extends SleepAsAndroidReceiver {
+        final List<String> actions = new ArrayList<>();
+        final List<Bundle> extras = new ArrayList<>();
+        Long nextAlarmClock;
+        long now = NOW;
+
+        @Override
+        protected void forward(final String action, final Bundle extras) {
+            actions.add(action);
+            this.extras.add(extras);
+        }
+
+        @Override
+        protected Long getNextAlarmClockTime(final Context context) {
+            return nextAlarmClock;
+        }
+
+        @Override
+        protected long currentTimeMillis() {
+            return now;
+        }
+
+        void updateAlarm(final long timestamp) {
+            final Intent intent = new Intent(SleepAsAndroidAction.UPDATE_ALARM);
+            intent.putExtra("TIMESTAMP", timestamp);
+            onReceive(RuntimeEnvironment.getApplication(), intent);
+        }
+
+        void nextAlarmClockChanged(final Long next) {
+            nextAlarmClock = next;
+            onReceive(RuntimeEnvironment.getApplication(), new Intent(AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED));
+        }
+    }
+
+    private static void setSleepAsAndroidEnabled(final boolean enabled) {
+        GBApplication.getPrefs().getPreferences().edit().putBoolean(GBPrefs.SLEEP_AS_ANDROID_ENABLED, enabled).commit();
+    }
+
+    private static void assertDisarmed(final AlarmClockReceiver receiver) {
+        Assert.assertEquals(List.of(SleepAsAndroidAction.UPDATE_ALARM, SleepAsAndroidAction.UPDATE_ALARM), receiver.actions);
+        Assert.assertEquals(0L, receiver.extras.get(1).getLong("TIMESTAMP", -1L));
+    }
+
+    @Test
+    public void alarmSkippedAheadOfTime_disarmsTheDevice() {
+        setSleepAsAndroidEnabled(true);
+        final AlarmClockReceiver receiver = new AlarmClockReceiver();
+        receiver.nextAlarmClock = ALARM;
+        receiver.updateAlarm(ALARM);
+
+        receiver.now = ALARM - 5 * 60_000L;
+        receiver.nextAlarmClockChanged(ALARM + 24 * 3600_000L);
+
+        assertDisarmed(receiver);
+    }
+
+    @Test
+    public void alarmSkippedWithNoFollowingAlarm_disarmsTheDevice() {
+        setSleepAsAndroidEnabled(true);
+        final AlarmClockReceiver receiver = new AlarmClockReceiver();
+        receiver.nextAlarmClock = ALARM;
+        receiver.updateAlarm(ALARM);
+
+        receiver.nextAlarmClockChanged(null);
+
+        assertDisarmed(receiver);
+    }
+
+    @Test
+    public void alarmSeenOnlyAfterTheUpdate_isWatchedFromThen() {
+        setSleepAsAndroidEnabled(true);
+        final AlarmClockReceiver receiver = new AlarmClockReceiver();
+        receiver.nextAlarmClock = NOW + 60_000L;
+        receiver.updateAlarm(ALARM);
+
+        // Seconds may differ between the forwarded timestamp and the scheduled alarm clock.
+        receiver.nextAlarmClockChanged(ALARM + 30_000L - ALARM % 60_000L);
+        receiver.nextAlarmClockChanged(null);
+
+        assertDisarmed(receiver);
+    }
+
+    @Test
+    public void alarmNeverSeenAsAlarmClock_isLeftAlone() {
+        setSleepAsAndroidEnabled(true);
+        final AlarmClockReceiver receiver = new AlarmClockReceiver();
+        receiver.updateAlarm(ALARM);
+
+        receiver.nextAlarmClockChanged(null);
+        receiver.nextAlarmClockChanged(ALARM + 24 * 3600_000L);
+
+        Assert.assertEquals(List.of(SleepAsAndroidAction.UPDATE_ALARM), receiver.actions);
+    }
+
+    @Test
+    public void earlierAlarmClock_isLeftAlone() {
+        setSleepAsAndroidEnabled(true);
+        final AlarmClockReceiver receiver = new AlarmClockReceiver();
+        receiver.nextAlarmClock = ALARM;
+        receiver.updateAlarm(ALARM);
+
+        receiver.nextAlarmClockChanged(ALARM - 5 * 60_000L);
+
+        Assert.assertEquals(List.of(SleepAsAndroidAction.UPDATE_ALARM), receiver.actions);
+    }
+
+    @Test
+    public void alarmLeavingTheScheduleWhenItRings_isLeftAlone() {
+        setSleepAsAndroidEnabled(true);
+        final AlarmClockReceiver receiver = new AlarmClockReceiver();
+        receiver.nextAlarmClock = ALARM;
+        receiver.updateAlarm(ALARM);
+
+        receiver.now = ALARM;
+        receiver.nextAlarmClockChanged(ALARM + 24 * 3600_000L);
+        receiver.now = ALARM + 60_000L;
+        receiver.nextAlarmClockChanged(null);
+
+        Assert.assertEquals(List.of(SleepAsAndroidAction.UPDATE_ALARM), receiver.actions);
+    }
+
+    @Test
+    public void disarmIsSentOnce() {
+        setSleepAsAndroidEnabled(true);
+        final AlarmClockReceiver receiver = new AlarmClockReceiver();
+        receiver.nextAlarmClock = ALARM;
+        receiver.updateAlarm(ALARM);
+
+        receiver.nextAlarmClockChanged(null);
+        receiver.nextAlarmClockChanged(null);
+
+        assertDisarmed(receiver);
+    }
+
+    @Test
+    public void alarmClockChange_isNotForwardedAsSuch() {
+        setSleepAsAndroidEnabled(true);
+        final AlarmClockReceiver receiver = new AlarmClockReceiver();
+
+        receiver.nextAlarmClockChanged(ALARM);
+
+        Assert.assertTrue(receiver.actions.isEmpty());
+    }
+
+    @Test
+    public void integrationDisabled_forwardsNothing() {
+        setSleepAsAndroidEnabled(false);
+        final AlarmClockReceiver receiver = new AlarmClockReceiver();
+        receiver.nextAlarmClock = ALARM;
+        receiver.updateAlarm(ALARM);
+
+        receiver.nextAlarmClockChanged(null);
+
+        Assert.assertTrue(receiver.actions.isEmpty());
     }
 }

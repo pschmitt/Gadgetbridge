@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
+import nodomain.freeyourgadget.gadgetbridge.activities.files.TextFileViewerActivity;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 
 /**
@@ -114,14 +115,24 @@ public class GBExceptionHandler implements Thread.UncaughtExceptionHandler {
 
         final NotificationCompat.Action shareAction = new NotificationCompat.Action.Builder(android.R.drawable.ic_menu_share, context.getString(R.string.share), pendingShareIntent).build();
 
+        final String title = context.getString(R.string.app_crash_notification_title, context.getString(R.string.app_name));
+        final Intent viewIntent = new Intent(context, TextFileViewerActivity.class);
+        viewIntent.putExtra(TextFileViewerActivity.EXTRA_TITLE, title);
+        viewIntent.putExtra(TextFileViewerActivity.EXTRA_TEXT, Log.getStackTraceString(e));
+        final PendingIntent pendingViewIntent = PendingIntent.getActivity(
+                context,
+                1,
+                viewIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+        final NotificationCompat.Action viewAction = new NotificationCompat.Action.Builder(0, context.getString(R.string.view_file), pendingViewIntent).build();
+
         final Notification notification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_HIGH_PRIORITY_ID)
                 .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle(context.getString(
-                        R.string.app_crash_notification_title,
-                        context.getString(R.string.app_name)
-                ))
+                .setContentTitle(title)
                 .setContentText(e.getLocalizedMessage())
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .addAction(viewAction)
                 .addAction(shareAction)
                 .build();
 

@@ -70,7 +70,7 @@ public class GBZipFile {
     /**
      * Reads the contents of file at path into a byte array.
      * @param path Path of the file in the ZIP file.
-     * @return byte array contatining the contents of the requested file.
+     * @return byte array containing the contents of the requested file.
      * @throws ZipFileException If the specified path does not exist or references a directory, or if some other I/O error occurs. In other words, if return value would otherwise be null.
      */
     public byte[] getFileFromZip(final String path) throws ZipFileException {

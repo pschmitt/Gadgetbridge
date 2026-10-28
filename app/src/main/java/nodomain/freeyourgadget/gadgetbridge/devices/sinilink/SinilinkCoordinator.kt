@@ -4,17 +4,19 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.DeviceSettingsSpec
+import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.PasswordMode
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.deviceName
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.enumList
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.equalizerPreset
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.PasswordMode
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.passwordScreen
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.volume
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.deviceSettings
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator
-import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCardAction
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
-import nodomain.freeyourgadget.gadgetbridge.devices.deviceCardAction
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControl
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControlButton
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControlButtons
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControls
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport
 import nodomain.freeyourgadget.gadgetbridge.service.devices.sinilink.SinilinkButton
@@ -90,37 +92,48 @@ class SinilinkCoordinator : AbstractBLEDeviceCoordinator() {
         passwordScreen(PasswordMode.VISIBLE_NUMBERS_4_DIGITS_0_TO_9)
     }
 
-    override fun getCustomActions(): List<DeviceCardAction> {
-        return DEVICE_CARD_ACTIONS
+    override fun getQuickControls(device: GBDevice): List<QuickControl> {
+        return listOf(MEDIA_CONTROLS) + QuickControls.fromDeviceSettings(
+            device,
+            keys = listOf(
+                DeviceSettingsPreferenceConst.PREF_VOLUME,
+                DeviceSettingsPreferenceConst.PREF_MEDIA_SOURCE,
+            ),
+            optionalKeys = listOf(
+                DeviceSettingsPreferenceConst.PREF_HEADPHONES_EQUALIZER,
+                DeviceSettingsPreferenceConst.PREF_MEDIA_PLAYBACK_MODE,
+            ),
+        )
     }
 
     companion object {
-        private val DEVICE_CARD_ACTIONS = listOf(
-            DeviceCardAction.forConfiguration(
-                R.drawable.ic_skip_previous,
-                R.string.pref_media_previous,
-                SinilinkButton.PREVIOUS.name
-            ),
+        private fun playPauseIcon(device: GBDevice): Int {
+            val state = device.getExtraInfo("playback_state") as? String
+            return if (state != null && SinilinkPlaybackState.fromPreference(state) == SinilinkPlaybackState.PLAYING) {
+                R.drawable.ic_pause
+            } else {
+                R.drawable.ic_play
+            }
+        }
 
-            deviceCardAction {
-                icon = { device ->
-                    val state = device.getExtraInfo("playback_state") as? String
-                    if (state != null && SinilinkPlaybackState.fromPreference(state) == SinilinkPlaybackState.PLAYING) {
-                        R.drawable.ic_pause
-                    } else {
-                        R.drawable.ic_play
-                    }
-                }
-                description = { _, context -> context.getString(R.string.moondrop_touch_action_play_pause) }
-                onClick = { device, _ ->
-                    GBApplication.deviceService(device).onSendConfiguration(SinilinkButton.PLAY_PAUSE.name)
-                }
-            },
+        private fun sendButton(device: GBDevice, button: SinilinkButton) {
+            GBApplication.deviceService(device).onSendConfiguration(button.name)
+        }
 
-            DeviceCardAction.forConfiguration(
-                R.drawable.ic_skip_next,
-                R.string.pref_media_next,
-                SinilinkButton.NEXT.name
+        private val MEDIA_CONTROLS = QuickControlButtons(
+            id = "sinilink_media",
+            icon = R.drawable.ic_play,
+            title = R.string.prefs_media_controls,
+            buttons = listOf(
+                QuickControlButton(R.string.pref_media_previous, { R.drawable.ic_skip_previous }) { device, _ ->
+                    sendButton(device, SinilinkButton.PREVIOUS)
+                },
+                QuickControlButton(R.string.moondrop_touch_action_play_pause, ::playPauseIcon) { device, _ ->
+                    sendButton(device, SinilinkButton.PLAY_PAUSE)
+                },
+                QuickControlButton(R.string.pref_media_next, { R.drawable.ic_skip_next }) { device, _ ->
+                    sendButton(device, SinilinkButton.NEXT)
+                },
             ),
         )
     }

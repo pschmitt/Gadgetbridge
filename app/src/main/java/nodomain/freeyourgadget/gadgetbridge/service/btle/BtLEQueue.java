@@ -348,13 +348,13 @@ public final class BtLEQueue implements Thread.UncaughtExceptionHandler {
 
     private boolean connectImp() {
         mPauseTransaction = false;
-        LOG.info("conenctImp: Attempting to connect to {} ({})", mGbDevice.getAddress(), mGbDevice.getName());
+        LOG.info("connectImp: Attempting to connect to {} ({})", mGbDevice.getAddress(), mGbDevice.getName());
         final boolean lowPower = GBApplication.getDevicePrefs(mGbDevice).getConnectionPriorityLowPower();
         // 30 seconds: the longest allowed ATT transaction timeout
         // 32 seconds: the longest allowed BLE connection timeout for an established  connection (supervision timeout)
         // => wait a few more seconds for establishing a new connection
         mGattConnectTimeoutHandler.postDelayed(() -> {
-            LOG.warn("conenctImp: Timed out connecting to GATT for {} ({})", mGbDevice.getAddress(), mGbDevice.getName());
+            LOG.warn("connectImp: Timed out connecting to GATT for {} ({})", mGbDevice.getAddress(), mGbDevice.getName());
             handleDisconnected(0x93 /* BluetoothGatt.GATT_CONNECTION_TIMEOUT */);
         }, lowPower ? 45000L : 5000L);
 
@@ -363,12 +363,12 @@ public final class BtLEQueue implements Thread.UncaughtExceptionHandler {
         if(!mSupportedServerServices.isEmpty()) {
             BluetoothManager bluetoothManager = (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
             if (bluetoothManager == null) {
-                LOG.error("conenctImp: Error getting BluetoothManager");
+                LOG.error("connectImp: Error getting BluetoothManager");
                 return false;
             }
             mBluetoothGattServer = bluetoothManager.openGattServer(mContext, internalGattServerCallback);
             if (mBluetoothGattServer == null) {
-                LOG.error("conenctImp: Error opening BluetoothGattServer");
+                LOG.error("connectImp: Error opening BluetoothGattServer");
                 return false;
             }
             for(BluetoothGattService service : mSupportedServerServices) {
@@ -423,7 +423,7 @@ public final class BtLEQueue implements Thread.UncaughtExceptionHandler {
     }
 
     private void handleDisconnected(int status) {
-        LOG.debug("handleDisconnected: {}", BleNamesResolver.getStatusString(status));
+        LOG.debug("handleDisconnected: {}", BleNamesResolver.getConnectionStatusString(status));
         internalGattCallback.Delegate.reset();
         mTransactions.clear();
         mPauseTransaction = false;
@@ -466,7 +466,7 @@ public final class BtLEQueue implements Thread.UncaughtExceptionHandler {
                 device = mBluetoothGatt.getDevice();
             }
             LOG.warn("handleDisconnected: unhealthy disconnect {} {}", device == null ?  "<UNKNOWN>" : device.getAddress(),
-                    BleNamesResolver.getStatusString(status));
+                    BleNamesResolver.getConnectionStatusString(status));
         } else if (mBluetoothGatt != null) {
             // try to reconnect immediately
             if (mDeviceSupport.getAutoReconnect()) {
@@ -627,7 +627,7 @@ public final class BtLEQueue implements Thread.UncaughtExceptionHandler {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             final int bondState = gatt.getDevice().getBondState();
             LOG.debug("onConnectionStateChange: {} {} {}",
-                    BleNamesResolver.getStatusString(status), BleNamesResolver.getStateString(newState),
+                    BleNamesResolver.getConnectionStatusString(status), BleNamesResolver.getStateString(newState),
                     BleNamesResolver.getBondStateString(bondState));
 
             if (!checkCorrectGattInstance(gatt, "onConnectionStateChange check#1")) {
@@ -645,7 +645,7 @@ public final class BtLEQueue implements Thread.UncaughtExceptionHandler {
             }
 
             if (status != BluetoothGatt.GATT_SUCCESS) {
-                LOG.warn("onConnectionStateChange with status: {}", BleNamesResolver.getStatusString(status));
+                LOG.warn("onConnectionStateChange with status: {}", BleNamesResolver.getConnectionStatusString(status));
             }
 
             final GattCallback callback = getCallbackToUse();
@@ -1066,7 +1066,7 @@ public final class BtLEQueue implements Thread.UncaughtExceptionHandler {
         @Override
         public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
             LOG.debug("server onConnectionStateChange: {} {}",
-                    BleNamesResolver.getStatusString(status),
+                    BleNamesResolver.getConnectionStatusString(status),
                     BleNamesResolver.getStateString(newState));
 
             if(!checkCorrectBluetoothDevice(device)) {
@@ -1074,7 +1074,7 @@ public final class BtLEQueue implements Thread.UncaughtExceptionHandler {
             }
 
             if (status != BluetoothGatt.GATT_SUCCESS) {
-                LOG.warn("server onConnectionStateChange with status: {}", BleNamesResolver.getStatusString(status));
+                LOG.warn("server onConnectionStateChange with status: {}", BleNamesResolver.getConnectionStatusString(status));
             }
         }
 

@@ -24,18 +24,19 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
-import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.model.RespiratoryRateSample;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
-import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
+import nodomain.freeyourgadget.gadgetbridge.model.SleepSession;
 
 abstract class RespiratoryRateFragment<T extends ChartsData> extends AbstractChartFragment<T> {
     protected static final Logger LOG = LoggerFactory.getLogger(RespiratoryRateFragment.class);
+    private static final int SLEEP_LOOK_BACK_SECONDS = 12 * 60 * 60;
 
     protected int CHART_TEXT_COLOR;
     protected int TEXT_COLOR;
@@ -76,9 +77,12 @@ abstract class RespiratoryRateFragment<T extends ChartsData> extends AbstractCha
             day.add(Calendar.HOUR, 0);
             startTs = (int) (day.getTimeInMillis() / 1000);
             endTs = startTs + 24 * 60 * 60 - 1;
-            List<? extends ActivitySample> activitySamples = getAllActivitySamples(db, device, startTs, endTs);
-            SleepAnalysis sleepAnalysis = new SleepAnalysis();
-            List<SleepAnalysis.SleepSession> sleepSessions = sleepAnalysis.calculateSleepSessions(activitySamples);
+            final List<SleepSession> sleepSessions = device.getDeviceCoordinator()
+                .getSleepSessionProvider(device, db.getDaoSession())
+                .getSleepSessions(startTs - SLEEP_LOOK_BACK_SECONDS, endTs)
+                .stream()
+                .filter(session -> session.getEndTime() > startTs * 1000L)
+                .collect(Collectors.toList());
             List<? extends RespiratoryRateSample> samples = getRespiratoryRateSamples(db, device, startTs, endTs);
             Calendar d = (Calendar) day.clone();
             daysData.add(new RespiratoryRateDay(d, samples, sleepSessions, supportsDayRespiratoryRate));
@@ -92,11 +96,6 @@ abstract class RespiratoryRateFragment<T extends ChartsData> extends AbstractCha
         return provider.getAllSamples(tsFrom * 1000L, tsTo * 1000L);
     }
 
-    protected List<? extends ActivitySample> getAllActivitySamples(DBHandler db, GBDevice device, int startTs, int endTs) {
-        SampleProvider<? extends ActivitySample> provider = device.getDeviceCoordinator().getSampleProvider(device, db.getDaoSession());
-        return provider.getAllActivitySamples(startTs, endTs);
-    }
-
     protected static class RespiratoryRateDay extends ChartsData {
         public int awakeRateAvg;
         public int sleepRateAvg;
@@ -104,11 +103,11 @@ abstract class RespiratoryRateFragment<T extends ChartsData> extends AbstractCha
         public int rateHighest;
         public Calendar day;
         List<? extends RespiratoryRateSample> respiratoryRateSamples;
-        List<SleepAnalysis.SleepSession> sleepSessions;
+        List<SleepSession> sleepSessions;
 
         protected RespiratoryRateDay(Calendar day,
                                      List<? extends RespiratoryRateSample> respiratoryRateSamples,
-                                     List<SleepAnalysis.SleepSession> sleepSessions,
+                                     List<SleepSession> sleepSessions,
                                      boolean supportsDayRespiratoryRate) {
             this.day = day;
             this.respiratoryRateSamples = respiratoryRateSamples;
@@ -155,8 +154,8 @@ abstract class RespiratoryRateFragment<T extends ChartsData> extends AbstractCha
                 return true;
             }
 
-            for (SleepAnalysis.SleepSession session : this.sleepSessions) {
-                if (sample.getTimestamp() >= session.getSleepStart().getTime() && sample.getTimestamp() <= session.getSleepEnd().getTime()) {
+            for (SleepSession session : this.sleepSessions) {
+                if (sample.getTimestamp() >= session.getStartTime() && sample.getTimestamp() <= session.getEndTime()) {
                     return true;
                 }
             }

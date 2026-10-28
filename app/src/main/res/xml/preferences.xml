@@ -60,14 +60,6 @@
             android:title="@string/pref_title_general_reconnectonlytoconnected"
             android:icon="@drawable/ic_bluetooth_connected" />
 
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:key="general_prefs_key_sort_by_last_connected_ts"
-            android:layout="@layout/preference_checkbox"
-            android:summary="@string/pref_summary_general_prefs_key_sort_by_last_connected_ts"
-            android:title="@string/pref_title_general_prefs_key_sort_by_last_connected_ts"
-            android:icon="@drawable/ic_calendar_month" />
-
         <PreferenceCategory
             android:key="language_category"
             android:title="@string/language_and_region_prefs">
@@ -237,6 +229,14 @@
             android:title="@string/pref_title_accent_color" />
 
         <SwitchPreferenceCompat
+            android:icon="@drawable/ic_bottom_navigation"
+            android:key="pref_key_contrasting_surfaces"
+            android:persistent="false"
+            android:layout="@layout/preference_checkbox"
+            android:summary="@string/pref_summary_contrasting_surfaces"
+            android:title="@string/pref_title_contrasting_surfaces" />
+
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:icon="@drawable/ic_visibility_lock"
             android:key="block_screenshots"
@@ -253,7 +253,7 @@
             android:title="@string/pref_refresh_on_swipe_title" />
 
         <PreferenceCategory
-            android:key="pref_screen_theme"
+            android:key="pref_screen_main"
             android:title="@string/pref_header_main_screen"
             app:iconSpaceReserved="true">
 
@@ -274,7 +274,42 @@
                 android:summaryOff="@string/pref_summary_bottom_navigation_bar_off"
                 android:summaryOn="@string/pref_summary_bottom_navigation_bar_on"
                 android:title="@string/pref_title_bottom_navigation_bar" />
+
+            <com.mobeta.android.dslv.DragSortListPreference
+                android:defaultValue="@array/pref_main_screens_items_values"
+                android:dialogTitle="@string/pref_main_screens_title"
+                android:entries="@array/pref_main_screens_items"
+                android:entryValues="@array/pref_main_screens_items_values"
+                android:icon="@drawable/ic_always_on_display"
+                android:key="main_screens"
+                android:persistent="true"
+                android:title="@string/pref_main_screens_title"
+                android:summary="@string/pref_main_screens_summary" />
+
+            <ListPreference
+                android:defaultValue="dashboard"
+                android:entries="@array/pref_main_screens_items"
+                android:entryValues="@array/pref_main_screens_items_values"
+                android:key="default_main_screen"
+                android:title="@string/pref_default_main_screen_title"
+                android:icon="@drawable/ic_always_on_display"
+                app:useSimpleSummaryProvider="true" />
         </PreferenceCategory>
+
+        <PreferenceCategory
+            android:key="pref_screen_devices"
+            android:title="@string/pref_header_devices_screen"
+            app:iconSpaceReserved="true">
+
+            <SwitchPreferenceCompat
+                android:defaultValue="false"
+                android:key="general_prefs_key_sort_by_last_connected_ts"
+                android:layout="@layout/preference_checkbox"
+                android:summary="@string/pref_summary_general_prefs_key_sort_by_last_connected_ts"
+                android:title="@string/pref_title_general_prefs_key_sort_by_last_connected_ts"
+                android:icon="@drawable/ic_calendar_month" />
+        </PreferenceCategory>
+
     </PreferenceScreen>
 
     <Preference
@@ -294,6 +329,12 @@
         android:icon="@drawable/ic_map"
         android:key="pref_category_maps"
         android:title="@string/maps"
+        app:iconSpaceReserved="false" />
+
+    <Preference
+        android:icon="@drawable/ic_landscape"
+        android:key="pref_category_elevation_correction"
+        android:title="@string/elevation_correction"
         app:iconSpaceReserved="false" />
 
     <Preference
@@ -346,13 +387,21 @@
                 android:layout="@layout/preference_checkbox"
                 android:title="@string/pref_title_whenscreenon"
                 app:iconSpaceReserved="false" />
-            <ListPreference
-                android:defaultValue="autodetect"
-                android:entries="@array/osmand_package_names"
-                android:entryValues="@array/osmand_package_names_values"
-                android:key="pref_key_osmand_packagename"
-                android:summary="@string/pref_summary_osmand_packagename"
-                android:title="@string/pref_title_osmand_packagename"
+            <SwitchPreferenceCompat
+                android:defaultValue="false"
+                android:dependency="navigation_forward"
+                android:key="navigation_allow_unsupported_devices"
+                android:layout="@layout/preference_checkbox"
+                android:summary="@string/pref_summary_navigation_allow_unsupported_devices"
+                android:title="@string/pref_title_allow_unsupported_devices"
+                app:iconSpaceReserved="false" />
+            <SwitchPreferenceCompat
+                android:defaultValue="true"
+                android:dependency="navigation_forward"
+                android:key="navigation_right_hand_traffic"
+                android:layout="@layout/preference_checkbox"
+                android:summary="@string/pref_description_navigation_right_hand_driving"
+                android:title="@string/pref_title_navigation_right_hand_driving"
                 app:iconSpaceReserved="false" />
             <PreferenceCategory
                 android:key="navigation_apps_selection"
@@ -363,6 +412,15 @@
                     android:key="navigation_app_osmand"
                     android:layout="@layout/preference_checkbox"
                     android:title="@string/pref_navigation_app_osmand"
+                    app:iconSpaceReserved="false" />
+                <ListPreference
+                    android:defaultValue="autodetect"
+                    android:dependency="navigation_app_osmand"
+                    android:entries="@array/osmand_package_names"
+                    android:entryValues="@array/osmand_package_names_values"
+                    android:key="pref_key_osmand_packagename"
+                    android:summary="@string/pref_summary_osmand_packagename"
+                    android:title="@string/pref_title_osmand_packagename"
                     app:iconSpaceReserved="false" />
                 <SwitchPreferenceCompat
                     android:defaultValue="true"
@@ -377,6 +435,7 @@
                     android:title="@string/pref_navigation_app_comaps"
                     app:iconSpaceReserved="false" />
             </PreferenceCategory>
+
         </PreferenceScreen>
 
         <nodomain.freeyourgadget.gadgetbridge.util.preferences.SubtitleListPreference
@@ -602,6 +661,31 @@
             android:summary="@string/prefs_key_enable_deprecated_notificationcollectormonitor_summary"
             android:title="@string/prefs_key_enable_deprecated_notificationcollectormonitor_title"
             app:iconSpaceReserved="false" />
+
+        <PreferenceCategory
+            android:key="pref_header_deprecated_sms_receiver"
+            android:title="@string/pref_deprecated_sms_receiver_title"
+            app:iconSpaceReserved="false"
+            app:singleLineTitle="false">
+
+            <SwitchPreferenceCompat
+                android:defaultValue="false"
+                android:key="prefs_key_enable_deprecated_smsreceiver"
+                android:layout="@layout/preference_checkbox"
+                android:summary="@string/pref_deprecated_sms_receiver_summary"
+                android:title="@string/pref_deprecated_sms_receiver_title"
+                app:iconSpaceReserved="false" />
+
+            <ListPreference
+                android:defaultValue="when_screen_off"
+                android:dependency="prefs_key_enable_deprecated_smsreceiver"
+                android:entries="@array/notification_mode"
+                android:entryValues="@array/notification_mode_values"
+                android:key="notification_mode_sms"
+                android:title="@string/pref_title_notifications_sms"
+                app:iconSpaceReserved="false"
+                app:useSimpleSummaryProvider="true" />
+        </PreferenceCategory>
 
         <PreferenceCategory
             android:key="pref_header_media_control"

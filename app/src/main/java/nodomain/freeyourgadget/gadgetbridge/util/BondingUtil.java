@@ -17,7 +17,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.util;
 
-import static androidx.core.app.ActivityCompat.startIntentSenderForResult;
 import static nodomain.freeyourgadget.gadgetbridge.util.GB.toast;
 
 import android.Manifest;
@@ -27,19 +26,12 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
-import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.companion.AssociationInfo;
-import android.companion.AssociationRequest;
-import android.companion.BluetoothDeviceFilter;
-import android.companion.BluetoothLeDeviceFilter;
 import android.companion.CompanionDeviceManager;
-import android.companion.DeviceFilter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.net.MacAddress;
 import android.os.Build;
@@ -57,7 +49,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -221,39 +212,6 @@ public class BondingUtil {
     }
 
     /**
-     * Checks the type of bonding needed for the device and continues accordingly
-     */
-    public static void initiateCorrectBonding(final BondingInterface bondingInterface, final GBDeviceCandidate deviceCandidate, DeviceCoordinator coordinator) {
-        int bondingStyle = coordinator.getBondingStyle();
-        if (bondingStyle == DeviceCoordinator.BONDING_STYLE_NONE ||
-            bondingStyle == DeviceCoordinator.BONDING_STYLE_LAZY ) {
-            // Do nothing
-            return;
-        } else if (bondingStyle == DeviceCoordinator.BONDING_STYLE_ASK) {
-            new MaterialAlertDialogBuilder(bondingInterface.getContext())
-                    .setCancelable(true)
-                    .setTitle(bondingInterface.getContext().getString(R.string.discovery_pair_title, deviceCandidate.getName()))
-                    .setMessage(bondingInterface.getContext().getString(R.string.discovery_pair_question))
-                    .setPositiveButton(bondingInterface.getContext().getString(R.string.discovery_yes_pair), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            BondingUtil.tryBondThenComplete(bondingInterface, deviceCandidate.getDevice());
-                        }
-                    })
-                    .setNegativeButton(R.string.discovery_dont_pair, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            BondingUtil.connectThenComplete(bondingInterface, deviceCandidate);
-                        }
-                    })
-                    .show();
-        } else {
-            BondingUtil.tryBondThenComplete(bondingInterface, deviceCandidate.getDevice());
-        }
-        LOG.debug("Bonding initiated");
-    }
-
-    /**
      * Tries to create a BluetoothDevice bond
      * Do not call directly, use createBond(Activity, GBDeviceCandidate) instead!
      */
@@ -277,7 +235,7 @@ public class BondingUtil {
             }
 
             // Theoretically we shouldn't be doing this
-            // because this function shouldn't've been called
+            // because this function shouldn't have been called
             // with an already bonded device
             if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
                 LOG.warn("For some reason the device is already bonded, but let's try first connect");
@@ -324,7 +282,7 @@ public class BondingUtil {
 
             if (deviceToPair != null) {
                 if (deviceToPair.getAddress().equals(bondingInterface.getMacAddress())) {
-                    StartObserving(bondingInterface.getContext(), deviceToPair.getAddress());
+                    CompanionDeviceUtil.StartObserving(bondingInterface.getContext(), deviceToPair.getAddress());
                     if (deviceToPair.getBondState() != BluetoothDevice.BOND_BONDED) {
                         BondingUtil.bluetoothBond(bondingInterface, bondingInterface.getCurrentTarget().getDevice());
                     } else {
@@ -347,49 +305,19 @@ public class BondingUtil {
                                                    BluetoothDevice device) {
         final String macAddress = device.getAddress();
         final int type = device.getType();
-        final DeviceFilter<?> deviceFilter;
 
-        if (useLeDeviceFilter(bondingInterface, type)) {
-            LOG.debug("companionDeviceManagerBond {} type {} - treat as LE",
-                    macAddress, type);
-            ScanFilter scan = new ScanFilter.Builder()
-                    .setDeviceAddress(macAddress)
-                    .build();
-
-            deviceFilter = new BluetoothLeDeviceFilter.Builder()
-                    .setScanFilter(scan)
-                    .build();
-        } else {
-            LOG.debug("companionDeviceManagerBond {} type {} - treat as classic BT",
-                    macAddress, type);
-            deviceFilter = new BluetoothDeviceFilter.Builder()
-                    .setAddress(macAddress)
-                    .build();
+        if (CompanionDeviceUtil.isCompanionAssociated(bondingInterface.getContext(), macAddress)) {
+            CompanionDeviceUtil.StartObserving(bondingInterface.getContext(), macAddress);
+            LOG.info("The device has already been bonded through CompanionDeviceManager, using regular");
+            // If it's already "associated", we should immediately pair
+            // because the callback is never called (AFAIK?)
+            BondingUtil.bluetoothBond(bondingInterface, device);
+            return;
         }
 
-        AssociationRequest pairingRequest = new AssociationRequest.Builder()
-                .addDeviceFilter(deviceFilter)
-                .setSingleDevice(true)
-                .build();
-
-        CompanionDeviceManager manager = (CompanionDeviceManager) bondingInterface.getContext().getSystemService(Context.COMPANION_DEVICE_SERVICE);
-        LOG.debug(String.format("Searching for %s associations", macAddress));
-        for (String association : manager.getAssociations()) {
-            LOG.debug(String.format("Already associated with: %s", association));
-            if (association.equals(macAddress)) {
-                StartObserving(bondingInterface.getContext(), macAddress);
-                LOG.info("The device has already been bonded through CompanionDeviceManager, using regular");
-                // If it's already "associated", we should immediately pair
-                // because the callback is never called (AFAIK?)
-                BondingUtil.bluetoothBond(bondingInterface, device);
-                return;
-            }
-        }
-
-        LOG.debug("Starting association request");
-        manager.associate(pairingRequest,
-                getCompanionDeviceManagerCallback(bondingInterface),
-                null);
+        final boolean useLe = useLeDeviceFilter(bondingInterface, type);
+        LOG.debug("companionDeviceManagerBond {} type {} - treat as {}", macAddress, type, useLe ? "LE" : "classic BT");
+        CompanionDeviceUtil.associateCompanion((Activity) bondingInterface.getContext(), macAddress, useLe, REQUEST_CODE, null, null);
     }
 
     /**
@@ -499,169 +427,19 @@ public class BondingUtil {
                 .show();
     }
 
-    /**
-     * Returns a callback for CompanionDeviceManager
-     *
-     * @param bondingInterface the activity that started the CDM bonding process
-     * @return CompanionDeviceManager.Callback that handles the CompanionDeviceManager bonding process results
-     */
-    @RequiresApi(Build.VERSION_CODES.O)
-    private static CompanionDeviceManager.Callback getCompanionDeviceManagerCallback(final BondingInterface bondingInterface) {
-        return new CompanionDeviceManager.Callback() {
-            @Override
-            public void onFailure(CharSequence error) {
-                Context context = bondingInterface.getContext();
-                String message = context.getString(R.string.discovery_bonding_error, error);
-                toast(context, message, Toast.LENGTH_SHORT, GB.ERROR);
-            }
-
-            @Override
-            public void onDeviceFound(IntentSender chooserLauncher) {
-                try {
-                    startIntentSenderForResult((Activity) bondingInterface.getContext(),
-                            chooserLauncher,
-                            REQUEST_CODE,
-                            null,
-                            0,
-                            0,
-                            0,
-                            null);
-                } catch (IntentSender.SendIntentException e) {
-                    LOG.error(e.toString());
-                }
-            }
-        };
-    }
-
-    public static boolean StartObservingAll(Context context) {
-        return StartObserving(context, null);
-    }
-
-    public static boolean StartObserving(Context context, String mac) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            LOG.info("StartObserving - API {} < {} is too old",
-                    Build.VERSION.SDK_INT, Build.VERSION_CODES.S);
-            return false;
-        }
-
-        if (mac != null && !BluetoothAdapter.checkBluetoothAddress(mac)) {
-            LOG.warn("StartObserving - mac '{}' is invalid", mac);
-            return false;
-        }
-
-        final CompanionDeviceManager manager = getCompanionDeviceManager(context);
-        if (manager == null) {
-            LOG.warn("StartObserving - CompanionDeviceManager is null");
-            return false;
-        }
-
-        boolean success = false;
-        final List<String> addresses;
-        if (mac == null) {
-            addresses = manager.getAssociations();
-            LOG.debug("StartObserving - {} associations", addresses.size());
-        } else {
-            addresses = Collections.singletonList(mac);
-        }
-
-        for (final String address : addresses) {
-            try {
-                LOG.debug("StartObserving - {}", address);
-                manager.startObservingDevicePresence(address);
-                success = true;
-            } catch (Exception e) {
-                LOG.warn("StartObserving - exception", e);
-            }
-        }
-        return success;
-    }
-
-
-    public static boolean StopObservingAll(Context context) {
-        return StopObserving(context, null);
-    }
-
-    public static boolean StopObserving(final Context context, final String mac) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            LOG.info("StopObserving - API {} < {} is too old",
-                    Build.VERSION.SDK_INT, Build.VERSION_CODES.S);
-            return false;
-        }
-
-        if (mac != null && !BluetoothAdapter.checkBluetoothAddress(mac)) {
-            LOG.warn("StopObserving - mac '{}' is invalid", mac);
-            return false;
-        }
-
-        final CompanionDeviceManager manager = getCompanionDeviceManager(context);
-        if (manager == null) {
-            LOG.warn("StopObserving - CompanionDeviceManager is null");
-            return false;
-        }
-
-        boolean success = false;
-        final List<String> addresses;
-        if (mac == null) {
-            addresses = manager.getAssociations();
-            LOG.debug("StopObserving - {} associations", addresses.size());
-        } else {
-            addresses = Collections.singletonList(mac);
-        }
-
-        for (final String address : addresses) {
-            try {
-                LOG.debug("StopObserving - {}", address);
-                manager.stopObservingDevicePresence(address);
-                success = true;
-            } catch (Exception e) {
-                LOG.warn("StopObserving - exception {}", e.getMessage());
-            }
-        }
-        return success;
-    }
-
-    public static boolean Disassociate(Context context, String mac) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            LOG.info("Disassociate - API {} < {} is too old",
-                    Build.VERSION.SDK_INT, Build.VERSION_CODES.O);
-            return false;
-        }
-
-        if (!BluetoothAdapter.checkBluetoothAddress(mac)) {
-            LOG.warn("Disassociate - mac '{}' is invalid", mac);
-            return false;
-        }
-
-        final CompanionDeviceManager manager = getCompanionDeviceManager(context);
-        if (manager == null) {
-            LOG.warn("Disassociate - CompanionDeviceManager is null");
-        } else {
-            try {
-                StopObserving(context, mac);
-                LOG.debug("Disassociate - {}", mac);
-                manager.disassociate(mac);
-                return true;
-            } catch (Exception e) {
-                LOG.info("Disassociate - exception {}", e.getMessage());
-            }
-        }
-
-        return false;
-    }
-
     public static boolean Unpair(Context context, String mac) {
         if (!BluetoothAdapter.checkBluetoothAddress(mac)) {
             LOG.warn("Unpair - mac '{}' is invalid", mac);
             return false;
         }
 
-        StopObserving(context, mac);
+        CompanionDeviceUtil.StopObserving(context, mac);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
             LOG.debug("Unpair - API {} < {} is too old for modern bond removal",
                     Build.VERSION.SDK_INT, Build.VERSION_CODES.BAKLAVA);
         } else {
-            final CompanionDeviceManager manager = getCompanionDeviceManager(context);
+            final CompanionDeviceManager manager = CompanionDeviceUtil.getCompanionDeviceManager(context);
             if (manager == null) {
                 LOG.warn("Unpair - CompanionDeviceManager is null");
             } else {
@@ -775,7 +553,7 @@ public class BondingUtil {
             }
         }
 
-        Disassociate(context, mac);
+        CompanionDeviceUtil.Disassociate(context, mac);
 
         return removed;
     }
@@ -810,28 +588,4 @@ public class BondingUtil {
         return null;
     }
 
-    @Nullable
-    public static CompanionDeviceManager getCompanionDeviceManager(Context context) {
-        if (context == null) {
-            LOG.error("getCompanionDeviceManager - context is null");
-        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            LOG.debug("getCompanionDeviceManager - API {} < {} is too old",
-                    Build.VERSION.SDK_INT, Build.VERSION_CODES.O);
-        } else {
-            final CompanionDeviceManager manager = (CompanionDeviceManager) context.getSystemService(Context.COMPANION_DEVICE_SERVICE);
-            if (manager != null) {
-                return manager;
-            }
-
-            LOG.warn("getCompanionDeviceManager - CompanionDeviceManager is null");
-            final PackageManager pm = context.getPackageManager();
-            if (pm == null) {
-                LOG.warn("getCompanionDeviceManager - PackageManager is null");
-            } else {
-                LOG.warn("getCompanionDeviceManager - FEATURE_COMPANION_DEVICE_SETUP is available: {}",
-                        pm.hasSystemFeature(PackageManager.FEATURE_COMPANION_DEVICE_SETUP));
-            }
-        }
-        return null;
-    }
 }

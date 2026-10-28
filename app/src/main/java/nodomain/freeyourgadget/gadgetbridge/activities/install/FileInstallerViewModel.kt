@@ -16,6 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities.install
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.lifecycle.LiveData
@@ -27,13 +28,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
-import nodomain.freeyourgadget.gadgetbridge.devices.InstallHandler
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import org.slf4j.LoggerFactory
 
 sealed class InstallDeviceUiState {
     object Loading : InstallDeviceUiState()
-    data class Success(val results: List<Pair<GBDevice, InstallHandler>>) : InstallDeviceUiState()
+    data class Success(val results: List<Pair<GBDevice, Intent>>) : InstallDeviceUiState()
     object NoUri : InstallDeviceUiState()
     data class Error(val message: String) : InstallDeviceUiState()
 }
@@ -42,8 +42,8 @@ class FileInstallerViewModel(private val application: GBApplication, private val
     private val _uiState = MutableLiveData<InstallDeviceUiState>()
     val uiState: LiveData<InstallDeviceUiState> = _uiState
 
-    fun findCompatibleDevices(uri: Uri?) {
-        if (uri == null) {
+    fun findCompatibleDevices(files: List<Uri>) {
+        if (files.isEmpty()) {
             _uiState.value = InstallDeviceUiState.NoUri
             return
         }
@@ -51,18 +51,22 @@ class FileInstallerViewModel(private val application: GBApplication, private val
         _uiState.value = InstallDeviceUiState.Loading
         viewModelScope.launch {
             val results = withContext(Dispatchers.IO) {
-                val compatibleDevices = mutableListOf<Pair<GBDevice, InstallHandler>>()
+                val compatibleDevices = mutableListOf<Pair<GBDevice, Intent>>()
                 for (device in getAllDeviceTypesConnectedFirst()) {
-                    val coordinator = device.deviceCoordinator
                     try {
-                        val handler = coordinator.findInstallHandler(uri, fwOptions, application.applicationContext)
-                        if (handler != null) {
+                        val intent = InstallLauncher.createIntent(
+                            application.applicationContext,
+                            device,
+                            files,
+                            fwOptions
+                        )
+                        if (intent != null) {
                             LOG.debug(
-                                "Found compatible install handler {} for {}",
-                                handler.javaClass.simpleName,
+                                "Found compatible install activity {} for {}",
+                                intent.component?.className,
                                 device
                             )
-                            compatibleDevices.add(Pair(device, handler))
+                            compatibleDevices.add(Pair(device, intent))
                         }
                     } catch (e: Exception) {
                         LOG.error("Error finding install handler for $device", e)
@@ -75,7 +79,7 @@ class FileInstallerViewModel(private val application: GBApplication, private val
                 _uiState.value = InstallDeviceUiState.Success(results)
             } else {
                 _uiState.value = InstallDeviceUiState.Error(
-                    application.getString(R.string.fwinstaller_no_compatible_device_found, uri)
+                    application.getString(R.string.fwinstaller_no_compatible_device_found, files.joinToString())
                 )
             }
         }

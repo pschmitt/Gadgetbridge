@@ -19,7 +19,6 @@ package nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.services;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Handler;
-import android.os.SystemClock;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -38,7 +37,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.TimeZone;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
@@ -61,14 +59,12 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser;
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceService;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.ActivitySyncRequestToday;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.AdvancedMonitoring;
-import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.AxisSensor;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.Goal;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.GoalNotification;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.GoalsConfig;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.Health;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.HeartRate;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.HeartRateAlarmLow;
-import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.RawSensorBatch;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.RealTimeStats;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.RelaxReminder;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.SpO2;
@@ -81,12 +77,8 @@ import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.VitalityScore;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.WorkoutLocation;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.WorkoutOpenReply;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.WorkoutOpenWatch;
-import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.WorkoutStatsPhone;
-import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.WorkoutStatsWatch;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.WorkoutStatusWatch;
-import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.WorkoutStatusWatchSport;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.XiaomiProto;
-import nodomain.freeyourgadget.gadgetbridge.service.SleepAsAndroidSender;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.XiaomiPreferences;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.XiaomiSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.activity.XiaomiActivityFileFetcher;
@@ -114,8 +106,8 @@ public class XiaomiHealthService extends AbstractXiaomiService {
     private static final int CMD_CONFIG_STRESS_SET = 15;
     private static final int CMD_CONFIG_GOAL_NOTIFICATION_GET = 21;
     private static final int CMD_CONFIG_GOAL_NOTIFICATION_SET = 22;
-    private static final int CMD_WORKOUT_WATCH_STATUS = 26;
-    private static final int CMD_WORKOUT_WATCH_OPEN = 30;
+    static final int CMD_WORKOUT_WATCH_STATUS = 26;
+    static final int CMD_WORKOUT_WATCH_OPEN = 30;
     private static final int CMD_CONFIG_VITALITY_SCORE_GET = 35;
     private static final int CMD_CONFIG_VITALITY_SCORE_SET = 36;
     private static final int CMD_WORKOUT_LOCATION = 48;
@@ -125,29 +117,20 @@ public class XiaomiHealthService extends AbstractXiaomiService {
     private static final int CMD_REALTIME_STATS_STOP = 46;
     private static final int CMD_REALTIME_STATS_EVENT = 47;
     // SaA synthetic workout raw-sensor channels (subtype names per AstroBox FitnessID enum)
-    private static final int CMD_WORKOUT_STATS_PHONE = 49;  // FitnessID.PHONE_SPORT_DATA_V2A
+    static final int CMD_WORKOUT_STATS_PHONE = 49;  // FitnessID.PHONE_SPORT_DATA_V2A
     // While a workout is open the watch pushes its own copy of the stats once a second, whatever
     // rate the phone sends at.
     private static final int CMD_WEAR_SPORT_DATA_V2A = 50;  // FitnessID.WEAR_SPORT_DATA_V2A
     private static final int CMD_RAW_SENSOR_BATCH = 53;     // FitnessID.WEAR_SENSOR_DATA
-    // Synthetic-sport id used to mark the workout as hidden / non-persistent
-    private static final int SAA_SYNTHETIC_SPORT = 810;     // AstroBox SportType.MOTION_SENSING_GAME
-    // The band renders these values on its workout screen and blanks it if the stream stops
-    // altogether. The full rate is only worth its radio traffic while the screen is likely to be
-    // on, which for a sleep session is the first few seconds; the rest of the night runs at the
-    // idle rate.
-    private static final long WORKOUT_STATS_INTERVAL_MS = 1_000L;
-    private static final long WORKOUT_STATS_IDLE_INTERVAL_MS = 5_000L;
-    private static final long WORKOUT_STATS_ACTIVE_WINDOW_MS = 10_000L;
-    // Reported to the band until a real reading arrives.
-    private static final int HEART_RATE_UNKNOWN = 255;
+    // How long the band may go without pushing live stats before its workout counts as over.
+    private static final long WORKOUT_ALIVE_TIMEOUT_MS = 60_000L;
 
-    private static final int WORKOUT_OPEN_OK = 0;
-    private static final int WORKOUT_OPEN_NO_PERMISSION = 3;
+    static final int WORKOUT_OPEN_OK = 0;
+    static final int WORKOUT_OPEN_NO_PERMISSION = 3;
     // Picked from the versions the watch offers when it asks to open a workout.
-    private static final int WORKOUT_PROTOCOL_VERSION = 2;
-    private static final int GPS_ACCURACY_HIGH = 2;
-    private static final int GPS_ACCURACY_UNKNOWN = 10;
+    static final int WORKOUT_PROTOCOL_VERSION = 2;
+    static final int GPS_ACCURACY_HIGH = 2;
+    static final int GPS_ACCURACY_UNKNOWN = 10;
 
     private static final int GENDER_MALE = 1;
     private static final int GENDER_FEMALE = 2;
@@ -164,25 +147,32 @@ public class XiaomiHealthService extends AbstractXiaomiService {
         ONE_SHOT,
     }
 
-    private static final int WORKOUT_STARTED = 0;
-    private static final int WORKOUT_PAUSED = 1;
+    static final int WORKOUT_STARTED = 0;
+    static final int WORKOUT_PAUSED = 1;
     private static final int WORKOUT_RESUMED = 2;
-    private static final int WORKOUT_FINISHED = 3;
+    static final int WORKOUT_FINISHED = 3;
 
     // Guarded by itself: consumers are added and released from the handler thread and from the
     // Bluetooth callback thread.
     private final Set<RealtimeConsumer> realtimeConsumers = EnumSet.noneOf(RealtimeConsumer.class);
     private int previousSteps = -1;
 
-    private boolean gpsStarted = false;
-    private boolean gpsFixAcquired = false;
-    private boolean workoutStarted = false;
+    // Set from the Bluetooth thread (band commands) and read on the main thread (phone fixes, timeouts).
+    private volatile boolean gpsStarted = false;
+    private volatile boolean gpsFixAcquired = false;
+    private volatile boolean workoutStarted = false;
+    // Set once the band has pushed live stats during the current workout. Those come every second
+    // while a workout is open, so their absence tells that the workout is over.
+    private volatile boolean workoutLiveStatsSeen = false;
+    // The band asked for location since the last workout start.
+    private volatile boolean locationRequested = false;
+    // The band's current workout asked for location.
+    private volatile boolean locationWorkoutOpen = false;
     private final Handler gpsTimeoutHandler = new Handler();
-    private boolean saaRawSensorActive = false;
-    private long saaWorkoutStartedMs = 0;
-    private long saaStatsActiveUntilMs = 0;
-    private int lastHeartRate = HEART_RATE_UNKNOWN;
-    private final Handler saaWorkoutStatsHandler = new Handler();
+    private final Handler workoutAliveHandler = new Handler();
+
+    // Last SpO2 config the watch reported, so a write keeps the fields Gadgetbridge has no setting for
+    private SpO2 lastSpo2Config;
 
     private final Set<Integer> currentGoals = new LinkedHashSet<>();
     private final Set<Integer> supportedGoals = new LinkedHashSet<>();
@@ -193,14 +183,14 @@ public class XiaomiHealthService extends AbstractXiaomiService {
     private static final int GOAL_STANDING_TIME = 4;
 
     private final XiaomiActivityFileFetcher activityFetcher = new XiaomiActivityFileFetcher(this);
-    private SleepAsAndroidSender sleepAsAndroidSender;
-
-    public void setSleepAsAndroidSender(final SleepAsAndroidSender sender) {
-        this.sleepAsAndroidSender = sender;
-    }
+    private final XiaomiSleepAsAndroidManager sleepAsAndroidManager = new XiaomiSleepAsAndroidManager(this);
 
     public XiaomiHealthService(final XiaomiSupport support) {
         super(support);
+    }
+
+    public XiaomiSleepAsAndroidManager getSleepAsAndroidManager() {
+        return sleepAsAndroidManager;
     }
 
     @Override
@@ -265,10 +255,11 @@ public class XiaomiHealthService extends AbstractXiaomiService {
                 handleRealtimeStats(cmd.getHealth().getRealTimeStats());
                 return;
             case CMD_RAW_SENSOR_BATCH:
-                handleRawSensorBatch(cmd.getHealth().getRawSensorBatch());
+                sleepAsAndroidManager.handleRawSensorBatch(cmd.getHealth().getRawSensorBatch());
                 return;
             case CMD_WEAR_SPORT_DATA_V2A:
-                handleWorkoutStatsWatch(cmd.getHealth().getWorkoutStatsWatch());
+                onWorkoutLiveStats();
+                sleepAsAndroidManager.handleWorkoutStatsWatch(cmd.getHealth().getWorkoutStatsWatch());
                 return;
             case CMD_WORKOUT_STATS_PHONE:
                 LOG.debug("Got workout stats echo");
@@ -280,14 +271,12 @@ public class XiaomiHealthService extends AbstractXiaomiService {
 
     @Override
     public void initialize() {
-        gpsStarted = false;
-        gpsFixAcquired = false;
-        workoutStarted = false;
         synchronized (realtimeConsumers) {
             realtimeConsumers.clear();
         }
-        saaRawSensorActive = false;
-        gpsTimeoutHandler.removeCallbacksAndMessages(null);
+        sleepAsAndroidManager.recover();
+        resumeLocationAfterReconnect();
+        lastSpo2Config = null;
 
         setUserInfo();
         getSupport().sendCommand("get spo2 config", COMMAND_TYPE, CMD_CONFIG_SPO2_GET);
@@ -301,15 +290,11 @@ public class XiaomiHealthService extends AbstractXiaomiService {
 
     @Override
     public void dispose() {
-        gpsTimeoutHandler.removeCallbacksAndMessages(null);
-        gpsStarted = false;
-        gpsFixAcquired = false;
-        workoutStarted = false;
-        stopWorkoutStatsTicker();
+        endLocationWorkout();
         synchronized (realtimeConsumers) {
             realtimeConsumers.clear();
         }
-        saaRawSensorActive = false;
+        sleepAsAndroidManager.reset();
         activityFetcher.dispose();
     }
 
@@ -338,6 +323,8 @@ public class XiaomiHealthService extends AbstractXiaomiService {
                 return true;
             case DeviceSettingsPreferenceConst.PREF_HEARTRATE_USE_FOR_SLEEP_DETECTION:
             case DeviceSettingsPreferenceConst.PREF_HEARTRATE_SLEEP_BREATHING_QUALITY_MONITORING:
+            case DeviceSettingsPreferenceConst.PREF_HEARTRATE_SLEEP_RESPIRATORY_RATE_MONITORING:
+            case DeviceSettingsPreferenceConst.PREF_HEARTRATE_ALERT_IRREGULAR_RHYTHM:
             case DeviceSettingsPreferenceConst.PREF_HEARTRATE_MEASUREMENT_INTERVAL:
             case DeviceSettingsPreferenceConst.PREF_HEARTRATE_ALERT_ENABLED:
             case DeviceSettingsPreferenceConst.PREF_HEARTRATE_ALERT_HIGH_THRESHOLD:
@@ -345,6 +332,7 @@ public class XiaomiHealthService extends AbstractXiaomiService {
                 setHeartRateConfig();
                 return true;
             case DeviceSettingsPreferenceConst.PREF_SPO2_ALL_DAY_MONITORING:
+            case DeviceSettingsPreferenceConst.PREF_SPO2_MONITORING_MODE:
             case DeviceSettingsPreferenceConst.PREF_SPO2_LOW_ALERT_THRESHOLD:
                 setSpo2Config();
                 return true;
@@ -540,15 +528,17 @@ public class XiaomiHealthService extends AbstractXiaomiService {
     }
 
     private void handleSpo2Config(final SpO2 spo2) {
-        LOG.debug("Got SpO2 config");
+        LOG.debug("Got SpO2 config: allDayCapable={}, mode={}, interval={}", spo2.getAllDayCapable(), spo2.getMode(), spo2.getInterval());
+
+        lastSpo2Config = spo2;
 
         final GBDeviceEventUpdatePreferences eventUpdatePreferences = new GBDeviceEventUpdatePreferences()
                 .withPreference(XiaomiPreferences.FEAT_SPO2, true)
-                // The band reports a numeric mode (0 = off, 1 = sleep-only, 2 = all-day);
-                // only all-day maps to the on/off preference in Gadgetbridge.
-                // Sleep-only is valid on the wire but is not shown in the on-watch
-                // UI nor in the vendor app UI of Mi Band 10, so it reads as off here.
+                // Watches reporting interval 0 have the plain all-day switch, see SpO2 in wear_fitness.proto
+                .withPreference(XiaomiPreferences.FEAT_SPO2_MODE_CHOICE, spo2.getInterval() != 0)
+                .withPreference(XiaomiPreferences.FEAT_SPO2_ALL_DAY, spo2.getAllDayCapable() != 0)
                 .withPreference(DeviceSettingsPreferenceConst.PREF_SPO2_ALL_DAY_MONITORING, spo2.getMode() == Spo2Mode.SPO2_MODE_ALL_DAY)
+                .withPreference(DeviceSettingsPreferenceConst.PREF_SPO2_MONITORING_MODE, String.valueOf(spo2.getMode().getNumber()))
                 .withPreference(
                         DeviceSettingsPreferenceConst.PREF_SPO2_LOW_ALERT_THRESHOLD,
                         String.valueOf(spo2.getAlarmLow().getAlarmLowEnabled() ? spo2.getAlarmLow().getAlarmLowThreshold() : 0)
@@ -558,23 +548,32 @@ public class XiaomiHealthService extends AbstractXiaomiService {
     }
 
     private void setSpo2Config() {
-        LOG.debug("Set SpO2 config");
-
         final Prefs prefs = getDevicePrefs();
         final boolean allDayMonitoring = prefs.getBoolean(DeviceSettingsPreferenceConst.PREF_SPO2_ALL_DAY_MONITORING, false);
         final int lowAlertThreshold = prefs.getInt(DeviceSettingsPreferenceConst.PREF_SPO2_LOW_ALERT_THRESHOLD, 0);
+
+        final Spo2Mode mode;
+        if (prefs.getBoolean(XiaomiPreferences.FEAT_SPO2_MODE_CHOICE, false)) {
+            final Spo2Mode chosen = Spo2Mode.forNumber(prefs.getInt(DeviceSettingsPreferenceConst.PREF_SPO2_MONITORING_MODE, 0));
+            mode = chosen != null ? chosen : Spo2Mode.SPO2_MODE_OFF;
+        } else {
+            mode = allDayMonitoring ? Spo2Mode.SPO2_MODE_ALL_DAY : Spo2Mode.SPO2_MODE_OFF;
+        }
+
+        LOG.debug("Set SpO2 config: mode={}, lowAlertThreshold={}", mode, lowAlertThreshold);
 
         final var spo2alarmLowBuilder = Spo2AlarmLow.newBuilder()
                 .setAlarmLowEnabled(lowAlertThreshold != 0);
 
         if (lowAlertThreshold != 0) {
             spo2alarmLowBuilder.setAlarmLowThreshold(lowAlertThreshold);
+        } else if (lastSpo2Config != null && lastSpo2Config.getAlarmLow().hasAlarmLowThreshold()) {
+            // keep the threshold the watch last reported, so turning the alert back on on the watch restores it
+            spo2alarmLowBuilder.setAlarmLowThreshold(lastSpo2Config.getAlarmLow().getAlarmLowThreshold());
         }
 
-        final var spo2 = SpO2.newBuilder()
-                .setUnknown1(1)
-                .setMode(allDayMonitoring ? Spo2Mode.SPO2_MODE_ALL_DAY : Spo2Mode.SPO2_MODE_OFF)
-                .setAlarmLow(spo2alarmLowBuilder);
+        final var spo2 = lastSpo2Config != null ? lastSpo2Config.toBuilder() : SpO2.newBuilder().setAllDayCapable(1);
+        spo2.setMode(mode).setAlarmLow(spo2alarmLowBuilder);
 
         getSupport().sendCommand(
                 "set spo2 config",
@@ -603,6 +602,12 @@ public class XiaomiHealthService extends AbstractXiaomiService {
         eventUpdatePreferences.withPreference(DeviceSettingsPreferenceConst.PREF_HEARTRATE_USE_FOR_SLEEP_DETECTION, heartRate.getAdvancedMonitoring().getEnabled());
         eventUpdatePreferences.withPreference(DeviceSettingsPreferenceConst.PREF_HEARTRATE_SLEEP_BREATHING_QUALITY_MONITORING, heartRate.getBreathingScore() == 1);
 
+        // 0 = the watch does not have the toggle, 1 = on, 2 = off
+        eventUpdatePreferences.withPreference(XiaomiPreferences.FEAT_IRREGULAR_RHYTHM_ALERT, heartRate.getIrregularRhythmAlert() != 0);
+        eventUpdatePreferences.withPreference(DeviceSettingsPreferenceConst.PREF_HEARTRATE_ALERT_IRREGULAR_RHYTHM, heartRate.getIrregularRhythmAlert() == 1);
+        eventUpdatePreferences.withPreference(XiaomiPreferences.FEAT_SLEEP_RESPIRATORY_RATE, heartRate.getSleepRespiratoryRate() != 0);
+        eventUpdatePreferences.withPreference(DeviceSettingsPreferenceConst.PREF_HEARTRATE_SLEEP_RESPIRATORY_RATE_MONITORING, heartRate.getSleepRespiratoryRate() == 1);
+
         eventUpdatePreferences.withPreference(
                 DeviceSettingsPreferenceConst.PREF_HEARTRATE_ALERT_HIGH_THRESHOLD,
                 String.valueOf(heartRate.getAlarmHighEnabled() ? heartRate.getAlarmHighThreshold() : 0)
@@ -621,9 +626,11 @@ public class XiaomiHealthService extends AbstractXiaomiService {
 
         final boolean sleepDetection = prefs.getBoolean(DeviceSettingsPreferenceConst.PREF_HEARTRATE_USE_FOR_SLEEP_DETECTION, false);
         final boolean sleepBreathingQuality = prefs.getBoolean(DeviceSettingsPreferenceConst.PREF_HEARTRATE_SLEEP_BREATHING_QUALITY_MONITORING, false);
+        final boolean sleepRespiratoryRate = prefs.getBoolean(DeviceSettingsPreferenceConst.PREF_HEARTRATE_SLEEP_RESPIRATORY_RATE_MONITORING, false);
         final int intervalSeconds = prefs.getInt(DeviceSettingsPreferenceConst.PREF_HEARTRATE_MEASUREMENT_INTERVAL, 0);
         final int alertHigh = prefs.getInt(DeviceSettingsPreferenceConst.PREF_HEARTRATE_ALERT_HIGH_THRESHOLD, 0);
         final int alertLow = prefs.getInt(DeviceSettingsPreferenceConst.PREF_HEARTRATE_ALERT_LOW_THRESHOLD, 0);
+        final boolean irregularRhythmAlert = prefs.getBoolean(DeviceSettingsPreferenceConst.PREF_HEARTRATE_ALERT_IRREGULAR_RHYTHM, false);
 
         int intervalMin;
         if (intervalSeconds == -1) {
@@ -634,12 +641,14 @@ public class XiaomiHealthService extends AbstractXiaomiService {
         }
 
         LOG.debug(
-                "Set heart rate config: sleepDetection={}, sleepBreathingQuality={}, intervalSeconds={}, alertHigh={}, alertLow={}",
+                "Set heart rate config: sleepDetection={}, sleepBreathingQuality={}, sleepRespiratoryRate={}, intervalSeconds={}, alertHigh={}, alertLow={}, irregularRhythmAlert={}",
                 sleepDetection,
                 sleepBreathingQuality,
+                sleepRespiratoryRate,
                 intervalSeconds,
                 alertHigh,
-                alertLow
+                alertLow,
+                irregularRhythmAlert
         );
 
         final var heartRate = HeartRate.newBuilder()
@@ -654,6 +663,13 @@ public class XiaomiHealthService extends AbstractXiaomiService {
                         .setAlarmLowEnabled(alertLow > 0)
                         .setAlarmLowThreshold(alertLow))
                 .setUnknown7(1);
+
+        if (prefs.getBoolean(XiaomiPreferences.FEAT_IRREGULAR_RHYTHM_ALERT, false)) {
+            heartRate.setIrregularRhythmAlert(irregularRhythmAlert ? 1 : 2);
+        }
+        if (prefs.getBoolean(XiaomiPreferences.FEAT_SLEEP_RESPIRATORY_RATE, false)) {
+            heartRate.setSleepRespiratoryRate(sleepRespiratoryRate ? 1 : 2);
+        }
 
         getSupport().sendCommand(
                 "set heart rate config",
@@ -749,36 +765,25 @@ public class XiaomiHealthService extends AbstractXiaomiService {
 
     private void handleWorkoutOpen(final WorkoutOpenWatch workoutOpenWatch) {
         LOG.debug(
-                "Workout open on watch: {}, workoutStarted={}, gpsStarted={}, gpsFixAcquired={}, saa={}",
+                "Workout open on watch: {}, workoutStarted={}, gpsStarted={}, gpsFixAcquired={}, saaSession={}, saaStream={}",
                 workoutOpenWatch.getSport(),
                 workoutStarted,
                 gpsStarted,
                 gpsFixAcquired,
-                saaRawSensorActive
+                sleepAsAndroidManager.isSessionRequested(),
+                sleepAsAndroidManager.isRawSensorActive()
         );
 
-        // SaA synthetic mode: the band is asking us to confirm a hidden workout. Reply
-        // (0, 2, 2) immediately without starting GPS so the band proceeds to stream raw accel.
-        if (saaRawSensorActive) {
-            getSupport().sendCommand(
-                    "saa raw-sensor open ack",
-                    XiaomiProto.Command.newBuilder()
-                            .setType(COMMAND_TYPE)
-                            .setSubtype(CMD_WORKOUT_WATCH_OPEN)
-                            .setHealth(Health.newBuilder().setWorkoutOpenReply(
-                                    WorkoutOpenReply.newBuilder()
-                                            .setCode(WORKOUT_OPEN_OK)
-                                            .setSelectedVersion(WORKOUT_PROTOCOL_VERSION)
-                                            .setGpsAccuracy(GPS_ACCURACY_HIGH)
-                            ))
-                            .build()
-            );
+        if (sleepAsAndroidManager.ownsWorkoutOpen()) {
+            sleepAsAndroidManager.ackWorkoutOpen();
+            return;
+        }
+        if (sleepAsAndroidManager.isOrphanedWorkoutOpen(workoutOpenWatch)) {
+            sleepAsAndroidManager.refuseWorkoutOpen();
             return;
         }
 
-
-        final boolean sendGpsToBand = getDevicePrefs().getBoolean(DeviceSettingsPreferenceConst.PREF_WORKOUT_SEND_GPS_TO_BAND, false);
-        if (!sendGpsToBand || !GBLocationService.isGpsSupportedAndEnabled()) {
+        if (!canSendLocation()) {
             getSupport().sendCommand(
                     "send location disabled",
                     XiaomiProto.Command.newBuilder()
@@ -795,11 +800,9 @@ public class XiaomiHealthService extends AbstractXiaomiService {
             return;
         }
 
-        if (!gpsStarted) {
-            gpsStarted = true;
-            gpsFixAcquired = false;
-            GBLocationService.start(getSupport().getContext(), getSupport().getDevice(), GBLocationProviderType.GPS, 1000);
-        }
+        locationRequested = true;
+        locationWorkoutOpen = true;
+        startLocation();
 
         if (!workoutStarted) {
             // Only schedule the timeout while we are still waiting for the watch to confirm
@@ -811,19 +814,102 @@ public class XiaomiHealthService extends AbstractXiaomiService {
             gpsTimeoutHandler.removeCallbacksAndMessages(null);
             gpsTimeoutHandler.postDelayed(() -> {
                 LOG.debug("Timed out waiting for workout");
-                gpsStarted = false;
-                gpsFixAcquired = false;
-                GBLocationService.stop(getSupport().getContext(), getSupport().getDevice());
+                endLocationWorkout();
             }, timeout);
         }
+    }
+
+    private boolean canSendLocation() {
+        return getDevicePrefs().getBoolean(DeviceSettingsPreferenceConst.PREF_WORKOUT_SEND_GPS_TO_BAND, false)
+                && GBLocationService.isGpsSupportedAndEnabled();
+    }
+
+    private void startLocation() {
+        if (gpsStarted) {
+            return;
+        }
+        gpsStarted = true;
+        gpsFixAcquired = false;
+        GBLocationService.start(getSupport().getContext(), getSupport().getDevice(), GBLocationProviderType.GPS, 1000);
+    }
+
+    private void stopLocation() {
+        gpsTimeoutHandler.removeCallbacksAndMessages(null);
+        workoutAliveHandler.removeCallbacksAndMessages(null);
+        final boolean wasStarted = gpsStarted;
+        gpsStarted = false;
+        gpsFixAcquired = false;
+        workoutStarted = false;
+        workoutLiveStatsSeen = false;
+        if (wasStarted) {
+            GBLocationService.stop(getSupport().getContext(), getSupport().getDevice());
+        }
+    }
+
+    /**
+     * Stops location and forgets the band's location request. {@link #stopLocation()} alone keeps
+     * it, so that live stats arriving after a quiet spell resume location for the same workout.
+     */
+    private void endLocationWorkout() {
+        stopLocation();
+        locationRequested = false;
+        locationWorkoutOpen = false;
+    }
+
+    /**
+     * The band does not repeat the workout start after a reconnection, so a workout that was
+     * running before it is kept, as long as the band goes on pushing live stats for it.
+     */
+    private void resumeLocationAfterReconnect() {
+        gpsTimeoutHandler.removeCallbacksAndMessages(null);
+        if (!gpsStarted) {
+            stopLocation();
+            return;
+        }
+        if (!workoutStarted || !workoutLiveStatsSeen) {
+            LOG.info("Reconnected with no sign of a running workout, stopping location");
+            stopLocation();
+            return;
+        }
+        // the band needs the location accuracy again before it shows the fix
+        gpsFixAcquired = false;
+        armWorkoutAliveTimeout();
+    }
+
+    private void armWorkoutAliveTimeout() {
+        workoutAliveHandler.removeCallbacksAndMessages(null);
+        workoutAliveHandler.postDelayed(() -> {
+            LOG.info("No live stats from the band for {} ms, workout is over, stopping location", WORKOUT_ALIVE_TIMEOUT_MS);
+            stopLocation();
+        }, WORKOUT_ALIVE_TIMEOUT_MS);
+    }
+
+    /**
+     * Live stats arrive every second while a workout is open on the band, including one it was
+     * already running when the connection came up, which never sends a start status again. They
+     * carry no sport, so they resume location only for a workout that asked for it.
+     */
+    private void onWorkoutLiveStats() {
+        if (sleepAsAndroidManager.isSessionRequested() || sleepAsAndroidManager.isRawSensorActive()) {
+            return;
+        }
+        if (!workoutStarted) {
+            if (!locationWorkoutOpen || !canSendLocation()) {
+                return;
+            }
+            LOG.info("Band is running a workout, resuming location");
+            workoutStarted = true;
+            gpsTimeoutHandler.removeCallbacksAndMessages(null);
+            startLocation();
+        }
+        workoutLiveStatsSeen = true;
+        armWorkoutAliveTimeout();
     }
 
     private void handleWorkoutStatus(final WorkoutStatusWatch workoutStatus) {
         LOG.debug("Got workout status: {}, sport={}", workoutStatus.getStatus(), workoutStatus.getSport());
 
-        // Ignore the synthetic SaA workout — it must not trigger OpenTracks or
-        // any GPS bookkeeping.
-        if (saaRawSensorActive || workoutStatus.getSport() == SAA_SYNTHETIC_SPORT) {
+        if (sleepAsAndroidManager.isSyntheticWorkoutStatus(workoutStatus)) {
             return;
         }
 
@@ -831,6 +917,8 @@ public class XiaomiHealthService extends AbstractXiaomiService {
 
         switch (workoutStatus.getStatus()) {
             case WORKOUT_STARTED:
+                locationWorkoutOpen = locationRequested;
+                locationRequested = false;
                 workoutStarted = true;
                 gpsTimeoutHandler.removeCallbacksAndMessages(null);
                 final ActivityKind activityKind = sportToActivityKind(workoutStatus.getSport());
@@ -843,9 +931,7 @@ public class XiaomiHealthService extends AbstractXiaomiService {
             case WORKOUT_RESUMED:
                 break;
             case WORKOUT_FINISHED:
-                gpsStarted = false;
-                gpsFixAcquired = false;
-                GBLocationService.stop(getSupport().getContext(), getSupport().getDevice());
+                endLocationWorkout();
                 if (startOnPhone) {
                     OpenTracksController.stopRecording(getSupport().getContext());
                 }
@@ -1109,149 +1195,23 @@ public class XiaomiHealthService extends AbstractXiaomiService {
                 .putExtra(DeviceService.EXTRA_REALTIME_SAMPLE, sample);
         LocalBroadcastManager.getInstance(getSupport().getContext()).sendBroadcast(intent);
 
-        if (realTimeStats.getHeartRate() > 0) {
-            lastHeartRate = realTimeStats.getHeartRate();
-        }
+        sleepAsAndroidManager.onRealtimeHeartRate(realTimeStats.getHeartRate());
+    }
 
-        if (sleepAsAndroidSender != null && realTimeStats.getHeartRate() > 0) {
-            sleepAsAndroidSender.onHrChanged(realTimeStats.getHeartRate(), 0);
-        }
+    void setSleepAsAndroidRealtime(final boolean enable) {
+        setRealtimeConsumer(RealtimeConsumer.SLEEP_AS_ANDROID, enable);
     }
 
     /**
-     * Start a SaA synthetic workout on the band. Sequence:
-     *  1. REALTIME_STATS_START -- enables HR/steps stream (existing path)
-     *  2. WORKOUT_WATCH_STATUS(status=STARTED, sport=SAA_SYNTHETIC_SPORT) -- tells the band to
-     *     open a hidden workout. Band then sends WORKOUT_WATCH_OPEN to us; handleWorkoutOpen
-     *     replies (0, 2, 2) when saaRawSensorActive is true and the band starts streaming
-     *     subtype-53 raw accel batches.
+     * Start the realtime stream for Sleep as Android after the band dropped the whole session,
+     * realtime stream included, so the consumer bookkeeping no longer reflects what it is actually
+     * doing. The start is re-sent rather than trusting it.
      */
-    public void startRawSensor() {
-        saaRawSensorActive = true;
-        saaWorkoutStartedMs = SystemClock.elapsedRealtime();
-        saaStatsActiveUntilMs = saaWorkoutStartedMs + WORKOUT_STATS_ACTIVE_WINDOW_MS;
-        lastHeartRate = HEART_RATE_UNKNOWN;
-
-        setRealtimeConsumer(RealtimeConsumer.SLEEP_AS_ANDROID, true);
-        sendWorkoutStatus(WORKOUT_STARTED);
-        startWorkoutStatsTicker();
-    }
-
-    /**
-     * Tear down the SaA synthetic workout. Sequence:
-     *  1. REALTIME_STATS_STOP
-     *  2. WORKOUT_WATCH_STATUS(status=PAUSED, ...)
-     *  3. WORKOUT_WATCH_STATUS(status=FINISHED, ...) -- final close
-     */
-    public void stopRawSensor() {
-        if (!saaRawSensorActive) return;
-
-        stopWorkoutStatsTicker();
-        setRealtimeConsumer(RealtimeConsumer.SLEEP_AS_ANDROID, false);
-        sendWorkoutStatus(WORKOUT_PAUSED);
-        sendWorkoutStatus(WORKOUT_FINISHED);
-        saaRawSensorActive = false;
-    }
-
-    private void startWorkoutStatsTicker() {
-        saaWorkoutStatsHandler.removeCallbacksAndMessages(null);
-        saaWorkoutStatsHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (!saaRawSensorActive) {
-                    return;
-                }
-                sendWorkoutStats();
-                saaWorkoutStatsHandler.postDelayed(this, workoutStatsIntervalMs());
-            }
-        });
-    }
-
-    private long workoutStatsIntervalMs() {
-        return SystemClock.elapsedRealtime() < saaStatsActiveUntilMs
-                ? WORKOUT_STATS_INTERVAL_MS
-                : WORKOUT_STATS_IDLE_INTERVAL_MS;
-    }
-
-    private void stopWorkoutStatsTicker() {
-        saaWorkoutStatsHandler.removeCallbacksAndMessages(null);
-    }
-
-    /**
-     * Push the values the band shows on its workout screen. Only elapsed time and heart rate are
-     * meaningful for the SaA synthetic workout; the rest stay at zero so the band does not display
-     * figures that were never measured.
-     */
-    private void sendWorkoutStats() {
-        final int elapsedSeconds = (int) ((SystemClock.elapsedRealtime() - saaWorkoutStartedMs) / 1000);
-
-        getSupport().sendCommand(
-                "saa workout stats",
-                XiaomiProto.Command.newBuilder()
-                        .setType(COMMAND_TYPE)
-                        .setSubtype(CMD_WORKOUT_STATS_PHONE)
-                        .setHealth(Health.newBuilder().setWorkoutStatsPhone(
-                                WorkoutStatsPhone.newBuilder()
-                                        .setDurationSeconds(Math.max(0, elapsedSeconds))
-                                        .setHeartRate(lastHeartRate)
-                                        .setCalories(0)
-                                        .setDistance(0)
-                        ))
-                        .build()
-        );
-    }
-
-    private void sendWorkoutStatus(final int status) {
-        final long now = System.currentTimeMillis();
-        final int ts = (int) (now / 1000);
-        final int tzOffsetQuarterHours = TimeZone.getDefault().getOffset(now) / 60000 / 15;
-        getSupport().sendCommand(
-                "saa workout status " + status,
-                XiaomiProto.Command.newBuilder()
-                        .setType(COMMAND_TYPE)
-                        .setSubtype(CMD_WORKOUT_WATCH_STATUS)
-                        .setHealth(Health.newBuilder().setWorkoutStatusWatch(
-                                WorkoutStatusWatch.newBuilder()
-                                        .setTimestamp(ts)
-                                        .setSportInfo(WorkoutStatusWatchSport.newBuilder()
-                                                .setTzOffsetQuarterHours(tzOffsetQuarterHours))
-                                        .setSport(SAA_SYNTHETIC_SPORT)
-                                        .setStatus(status)
-                                        .setSupportedVersions(3)
-                        ))
-                        .build()
-        );
-    }
-
-    /**
-     * The stats the watch computes for itself while a workout is open, which it pushes whether the
-     * watch or the phone started that workout. Its calorie count is its own: it keeps climbing at a
-     * rate the sport type fixes, whatever the heart rate says and whatever the phone reports.
-     */
-    private void handleWorkoutStatsWatch(final WorkoutStatsWatch stats) {
-        LOG.debug("Got workout stats from watch: hr={} calories={} steps={} distance={}",
-                stats.getHeartRate(), stats.getCalories(), stats.getSteps(), stats.getDistance());
-
-        if (stats.getHeartRate() <= 0) {
-            return;
+    void restartSleepAsAndroidRealtime() {
+        synchronized (realtimeConsumers) {
+            realtimeConsumers.add(RealtimeConsumer.SLEEP_AS_ANDROID);
         }
-
-        lastHeartRate = stats.getHeartRate();
-
-        if (saaRawSensorActive && sleepAsAndroidSender != null) {
-            sleepAsAndroidSender.onHrChanged(stats.getHeartRate(), 0);
-        }
-    }
-
-    private void handleRawSensorBatch(final RawSensorBatch batch) {
-        final int n = batch.getAccelCount();
-        LOG.debug("Got raw sensor batch: {} accel samples", n);
-        if (sleepAsAndroidSender != null && n > 0) {
-            for (int i = 0; i < n; i++) {
-                final AxisSensor s = batch.getAccel(i);
-                sleepAsAndroidSender.onAccelChanged(s.getX(), s.getY(), s.getZ());
-            }
-        }
-
+        previousSteps = -1;
+        sendRealtimeStats(true);
     }
 }

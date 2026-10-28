@@ -16,8 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.sbm_67
 
-import de.greenrobot.dao.AbstractDao
-import de.greenrobot.dao.Property
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.DeviceSettingsSpec
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.bloodPressureActiveUser
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.deviceSettings
@@ -25,7 +23,6 @@ import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.devices.GenericBloodPressureSampleProvider
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession
-import nodomain.freeyourgadget.gadgetbridge.entities.GenericBloodPressureSampleDao
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport
 import nodomain.freeyourgadget.gadgetbridge.service.devices.generic_bp.GenericBloodPressureSupport
@@ -64,11 +61,5 @@ abstract class AbstractSBM67Coordinator : AbstractBLEDeviceCoordinator() {
 
     override fun getDeviceSettings(device: GBDevice): DeviceSettingsSpec = deviceSettings {
         bloodPressureActiveUser(device)
-    }
-
-    override fun getAllDeviceDao(session: DaoSession): MutableMap<AbstractDao<*, *>?, Property?> {
-        val map: MutableMap<AbstractDao<*, *>?, Property?> = HashMap(1)
-        map[session.genericBloodPressureSampleDao] = GenericBloodPressureSampleDao.Properties.DeviceId
-        return map
     }
 }

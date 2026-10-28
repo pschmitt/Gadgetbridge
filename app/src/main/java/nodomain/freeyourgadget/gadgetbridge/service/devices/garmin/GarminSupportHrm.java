@@ -60,7 +60,7 @@ public class GarminSupportHrm extends GarminSupport {
         batteryInfoProfile.addListener(new BatteryListener());
         addSupportedProfile(batteryInfoProfile);
 
-        addSupportedService(GattService.UUID_SERVICE_HEART_RATE);
+        addSupportedService(GattService.SERVICE_HEART_RATE.uuid);
         heartRateProfile = new HeartRateProfile<>(this);
         heartRateProfile.addListener(new HeartRateListener());
         addSupportedProfile(heartRateProfile);
@@ -77,7 +77,7 @@ public class GarminSupportHrm extends GarminSupport {
 
         }
 
-        if (null != getCharacteristic(GattCharacteristic.UUID_CHARACTERISTIC_HEART_RATE_MEASUREMENT)) {
+        if (null != getCharacteristic(GattCharacteristic.CHARACTERISTIC_HEART_RATE_MEASUREMENT.uuid)) {
             heartRateProfile.enableNotify(builder, true);
         }
 

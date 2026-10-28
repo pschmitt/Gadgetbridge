@@ -72,7 +72,11 @@ class HealthConnectSyncWorker(context: Context, workerParams: WorkerParameters) 
             return Result.success()
         }
 
-        performHealthConnectSync(healthConnectClient)
+        try {
+            performHealthConnectSync(healthConnectClient)
+        } finally {
+            HealthConnectWorkoutSync.notifyStateChanged(applicationContext)
+        }
         LOG.info("Health Connect sync worker finished successfully.")
         return Result.success()
     }

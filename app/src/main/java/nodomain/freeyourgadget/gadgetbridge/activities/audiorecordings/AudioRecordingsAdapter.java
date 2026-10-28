@@ -91,9 +91,9 @@ public class AudioRecordingsAdapter extends RecyclerView.Adapter<AudioRecordings
 
         holder.itemView.setOnClickListener(v -> {
             try {
-                final File wavFile = recordingAsWav(recording, name + ".wav");
+                final File file = playableFile(recording, name);
 
-                AndroidUtils.viewFile(wavFile.getPath(), "audio/wav", mContext);
+                AndroidUtils.viewFile(file.getPath(), mimeType(file), mContext);
             } catch (final IOException e) {
                 GB.toast("Failed to share file", Toast.LENGTH_LONG, GB.ERROR, e);
             }
@@ -139,9 +139,9 @@ public class AudioRecordingsAdapter extends RecyclerView.Adapter<AudioRecordings
 
                 if (itemId == R.id.audio_recording_item_menu_share) {
                     try {
-                        final File wavFile = recordingAsWav(recording, name + ".wav");
+                        final File file = playableFile(recording, name);
 
-                        AndroidUtils.shareFile(mContext, wavFile, "audio/wav");
+                        AndroidUtils.shareFile(mContext, file, mimeType(file));
                     } catch (final IOException e) {
                         GB.toast("Failed to share file", Toast.LENGTH_LONG, GB.ERROR, e);
                     }
@@ -167,6 +167,18 @@ public class AudioRecordingsAdapter extends RecyclerView.Adapter<AudioRecordings
             });
             menu.show();
         });
+    }
+
+    /// Opus is converted to wav, other formats (mp3) are opened as they are
+    private File playableFile(final AudioRecording recording, final String name) throws IOException {
+        if (recording.getPath().endsWith(".opus")) {
+            return recordingAsWav(recording, name + ".wav");
+        }
+        return new File(recording.getPath());
+    }
+
+    private static String mimeType(final File file) {
+        return file.getName().endsWith(".wav") ? "audio/wav" : "audio/mpeg";
     }
 
     private File recordingAsWav(final AudioRecording recording, final String filename) throws IOException {

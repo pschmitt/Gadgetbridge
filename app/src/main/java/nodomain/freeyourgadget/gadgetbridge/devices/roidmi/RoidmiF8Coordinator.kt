@@ -147,6 +147,7 @@ class RoidmiF8Coordinator : AbstractBLEDeviceCoordinator() {
      */
     override fun getCustomActions(): List<DeviceCardAction> = listOf(
         deviceCardAction {
+            id = "roidmi_current"
             icon = { R.drawable.ic_bolt }
             isVisible = { device ->
                 device.isConnected &&
@@ -159,6 +160,7 @@ class RoidmiF8Coordinator : AbstractBLEDeviceCoordinator() {
             onClick = { _, _ -> }
         },
         deviceCardAction {
+            id = "roidmi_temperature"
             icon = { R.drawable.ic_temperature }
             isVisible = { device ->
                 device.isConnected && device.getExtraInfo(RoidmiF8Support.EXTRA_TEMPERATURE_CELSIUS) is Float

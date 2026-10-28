@@ -37,7 +37,7 @@ public class AmazfitBalance2Coordinator extends ZeppOsCoordinator {
     @Override
     public Set<Integer> getDeviceSources() {
         return new HashSet<>(Arrays.asList(
-                9568512, // chinese mainland version
+                9568512, // Chinese mainland version
                 9568513,
                 9568515
         ));

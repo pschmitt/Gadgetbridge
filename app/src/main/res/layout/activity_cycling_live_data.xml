@@ -21,6 +21,16 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/cycling_data_cadence"
+            android:textSize="@dimen/um25_value_text_size"
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:textColor="@color/primary_dark"
+            android:visibility="gone"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:id="@+id/cycling_data_trip_distance"
             android:textSize="@dimen/um25_value_text_size"
             android:layout_marginTop="100dp"

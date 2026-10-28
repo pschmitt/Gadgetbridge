@@ -39,8 +39,8 @@ public class BleGattClientSupport extends AbstractBTLESingleDeviceSupport {
     public BleGattClientSupport() {
         super(logger);
 
-        addSupportedService(GattService.UUID_SERVICE_BATTERY_SERVICE);
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION);
+        addSupportedService(GattService.SERVICE_BATTERY.uuid);
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
     }
 
     @Override
@@ -50,11 +50,11 @@ public class BleGattClientSupport extends AbstractBTLESingleDeviceSupport {
 
     @Override
     public boolean onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value, int status) {
-        if(characteristic.getUuid().equals(GattCharacteristic.UUID_CHARACTERISTIC_BATTERY_LEVEL) && status == BluetoothGatt.GATT_SUCCESS) {
+        if(characteristic.getUuid().equals(GattCharacteristic.CHARACTERISTIC_BATTERY_LEVEL.uuid) && status == BluetoothGatt.GATT_SUCCESS) {
             GBDeviceEventBatteryInfo batteryInfo = new GBDeviceEventBatteryInfo();
             batteryInfo.level = value[0];
             handleGBDeviceEvent(batteryInfo);
-        }else if(characteristic.getUuid().equals(GattCharacteristic.UUID_CHARACTERISTIC_FIRMWARE_REVISION_STRING) && status == BluetoothGatt.GATT_SUCCESS) {
+        }else if(characteristic.getUuid().equals(GattCharacteristic.CHARACTERISTIC_FIRMWARE_REVISION_STRING.uuid) && status == BluetoothGatt.GATT_SUCCESS) {
             String firmwareVersion = BLETypeConversions.getStringValue(value,0);
             getDevice().setFirmwareVersion(firmwareVersion);
             getDevice().sendDeviceUpdateIntent(getContext());
@@ -76,8 +76,8 @@ public class BleGattClientSupport extends AbstractBTLESingleDeviceSupport {
     protected TransactionBuilder initializeDevice(TransactionBuilder builder) {
         builder.setDeviceState(GBDevice.State.INITIALIZING);
 
-        readCharacteristicIfAvailable(GattCharacteristic.UUID_CHARACTERISTIC_BATTERY_LEVEL, builder);
-        readCharacteristicIfAvailable(GattCharacteristic.UUID_CHARACTERISTIC_FIRMWARE_REVISION_STRING, builder);
+        readCharacteristicIfAvailable(GattCharacteristic.CHARACTERISTIC_BATTERY_LEVEL.uuid, builder);
+        readCharacteristicIfAvailable(GattCharacteristic.CHARACTERISTIC_FIRMWARE_REVISION_STRING.uuid, builder);
 
         builder.setDeviceState(GBDevice.State.INITIALIZED);
 

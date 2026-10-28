@@ -39,6 +39,7 @@ import nodomain.freeyourgadget.gadgetbridge.activities.appmanager.config.Dynamic
 import nodomain.freeyourgadget.gadgetbridge.capabilities.loyaltycards.LoyaltyCard;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventCameraRemote;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
+import nodomain.freeyourgadget.gadgetbridge.install.InstallSession;
 import nodomain.freeyourgadget.gadgetbridge.model.Alarm;
 import nodomain.freeyourgadget.gadgetbridge.model.CalendarEventSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.CallSpec;
@@ -276,6 +277,11 @@ public class ServiceDeviceSupport implements DeviceSupport {
             return;
         }
         delegate.onInstallApp(uri, options);
+    }
+
+    @Override
+    public void onInstall(@NonNull final InstallSession session) {
+        delegate.onInstall(session);
     }
 
     @Override

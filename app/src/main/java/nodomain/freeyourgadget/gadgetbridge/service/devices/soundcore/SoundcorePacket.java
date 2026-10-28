@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import static nodomain.freeyourgadget.gadgetbridge.util.GB.hexdump;
+import static nodomain.freeyourgadget.gadgetbridge.util.GB.lazyHexdump;
 
 public class SoundcorePacket {
     private static final Logger LOG = LoggerFactory.getLogger(SoundcorePacket.class);
@@ -41,8 +41,13 @@ public class SoundcorePacket {
     }
 
     public SoundcorePacket(short command, byte[] payload) {
-        LOG.debug("Packet: command={}", String.format("0x%04x", command));
+        this(command, payload, true);
+    }
 
+    private SoundcorePacket(short command, byte[] payload, boolean logDebug) {
+        if (logDebug) {
+            LOG.debug("Created packet: command={}", String.format("0x%04x", command));
+        }
         this.command = command;
         this.payload = payload;
     }
@@ -62,7 +67,7 @@ public class SoundcorePacket {
         buf.order(ByteOrder.LITTLE_ENDIAN);
 
         if (buf.getShort() != START_OF_PACKET_DEVICE) {
-            LOG.error("Invalid start of packet: {}", hexdump(buf.array()));
+            LOG.error("Invalid start of packet: {}", lazyHexdump(buf.array()));
             return null;
         }
 
@@ -70,7 +75,7 @@ public class SoundcorePacket {
         buf.getShort();
 
         if (buf.get() != DIRECTION_DEVICE) {
-            LOG.error("Invalid direction: {}", hexdump(buf.array()));
+            LOG.error("Invalid direction: {}", lazyHexdump(buf.array()));
             return null;
         }
 
@@ -78,7 +83,7 @@ public class SoundcorePacket {
         short length = buf.getShort();
 
         if (length < HEADER_LENGTH) {
-            LOG.error("Invalid length: {}", hexdump(buf.array()));
+            LOG.error("Invalid length: {}", lazyHexdump(buf.array()));
             return null;
         }
 
@@ -86,7 +91,9 @@ public class SoundcorePacket {
         byte[] payload = new byte[length - HEADER_LENGTH];
         buf.get(payload);
 
-        return new SoundcorePacket(command, payload);
+        LOG.debug("Received packet: command={}, payload={}",
+                String.format("0x%04x", command), lazyHexdump(payload));
+        return new SoundcorePacket(command, payload, /* logDebug= */ false);
     }
 
     public byte[] encode() {

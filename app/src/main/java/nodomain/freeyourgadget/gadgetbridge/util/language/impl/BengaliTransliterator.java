@@ -206,7 +206,7 @@ public class BengaliTransliterator implements Transliterator {
         int lastHadO = 0;
         while (m.find()) {
             boolean thisNeedsO = false;
-            boolean changePronounciation = false;
+            boolean changePronunciation = false;
             boolean thisHadKaar = false;
             String appendableString = "";
             String reff = m.group(1);
@@ -235,7 +235,7 @@ public class BengaliTransliterator implements Transliterator {
                 }
             }
             if (m.group(2) != null && m.group(2).equals("ক্ষ")) {
-                changePronounciation = true;
+                changePronunciation = true;
                 thisNeedsO = true;
             }
             int g = 6;
@@ -249,7 +249,7 @@ public class BengaliTransliterator implements Transliterator {
             }
             String phala = m.group(8);
             if (phala != null && phala.equals("্য")) {
-                changePronounciation = true;
+                changePronunciation = true;
                 thisNeedsO = true;
             }
             String jukto = m.group(4);
@@ -262,7 +262,7 @@ public class BengaliTransliterator implements Transliterator {
                 if (kaarStr != null) {
                     appendableString = appendableString + kaarStr;
                     if (kaarStr.equals("i") || kaarStr.equals("ii") || kaarStr.equals("u") || kaarStr.equals("uu")) {
-                        changePronounciation = true;
+                        changePronunciation = true;
                     }
                 }
             }
@@ -273,7 +273,7 @@ public class BengaliTransliterator implements Transliterator {
                     appendableString = appendableString + singleStr;
                 }
             }
-            if (changePronounciation && lastChar.equals("a")) {
+            if (changePronunciation && lastChar.equals("a")) {
                 sb.setCharAt(sb.length() - 1, 'o');
             }
             String others = m.group(0);

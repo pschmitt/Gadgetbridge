@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/configure_contacts_add_manually"
+        android:title="@string/contact_add_manually" />
+
+    <item
+        android:id="@+id/configure_contacts_select_from_contacts"
+        android:title="@string/contact_select_from_contacts" />
+
+</menu>

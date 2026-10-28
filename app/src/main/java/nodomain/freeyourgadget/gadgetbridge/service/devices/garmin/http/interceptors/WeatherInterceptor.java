@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import net.e175.klaus.solarpositioning.DeltaT;
 import net.e175.klaus.solarpositioning.SolarEvents;
 
 import org.slf4j.Logger;
@@ -35,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -208,7 +206,7 @@ public class WeatherInterceptor implements HttpInterceptor {
 
     @GsonSerialized
     public static class WeatherForecastDay {
-        public int dayOfWeek; // v2: 1 monday .. 7 sunday, v1: 1 sunday
+        public int dayOfWeek; // v2: 1 Monday .. 7 Sunday, v1: 1 Sunday
         public String description;
         public String summary;
         public WeatherValue high;
@@ -245,14 +243,7 @@ public class WeatherInterceptor implements HttpInterceptor {
             } else {
                 final Location lastKnownLocation = new CurrentPosition().getLastKnownLocation();
 
-                final ZonedDateTime zonedDate = date.toZonedDateTime();
-                final SolarEvents.Day solarDay = SolarEvents.spa().forDate(
-                        zonedDate.toLocalDate(),
-                        zonedDate.getZone(),
-                        lastKnownLocation.getLatitude(),
-                        lastKnownLocation.getLongitude(),
-                        DeltaT.estimate(zonedDate.toLocalDate())
-                );
+                final SolarEvents.Day solarDay = WeatherSpec.solarDay(date, lastKnownLocation);
 
                 if (!solarDay.rises().isEmpty() && !solarDay.sets().isEmpty()) {
                     epochSunrise = (int) solarDay.rises().get(0).toEpochSecond();
@@ -346,8 +337,8 @@ public class WeatherInterceptor implements HttpInterceptor {
     public static class WeatherAltimeterCalibration {
         public UncertainValue temperature; // Celsius - 11.89999... / 100
         public UncertainValue pressure; // Pa - 101494.79xxx... / 100
-        public Long forecastTime; // unix epoch seconds
-        public Long forecastIssueTime; // unix epoch seconds
+        public Long forecastTime; // Unix epoch seconds
+        public Long forecastIssueTime; // Unix epoch seconds
     }
 
     @GsonSerialized

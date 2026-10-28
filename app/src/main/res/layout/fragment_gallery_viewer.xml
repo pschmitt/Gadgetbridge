@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/gallery_viewer_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/gallery_viewer_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/gallery_viewer_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#80000000"
+        app:navigationContentDescription="@string/dialog_close"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="@android:color/white"
+        app:subtitleTextColor="@android:color/white"
+        app:titleTextColor="@android:color/white" />
+
+    <LinearLayout
+        android:id="@+id/gallery_viewer_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#80000000"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/gallery_viewer_download"
+            style="@style/GalleryViewerAction"
+            android:text="@string/ftp_file_browser_download"
+            app:icon="@drawable/ic_download" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/gallery_viewer_favorite"
+            style="@style/GalleryViewerAction"
+            android:text="@string/gallery_favorite"
+            app:icon="@drawable/ic_star_gray" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/gallery_viewer_delete"
+            style="@style/GalleryViewerAction"
+            android:text="@string/delete"
+            app:icon="@drawable/ic_delete" />
+
+    </LinearLayout>
+
+</FrameLayout>

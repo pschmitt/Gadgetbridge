@@ -19,32 +19,20 @@ package nodomain.freeyourgadget.gadgetbridge.devices.jyou.y5;
 
 import androidx.annotation.NonNull;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
-import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.Property;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.jyou.JYouSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
-import nodomain.freeyourgadget.gadgetbridge.entities.JYouActivitySampleDao;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.jyou.y5.Y5Support;
 
 public class Y5Coordinator extends AbstractBLEDeviceCoordinator {
-    @Override
-    public Map<AbstractDao<?, ?>, Property> getAllDeviceDao(@NonNull final DaoSession session) {
-        Map<AbstractDao<?, ?>, Property> map = new HashMap<>(1);
-        map.put(session.getJYouActivitySampleDao(), JYouActivitySampleDao.Properties.DeviceId);
-        return map;
-    }
-
     @Override
     protected Pattern getSupportedDeviceName() {
         return Pattern.compile(".*Y5.*");
@@ -92,6 +80,16 @@ public class Y5Coordinator extends AbstractBLEDeviceCoordinator {
 
     @Override
     public boolean supportsFindDevice(@NonNull GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsAppNotifications(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsPhoneCalls(@NonNull final GBDevice device) {
         return true;
     }
 

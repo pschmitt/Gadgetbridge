@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:importantForAccessibility="no"
+    android:orientation="vertical"
+    android:padding="12dp"
+    tools:context=".widgets.impl.MetricWidget">
+
+    <include layout="@layout/dashboard_widget_header" />
+
+    <nodomain.freeyourgadget.gadgetbridge.activities.dashboard.ArcGaugeView
+        android:id="@+id/gauge_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:importantForAccessibility="no">
+
+        <TextView
+            android:id="@+id/gauge_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:fontFeatureSettings="tnum"
+            android:gravity="center_horizontal"
+            android:importantForAccessibility="no"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="28sp" />
+
+    </nodomain.freeyourgadget.gadgetbridge.activities.dashboard.ArcGaugeView>
+
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:id="@+id/tile_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/tile_status_dot"
+            android:layout_width="7dp"
+            android:layout_height="7dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/device_status_dot" />
+
+        <TextView
+            android:id="@+id/tile_status_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:fontFeatureSettings="tnum"
+            android:importantForAccessibility="no"
+            android:maxLines="1"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tile_trailing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:fontFeatureSettings="tnum"
+            android:importantForAccessibility="no"
+            android:maxLines="1"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <nodomain.freeyourgadget.gadgetbridge.activities.dashboard.MiniChartView
+        android:id="@+id/tile_chart"
+        android:layout_width="match_parent"
+        android:layout_height="6dp"
+        android:layout_marginBottom="6dp"
+        android:importantForAccessibility="no" />
+
+    <nodomain.freeyourgadget.gadgetbridge.activities.dashboard.MiniChartView
+        android:id="@+id/tile_large_chart"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:importantForAccessibility="no" />
+
+    <LinearLayout
+        android:id="@+id/tile_axis"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal" />
+
+    <LinearLayout
+        android:id="@+id/tile_legend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+</LinearLayout>

@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import nodomain.freeyourgadget.gadgetbridge.service.btle.BLETypeConversions;
+import nodomain.freeyourgadget.gadgetbridge.service.btle.BleNamesResolver;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.GattCharacteristic;
 
 public class ValueDecoder {
@@ -34,7 +35,7 @@ public class ValueDecoder {
     public static int decodePercent(BluetoothGattCharacteristic characteristic, byte[] value) {
         int percent = BLETypeConversions.toUnsigned(value, 0);
         if (percent > 100 || percent < 0) {
-            LOG.warn("Unexpected percent value: " + percent + ": " + GattCharacteristic.toString(characteristic));
+            LOG.warn("Unexpected percent value: " + percent + ": " + BleNamesResolver.toString(characteristic));
             percent = Math.min(100, Math.max(0, percent));
         }
         return percent;

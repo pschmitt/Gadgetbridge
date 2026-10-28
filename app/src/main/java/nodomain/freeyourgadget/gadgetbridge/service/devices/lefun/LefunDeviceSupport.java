@@ -93,7 +93,6 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.lefun.requests.SetSe
 import nodomain.freeyourgadget.gadgetbridge.service.devices.lefun.requests.SetTimeRequest;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.lefun.requests.StartPpgRequest;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
-import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
 
 /**
  * Device support class for Lefun devices
@@ -112,9 +111,9 @@ public class LefunDeviceSupport extends AbstractBTLESingleDeviceSupport {
      */
     public LefunDeviceSupport() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
         addSupportedService(LefunConstants.UUID_SERVICE_LEFUN);
     }
 

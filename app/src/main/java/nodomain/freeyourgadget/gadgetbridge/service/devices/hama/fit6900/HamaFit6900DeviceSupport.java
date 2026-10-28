@@ -74,7 +74,7 @@ public final class HamaFit6900DeviceSupport extends AbstractBTLESingleDeviceSupp
 
     public HamaFit6900DeviceSupport() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
         addSupportedService(HamaFit6900Constants.UUID_SERVICE_RXTX);
     }
 

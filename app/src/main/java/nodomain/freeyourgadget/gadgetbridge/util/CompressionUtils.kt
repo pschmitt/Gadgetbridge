@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.zip.DataFormatException
+import java.util.zip.Deflater
 import java.util.zip.GZIPInputStream
 import java.util.zip.Inflater
 
@@ -42,6 +43,38 @@ object CompressionUtils {
             }
         }
         return baosInflated.toByteArray()
+    }
+
+    /**
+     * Compress to a zlib stream of stored (not compressed) blocks, with [windowSize].
+     *
+     * [windowSize] must be a power of 2, and between 256 and 32768 (inclusive).
+     */
+    fun deflateStored(bytes: ByteArray, windowSize: Int): ByteArray {
+        require(windowSize in 256..32768 && windowSize.countOneBits() == 1) {
+            "Invalid window size $windowSize"
+        }
+        val windowBits = windowSize.countTrailingZeroBits()
+
+        val deflater = Deflater(Deflater.NO_COMPRESSION)
+        deflater.setInput(bytes)
+        deflater.finish()
+        val baosDeflated = ByteArrayOutputStream(bytes.size + 64)
+        val buf = ByteArray(8096)
+        while (!deflater.finished()) {
+            val count = deflater.deflate(buf)
+            baosDeflated.write(buf, 0, count)
+        }
+        deflater.end()
+        val deflated = baosDeflated.toByteArray()
+
+        // Stored blocks have no back references, so the stream is valid for any window size.
+        // Java's deflater only allows the default 32KB window, so we must set it directly.
+        val cmf = (windowBits - 8) shl 4 or 8
+        val flg = (31 - (cmf shl 8) % 31) % 31
+        deflated[0] = cmf.toByte()
+        deflated[1] = flg.toByte()
+        return deflated
     }
 
     fun gunzipUtf8String(compressed: ByteArray?): String {

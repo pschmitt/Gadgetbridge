@@ -20,10 +20,11 @@ import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.compon
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.installUnsupportedFiles
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.keepActivityDataOnDevice
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.newSyncProtocol
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.screen
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.sendAppNotifications
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.timeSync
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.components.workoutSendGpsToBand
+import nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsActivity
+import nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.templates.WorkoutTemplateListActivity
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.actions.GarminSendWaypointActivity
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
@@ -89,6 +90,15 @@ fun garminDeviceSettings(
         }
     }
 
+    if (coordinator.getSupportedBarcodeFormats(device).isNotEmpty()) {
+        externalSettings(
+            key = LoyaltyCardsSettingsConst.PREF_KEY_LOYALTY_CARDS,
+            title = R.string.loyalty_cards,
+            icon = R.drawable.ic_loyalty,
+            activityClass = LoyaltyCardsSettingsActivity::class.java,
+        )
+    }
+
     val notifications = mutableListOf(R.xml.devicesettings_transliteration)
     if (coordinator.getCannedRepliesSlotCount(device) > 0) {
         notifications.add(R.xml.devicesettings_canned_reply_16)
@@ -97,26 +107,27 @@ fun garminDeviceSettings(
     if (coordinator.getContactsSlotCount(device) > 0) {
         notifications.add(R.xml.devicesettings_contacts)
     }
-    screen(
-        DeviceSpecificSettingsScreen.CALLS_AND_NOTIFICATIONS,
-        icon = R.drawable.ic_notifications,
+    if (coordinator.supportsNavigation(device)) {
+        notifications.add(R.xml.devicesettings_navigation_notifications)
+    }
+    DeviceSpecificSettingsScreen.CALLS_AND_NOTIFICATIONS.screen(
         xmlSubScreens = notifications,
     ) {
         sendAppNotifications()
     }
 
-    screen(DeviceSpecificSettingsScreen.LOCATION, icon = R.drawable.ic_gps_location) {
+    DeviceSpecificSettingsScreen.LOCATION.screen {
         workoutSendGpsToBand()
         if (coordinator.supportsAgpsUpdates(device)) {
             garminAgps(device)
         }
     }
 
-    screen(DeviceSpecificSettingsScreen.DATE_TIME, icon = R.drawable.ic_timer) {
+    DeviceSpecificSettingsScreen.DATE_TIME.screen {
         timeSync()
     }
 
-    screen(DeviceSpecificSettingsScreen.CONNECTION, icon = R.drawable.ic_mtu) {
+    DeviceSpecificSettingsScreen.CONNECTION.screen {
         highMtu()
     }
 
@@ -130,7 +141,7 @@ fun garminDeviceSettings(
         )
     }
 
-    screen(DeviceSpecificSettingsScreen.DEVELOPER, icon = R.drawable.ic_developer_mode) {
+    DeviceSpecificSettingsScreen.DEVELOPER.screen {
         filePicker(
             key = DeviceSettingsPreferenceConst.PREF_IMPORT_ACTIVITY_FILES,
             title = R.string.pref_import_activity_files_title,
@@ -172,6 +183,16 @@ fun garminDeviceSettings(
             title = R.string.garmin_mlr_protocol,
             icon = R.drawable.ic_bolt,
             defaultValue = true,
+            connectedOnly = false,
+        )
+
+        switchSetting(
+            key = GarminPreferences.PREF_GARMIN_PRG_TRANSFER_MLR,
+            title = R.string.garmin_prg_transfer_mlr_title,
+            summary = R.string.garmin_prg_transfer_mlr_summary,
+            icon = R.drawable.ic_file_upload,
+            defaultValue = false,
+            dependency = GarminPreferences.PREF_GARMIN_MLR,
             connectedOnly = false,
         )
 

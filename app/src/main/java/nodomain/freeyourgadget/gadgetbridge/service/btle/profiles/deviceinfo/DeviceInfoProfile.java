@@ -32,6 +32,7 @@ import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventUpdateDevi
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventVersionInfo;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.AbstractBTLESingleDeviceSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.BLETypeConversions;
+import nodomain.freeyourgadget.gadgetbridge.service.btle.BleNamesResolver;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.GattCharacteristic;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.GattService;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.TransactionBuilder;
@@ -45,17 +46,17 @@ public class DeviceInfoProfile<T extends AbstractBTLESingleDeviceSupport> extend
     public static final String ACTION_DEVICE_INFO = ACTION_PREFIX + "DEVICE_INFO";
     public static final String EXTRA_DEVICE_INFO = "DEVICE_INFO";
 
-    public static final UUID SERVICE_UUID = GattService.UUID_SERVICE_DEVICE_INFORMATION;
+    public static final UUID SERVICE_UUID = GattService.SERVICE_DEVICE_INFORMATION.uuid;
 
-    public static final UUID UUID_CHARACTERISTIC_MANUFACTURER_NAME_STRING = GattCharacteristic.UUID_CHARACTERISTIC_MANUFACTURER_NAME_STRING;
-    public static final UUID UUID_CHARACTERISTIC_MODEL_NUMBER_STRING = GattCharacteristic.UUID_CHARACTERISTIC_MODEL_NUMBER_STRING;
-    public static final UUID UUID_CHARACTERISTIC_SERIAL_NUMBER_STRING = GattCharacteristic.UUID_CHARACTERISTIC_SERIAL_NUMBER_STRING;
-    public static final UUID UUID_CHARACTERISTIC_HARDWARE_REVISION_STRING = GattCharacteristic.UUID_CHARACTERISTIC_HARDWARE_REVISION_STRING;
-    public static final UUID UUID_CHARACTERISTIC_FIRMWARE_REVISION_STRING = GattCharacteristic.UUID_CHARACTERISTIC_FIRMWARE_REVISION_STRING;
-    public static final UUID UUID_CHARACTERISTIC_SOFTWARE_REVISION_STRING = GattCharacteristic.UUID_CHARACTERISTIC_SOFTWARE_REVISION_STRING;
-    public static final UUID UUID_CHARACTERISTIC_SYSTEM_ID = GattCharacteristic.UUID_CHARACTERISTIC_SYSTEM_ID;
-    public static final UUID UUID_CHARACTERISTIC_IEEE_11073_20601_REGULATORY_CERTIFICATION_DATA_LIST = GattCharacteristic.UUID_CHARACTERISTIC_IEEE_11073_20601_REGULATORY_CERTIFICATION_DATA_LIST;
-    public static final UUID UUID_CHARACTERISTIC_PNP_ID = GattCharacteristic.UUID_CHARACTERISTIC_PNP_ID;
+    public static final UUID UUID_CHARACTERISTIC_MANUFACTURER_NAME_STRING = GattCharacteristic.CHARACTERISTIC_MANUFACTURER_NAME_STRING.uuid;
+    public static final UUID UUID_CHARACTERISTIC_MODEL_NUMBER_STRING = GattCharacteristic.CHARACTERISTIC_MODEL_NUMBER_STRING.uuid;
+    public static final UUID UUID_CHARACTERISTIC_SERIAL_NUMBER_STRING = GattCharacteristic.CHARACTERISTIC_SERIAL_NUMBER_STRING.uuid;
+    public static final UUID UUID_CHARACTERISTIC_HARDWARE_REVISION_STRING = GattCharacteristic.CHARACTERISTIC_HARDWARE_REVISION_STRING.uuid;
+    public static final UUID UUID_CHARACTERISTIC_FIRMWARE_REVISION_STRING = GattCharacteristic.CHARACTERISTIC_FIRMWARE_REVISION_STRING.uuid;
+    public static final UUID UUID_CHARACTERISTIC_SOFTWARE_REVISION_STRING = GattCharacteristic.CHARACTERISTIC_SOFTWARE_REVISION_STRING.uuid;
+    public static final UUID UUID_CHARACTERISTIC_SYSTEM_ID = GattCharacteristic.CHARACTERISTIC_SYSTEM_ID.uuid;
+    public static final UUID UUID_CHARACTERISTIC_IEEE_11073_20601_REGULATORY_CERTIFICATION_DATA_LIST = GattCharacteristic.CHARACTERISTIC_IEEE_11073_20601_REGULATORY_CERTIFICATION_DATA_LIST.uuid;
+    public static final UUID UUID_CHARACTERISTIC_PNP_ID = GattCharacteristic.CHARACTERISTIC_PNP_ID.uuid;
     private final DeviceInfo deviceInfo = new DeviceInfo();
 
     public DeviceInfoProfile(final T support) {
@@ -117,7 +118,7 @@ public class DeviceInfoProfile<T extends AbstractBTLESingleDeviceSupport> extend
                     charUuid.equals(UUID_CHARACTERISTIC_SYSTEM_ID) ||
                     charUuid.equals(UUID_CHARACTERISTIC_IEEE_11073_20601_REGULATORY_CERTIFICATION_DATA_LIST) ||
                     charUuid.equals(UUID_CHARACTERISTIC_PNP_ID)) {
-                LOG.warn("error reading from characteristic: {}, status={}", GattCharacteristic.toString(characteristic), status);
+                LOG.warn("error reading from characteristic: {}, status={}", BleNamesResolver.toString(characteristic), status);
             }
         }
         return false;

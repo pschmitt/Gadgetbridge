@@ -16,45 +16,41 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.service.devices.oppo.commands;
 
-import java.lang.Iterable;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import androidx.annotation.Nullable;
-import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.LabeledEntry;
 
 public enum AncConfigValue implements LabeledEntry {
-    OFF(0x01, R.string.off),
-    TRANSPARENCY(0x02, R.string.prefs_active_noise_cancelling_transparency),
-    ON(0x08, R.string.prefs_active_noise_cancelling),
+    OFF(0x01, R.string.off, R.drawable.ic_hearing_disabled),
+    TRANSPARENCY(0x02, R.string.prefs_active_noise_cancelling_transparency, R.drawable.ic_air),
+    ON(0x08, R.string.prefs_active_noise_cancelling, R.string.sony_ambient_sound_noise_cancelling_short, R.drawable.ic_noise_control_on),
     ;
 
     private final int code;
     private final int label;
+    private final int shortLabel;
+    private final int icon;
 
-    AncConfigValue(final int code, @StringRes final int label) {
+    AncConfigValue(final int code, @StringRes final int label, @StringRes final int shortLabel, @DrawableRes int icon) {
         this.code = code;
         this.label = label;
+        this.shortLabel = shortLabel;
+        this.icon = icon;
     }
 
-    @Override
-    @StringRes
-    public int getLabel() {
-        return label;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public String getPrefId() {
-        return this.name().toLowerCase();
+    AncConfigValue(final int code, @StringRes final int label, @DrawableRes int icon) {
+        this.code = code;
+        this.label = label;
+        this.shortLabel = label;
+        this.icon = icon;
     }
 
     @Nullable
@@ -101,12 +97,10 @@ public enum AncConfigValue implements LabeledEntry {
         return result;
     }
 
-
     public static Set<String> toPrefIds(final EnumSet<AncConfigValue> values) {
         return values.stream()
-                .map(e -> e.name().toLowerCase())
-                .collect(Collectors.toSet());
-
+            .map(e -> e.name().toLowerCase())
+            .collect(Collectors.toSet());
     }
 
     public static int toMask(Iterable<AncConfigValue> modes) {
@@ -115,5 +109,81 @@ public enum AncConfigValue implements LabeledEntry {
             mask |= mode.getCode();
         }
         return mask;
+    }
+
+    @Override
+    @StringRes
+    public int getLabel() {
+        return label;
+    }
+
+    @StringRes
+    public int getShortLabel() {
+        return shortLabel;
+    }
+
+    @DrawableRes
+    public int getIcon() {
+        return icon;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public String getPrefId() {
+        return this.name().toLowerCase();
+    }
+
+    public enum Level implements LabeledEntry {
+        HIGH(0x08, R.string.prefs_active_noise_cancelling_level_high),
+        NORMAL(0x10, R.string.prefs_active_noise_cancelling_level_normal),
+        LOW(0x04, R.string.prefs_active_noise_cancelling_level_low),
+        DYNAMIC(0x20, R.string.prefs_active_noise_cancelling_level_dynamic),
+        ;
+
+        private final int code;
+        private final int label;
+
+        Level(final int code, @StringRes final int label) {
+            this.code = code;
+            this.label = label;
+        }
+
+        @Nullable
+        public static Level fromCode(final int code) {
+            for (final Level param : Level.values()) {
+                if (param.getCode() == code) {
+                    return param;
+                }
+            }
+
+            return null;
+        }
+
+        @Nullable
+        public static Level fromPrefId(final String value) {
+            for (final Level param : Level.values()) {
+                if (param.name().equalsIgnoreCase(value)) {
+                    return param;
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        @StringRes
+        public int getLabel() {
+            return label;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getPrefId() {
+            return this.name().toLowerCase();
+        }
     }
 }

@@ -16,7 +16,7 @@ import kotlin.math.roundToInt
 
 class BloodPressureProfile<T : AbstractBTLESingleDeviceSupport>(val support: T) : AbstractBleProfile<T>(support) {
     override fun enableNotify(builder: TransactionBuilder, enable: Boolean) {
-        builder.notify(GattCharacteristic.UUID_CHARACTERISTIC_BLOOD_PRESSURE_MEASUREMENT, enable)
+        builder.notify(GattCharacteristic.CHARACTERISTIC_BLOOD_PRESSURE_MEASUREMENT.uuid, enable)
     }
 
     override fun onCharacteristicChanged(
@@ -24,7 +24,7 @@ class BloodPressureProfile<T : AbstractBTLESingleDeviceSupport>(val support: T) 
         characteristic: BluetoothGattCharacteristic,
         value: ByteArray
     ): Boolean {
-        if (GattCharacteristic.UUID_CHARACTERISTIC_BLOOD_PRESSURE_MEASUREMENT != characteristic.uuid) {
+        if (GattCharacteristic.CHARACTERISTIC_BLOOD_PRESSURE_MEASUREMENT.uuid != characteristic.uuid) {
             return false
         }
 

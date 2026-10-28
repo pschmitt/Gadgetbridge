@@ -85,11 +85,6 @@ public class GarminForerunner220Coordinator extends GarminWatchCoordinator {
     }
 
     @Override
-    public boolean supportsMusicInfo(@NonNull final GBDevice device) {
-        return false;
-    }
-
-    @Override
     public boolean supportsCalendarEvents(@NonNull final GBDevice device) {
         return false;
     }

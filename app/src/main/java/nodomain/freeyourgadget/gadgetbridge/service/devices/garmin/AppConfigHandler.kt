@@ -10,8 +10,7 @@ import nodomain.freeyourgadget.gadgetbridge.activities.appmanager.config.Dynamic
 import nodomain.freeyourgadget.gadgetbridge.activities.appmanager.config.DynamicAppConfig.AppConfigInteger
 import nodomain.freeyourgadget.gadgetbridge.activities.appmanager.config.DynamicAppConfig.AppConfigString
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventAppConfig
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiAppConfigService
-import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiAppConfigService.AppConfigService.AppConfig
+import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiAppSettings
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSmartProto.Smart
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.http.GarminJson
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.http.GarminJsonException
@@ -21,13 +20,13 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class AppConfigHandler(private val deviceSupport: GarminSupport) {
-    fun process(appConfigService: GdiAppConfigService.AppConfigService): Boolean {
-        if (appConfigService.hasAppConfigSetStatus()) {
-            val uuid = UuidUtil.fromBytes(appConfigService.appConfigSetStatus.appId.toByteArray())
-            val status = appConfigService.appConfigSetStatus.status
+    fun process(appConfigService: GdiAppSettings.ConnectIQAppSettingsService): Boolean {
+        if (appConfigService.hasSaveAppSettingsResponse()) {
+            val uuid = UuidUtil.fromBytes(appConfigService.saveAppSettingsResponse.appIdentifier.toByteArray())
+            val status = appConfigService.saveAppSettingsResponse.response
             LOG.debug("Got app config set status for {}: {}", uuid, status)
-            if (status != 1) {
-                LOG.warn("Failed to get configs for {}, status={}", uuid, status)
+            if (status != GdiAppSettings.SaveAppSettingsResponse.Response.SUCCESS) {
+                LOG.warn("Failed to set configs for {}, status={}", uuid, status)
                 evaluateEvent(uuid, GBDeviceEventAppConfig.Event.APP_CONFIG_SET_FAILED)
             } else {
                 evaluateEvent(uuid, GBDeviceEventAppConfig.Event.APP_CONFIG_SET_SUCCESS)
@@ -35,11 +34,11 @@ class AppConfigHandler(private val deviceSupport: GarminSupport) {
             return true
         }
 
-        if (appConfigService.hasAppConfigGetStatus()) {
-            val uuid = UuidUtil.fromBytes(appConfigService.appConfigGetStatus.appId.toByteArray())
-            val status = appConfigService.appConfigGetStatus.status
+        if (appConfigService.hasGetAppSettingsResponse()) {
+            val uuid = UuidUtil.fromBytes(appConfigService.getAppSettingsResponse.appIdentifier.toByteArray())
+            val status = appConfigService.getAppSettingsResponse.response
             LOG.debug("Got app config get status for {}: {}", uuid, status)
-            if (status != 1) {
+            if (status != GdiAppSettings.GetAppSettingsResponse.Response.SUCCESS) {
                 LOG.warn("Failed to get configs for {}, status={}", uuid, status)
                 evaluateEvent(uuid, GBDeviceEventAppConfig.Event.APP_CONFIG_GET_FAILED)
             }
@@ -47,18 +46,18 @@ class AppConfigHandler(private val deviceSupport: GarminSupport) {
             return true
         }
 
-        if (!appConfigService.hasAppConfigRet()) {
+        if (!appConfigService.hasSendAppSettingsRequest()) {
             LOG.warn("Got unknown app settings response")
             return false
         }
 
-        val settings: AppConfig = appConfigService.appConfigRet
-        val uuid = UuidUtil.fromBytes(settings.appId.toByteArray())
+        val settings: GdiAppSettings.SendAppSettingsRequest = appConfigService.sendAppSettingsRequest
+        val uuid = UuidUtil.fromBytes(settings.appIdentifier.toByteArray())
 
         LOG.debug("Got app config ret for {}", uuid)
 
         val jsonElement: JsonElement = try {
-            GarminJson.decode(settings.appConfig.toByteArray())
+            GarminJson.decode(settings.settingsValues.toByteArray())
         } catch (e: Exception) {
             LOG.error("Failed to decode app settings for {}", uuid, e)
             evaluateEvent(uuid, GBDeviceEventAppConfig.Event.APP_CONFIG_GET_FAILED)
@@ -82,7 +81,7 @@ class AppConfigHandler(private val deviceSupport: GarminSupport) {
             val value = jsonElement.get(key)
             if (value !is JsonPrimitive) {
                 LOG.error(
-                    "App setting value for {} is not a json primitive: {}",
+                    "App setting value for {} is not a JSON primitive: {}",
                     key,
                     value.javaClass
                 )
@@ -122,9 +121,9 @@ class AppConfigHandler(private val deviceSupport: GarminSupport) {
     fun onAppConfigRequest(uuid: UUID): Smart {
         LOG.debug("Encoding app config request for {}", uuid)
         return Smart.newBuilder().buildWith {
-            appConfigService = GdiAppConfigService.AppConfigService.newBuilder().buildWith {
-                appConfigGet = AppConfig.newBuilder().buildWith {
-                    appId = ByteString.copyFrom(UuidUtil.toBytes(uuid))
+            connectIqAppSettingsService = GdiAppSettings.ConnectIQAppSettingsService.newBuilder().buildWith {
+                getAppSettingsRequest = GdiAppSettings.GetAppSettingsRequest.newBuilder().buildWith {
+                    appIdentifier = ByteString.copyFrom(UuidUtil.toBytes(uuid))
                 }
             }
         }
@@ -147,16 +146,16 @@ class AppConfigHandler(private val deviceSupport: GarminSupport) {
         try {
             configsBytes = GarminJson.encode(jsonObject)
         } catch (e: GarminJsonException) {
-            LOG.error("Failed to encode configs to garmin json", e)
+            LOG.error("Failed to encode configs to Garmin JSON", e)
             deviceSupport.evaluateGBDeviceEvent(GBDeviceEventAppConfig(uuid, GBDeviceEventAppConfig.Event.APP_CONFIG_SET_FAILED))
             return null
         }
 
         return Smart.newBuilder().buildWith {
-            appConfigService = GdiAppConfigService.AppConfigService.newBuilder().buildWith {
-                appConfigSet = AppConfig.newBuilder().buildWith {
-                    appId = ByteString.copyFrom(UuidUtil.toBytes(uuid))
-                    appConfig = ByteString.copyFrom(configsBytes)
+            connectIqAppSettingsService = GdiAppSettings.ConnectIQAppSettingsService.newBuilder().buildWith {
+                saveAppSettingsRequest = GdiAppSettings.SaveAppSettingsRequest.newBuilder().buildWith {
+                    appIdentifier = ByteString.copyFrom(UuidUtil.toBytes(uuid))
+                    settingsValues = ByteString.copyFrom(configsBytes)
                 }
             }
         }

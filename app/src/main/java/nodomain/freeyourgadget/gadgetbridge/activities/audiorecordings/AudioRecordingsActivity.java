@@ -43,6 +43,7 @@ import java.util.List;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity;
+import nodomain.freeyourgadget.gadgetbridge.activities.wifi.WifiSessionScreen;
 import nodomain.freeyourgadget.gadgetbridge.database.repository.AudioRecordingsRepository;
 import nodomain.freeyourgadget.gadgetbridge.entities.AudioRecording;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
@@ -56,6 +57,7 @@ public class AudioRecordingsActivity extends AbstractGBActivity implements MenuP
 
     private GBDevice device;
     private SearchView searchView;
+    private WifiSessionScreen wifiSessionScreen;
     private SwipeRefreshLayout refreshLayout;
 
     private List<AudioRecording> recordings;
@@ -88,6 +90,8 @@ public class AudioRecordingsActivity extends AbstractGBActivity implements MenuP
             finish();
             return;
         }
+
+        wifiSessionScreen = new WifiSessionScreen(this, device);
 
         setContentView(R.layout.activity_audio_recordings);
         addMenuProvider(this);
@@ -166,7 +170,10 @@ public class AudioRecordingsActivity extends AbstractGBActivity implements MenuP
 
         refreshLayout.setRefreshing(true);
 
-        GBApplication.deviceService(device).onFetchRecordedData(RecordedDataTypes.TYPE_AUDIO_REC);
+        wifiSessionScreen.runWhenReady(
+                () -> GBApplication.deviceService(device).onFetchRecordedData(RecordedDataTypes.TYPE_AUDIO_REC),
+                () -> refreshLayout.setRefreshing(false)
+        );
     }
 
     @Override

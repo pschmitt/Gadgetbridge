@@ -50,7 +50,7 @@ public class HuaweiSpo2SampleProvider extends AbstractTimeSampleProvider<HuaweiS
     }
 
     /**
-     * Converts an Huawei activity sample to an SpO2 sample
+     * Converts a Huawei activity sample to an SpO2 sample
      * @param sample Activity sample to convert
      * @return SpO sample containing the SpO value, timestamp, userID, and deviceID of the activity sample
      */

@@ -19,15 +19,9 @@ package nodomain.freeyourgadget.gadgetbridge.devices.huawei;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.jetbrains.annotations.UnknownNullability;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import de.greenrobot.dao.AbstractDao;
@@ -35,13 +29,10 @@ import de.greenrobot.dao.Property;
 import de.greenrobot.dao.query.QueryBuilder;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractSampleProvider;
-import nodomain.freeyourgadget.gadgetbridge.devices.HuaweiSleepStageSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.Device;
 import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiActivitySampleDao;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiSleepStageSample;
-import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiSleepStatsSample;
 import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiWorkoutDataSample;
 import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiWorkoutDataSampleDao;
 import nodomain.freeyourgadget.gadgetbridge.entities.HuaweiWorkoutSummarySample;
@@ -51,16 +42,13 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 
 public class HuaweiSampleProvider extends AbstractSampleProvider<HuaweiActivitySample> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(HuaweiSampleProvider.class);
-
     /*
-     * We save all data by saving a marker at the begin and end. We do not actively use these for
+     * We save all data by saving a marker at the beginning and end. We do not actively use these for
      * showing the data at the moment, but the samples are still saved as such, to keep the table
      * entries consistent.
      * Meaning of fields that are not self-explanatory:
      *  - `otherTimestamp`
-     *    The timestamp of the other marker, if it's larger this is the begin, otherwise the end
+     *    The timestamp of the other marker, if it's larger this is the beginning, otherwise the end
      *  - `source`
      *    The source of the data, which Huawei Band message the data came from
      *    0x0d for sleep data from activity, 0x0a for TruSleep data
@@ -319,13 +307,6 @@ public class HuaweiSampleProvider extends AbstractSampleProvider<HuaweiActivityS
         return time;
     }
 
-    private static long adjustTimeMillisToMinute(long time) {
-        if (time % 60000L != 0) {
-            time = (time / 60000L) * 60000L;
-        }
-        return time;
-    }
-
     /*
      * This takes the following three steps:
      *  - Generate a sample every minute
@@ -351,7 +332,8 @@ public class HuaweiSampleProvider extends AbstractSampleProvider<HuaweiActivityS
 
         overlayActivitySamples(processedSamples, timestamp_from, timestamp_to);
         overlayWorkoutSamples(processedSamples, timestamp_from, timestamp_to);
-        overlaySleep(processedSamples, timestamp_from, timestamp_to);
+        final HuaweiSleepSessionProvider sleepSessionProvider = new HuaweiSleepSessionProvider(getDevice(), getSession());
+        overlaySleep(sleepSessionProvider, processedSamples, timestamp_from, timestamp_to);
 
         return processedSamples;
     }
@@ -598,59 +580,4 @@ public class HuaweiSampleProvider extends AbstractSampleProvider<HuaweiActivityS
         newSample.setProvider(this);
         return newSample;
     }
-
-    private int toActivityKind(final HuaweiSleepStageSample stageSample) {
-        return switch (stageSample.getStage()) {
-            case 1 -> RawTypes.LIGHT_SLEEP;
-            case 2 -> RawTypes.TRUSLEEP_REM;
-            case 3 -> RawTypes.DEEP_SLEEP;
-            case 4 -> RawTypes.TRUSLEEP_AWAKE;
-            case 5 -> RawTypes.TRUSLEEP_NAP;
-            default -> RawTypes.UNKNOWN;
-        };
-    }
-
-    public void overlaySleep(final List<HuaweiActivitySample> samples, final int timestamp_from, final int timestamp_to) {
-        final Map<Long, Integer> stagesMap = new LinkedHashMap<>();
-        final HuaweiSleepStatsSampleProvider sleepStatsSampleProvider = new HuaweiSleepStatsSampleProvider(getDevice(), getSession());
-        final HuaweiSleepStageSampleProvider sleepStageSampleProvider = new HuaweiSleepStageSampleProvider(getDevice(), getSession());
-
-        List<HuaweiSleepStatsSample> sleepStatsSamples = sleepStatsSampleProvider.getSleepSamples(timestamp_from * 1000L, timestamp_to * 1000L);
-
-        if (!sleepStatsSamples.isEmpty()) {
-            for(HuaweiSleepStatsSample sample: sleepStatsSamples) {
-                final List<HuaweiSleepStageSample> stageSamples = sleepStageSampleProvider.getAllSamples(
-                        adjustTimeMillisToMinute(sample.getTimestamp()),
-                        adjustTimeMillisToMinute(sample.getWakeupTime()) - 60000L
-                );
-                for (final HuaweiSleepStageSample stageSample : stageSamples) {
-                    stagesMap.put(stageSample.getTimestamp(), toActivityKind(stageSample));
-                }
-            }
-        }
-
-        if (!stagesMap.isEmpty()) {
-            if (!samples.isEmpty()) {
-                for (final HuaweiActivitySample sample : samples) {
-                    final long ts = sample.getTimestamp();
-                    final Integer sleepType = stagesMap.get(ts * 1000L);
-                    if (sleepType != null && !sleepType.equals(RawTypes.UNKNOWN)) {
-                        sample.setRawKind(sleepType);
-                        sample.setRawIntensity(ActivitySample.NOT_MEASURED);
-                    }
-                }
-            } else {
-                for (int ts = timestamp_from; ts <= timestamp_to; ts += 60) {
-                    final HuaweiActivitySample sample = createDummySample(ts);
-                    final Integer sleepType = stagesMap.get(ts * 1000L);
-                    if (sleepType != null && !sleepType.equals(RawTypes.UNKNOWN)) {
-                        sample.setRawKind(sleepType);
-                        sample.setRawIntensity(ActivitySample.NOT_MEASURED);
-                    }
-                    samples.add(sample);
-                }
-            }
-        }
-    }
-
 }

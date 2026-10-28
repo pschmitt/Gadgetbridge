@@ -35,7 +35,6 @@ import java.util.UUID;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
-import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventVersionInfo;
 import nodomain.freeyourgadget.gadgetbridge.devices.MiScaleWeightSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.MiScaleWeightSample;
@@ -54,16 +53,17 @@ public class MiCompositionScaleDeviceSupport extends AbstractBTLESingleDeviceSup
     private static final Logger LOG = LoggerFactory.getLogger(MiCompositionScaleDeviceSupport.class);
 
     private static final long SCALE_RELEASE_DATE = 1521072000000L;
+    private static final int IMPEDANCE_MEASURING = 0xFFFE;
 
     private final DeviceInfoProfile<MiCompositionScaleDeviceSupport> deviceInfoProfile;
     private final GBDeviceEventVersionInfo versionCmd = new GBDeviceEventVersionInfo();
 
     public MiCompositionScaleDeviceSupport() {
         super(LOG);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ATTRIBUTE);
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION);
-        addSupportedService(GattService.UUID_SERVICE_BODY_COMPOSITION);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_GATT.uuid);
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
+        addSupportedService(GattService.SERVICE_BODY_COMPOSITION.uuid);
         addSupportedService(UUID.fromString("00001530-0000-3512-2118-0009af100700"));
 
         deviceInfoProfile = new DeviceInfoProfile<>(this);
@@ -89,7 +89,7 @@ public class MiCompositionScaleDeviceSupport extends AbstractBTLESingleDeviceSup
 
         // Weight and body composition
         builder.setCallback(this);
-        builder.notify(GattCharacteristic.UUID_CHARACTERISTIC_BODY_COMPOSITION_MEASUREMENT, true);
+        builder.notify(GattCharacteristic.CHARACTERISTIC_BODY_COMPOSITION_MEASUREMENT.uuid, true);
 
         return builder;
     }
@@ -101,11 +101,17 @@ public class MiCompositionScaleDeviceSupport extends AbstractBTLESingleDeviceSup
         }
 
         final UUID characteristicUUID = characteristic.getUuid();
-        if (characteristicUUID.equals(GattCharacteristic.UUID_CHARACTERISTIC_BODY_COMPOSITION_MEASUREMENT)) {
+        if (characteristicUUID.equals(GattCharacteristic.CHARACTERISTIC_BODY_COMPOSITION_MEASUREMENT.uuid)) {
             final byte flags = data[1];
             final boolean stabilized = testBit(flags, 5) && !testBit(flags, 7);
 
             if (stabilized) {
+                final int rawImpedance = BLETypeConversions.toUint16(data, 9);
+                if (rawImpedance == IMPEDANCE_MEASURING) {
+                    LOG.debug("Impedance measurement in progress, ignoring packet");
+                    return true;
+                }
+
                 final int year = BLETypeConversions.toUint16(data, 2);
                 final int month = BLETypeConversions.toUnsigned(data, 4);
                 final int day = BLETypeConversions.toUnsigned(data, 5);
@@ -114,6 +120,7 @@ public class MiCompositionScaleDeviceSupport extends AbstractBTLESingleDeviceSup
                 final int second = BLETypeConversions.toUnsigned(data, 8);
                 final Calendar c = GregorianCalendar.getInstance();
                 c.set(year, month - 1, day, hour, minute, second);
+                c.set(Calendar.MILLISECOND, 0);
                 final Date date = c.getTime();
 
                 float weightKg = WeightMeasurement.weightToKg(
@@ -124,11 +131,12 @@ public class MiCompositionScaleDeviceSupport extends AbstractBTLESingleDeviceSup
                 // Body Composition Measurement packets from the MIBFS are 13 bytes: protocol
                 // version, flags, a 7-byte timestamp, then a 2-byte impedance slot (bytes 9-10)
                 // followed by the 2-byte weight (bytes 11-12, read above). The impedance slot is
-                // only meaningful once the reading has stabilised, which is exactly the condition
+                // only meaningful once the reading has stabilized, which is exactly the condition
                 // already checked above. See
                 // https://codeberg.org/Freeyourgadget/Gadgetbridge/issues/6393 for the packet
                 // layout this was reverse-engineered from.
-                final Integer impedanceOhm = BLETypeConversions.toUint16(data, 9);
+                final boolean hasImpedance = testBit(flags, 1);
+                final Integer impedanceOhm = hasImpedance ? rawImpedance : null;
 
                 handleWeightInfo(date, weightKg, impedanceOhm);
             }
@@ -151,6 +159,7 @@ public class MiCompositionScaleDeviceSupport extends AbstractBTLESingleDeviceSup
     }
 
     private void handleWeightInfo(final Date date, final float weightKg, final Integer impedanceOhm) {
+        LOG.debug("Got weight {} kg, impedance {} ohm, at {}", weightKg, impedanceOhm, date);
         GB.toast(getContext().getString(R.string.weight_kg, weightKg), Toast.LENGTH_SHORT, GB.INFO);
 
         long sampleTs = date.getTime();

@@ -120,7 +120,7 @@ object DeviceSettingsIndexer {
     }
 
     private fun resolveMultiSelectEntries(setting: MultiSelectSetting, prefs: Prefs): List<ListEntry> =
-        setting.entriesProvider?.invoke(prefs) ?: setting.entries
+        (setting.entriesProvider?.invoke(prefs) ?: setting.entries) + setting.entryGroups.flatMap { it.entries }
 
     private fun entriesLabel(entries: List<ListEntry>, context: Context): String =
         entries.joinToString(", ") { entry ->

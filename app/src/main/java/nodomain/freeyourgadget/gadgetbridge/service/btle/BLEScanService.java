@@ -242,6 +242,10 @@ public class BLEScanService extends Service {
             // this can cause a crash on startup when restoring a zip with BLE scan service enabled
             LOG.error("Failed to start foreground service", e);
             updateNotification(e.getMessage());
+        } catch (final IllegalStateException e) {
+            // API 31+: ForegroundServiceStartNotAllowedException when started from
+            // the background (a device that prefers scan reconnect can start it there)
+            LOG.error("Not allowed to start the scan service in the foreground now", e);
         }
     }
 

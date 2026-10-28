@@ -97,10 +97,10 @@ public class WorkoutValueFormatter {
 
     public WorkoutValueFormatter(final ActivityKind activityKind) {
         this(activityKind,
-                GBApplication.getPrefs().getDistanceUnit(),
-                GBApplication.getPrefs().getWeightUnit(),
-                GBApplication.getPrefs().getBoolean("units_nautical", true),
-                GBApplication.getPrefs().getTemperatureUnit() == TemperatureUnit.FAHRENHEIT);
+            GBApplication.getPrefs().getDistanceUnit(),
+            GBApplication.getPrefs().getWeightUnit(),
+            GBApplication.getPrefs().getBoolean("units_nautical", true),
+            GBApplication.getPrefs().getTemperatureUnit() == TemperatureUnit.FAHRENHEIT);
     }
 
     /**
@@ -183,10 +183,10 @@ public class WorkoutValueFormatter {
             final long totalSeconds = Math.round(value * 60);
             String format = showUnit ? "%d:%02d %s" : "%d:%02d";
             return String.format(
-                    Locale.getDefault(),
-                    format,
-                    totalSeconds / 60, totalSeconds % 60,
-                    getUnitString(unit)
+                Locale.getDefault(),
+                format,
+                totalSeconds / 60, totalSeconds % 60,
+                getUnitString(unit)
             );
         } else {
             String format = showUnit ? "%s %s" : "%s";
@@ -202,6 +202,37 @@ public class WorkoutValueFormatter {
 
     public String formatValue(final Object rawValue, String unit) {
         return formatValue(rawValue, unit, true);
+    }
+
+    /**
+     * Checks whether the value is a weight that can be displayed as a whole number of kilograms (no decimal part).
+     */
+    public boolean isWholeKilograms(final Object rawValue, final String unit) {
+        if (show_raw_data || weightUnit != WeightUnit.KILOGRAM || !(rawValue instanceof Number)) {
+            return false;
+        }
+        final double kg;
+        if (UNIT_KG.equals(unit)) {
+            kg = ((Number) rawValue).doubleValue();
+        } else if (UNIT_LB.equals(unit)) {
+            kg = ((Number) rawValue).doubleValue() / 2.2046226f;
+        } else {
+            return false;
+        }
+        // values below 1 kg display in grams
+        return (kg == 0 || kg >= 1) && Math.round(kg * 100) % 100 == 0;
+    }
+
+    /**
+     * Formats a weight that matches {@link #isWholeKilograms}, without decimals.
+     */
+    public String formatWholeKilograms(final Object rawValue, final String unit, final boolean showUnit) {
+        double kg = ((Number) rawValue).doubleValue();
+        if (UNIT_LB.equals(unit)) {
+            kg /= 2.2046226f;
+        }
+        final String number = String.format(Locale.getDefault(), "%d", Math.round(kg));
+        return showUnit ? String.format("%s %s", number, getUnitString(UNIT_KG)) : number;
     }
 
     /**
@@ -223,7 +254,9 @@ public class WorkoutValueFormatter {
         };
     }
 
-    /** A value converted to its display unit: the numeric value plus the display unit token. */
+    /**
+     * A value converted to its display unit: the numeric value plus the display unit token.
+     */
     public static final class Converted {
         public final double value;
         public final String unit;

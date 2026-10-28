@@ -32,8 +32,9 @@ public abstract class XiaomiSppPacketV2 {
     public static final byte[] PACKET_PREAMBLE = new byte[]{(byte) 0xa5, (byte) 0xa5};
 
     public static final int PACKET_TYPE_UNKNOWN = -1;
-    // Sent by the watch instead of an ack, carrying the sequence number of the rejected packet and
-    // an empty payload. The watch never processes a packet it answers this way.
+    // Empty payload. The sequence number is the next data packet the receiver expects: it accepts
+    // data packets strictly in sequence, drops one that arrives ahead of that number and answers
+    // with this. Everything before the expected number counts as acked.
     public static final int PACKET_TYPE_NACK = 0;
     public static final int PACKET_TYPE_ACK = 1;
     public static final int PACKET_TYPE_SESSION_CONFIG = 2;
@@ -450,7 +451,14 @@ public abstract class XiaomiSppPacketV2 {
     }
 
     public byte[] encode(final XiaomiAuthService authService) {
-        final byte[] payloadBytes = getPacketPayloadBytes(authService);
+        return encodeFrame(packetType, sequenceNumber, getPacketPayloadBytes(authService));
+    }
+
+    /**
+     * The checksum covers the payload only, so a payload can be encrypted before its sequence
+     * number is known.
+     */
+    public static byte[] encodeFrame(final int packetType, final int sequenceNumber, final byte[] payloadBytes) {
         final ByteBuffer buffer = ByteBuffer.allocate(8 + payloadBytes.length).order(ByteOrder.LITTLE_ENDIAN);
         buffer.put(PACKET_PREAMBLE);
         buffer.put((byte) (packetType & 0xf));

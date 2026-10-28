@@ -4,10 +4,13 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.widget.TextView;
 
+import com.github.mikephil.charting.charts.BarLineChartBase;
 import com.github.mikephil.charting.components.MarkerView;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.CombinedData;
+import com.github.mikephil.charting.data.DataSet;
 import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.IBarLineScatterCandleBubbleDataSet;
 import com.github.mikephil.charting.utils.MPPointF;
@@ -17,11 +20,10 @@ import java.util.Map;
 import java.util.Set;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.HeartRateZoneChartUtils;
 
 public class ValueMarker extends MarkerView {
     private final TextView markerContent;
-    private Map<String, ValueFormatter> valueFormatters;
+    private Map<String, IAxisValueFormatter> valueFormatters;
     private Map<String, String> valueUnits;
     private CombinedData lineData;
 
@@ -30,7 +32,7 @@ public class ValueMarker extends MarkerView {
         this.markerContent = findViewById(R.id.marker_content);
     }
 
-    public ValueMarker(Context context, CombinedData lineData, Map<String, ValueFormatter> valueFormatters, Map<String, String> valueUnits) {
+    public ValueMarker(Context context, CombinedData lineData, Map<String, IAxisValueFormatter> valueFormatters, Map<String, String> valueUnits) {
         super(context, R.layout.value_marker);
         this.markerContent = findViewById(R.id.marker_content);
         this.valueFormatters = valueFormatters;
@@ -50,10 +52,10 @@ public class ValueMarker extends MarkerView {
         String seriesLabel = null;
         for (int i = 0; i < lineData.getDataSetCount(); i++) {
             final IBarLineScatterCandleBubbleDataSet<?> dataSet = lineData.getDataSetByIndex(i);
-            if (dataSet == null || dataSet instanceof HeartRateZoneChartUtils.ZoneAreaDataSet) {
+            if (dataSet == null) {
                 continue;
             }
-            if (dataSet.getLabel() != null) {
+            if (!dataSet.getLabel().isEmpty()) {
                 seriesLabel = dataSet.getLabel();
             }
             final String label = seriesLabel;
@@ -63,11 +65,12 @@ public class ValueMarker extends MarkerView {
             if (xVal < dataSet.getXMin() || xVal > dataSet.getXMax()) {
                 continue;
             }
-            Entry entryForX = dataSet.getEntryForXValue(xVal, Float.NaN);
+            Entry entryForX = dataSet.getEntryForXValue(xVal, Float.NaN, DataSet.Rounding.CLOSEST);
             if (entryForX != null) {
-                final ValueFormatter formatter = valueFormatters.get(label);
+                final IAxisValueFormatter formatter = valueFormatters.get(label);
                 if (formatter != null) {
-                    content.append(formatter.getFormattedValue(entryForX.getY()));
+                    final YAxis axis = ((BarLineChartBase<?>) getChartView()).getAxis(dataSet.getAxisDependency());
+                    content.append(formatter.getFormattedValue(entryForX.getY(), axis));
                 } else {
                     content.append(entryForX.getY());
                 }

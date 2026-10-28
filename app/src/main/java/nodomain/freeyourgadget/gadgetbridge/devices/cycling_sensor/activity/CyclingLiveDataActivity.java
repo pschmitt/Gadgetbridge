@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -12,6 +15,7 @@ import android.widget.Toast;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.util.List;
+import java.util.Locale;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
@@ -24,7 +28,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.DistanceUnit;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 
 public class CyclingLiveDataActivity extends AbstractGBActivity {
-    private TextView speedView, tripDistanceView, totalDistanceView;
+    private TextView speedView, cadenceView, tripDistanceView, totalDistanceView;
     private GBDevice selectedDevice;
     private float tripStartDistance = 0, tripCurrentDistance = 0;
     private float toUnitFactor = 1;
@@ -34,6 +38,23 @@ public class CyclingLiveDataActivity extends AbstractGBActivity {
         totalStringResource = R.string.label_distance_total;
 
     private static final String PREFS_KEY_TRIP_START = "CYCLING_TRIP_START";
+
+    private final LiveValueTimeout speedTimeout = new LiveValueTimeout();
+    private final LiveValueTimeout cadenceTimeout = new LiveValueTimeout();
+    private final Handler timeoutHandler = new Handler(Looper.getMainLooper());
+    private final Runnable timeoutCheck = new Runnable() {
+        @Override
+        public void run() {
+            long now = SystemClock.elapsedRealtime();
+            if (speedTimeout.expire(now)) {
+                showSpeed(null);
+            }
+            if (cadenceTimeout.expire(now)) {
+                showCadence(0);
+            }
+            timeoutHandler.postDelayed(this, 1_000);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +78,7 @@ public class CyclingLiveDataActivity extends AbstractGBActivity {
         setContentView(R.layout.activity_cycling_live_data);
 
         speedView = findViewById(R.id.cycling_data_speed);
+        cadenceView = findViewById(R.id.cycling_data_cadence);
         tripDistanceView = findViewById(R.id.cycling_data_trip_distance);
         totalDistanceView = findViewById(R.id.cycling_data_total_distance);
 
@@ -130,20 +152,34 @@ public class CyclingLiveDataActivity extends AbstractGBActivity {
                 return;
             }
 
-            Float metersPerSecond = sample.getSpeed();
-            if(metersPerSecond != null) {
-                float kmh = metersPerSecond * 3.6f * toUnitFactor;
-                speedView.setText(String.format("%.1f %s", kmh, getString(speedStringResource)));
-            }else{
-                speedView.setText(String.format("%.1f %s", 0f, getString(speedStringResource)));
+            // A sample without wheel data, e.g. from a cadence-only sensor, has no distance
+            if (sample.getDistance() != null) {
+                speedTimeout.onUpdate(SystemClock.elapsedRealtime());
+                showSpeed(sample.getSpeed());
+
+                tripCurrentDistance = sample.getDistance();
+
+                tripDistanceView.setText(getString(tripStringResource, ((tripCurrentDistance - tripStartDistance) * toUnitFactor) / 1000));
+                totalDistanceView.setText(getString(totalStringResource, (tripCurrentDistance * toUnitFactor) / 1000));
             }
 
-            tripCurrentDistance = sample.getDistance();
-
-            tripDistanceView.setText(getString(tripStringResource, ((tripCurrentDistance - tripStartDistance) * toUnitFactor) / 1000));
-            totalDistanceView.setText(getString(totalStringResource, (tripCurrentDistance * toUnitFactor) / 1000));
+            Integer cadence = sample.getCadence();
+            if (cadence != null) {
+                cadenceTimeout.onUpdate(SystemClock.elapsedRealtime());
+                showCadence(cadence);
+            }
         }
     };
+
+    private void showSpeed(Float metersPerSecond) {
+        float speed = metersPerSecond == null ? 0f : metersPerSecond * 3.6f * toUnitFactor;
+        speedView.setText(String.format(Locale.getDefault(), "%.1f %s", speed, getString(speedStringResource)));
+    }
+
+    private void showCadence(int rpm) {
+        cadenceView.setVisibility(View.VISIBLE);
+        cadenceView.setText(String.format(Locale.getDefault(), "%d %s", rpm, getString(R.string.unit_rpm)));
+    }
 
     @Override
     protected void onResume() {
@@ -155,6 +191,7 @@ public class CyclingLiveDataActivity extends AbstractGBActivity {
                         cyclingDataReceiver,
                         new IntentFilter(DeviceService.ACTION_REALTIME_SAMPLES)
                 );
+        timeoutHandler.post(timeoutCheck);
     }
 
     @Override
@@ -164,6 +201,7 @@ public class CyclingLiveDataActivity extends AbstractGBActivity {
         LocalBroadcastManager
                 .getInstance(this)
                 .unregisterReceiver(cyclingDataReceiver);
+        timeoutHandler.removeCallbacks(timeoutCheck);
     }
 
 }

@@ -71,11 +71,32 @@ public class GarminEventSampleProvider extends AbstractTimeSampleProvider<Garmin
         final Property deviceProperty = getDeviceIdentifierSampleProperty();
         qb.where(deviceProperty.eq(dbDevice.getId()), timestampProperty.ge(timestampFrom))
                 .where(timestampProperty.le(timestampTo))
-                .where(GarminEventSampleDao.Properties.Event.eq(74));
+                .where(GarminEventSampleDao.Properties.Event.eq(74))
+                .orderAsc(timestampProperty);
 
         final List<GarminEventSample> samples = qb.build().list();
         detachFromSession();
         return samples;
+    }
+
+    /**
+     * Delete the sleep events FitImporter faked for a raw sleep file before it could estimate the
+     * night, marked by a data value of -1 (#4048).
+     */
+    public void deleteFakedSleepEvents(final long timestampFrom, final long timestampTo) {
+        final Device dbDevice = DBHelper.findDevice(getDevice(), getSession());
+        if (dbDevice == null) {
+            return;
+        }
+        getSampleDao().queryBuilder()
+                .where(
+                        getDeviceIdentifierSampleProperty().eq(dbDevice.getId()),
+                        getTimestampSampleProperty().between(timestampFrom, timestampTo),
+                        GarminEventSampleDao.Properties.Event.eq(74),
+                        GarminEventSampleDao.Properties.Data.eq(-1L)
+                )
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
     }
 
     public GarminEventSample getNextSleepEventAfter(final long timestampFrom) {

@@ -60,7 +60,6 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import net.e175.klaus.solarpositioning.DeltaT;
 import net.e175.klaus.solarpositioning.SolarEvents;
 
 import org.json.JSONArray;
@@ -1508,12 +1507,8 @@ public class FossilHRWatchAdapter extends FossilWatchAdapter {
                 location = new CurrentPosition().getLastKnownLocation();
             }
             final ZonedDateTime now = ZonedDateTime.now();
-            final SolarEvents.Day solarDay = SolarEvents.spa().forDate(
-                    now.toLocalDate(),
-                    now.getZone(),
-                    location.getLatitude(),
-                    location.getLongitude(),
-                    DeltaT.estimate(now.toLocalDate())
+            final SolarEvents.Day solarDay = WeatherSpec.solarDay(
+                    now, location.getLatitude(), location.getLongitude()
             );
             if (!solarDay.rises().isEmpty() && !solarDay.sets().isEmpty()) {
                 isNight = solarDay.rises().get(0).isAfter(now) || solarDay.sets().get(0).isBefore(now);

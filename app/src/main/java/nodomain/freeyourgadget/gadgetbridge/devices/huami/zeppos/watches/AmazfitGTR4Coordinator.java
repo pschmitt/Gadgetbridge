@@ -41,7 +41,7 @@ public class AmazfitGTR4Coordinator extends ZeppOsCoordinator {
     @Override
     public Set<Integer> getDeviceSources() {
         return new HashSet<>(Arrays.asList(
-                7930112, // chinese mainland version
+                7930112, // Chinese mainland version
                 7930113,
                 7864577
         ));

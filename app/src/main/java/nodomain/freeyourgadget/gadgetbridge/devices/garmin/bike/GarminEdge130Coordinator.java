@@ -24,16 +24,6 @@ public class GarminEdge130Coordinator extends GarminBikeComputerCoordinator {
     }
 
     @Override
-    public boolean supportsFindDevice(@NonNull GBDevice device) {
-        return false;
-    }
-
-    @Override
-    public boolean supportsMusicInfo(@NonNull GBDevice device) {
-        return false;
-    }
-
-    @Override
     public boolean supportsTrainingLoad(@NonNull final GBDevice device) {
         return false;
     }

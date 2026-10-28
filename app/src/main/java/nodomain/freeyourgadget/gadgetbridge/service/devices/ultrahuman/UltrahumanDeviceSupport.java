@@ -194,7 +194,7 @@ public class UltrahumanDeviceSupport extends AbstractBTLESingleDeviceSupport {
         }
 
         LOG.warn("UH>>GB unhandled onCharacteristicRead {} {}",
-                BleNamesResolver.resolveCharacteristicName(characteristic.getUuid().toString()),
+                BleNamesResolver.resolveCharacteristicName(characteristic),
                 GB.hexdump(value));
         return false;
     }
@@ -285,7 +285,7 @@ public class UltrahumanDeviceSupport extends AbstractBTLESingleDeviceSupport {
             addSupportedService(UltrahumanConstants.UUID_SERVICE_STATE);
             addSupportedService(UltrahumanConstants.UUID_SERVICE_DATA);
             addSupportedService(UltrahumanConstants.UUID_SERVICE_TODO);
-            addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION);
+            addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
 
             CommandReceiver = new UltrahumanReceiver();
 

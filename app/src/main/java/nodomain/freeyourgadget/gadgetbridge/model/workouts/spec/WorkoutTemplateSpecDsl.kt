@@ -73,8 +73,8 @@ class StepSpecBuilder {
     var noteMaxLength: Int? = null
     private var fieldsSpec = StepFieldsSpec()
 
-    fun duration(type: WorkoutDurationType, value: ValueSpec? = null) {
-        durations += DurationOption(type, value)
+    fun duration(type: WorkoutDurationType, value: ValueSpec? = null, plus: Boolean = false) {
+        durations += DurationOption(type, value, plus)
     }
 
     fun target(type: WorkoutTargetType, value: ValueSpec? = null) {
@@ -154,7 +154,8 @@ class SportSpecBuilder(private val activityKind: ActivityKind) {
         legsSpec = LegsSpec(kinds.toList())
     }
 
-    fun duration(type: WorkoutDurationType, value: ValueSpec? = null) = defaultStep.duration(type, value)
+    fun duration(type: WorkoutDurationType, value: ValueSpec? = null, plus: Boolean = false) =
+        defaultStep.duration(type, value, plus)
 
     fun target(type: WorkoutTargetType, value: ValueSpec? = null) = defaultStep.target(type, value)
 
@@ -192,6 +193,7 @@ class WorkoutTemplateSpecBuilder(
     var maxTemplates: Int = Int.MAX_VALUE
     var nameMaxLength: Int = 200
     var noteMaxLength: Int = 200
+    var exporter: WorkoutTemplateExporter? = null
     private val sports = mutableMapOf<ActivityKind, SportSpec>()
 
     fun sport(activityKind: ActivityKind, block: SportSpecBuilder.() -> Unit) {
@@ -199,7 +201,9 @@ class WorkoutTemplateSpecBuilder(
     }
 
     fun build(): WorkoutTemplateSpec =
-        WorkoutTemplateSpec(vendorId, exerciseCatalog, maxTemplates, nameMaxLength, noteMaxLength, sports.toMap())
+        WorkoutTemplateSpec(
+            vendorId, exerciseCatalog, maxTemplates, nameMaxLength, noteMaxLength, sports.toMap(), exporter
+        )
 }
 
 /**

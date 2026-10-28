@@ -18,15 +18,18 @@ data class DumlAddress(val type: Int, val index: Int = 0) {
 
     companion object {
         const val TYPE_INVALID = 0x00
+        const val TYPE_CAMERA = 0x01
         const val TYPE_APP = 0x02
         const val TYPE_WIFI = 0x07
 
+        val CAMERA = DumlAddress(TYPE_CAMERA)
         val APP = DumlAddress(TYPE_APP)
         val WIFI = DumlAddress(TYPE_WIFI)
 
         // For logging only - not exhaustive, unknown types just print as hex.
         private val TYPE_NAMES = mapOf(
             TYPE_INVALID to "INVALID",
+            TYPE_CAMERA to "CAMERA",
             TYPE_APP to "APP",
             TYPE_WIFI to "WIFI",
         )

@@ -16,7 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities.charts;
 
-import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -24,7 +25,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-public class TimestampValueFormatter extends ValueFormatter {
+public class TimestampValueFormatter implements IAxisValueFormatter {
     private final Calendar cal;
     //    private DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
     private DateFormat dateFormat;
@@ -41,7 +42,7 @@ public class TimestampValueFormatter extends ValueFormatter {
     }
 
     @Override
-    public String getFormattedValue(float value) {
+    public String getFormattedValue(final float value, final AxisBase axis) {
         cal.setTimeInMillis((int) value * 1000L);
         Date date = cal.getTime();
         String dateString = dateFormat.format(date);

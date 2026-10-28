@@ -178,6 +178,11 @@ public class HuaweiSettingsCustomizer implements DeviceSpecificSettingsCustomize
                 forceSpO2.setVisible(!supportsSpO2);
         }
 
+        final SwitchPreferenceCompat truSleep = handler.findPreference(PREF_HUAWEI_TRUSLEEP);
+        if (truSleep != null && !deviceState.supportsTruSleep()) {
+            truSleep.setVisible(false);
+        }
+
         final SwitchPreferenceCompat sleepBreath = handler.findPreference(PREF_HUAWEI_SLEEP_BREATH);
         if (sleepBreath != null && !(deviceState.supportsSleepBreath() || deviceState.supportsSleepApnea())) {
             sleepBreath.setVisible(false);

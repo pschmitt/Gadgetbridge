@@ -5,28 +5,21 @@ import android.app.Activity
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.companion.AssociationInfo
-import android.companion.AssociationRequest
-import android.companion.BluetoothDeviceFilter
 import android.companion.CompanionDeviceManager
 import android.content.Context
 import android.content.Intent
-import android.content.IntentSender
-import android.content.IntentSender.SendIntentException
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import androidx.core.app.ActivityCompat
 import androidx.preference.PreferenceCategory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
-import nodomain.freeyourgadget.gadgetbridge.util.BondingUtil
+import nodomain.freeyourgadget.gadgetbridge.util.CompanionDeviceUtil
 import nodomain.freeyourgadget.gadgetbridge.util.GB
 import nodomain.freeyourgadget.gadgetbridge.util.kotlin.getParcelableCompat
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -43,10 +36,7 @@ class CompanionDebugFragment : AbstractDebugFragment() {
         removeDynamicPrefs(companionDevicesHeader)
         removeDynamicPrefs(otherDevicesHeader)
 
-        val manager = GBApplication.getContext().getSystemService(Context.COMPANION_DEVICE_SERVICE)
-                as CompanionDeviceManager
-
-        val associations: Set<String> = getAssociatedAddresses(manager)
+        val associations = CompanionDeviceUtil.getCompanionAssociations(GBApplication.getContext()).toSet()
 
         val companionDevices = associations
             .map {
@@ -54,7 +44,8 @@ class CompanionDebugFragment : AbstractDebugFragment() {
                 Device(
                     it,
                     deviceByAddress?.aliasOrName ?: getString(R.string.unknown),
-                    deviceByAddress?.deviceCoordinator?.defaultIconResource ?: R.drawable.ic_device_unknown
+                    deviceByAddress?.deviceCoordinator?.defaultIconResource ?: R.drawable.ic_device_unknown,
+                    deviceByAddress?.isConnected == true
                 )
             }
             .sortedBy { it.name }
@@ -65,13 +56,14 @@ class CompanionDebugFragment : AbstractDebugFragment() {
                 Device(
                     it.address,
                     it.aliasOrName,
-                    it.deviceCoordinator.defaultIconResource
+                    it.deviceCoordinator.defaultIconResource,
+                    it.isConnected
                 )
             }
 
         if (!companionDevices.isEmpty()) {
             for (device in companionDevices) {
-                addDynamicPref(companionDevicesHeader, device.name, device.address, device.icon) {
+                addDynamicDevicePref(companionDevicesHeader, device.name, device.address, device.icon, device.connected) {
                     MaterialAlertDialogBuilder(requireContext())
                         .setCancelable(true)
                         .setIcon(device.icon)
@@ -89,7 +81,7 @@ class CompanionDebugFragment : AbstractDebugFragment() {
         if (!otherDevices.isEmpty()) {
             otherDevicesHeader.isVisible = true
             for (device in otherDevices) {
-                addDynamicPref(otherDevicesHeader, device.name, device.address, device.icon) {
+                addDynamicDevicePref(otherDevicesHeader, device.name, device.address, device.icon, device.connected) {
                     MaterialAlertDialogBuilder(requireContext())
                         .setCancelable(true)
                         .setIcon(device.icon)
@@ -105,17 +97,7 @@ class CompanionDebugFragment : AbstractDebugFragment() {
         }
     }
 
-    private data class Device(val address: String, val name: String, val icon: Int)
-
-    private fun getAssociatedAddresses(manager: CompanionDeviceManager): Set<String> {
-        val addresses = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            manager.myAssociations.mapNotNull { it.deviceMacAddress?.toString() }
-        } else {
-            @Suppress("DEPRECATION")
-            manager.associations.toList()
-        }
-        return addresses.map { it.uppercase(Locale.ROOT) }.toSet()
-    }
+    private data class Device(val address: String, val name: String, val icon: Int, val connected: Boolean)
 
     // FIXME replace deprecated code
     @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
@@ -150,70 +132,23 @@ class CompanionDebugFragment : AbstractDebugFragment() {
     }
 
     private fun unpairCompanion(device: Device) {
-        BondingUtil.Disassociate(requireContext(), device.address)
+        CompanionDeviceUtil.Disassociate(requireContext(), device.address)
         reloadDevices()
     }
 
     private fun pairAsCompanion(device: Device) {
-        val manager = requireActivity().getSystemService(Context.COMPANION_DEVICE_SERVICE) as CompanionDeviceManager
-
-        if (getAssociatedAddresses(manager).contains(device.address.uppercase(Locale.ROOT))) {
+        if (CompanionDeviceUtil.isCompanionAssociated(requireContext(), device.address)) {
             GB.toast(device.name + " already paired as companion", Toast.LENGTH_LONG, GB.INFO)
             return
         }
 
-        val deviceFilter = BluetoothDeviceFilter.Builder()
-            .setAddress(device.address)
-            .build()
-
-        val pairingRequest = AssociationRequest.Builder()
-            .addDeviceFilter(deviceFilter)
-            .setSingleDevice(true)
-            .build()
-
-        val callback: CompanionDeviceManager.Callback = object : CompanionDeviceManager.Callback() {
-            override fun onFailure(error: CharSequence?) {
-                GB.toast("Companion pairing failed: $error", Toast.LENGTH_LONG, GB.ERROR)
-            }
-
-            override fun onAssociationPending(chooserLauncher: IntentSender) {
-                GB.toast("Found device", Toast.LENGTH_SHORT, GB.INFO)
-
-                try {
-                    ActivityCompat.startIntentSenderForResult(
-                        requireActivity(),
-                        chooserLauncher,
-                        SELECT_DEVICE_REQUEST_CODE,
-                        null,
-                        0,
-                        0,
-                        0,
-                        null
-                    )
-                } catch (e: SendIntentException) {
-                    LOG.error("Failed to send intent", e)
-                }
-            }
-
-            /**
-             * older and deprecated name for onAssociationPending, needed for compatibility with Android 12.
-             */
-            @Suppress("OVERRIDE_DEPRECATION")
-            override fun onDeviceFound(chooserLauncher: IntentSender) {
-                onAssociationPending(chooserLauncher)
-            }
-
-            override fun onAssociationCreated(associationInfo: AssociationInfo) {
-                GB.toast("Companion pairing success", Toast.LENGTH_SHORT, GB.INFO)
-                reloadDevices()
-            }
-        }
-
-        manager.associate(pairingRequest, callback, null)
+        CompanionDeviceUtil.associateCompanion(requireActivity(), device.address, false, SELECT_DEVICE_REQUEST_CODE, {
+            GB.toast("Companion pairing success", Toast.LENGTH_SHORT, GB.INFO)
+            reloadDevices()
+        }, null)
     }
 
     companion object {
-        private val LOG: Logger = LoggerFactory.getLogger(CompanionDebugFragment::class.java)
         const val SELECT_DEVICE_REQUEST_CODE: Int = 1424
 
         private const val PREF_HEADER_COMPANION_DEVICES = "pref_header_companion_devices"

@@ -30,6 +30,7 @@ import android.app.Application;
 import android.app.NotificationManager;
 import android.app.NotificationManager.Policy;
 import android.app.PendingIntent;
+import android.app.UiModeManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
@@ -65,19 +66,18 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import nodomain.freeyourgadget.gadgetbridge.activities.ControlCenterv2;
-import nodomain.freeyourgadget.gadgetbridge.activities.endurain.PeriodicEndurainTokenRefresher;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
 import nodomain.freeyourgadget.gadgetbridge.database.PeriodicDbExporter;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceManager;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.BluetoothStateChangeReceiver;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationAppRepository;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.opentracks.OpenTracksContentObserver;
+import nodomain.freeyourgadget.gadgetbridge.externalservices.ExternalServiceRegistry;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceService;
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceService;
@@ -86,16 +86,16 @@ import nodomain.freeyourgadget.gadgetbridge.model.weather.WeatherCacheManager;
 import nodomain.freeyourgadget.gadgetbridge.prefs.GBPrefsMigrator;
 import nodomain.freeyourgadget.gadgetbridge.service.NotificationCollectorMonitorService;
 import nodomain.freeyourgadget.gadgetbridge.util.AndroidUtils;
-import nodomain.freeyourgadget.gadgetbridge.util.BondingUtil;
+import nodomain.freeyourgadget.gadgetbridge.util.CompanionDeviceUtil;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
 import nodomain.freeyourgadget.gadgetbridge.util.InternetHelperSingleton;
 import nodomain.freeyourgadget.gadgetbridge.util.LimitedQueue;
 import nodomain.freeyourgadget.gadgetbridge.util.PermissionsUtils;
-import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
 import nodomain.freeyourgadget.gadgetbridge.util.backup.PeriodicZipExporter;
 import nodomain.freeyourgadget.gadgetbridge.util.healthconnect.HealthConnectPermissionManager;
 import nodomain.freeyourgadget.gadgetbridge.util.preferences.DevicePrefs;
+import nodomain.freeyourgadget.gadgetbridge.widgets.launcher.LauncherWidgets;
 
 /**
  * Main Application class that initializes and provides access to certain things like
@@ -107,6 +107,11 @@ public class GBApplication extends Application {
     private static GBApplication context;
     private static DeviceService deviceService;
     private static SharedPreferences sharedPrefs;
+    private static final SharedPreferences.OnSharedPreferenceChangeListener themePreferenceListener = (final SharedPreferences sharedPreferences, final String key) -> {
+        if ("pref_key_theme".equals(key)) {
+            updateApplicationNightMode();
+        }
+    };
 
     private static final LimitedQueue<Integer, String> mIDSenderLookup = new LimitedQueue<>(16);
     private static GBPrefs prefs;
@@ -134,7 +139,7 @@ public class GBApplication extends Application {
 
     public static void quit() {
         LOG.info("Quitting Gadgetbridge...");
-        BondingUtil.StopObservingAll(getContext());
+        CompanionDeviceUtil.StopObservingAll(getContext());
         Intent quitIntent = new Intent(GBApplication.ACTION_QUIT);
         LocalBroadcastManager.getInstance(context).sendBroadcast(quitIntent);
         GBApplication.deviceService().quit();
@@ -144,7 +149,7 @@ public class GBApplication extends Application {
 
     public static void restart() {
         LOG.info("Restarting Gadgetbridge...");
-        BondingUtil.StopObservingAll(getContext());
+        CompanionDeviceUtil.StopObservingAll(getContext());
         final Intent quitIntent = new Intent(GBApplication.ACTION_QUIT);
         LocalBroadcastManager.getInstance(context).sendBroadcast(quitIntent);
         GBApplication.deviceService().quit();
@@ -253,6 +258,8 @@ public class GBApplication extends Application {
         }
 
         migratePrefsIfNeeded();
+        updateApplicationNightMode();
+        sharedPrefs.registerOnSharedPreferenceChangeListener(themePreferenceListener);
 
         setupExceptionHandler(prefs.getBoolean("crash_notification", isDebug()));
 
@@ -265,12 +272,11 @@ public class GBApplication extends Application {
         setLanguage(language);
 
         deviceService = createDeviceService();
-        loadAppsNotifBlackList();
-        loadAppsPebbleBlackList();
 
         if (!GBEnvironment.env().isTest()) {
             PeriodicDbExporter.INSTANCE.scheduleNextExecution(context);
             PeriodicZipExporter.INSTANCE.scheduleNextExecution(context);
+            NotificationAppRepository.INSTANCE.loadInBackground();
         }
 
         notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -284,7 +290,7 @@ public class GBApplication extends Application {
         }
         startNotificationCollectorMonitorService();
 
-        BondingUtil.StartObservingAll(getBaseContext());
+        CompanionDeviceUtil.StartObservingAll(getBaseContext());
 
         if (prefs.getBoolean(GBPrefs.HEALTH_CONNECT_ENABLED, false)) {
             HealthConnectPermissionManager.checkAndRectifyPermissions(this);
@@ -293,9 +299,11 @@ public class GBApplication extends Application {
         // Ensure the InternetHelper is bound, so that it works on first usage
         InternetHelperSingleton.INSTANCE.ensureInternetHelperBound();
 
-        // Refresh Endurain tokens and schedule periodic refresh
+        LauncherWidgets.registerUpdateTriggers(context);
+
+        // Let every external service schedule its own upkeep, such as renewing a token
         if (!GBEnvironment.env().isTest()) {
-            PeriodicEndurainTokenRefresher.INSTANCE.scheduleNextExecution(context);
+            ExternalServiceRegistry.scheduleBackgroundWork(context);
         }
     }
 
@@ -436,6 +444,9 @@ public class GBApplication extends Application {
     private static boolean isPrioritySender(int prioritySenders, String number) {
         if (prioritySenders == Policy.PRIORITY_SENDERS_ANY) {
             return true;
+        } else if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            LOG.warn("Contacts permission not granted, unable to check if {} is a priority sender", number);
+            return true;
         } else {
             Uri uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
             String[] projection = new String[]{PhoneLookup._ID, PhoneLookup.STARRED};
@@ -480,133 +491,6 @@ public class GBApplication extends Application {
             return notificationManager.getCurrentInterruptionFilter();
         }
         return NotificationManager.INTERRUPTION_FILTER_ALL;
-    }
-
-    private static HashSet<String> apps_notification_blacklist = null;
-
-    public static boolean appIsNotifBlacklisted(String packageName) {
-        if (apps_notification_blacklist == null) {
-            LOG.info("appIsNotifBlacklisted: apps_notification_blacklist is null!");
-        }
-        return apps_notification_blacklist != null && apps_notification_blacklist.contains(packageName);
-    }
-
-    public static void setAppsNotifBlackList(Set<String> packageNames) {
-        setAppsNotifBlackList(packageNames, sharedPrefs.edit());
-    }
-
-    public static void setAppsNotifBlackList(Set<String> packageNames, SharedPreferences.Editor editor) {
-        if (packageNames == null) {
-            LOG.info("Set null apps_notification_blacklist");
-            apps_notification_blacklist = new HashSet<>();
-        } else {
-            apps_notification_blacklist = new HashSet<>(packageNames);
-        }
-        LOG.info("New apps_notification_blacklist has {} entries", apps_notification_blacklist.size());
-        saveAppsNotifBlackList(editor);
-    }
-
-    private static void loadAppsNotifBlackList() {
-        LOG.info("Loading apps_notification_blacklist");
-        apps_notification_blacklist = (HashSet<String>) sharedPrefs.getStringSet(GBPrefs.PACKAGE_BLACKLIST, null); // lgtm [java/abstract-to-concrete-cast]
-        if (apps_notification_blacklist == null) {
-            apps_notification_blacklist = new HashSet<>();
-        }
-        LOG.info("Loaded apps_notification_blacklist has {} entries", apps_notification_blacklist.size());
-    }
-
-    private static void saveAppsNotifBlackList() {
-        saveAppsNotifBlackList(sharedPrefs.edit());
-    }
-
-    private static void saveAppsNotifBlackList(SharedPreferences.Editor editor) {
-        LOG.info("Saving apps_notification_blacklist with {} entries", apps_notification_blacklist.size());
-        if (apps_notification_blacklist.isEmpty()) {
-            editor.putStringSet(GBPrefs.PACKAGE_BLACKLIST, null);
-        } else {
-            Prefs.putStringSet(editor, GBPrefs.PACKAGE_BLACKLIST, apps_notification_blacklist);
-        }
-        editor.apply();
-    }
-
-    public static void addAppToNotifBlacklist(String packageName) {
-        if (apps_notification_blacklist.add(packageName)) {
-            saveAppsNotifBlackList();
-        }
-    }
-
-    public static synchronized void removeFromAppsNotifBlacklist(String packageName) {
-        LOG.info("Removing from apps_notification_blacklist: {}", packageName);
-        apps_notification_blacklist.remove(packageName);
-        saveAppsNotifBlackList();
-    }
-
-    private static HashSet<String> apps_pebblemsg_blacklist = null;
-
-    public static boolean appIsPebbleBlacklisted(String sender) {
-        if (apps_pebblemsg_blacklist == null) {
-            LOG.info("appIsPebbleBlacklisted: apps_pebblemsg_blacklist is null!");
-        }
-        return apps_pebblemsg_blacklist != null && apps_pebblemsg_blacklist.contains(sender);
-    }
-
-    public static void setAppsPebbleBlackList(Set<String> packageNames) {
-        setAppsPebbleBlackList(packageNames, sharedPrefs.edit());
-    }
-
-    public static void setAppsPebbleBlackList(Set<String> packageNames, SharedPreferences.Editor editor) {
-        if (packageNames == null) {
-            LOG.info("Set null apps_pebblemsg_blacklist");
-            apps_pebblemsg_blacklist = new HashSet<>();
-        } else {
-            apps_pebblemsg_blacklist = new HashSet<>(packageNames);
-        }
-        LOG.info("New apps_pebblemsg_blacklist has {} entries", apps_pebblemsg_blacklist.size());
-        saveAppsPebbleBlackList(editor);
-    }
-
-    private static void loadAppsPebbleBlackList() {
-        LOG.info("Loading apps_pebblemsg_blacklist");
-        apps_pebblemsg_blacklist = (HashSet<String>) sharedPrefs.getStringSet(GBPrefs.PACKAGE_PEBBLEMSG_BLACKLIST, null); // lgtm [java/abstract-to-concrete-cast]
-        if (apps_pebblemsg_blacklist == null) {
-            apps_pebblemsg_blacklist = new HashSet<>();
-        }
-        LOG.info("Loaded apps_pebblemsg_blacklist has {} entries", apps_pebblemsg_blacklist.size());
-    }
-
-    private static void saveAppsPebbleBlackList() {
-        saveAppsPebbleBlackList(sharedPrefs.edit());
-    }
-
-    private static void saveAppsPebbleBlackList(SharedPreferences.Editor editor) {
-        LOG.info("Saving apps_pebblemsg_blacklist with {} entries", apps_pebblemsg_blacklist.size());
-        if (apps_pebblemsg_blacklist.isEmpty()) {
-            editor.putStringSet(GBPrefs.PACKAGE_PEBBLEMSG_BLACKLIST, null);
-        } else {
-            Prefs.putStringSet(editor, GBPrefs.PACKAGE_PEBBLEMSG_BLACKLIST, apps_pebblemsg_blacklist);
-        }
-        editor.apply();
-    }
-
-    public static void addAppToPebbleBlacklist(String packageName) {
-        if (apps_pebblemsg_blacklist.add(packageNameToPebbleMsgSender(packageName))) {
-            saveAppsPebbleBlackList();
-        }
-    }
-
-    public static synchronized void removeFromAppsPebbleBlacklist(String packageName) {
-        LOG.info("Removing from apps_pebblemsg_blacklist: {}", packageName);
-        apps_pebblemsg_blacklist.remove(packageNameToPebbleMsgSender(packageName));
-        saveAppsPebbleBlackList();
-    }
-
-    public static String packageNameToPebbleMsgSender(String packageName) {
-        if ("eu.siacs.conversations".equals(packageName)) {
-            return ("Conversations");
-        } else if ("net.osmand.plus".equals(packageName)) {
-            return ("OsmAnd");
-        }
-        return packageName;
     }
 
     @VisibleForTesting
@@ -692,6 +576,28 @@ public class GBApplication extends Application {
         }
     }
 
+    /**
+     * Ensures the splash screen follows the theme preference, if manually set to light or derk.
+     */
+    private static void updateApplicationNightMode() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            return;
+        }
+        final String selectedTheme = prefs.getString("pref_key_theme", context.getString(R.string.pref_theme_value_system));
+        final int nightMode;
+        if (selectedTheme.equals(context.getString(R.string.pref_theme_value_light))) {
+            nightMode = UiModeManager.MODE_NIGHT_NO;
+        } else if (selectedTheme.equals(context.getString(R.string.pref_theme_value_dark))) {
+            nightMode = UiModeManager.MODE_NIGHT_YES;
+        } else {
+            nightMode = UiModeManager.MODE_NIGHT_AUTO;
+        }
+        final UiModeManager uiModeManager = context.getSystemService(UiModeManager.class);
+        if (uiModeManager != null) {
+            uiModeManager.setApplicationNightMode(nightMode);
+        }
+    }
+
     public static boolean isAmoledBlackEnabled() {
         return prefs.getBoolean("pref_key_theme_amoled_black", false);
     }
@@ -710,9 +616,8 @@ public class GBApplication extends Application {
      * applying it in that case, since Dynamic Color already ties these colors to the wallpaper.
      */
     @StyleRes
-    public static int getAccentColorOverlay() {
+    public static int getAccentColorOverlay(final boolean dark) {
         final String accent = prefs.getString(PREF_ACCENT_COLOR, PREF_ACCENT_COLOR_DEFAULT);
-        final boolean dark = isDarkThemeEnabled();
         switch (accent) {
             case "coral":
                 return dark ? R.style.ThemeOverlay_App_Accent_Coral_Dark : R.style.ThemeOverlay_App_Accent_Coral_Light;
@@ -742,6 +647,26 @@ public class GBApplication extends Application {
             default:
                 return dark ? R.style.ThemeOverlay_App_Accent_Red_Dark : R.style.ThemeOverlay_App_Accent_Red_Light;
         }
+    }
+
+    public static final String PREF_CONTRASTING_SURFACES = "pref_key_contrasting_surfaces";
+
+    public static boolean areContrastingSurfacesEnabled(final boolean dark) {
+        return prefs.getBoolean(PREF_CONTRASTING_SURFACES, dark);
+    }
+
+    @StyleRes
+    public static int getContrastingSurfacesOverlay(final boolean dark) {
+        if (areDynamicColorsEnabled()) {
+            if (dark && isAmoledBlackEnabled()) {
+                return R.style.ThemeOverlay_App_ContrastingSurfaces_Dynamic_Black;
+            }
+            return R.style.ThemeOverlay_App_ContrastingSurfaces_Dynamic;
+        }
+        if (!dark) {
+            return R.style.ThemeOverlay_App_ContrastingSurfaces_Light;
+        }
+        return isAmoledBlackEnabled() ? R.style.ThemeOverlay_App_ContrastingSurfaces_Black : R.style.ThemeOverlay_App_ContrastingSurfaces_Dark;
     }
 
     public static int getTextColor(Context context) {

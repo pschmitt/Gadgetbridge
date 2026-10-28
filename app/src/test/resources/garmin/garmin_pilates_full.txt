@@ -12,8 +12,8 @@ FitWorkoutStep{duration_type=TIME, duration_value=45000, target_type=OPEN, targe
 FitWorkoutStep{duration_type=TIME, duration_value=45000, target_type=OPEN, target_value=0, intensity=ACTIVE, weight_display_unit=KILOGRAM, message_index=8},
 FitWorkoutStep{duration_type=REPS, duration_value=8, target_type=OPEN, target_value=0, intensity=ACTIVE, exercise_category=5, exercise_name=72, exercise_weight=0.0, weight_display_unit=KILOGRAM, message_index=9},
 FitWorkoutStep{duration_type=TIME, duration_value=45000, target_type=OPEN, target_value=0, intensity=COOLDOWN, weight_display_unit=KILOGRAM, message_index=10},
-FitExerciseTitle{exercise_category=5, exercise_name=72, message_index=0},
-FitExerciseTitle{exercise_category=5, exercise_name=61, message_index=1},
-FitExerciseTitle{exercise_category=5, exercise_name=66, message_index=2},
-FitExerciseTitle{exercise_category=35, exercise_name=40, message_index=3},
-FitExerciseTitle{exercise_category=5, exercise_name=71, message_index=4}]
+FitExerciseTitle{exercise_category=5, exercise_name=72, wkt_step_name=The Hundred, message_index=0},
+FitExerciseTitle{exercise_category=5, exercise_name=61, wkt_step_name=Roll Up, message_index=1},
+FitExerciseTitle{exercise_category=5, exercise_name=66, wkt_step_name=Single-leg Circles, message_index=2},
+FitExerciseTitle{exercise_category=35, exercise_name=40, wkt_step_name=Saw, message_index=3},
+FitExerciseTitle{exercise_category=5, exercise_name=71, wkt_step_name=Teaser, message_index=4}]

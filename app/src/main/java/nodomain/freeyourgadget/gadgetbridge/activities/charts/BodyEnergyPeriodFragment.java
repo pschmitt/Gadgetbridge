@@ -1,6 +1,5 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.charts;
 
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,28 +10,23 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import com.github.mikephil.charting.charts.CandleStickChart;
 import com.github.mikephil.charting.charts.Chart;
-import com.github.mikephil.charting.components.LegendEntry;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.CandleData;
-import com.github.mikephil.charting.data.CandleDataSet;
-import com.github.mikephil.charting.data.CandleEntry;
-import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
-import nodomain.freeyourgadget.gadgetbridge.GBApplication;
+import kotlin.jvm.functions.Function1;
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.bodyenergy.BodyEnergyChartData;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.DaySelections;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileData;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileGridUtilKt;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
@@ -49,14 +43,11 @@ public class BodyEnergyPeriodFragment extends AbstractChartFragment<BodyEnergyPe
     static int SEC_PER_DAY = 24 * 60 * 60;
     static int DATA_INVALID = -1;
 
-    private int BACKGROUND_COLOR;
-    private int CHART_TEXT_COLOR;
-    private int LEGEND_TEXT_COLOR;
     private int BODY_ENERGY_COLOR;
 
     private TextView mDateView;
     private LinearLayout bodyEnergyStatsContainer;
-    private CandleStickChart bodyEnergyChart;
+    private GbChartView bodyEnergyChart;
     private int TOTAL_DAYS;
 
     @Override
@@ -80,9 +71,6 @@ public class BodyEnergyPeriodFragment extends AbstractChartFragment<BodyEnergyPe
 
     @Override
     protected void init() {
-        BACKGROUND_COLOR = GBApplication.getBackgroundColor(requireContext());
-        LEGEND_TEXT_COLOR = GBApplication.getTextColor(requireContext());
-        CHART_TEXT_COLOR = GBApplication.getSecondaryTextColor(requireContext());
         BODY_ENERGY_COLOR = ContextCompat.getColor(requireContext(), R.color.body_energy_level_color);
     }
 
@@ -97,10 +85,10 @@ public class BodyEnergyPeriodFragment extends AbstractChartFragment<BodyEnergyPe
         mDateView = rootView.findViewById(R.id.date_view);
         bodyEnergyStatsContainer = rootView.findViewById(R.id.body_energy_period_stats_container);
         bodyEnergyChart = rootView.findViewById(R.id.body_energy_chart);
+        bodyEnergyChart.setZoomable(TOTAL_DAYS > 7);
+        bodyEnergyChart.dismissSelectionOnTapOutside(rootView);
 
-        setupChart();
         refresh();
-        setupLegend(bodyEnergyChart);
 
         return rootView;
     }
@@ -111,12 +99,13 @@ public class BodyEnergyPeriodFragment extends AbstractChartFragment<BodyEnergyPe
     }
 
     private int getStartTs() {
-        Calendar day = Calendar.getInstance();
+        final Calendar day = Calendar.getInstance();
         day.setTime(getEndDate());
         day.set(Calendar.HOUR_OF_DAY, 0);
         day.set(Calendar.MINUTE, 0);
         day.set(Calendar.SECOND, 0);
-        return (int) (day.getTimeInMillis() / 1000) - SEC_PER_DAY * (TOTAL_DAYS - 1);
+        day.add(Calendar.DATE, -(TOTAL_DAYS - 1));
+        return (int) (day.getTimeInMillis() / 1000);
     }
 
     private BodyEnergyDayData fetchBodyEnergyDataForDay(DBHandler db, GBDevice device, int startTs) {
@@ -159,17 +148,21 @@ public class BodyEnergyPeriodFragment extends AbstractChartFragment<BodyEnergyPe
         final int startTs = getStartTs();
         mDateView.setText(DateTimeUtils.formatDaysUntil(TOTAL_DAYS, getTSEnd()));
 
+        final int n = data.days.size();
+        final long firstDay = Instant.ofEpochSecond(startTs).atZone(ZoneId.systemDefault()).toLocalDate().toEpochDay();
+        final long[] epochDays = new long[n];
+        final int[] dayMinimum = new int[n];
+        final int[] dayMaximum = new int[n];
         final Accumulator minAccumulator = new Accumulator();
         final Accumulator maxAccumulator = new Accumulator();
-
-        final ArrayList<CandleEntry> candleEntries = new ArrayList<>();
-
-        for (int i = 0; i < data.days.size(); i++) {
+        for (int i = 0; i < n; i++) {
             final BodyEnergyDayData dayData = data.days.get(i);
+            epochDays[i] = firstDay + i;
             if (dayData.minimum > 0 && dayData.maximum > 0) {
+                dayMinimum[i] = dayData.minimum;
+                dayMaximum[i] = dayData.maximum;
                 minAccumulator.add(dayData.minimum);
                 maxAccumulator.add(dayData.maximum);
-                candleEntries.add(new CandleEntry(i, dayData.maximum, dayData.minimum, dayData.minimum, dayData.maximum));
             }
         }
 
@@ -183,95 +176,19 @@ public class BodyEnergyPeriodFragment extends AbstractChartFragment<BodyEnergyPe
         stats.add(new StatTileData(maximum > 0 ? String.valueOf(maximum) : emptyValue, getString(R.string.hr_maximum)));
         StatTileGridUtilKt.addStatTileGrid(bodyEnergyStatsContainer, requireContext(), stats, 0);
 
-        final String fmt = TOTAL_DAYS == 7 ? "EEE" : "dd";
-        SimpleDateFormat formatDay = new SimpleDateFormat(fmt, Locale.getDefault());
-        ValueFormatter formatter = new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                int dayIndex = Math.round(value);
-                if (dayIndex < 0 || dayIndex >= TOTAL_DAYS) {
-                    return "";
-                }
-                int ts = startTs + SEC_PER_DAY * dayIndex;
-                return formatDay.format(new Date(ts * 1000L));
-            }
-        };
-        bodyEnergyChart.getXAxis().setValueFormatter(formatter);
-
-        if (!candleEntries.isEmpty()) {
-            CandleDataSet candleDataSet = new CandleDataSet(candleEntries, getString(R.string.body_energy));
-            candleDataSet.setDrawValues(false);
-            candleDataSet.setDrawIcons(false);
-            candleDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-            candleDataSet.setShadowColor(BODY_ENERGY_COLOR);
-            candleDataSet.setShadowWidth(2f);
-            candleDataSet.setDecreasingColor(BODY_ENERGY_COLOR);
-            candleDataSet.setDecreasingPaintStyle(Paint.Style.FILL);
-            candleDataSet.setIncreasingColor(BODY_ENERGY_COLOR);
-            candleDataSet.setIncreasingPaintStyle(Paint.Style.FILL);
-            candleDataSet.setNeutralColor(BODY_ENERGY_COLOR);
-            candleDataSet.setBarSpace(0.3f);
-            candleDataSet.setShowCandleBar(true);
-
-            CandleData candleData = new CandleData(candleDataSet);
-            bodyEnergyChart.setData(candleData);
-        } else {
-            bodyEnergyChart.setData(null);
-        }
-
-    }
-
-    private void setupChart() {
-        bodyEnergyChart.setBackgroundColor(BACKGROUND_COLOR);
-        bodyEnergyChart.getDescription().setEnabled(false);
-
-        if (TOTAL_DAYS <= 7) {
-            bodyEnergyChart.setTouchEnabled(false);
-            bodyEnergyChart.setPinchZoom(false);
-        }
-        bodyEnergyChart.setDoubleTapToZoomEnabled(false);
-
-        final XAxis xAxisBottom = bodyEnergyChart.getXAxis();
-        xAxisBottom.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxisBottom.setDrawLabels(true);
-        xAxisBottom.setDrawGridLines(false);
-        xAxisBottom.setEnabled(true);
-        xAxisBottom.setDrawLimitLinesBehindData(true);
-        xAxisBottom.setTextColor(CHART_TEXT_COLOR);
-        xAxisBottom.setGranularity(1f);
-        xAxisBottom.setGranularityEnabled(true);
-        xAxisBottom.setAxisMinimum(-0.5f);
-        xAxisBottom.setAxisMaximum(TOTAL_DAYS - 0.5f);
-
-        final YAxis yAxisLeft = bodyEnergyChart.getAxisLeft();
-        yAxisLeft.setDrawGridLines(true);
-        yAxisLeft.setAxisMaximum(100f);
-        yAxisLeft.setAxisMinimum(0f);
-        yAxisLeft.setDrawTopYLabelEntry(true);
-        yAxisLeft.setTextColor(CHART_TEXT_COLOR);
-        yAxisLeft.setEnabled(true);
-        yAxisLeft.setGranularity(10f);
-        yAxisLeft.setGranularityEnabled(true);
-
-        final YAxis yAxisRight = bodyEnergyChart.getAxisRight();
-        yAxisRight.setEnabled(true);
-        yAxisRight.setDrawLabels(false);
-        yAxisRight.setDrawGridLines(false);
-        yAxisRight.setDrawAxisLine(true);
+        final String label = getString(R.string.body_energy);
+        final Function1<Integer, String> rangeText = i -> dayMinimum[i] > 0
+                ? dayMinimum[i] + " \u2013 " + dayMaximum[i]
+                : getString(R.string.stats_empty_value);
+        bodyEnergyChart.setSelectionContent(x -> DaySelections.of(
+                epochDays, x, Collections.singletonList(label), Collections.singletonList(BODY_ENERGY_COLOR),
+                Collections.singletonList(rangeText), getString(R.string.stats_empty_value)
+        ));
+        bodyEnergyChart.setSpec(BodyEnergyChartData.periodSpec(epochDays, dayMinimum, dayMaximum, BODY_ENERGY_COLOR, label));
     }
 
     @Override
     protected void setupLegend(Chart<?> chart) {
-        List<LegendEntry> legendEntries = new ArrayList<>(1);
-
-        LegendEntry rangeEntry = new LegendEntry();
-        rangeEntry.label = getString(R.string.body_energy);
-        rangeEntry.formColor = BODY_ENERGY_COLOR;
-        legendEntries.add(rangeEntry);
-
-        bodyEnergyChart.getLegend().setCustom(legendEntries);
-        bodyEnergyChart.getLegend().setTextColor(LEGEND_TEXT_COLOR);
-        bodyEnergyChart.getLegend().setWordWrapEnabled(true);
     }
 
     @Override

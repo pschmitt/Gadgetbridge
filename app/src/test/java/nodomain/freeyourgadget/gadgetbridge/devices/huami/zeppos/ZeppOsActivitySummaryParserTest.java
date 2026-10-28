@@ -21,7 +21,7 @@ public class ZeppOsActivitySummaryParserTest extends TestBase {
         summary.setRawSummaryData(data);
         summary.setStartTime(new Date());
 
-        final ZeppOsActivitySummaryParser parser = new ZeppOsActivitySummaryParser(getContext());
+        final ZeppOsActivitySummaryParser parser = new ZeppOsActivitySummaryParser(getContext(), null);
         parser.parseBinaryData(summary, true);
     }
 }

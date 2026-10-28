@@ -91,7 +91,7 @@ object ZeppOsWorkoutCodes {
         WorkoutWeightType.MANUAL -> WEIGHT_MODE_MANUAL
         WorkoutWeightType.RM -> WEIGHT_MODE_RM
         WorkoutWeightType.BODY_WEIGHT -> WEIGHT_MODE_BODY_WEIGHT
-        WorkoutWeightType.NONE, WorkoutWeightType.PERCENT_1RM -> null
+        WorkoutWeightType.NONE, WorkoutWeightType.PERCENT_1RM, WorkoutWeightType.LOAD_CATEGORY -> null
     }
 
     /**

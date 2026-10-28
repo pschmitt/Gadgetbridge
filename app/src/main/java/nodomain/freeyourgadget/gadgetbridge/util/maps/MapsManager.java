@@ -18,6 +18,8 @@ package nodomain.freeyourgadget.gadgetbridge.util.maps;
 
 import android.content.Context;
 
+import androidx.annotation.Nullable;
+
 import org.mapsforge.core.graphics.Paint;
 import org.mapsforge.core.graphics.Style;
 import org.mapsforge.core.model.BoundingBox;
@@ -46,6 +48,13 @@ public final class MapsManager {
     public static final String PREF_MAPS_FOLDER = "maps_folder";
     public static final String PREF_TRACK_COLOR = "maps_track_color";
     public static final String PREF_MAP_THEME = "maps_theme";
+    public static final String PREF_MAP_THEME_DARK = "maps_theme_dark";
+    /** Theme value that uses the user-picked theme file instead of a bundled theme. */
+    public static final String MAP_THEME_VALUE_CUSTOM = "custom";
+    /** Content URI of the user-picked render theme, used when the theme is custom. */
+    public static final String PREF_MAP_THEME_CUSTOM_URI = "maps_theme_custom_uri";
+    /** Content URI of the user-picked render theme, used in dark mode when the dark theme is custom. */
+    public static final String PREF_MAP_THEME_DARK_CUSTOM_URI = "maps_theme_dark_custom_uri";
 
     private final Context mContext;
     private final MapView mapView;
@@ -101,6 +110,9 @@ public final class MapsManager {
         tileRendererLayer.setXmlRenderTheme(mapDataLoader.resolveTheme());
         // Do not add the tile renderer layer before setting the bounding box in setTrack,
         // otherwise we load the entire map to memory and might crash with OOM
+        if (tileRenderedAdded) {
+            mapView.getLayerManager().getLayers().add(0, tileRendererLayer);
+        }
     }
 
     public boolean isMapLoaded() {
@@ -153,7 +165,6 @@ public final class MapsManager {
         final double minLat = latitudeAccumulator.getMin();
         final double maxLon = longitudeAccumulator.getMax();
         final double minLon = longitudeAccumulator.getMin();
-        final LatLong center = new LatLong(minLat + (maxLat - minLat) / 2, minLon + (maxLon - minLon) / 2);
 
         final List<LatLong> points = trackPoints.stream()
                 .map(p -> new LatLong(p.getLatitude(), p.getLongitude()))
@@ -171,15 +182,47 @@ public final class MapsManager {
         }
         polyline.setPoints(points);
 
-        mapView.setCenter(center);
+        setBoundingBox(minimalBoundingBox(minLat, minLon, maxLat, maxLon));
+    }
+
+    /**
+     * Moves the view to fit the bounding box.
+     */
+    public void setBoundingBox(final BoundingBox boundingBox) {
+        mapView.setCenter(boundingBox.getCenterPoint());
 
         final byte zoom = LatLongUtils.zoomForBounds(
                 new Dimension(mapView.getWidth(), mapView.getHeight()),
-                minimalBoundingBox(minLat, minLon, maxLat, maxLon),
+                boundingBox,
                 mapView.getModel().displayModel.getTileSize()
         );
         mapView.setZoomLevel(zoom);
 
+        addTileRendererLayer();
+    }
+
+    /**
+     * Moves the view to the center at the zoom level.
+     */
+    public void setCenter(final LatLong center, final byte zoom) {
+        mapView.setCenter(center);
+        mapView.setZoomLevel(zoom);
+
+        addTileRendererLayer();
+    }
+
+    /**
+     * Returns the area that the loaded map files cover, or null if no map file is loaded.
+     */
+    @Nullable
+    public BoundingBox getMapBounds() {
+        if (!isMapLoaded || tileRendererLayer == null) {
+            return null;
+        }
+        return tileRendererLayer.getMapDataStore().boundingBox();
+    }
+
+    private void addTileRendererLayer() {
         if (!tileRenderedAdded) {
             mapView.getLayerManager().getLayers().add(0, tileRendererLayer);
             tileRenderedAdded = true;

@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import nodomain.freeyourgadget.gadgetbridge.service.btle.AbstractBTLESingleDeviceSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.BLETypeConversions;
+import nodomain.freeyourgadget.gadgetbridge.service.btle.BleNamesResolver;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.GattCharacteristic;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.GattService;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.TransactionBuilder;
@@ -49,9 +50,9 @@ public class HealthThermometerProfile <T extends AbstractBTLESingleDeviceSupport
     public static final String ACTION_TEMPERATURE_INFO = ACTION_PREFIX + "TEMPERATURE_INFO";
     public static final String EXTRA_TEMPERATURE_INFO = "TEMPERATURE_INFO";
 
-    public static final UUID SERVICE_UUID = GattService.UUID_SERVICE_HEALTH_THERMOMETER;
-    public static final UUID UUID_CHARACTERISTIC_TEMPERATURE_MEASUREMENT = GattCharacteristic.UUID_CHARACTERISTIC_TEMPERATURE_MEASUREMENT;
-    public static final UUID UUID_CHARACTERISTIC_MEASUREMENT_INTERVAL = GattCharacteristic.UUID_CHARACTERISTIC_MEASUREMENT_INTERVAL;
+    public static final UUID SERVICE_UUID = GattService.SERVICE_HEALTH_THERMOMETER.uuid;
+    public static final UUID UUID_CHARACTERISTIC_TEMPERATURE_MEASUREMENT = GattCharacteristic.CHARACTERISTIC_TEMPERATURE_MEASUREMENT.uuid;
+    public static final UUID UUID_CHARACTERISTIC_MEASUREMENT_INTERVAL = GattCharacteristic.CHARACTERISTIC_MEASUREMENT_INTERVAL.uuid;
     private final TemperatureInfo temperatureInfo = new TemperatureInfo();
 
     public HealthThermometerProfile(T support) {
@@ -63,7 +64,7 @@ public class HealthThermometerProfile <T extends AbstractBTLESingleDeviceSupport
     }
 
     public void setMeasurementInterval(TransactionBuilder builder, byte[] value) {
-        builder.write(GattCharacteristic.UUID_CHARACTERISTIC_MEASUREMENT_INTERVAL, value);
+        builder.write(GattCharacteristic.CHARACTERISTIC_MEASUREMENT_INTERVAL.uuid, value);
     }
 
     @Override
@@ -82,10 +83,10 @@ public class HealthThermometerProfile <T extends AbstractBTLESingleDeviceSupport
                 handleTemperatureMeasurement(gatt, characteristic, value);
                 return true;
             } else {
-                LOG.info("Unexpected onCharacteristicRead: " + GattCharacteristic.toString(characteristic));
+                LOG.info("Unexpected onCharacteristicRead: " + BleNamesResolver.toString(characteristic));
             }
         } else {
-            LOG.warn("error reading from characteristic:" + GattCharacteristic.toString(characteristic));
+            LOG.warn("error reading from characteristic:" + BleNamesResolver.toString(characteristic));
         }
         return false;
     }

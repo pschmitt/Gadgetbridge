@@ -308,7 +308,8 @@ class InternetUtils {
          * installed but its (dangerous, runtime) permission was never granted, tell the user to
          * grant it — otherwise point them at the helper itself.
          */
-        private fun noInternetAccessReason(context: android.content.Context): String {
+        @JvmStatic
+        fun noInternetAccessReason(context: android.content.Context): String {
             return when {
                 !AndroidUtils.isPackageInstalled(PermissionsUtils.PACKAGE_INTERNET_HELPER) ->
                     context.getString(R.string.internet_helper_error_no_internet_helper)

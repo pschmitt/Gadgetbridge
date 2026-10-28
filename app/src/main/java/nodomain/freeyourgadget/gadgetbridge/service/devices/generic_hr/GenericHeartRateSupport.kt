@@ -70,17 +70,17 @@ class GenericHeartRateSupport : AbstractBTLESingleDeviceSupport(LOG) {
             }
         }
 
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION)
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid)
         deviceInfoProfile = DeviceInfoProfile<GenericHeartRateSupport>(this)
         deviceInfoProfile.addListener(mListener)
         addSupportedProfile(deviceInfoProfile)
 
-        addSupportedService(GattService.UUID_SERVICE_BATTERY_SERVICE)
+        addSupportedService(GattService.SERVICE_BATTERY.uuid)
         batteryInfoProfile = BatteryInfoProfile<GenericHeartRateSupport>(this)
         batteryInfoProfile.addListener(mListener)
         addSupportedProfile(batteryInfoProfile)
 
-        addSupportedService(GattService.UUID_SERVICE_HEART_RATE)
+        addSupportedService(GattService.SERVICE_HEART_RATE.uuid)
         heartRateProfile = HeartRateProfile<GenericHeartRateSupport>(this)
         heartRateProfile.addListener(mListener)
         addSupportedProfile(heartRateProfile)

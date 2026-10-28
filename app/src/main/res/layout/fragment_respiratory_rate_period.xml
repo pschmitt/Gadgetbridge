@@ -14,22 +14,33 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="@dimen/chart_section_spacing"
             android:gravity="center"
             android:textSize="20sp"
             android:textColor="?attr/textColorPrimary"
             />
 
+        <nodomain.freeyourgadget.gadgetbridge.activities.workouts.SectionHeaderView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:sectionTitle="@string/respiratory_rate_daily" />
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="300sp">
+            android:layout_height="250sp">
 
-            <com.github.mikephil.charting.charts.LineChart
+            <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView
                 android:id="@+id/respiratory_rate_line_chart"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_weight="2" />
         </LinearLayout>
+
+        <nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartLegendView
+            android:id="@+id/respiratory_rate_chart_legend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
 
         <LinearLayout
             android:id="@+id/respiratory_rate_period_stats_container"

@@ -42,7 +42,7 @@ public class AmazfitActiveEdgeCoordinator extends ZeppOsCoordinator {
     @Override
     public Set<Integer> getDeviceSources() {
         return new HashSet<>(Arrays.asList(
-                8388864, // chinese mainland version
+                8388864, // Chinese mainland version
                 8388865
         ));
     }

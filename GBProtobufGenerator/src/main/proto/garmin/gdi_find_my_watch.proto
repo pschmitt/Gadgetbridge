@@ -1,33 +1,33 @@
 syntax = "proto2";
 
-package garmin_vivomovehr;
-
+package GDI.Proto.FindMyWatch;
 option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin";
+option java_outer_classname = "GdiFindMyWatch";
+
+message FindMyWatchCancelRequest {
+}
+
+message FindMyWatchCancelResponse {
+    optional GDI.Proto.FindMyWatch.ResponseStatus status = 1;
+}
+
+message FindMyWatchRequest {
+    optional int32 timeout = 1;
+}
+
+message FindMyWatchResponse {
+    optional GDI.Proto.FindMyWatch.ResponseStatus status = 1;
+}
 
 message FindMyWatchService {
-    optional FindMyWatchRequest find_request = 1;
-    optional FindMyWatchResponse find_response = 2;
-    optional FindMyWatchCancelRequest cancel_request = 3;
-    optional FindMyWatchCancelResponse cancel_response = 4;
+    optional GDI.Proto.FindMyWatch.FindMyWatchRequest find_request = 1;
+    optional GDI.Proto.FindMyWatch.FindMyWatchResponse find_response = 2;
+    optional GDI.Proto.FindMyWatch.FindMyWatchCancelRequest cancel_request = 3;
+    optional GDI.Proto.FindMyWatch.FindMyWatchResponse cancel_response = 4;
+}
 
-    message FindMyWatchRequest {
-        required int32 timeout = 1;
-    }
-
-    message FindMyWatchResponse {
-        optional ResponseStatus status = 1;
-    }
-
-    message FindMyWatchCancelRequest {
-    }
-
-    message FindMyWatchCancelResponse {
-        optional ResponseStatus status = 1;
-    }
-
-    enum ResponseStatus {
-        UNKNOWN_RESPONSE_STATUS = 0;
-        OK = 100;
-        ERROR = 200;
-    }
+enum ResponseStatus {
+    UNKNOWN_RESPONSE_STATUS = 0;
+    OK = 100;
+    ERROR = 200;
 }

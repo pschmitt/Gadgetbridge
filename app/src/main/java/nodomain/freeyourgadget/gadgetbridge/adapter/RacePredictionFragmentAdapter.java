@@ -36,10 +36,10 @@ public class RacePredictionFragmentAdapter extends NestedFragmentAdapter {
     public Fragment createFragment(final int position) {
         switch (position) {
             case 1:
-                return RacePredictionPeriodFragment.newInstance(180, false);
+                return RacePredictionPeriodFragment.newInstance(180);
             case 2:
-                return RacePredictionPeriodFragment.newInstance(365, false);
+                return RacePredictionPeriodFragment.newInstance(365);
         }
-        return RacePredictionPeriodFragment.newInstance(30, true);
+        return RacePredictionPeriodFragment.newInstance(30);
     }
 }

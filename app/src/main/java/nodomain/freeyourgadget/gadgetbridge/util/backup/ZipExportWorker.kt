@@ -107,6 +107,11 @@ class ZipExportWorker(
         notify(NOTIF_ID_FAILURE, builder.build())
     }
 
+    override fun onConfirmationRequired(message: String) {
+        // The export job does not request a confirmation
+        LOG.warn("Unexpected confirmation request: {}", message)
+    }
+
     private fun createForegroundInfo(): ForegroundInfo {
         val notification: Notification =
             NotificationCompat.Builder(mContext, GB.NOTIFICATION_CHANNEL_ID_EXPORT)

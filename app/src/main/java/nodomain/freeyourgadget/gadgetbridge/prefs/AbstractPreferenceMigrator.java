@@ -23,7 +23,11 @@ public abstract class AbstractPreferenceMigrator {
 
     public abstract void migrate(int oldVersion, SharedPreferences sharedPrefs, SharedPreferences.Editor editor);
 
-    protected void migrateChartsPreference(final int version, final String newChart) {
+    /**
+     * Adds the chart to the enabled charts of all devices.
+     * [first] controls whether it is added at the start or at the end of the list.
+     */
+    protected void migrateChartsPreference(final int version, final String newChart, final boolean first) {
         try (DBHandler db = GBApplication.acquireDB()) {
             final DaoSession daoSession = db.getDaoSession();
             final List<Device> activeDevices = DBHelper.getActiveDevices(daoSession);
@@ -40,6 +44,8 @@ public abstract class AbstractPreferenceMigrator {
                     newPrefValue = newChart;
                 } else if (chartsTabsValue.contains(newChart)) {
                     newPrefValue = chartsTabsValue;
+                } else if (first) {
+                    newPrefValue = newChart + "," + chartsTabsValue;
                 } else {
                     newPrefValue = chartsTabsValue + "," + newChart;
                 }

@@ -15,8 +15,16 @@
         android:title="Delete widgets preferences" />
 
     <PreferenceCategory
-        android:key="pref_header_widgets"
-        android:title="Widgets">
+        android:key="pref_header_launcher_widgets_legacy"
+        android:title="Legacy widgets">
+
+        <!-- to be filled up dynamically -->
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="pref_header_launcher_widgets_dashboard"
+        android:title="Dashboard widgets">
 
         <!-- to be filled up dynamically -->
 

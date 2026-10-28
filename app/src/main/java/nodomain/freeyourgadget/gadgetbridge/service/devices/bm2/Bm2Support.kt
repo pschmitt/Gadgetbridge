@@ -45,7 +45,7 @@ class Bm2Support : AbstractBTLESingleDeviceSupport(LOG) {
 
         addSupportedService(UUID_SERVICE_BM2)
 
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION)
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid)
         deviceInfoProfile = DeviceInfoProfile<Bm2Support>(this)
         deviceInfoProfile.addListener(mListener)
         addSupportedProfile(deviceInfoProfile)

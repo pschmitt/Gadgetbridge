@@ -19,7 +19,6 @@ package nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.quatix;
 import java.util.regex.Pattern;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
-import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.fenix.GarminFenix6Coordinator;
 
 public class GarminQuatix6XCoordinator extends GarminQuatix6Coordinator {
     @Override

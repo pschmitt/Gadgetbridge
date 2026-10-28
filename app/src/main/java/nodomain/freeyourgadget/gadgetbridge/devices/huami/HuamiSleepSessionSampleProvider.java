@@ -1,4 +1,4 @@
-/*  Copyright (C) 2025 José Rebelo
+/*  Copyright (C) 2025-2026 José Rebelo
 
     This file is part of Gadgetbridge.
 
@@ -35,7 +35,6 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.BLETypeConversions;
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
-import nodomain.freeyourgadget.gadgetbridge.util.RangeMap;
 
 public class HuamiSleepSessionSampleProvider extends AbstractTimeSampleProvider<HuamiSleepSessionSample> {
     private static final Logger LOG = LoggerFactory.getLogger(HuamiSleepSessionSampleProvider.class);
@@ -67,33 +66,7 @@ public class HuamiSleepSessionSampleProvider extends AbstractTimeSampleProvider<
         return new HuamiSleepSessionSample();
     }
 
-    public RangeMap<Long, ActivityKind> getSleepStages(final long timestampFrom, final long timestampTo) {
-        final RangeMap<Long, ActivityKind> stagesMap = new RangeMap<>(RangeMap.Mode.LOWER_BOUND);
-
-        final List<HuamiSleepSessionSample> sessions = getAllSamples(timestampFrom, timestampTo + 86400_000L);
-
-        for (final HuamiSleepSessionSample rawSession : sessions) {
-            final byte[] bytes = rawSession.getData();
-
-            final int numStages = BLETypeConversions.toUnsigned(bytes, 0x54);
-            if (numStages == 0) {
-                continue;
-            }
-
-            final SleepSession sleepSession = new SleepSession(rawSession.getData());
-
-            stagesMap.put((sleepSession.timestampMidnight - 24 * 3600 + sleepSession.sleepEnd * 60L) * 1000L, ActivityKind.UNKNOWN);
-
-            for (final SleepStage stage : sleepSession.stages) {
-                final int stageStart = sleepSession.timestampMidnight - 24 * 3600 + stage.start * 60;
-                LOG.trace("Sleep stage start at {}", DateTimeUtils.formatIso8601(new Date(stageStart * 1000L)));
-                stagesMap.put(stageStart * 1000L, stage.asActivityKind());
-            }
-        }
-
-        return stagesMap;
-    }
-
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     public static class SleepSession {
         private final int timestampSession;
         private final int timestampMidnight;
@@ -108,6 +81,14 @@ public class HuamiSleepSessionSampleProvider extends AbstractTimeSampleProvider<
         private final int totalLightMinutes;
         private final int totalDeepMinutes;
         private final int totalWakeMinutes;
+
+        public int getTimestampMidnight() {
+            return timestampMidnight;
+        }
+
+        public List<SleepStage> getStages() {
+            return stages;
+        }
 
         public SleepSession(final byte[] bytes) {
             this.timestampSession = BLETypeConversions.toUint32(bytes, 0x00);
@@ -179,18 +160,13 @@ public class HuamiSleepSessionSampleProvider extends AbstractTimeSampleProvider<
         }
 
         public ActivityKind asActivityKind() {
-            switch (type) {
-                case 4:
-                    return ActivityKind.LIGHT_SLEEP;
-                case 5:
-                    return ActivityKind.DEEP_SLEEP;
-                case 8:
-                    return ActivityKind.REM_SLEEP;
-                case 7:
-                    return ActivityKind.AWAKE_SLEEP;
-            }
-
-            return ActivityKind.SLEEP_ANY;
+            return switch (type) {
+                case 4 -> ActivityKind.LIGHT_SLEEP;
+                case 5 -> ActivityKind.DEEP_SLEEP;
+                case 8 -> ActivityKind.REM_SLEEP;
+                case 7 -> ActivityKind.AWAKE_SLEEP;
+                default -> ActivityKind.SLEEP_ANY;
+            };
         }
     }
 }

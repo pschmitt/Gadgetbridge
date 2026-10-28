@@ -37,7 +37,7 @@ public class AmazfitCheetahRoundCoordinator extends ZeppOsCoordinator {
     @Override
     public Set<Integer> getDeviceSources() {
         return new HashSet<>(Arrays.asList(
-                8192256, // chinese mainland version
+                8192256, // Chinese mainland version
                 8192257
         ));
     }

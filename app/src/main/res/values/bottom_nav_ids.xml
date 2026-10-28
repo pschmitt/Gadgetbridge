@@ -1,0 +1,5 @@
+<resources>
+    <item name="bottom_nav_dashboard" type="id"/>
+    <item name="bottom_nav_workouts" type="id"/>
+    <item name="bottom_nav_devices" type="id"/>
+</resources>

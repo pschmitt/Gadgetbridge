@@ -18,8 +18,6 @@
 */
 package nodomain.freeyourgadget.gadgetbridge.activities.charts;
 
-import android.graphics.Bitmap;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,38 +26,34 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import com.github.mikephil.charting.charts.Chart;
-import com.github.mikephil.charting.charts.CombinedChart;
-import com.github.mikephil.charting.components.LegendEntry;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.CandleData;
-import com.github.mikephil.charting.data.CandleDataSet;
-import com.github.mikephil.charting.data.CandleEntry;
-import com.github.mikephil.charting.data.CombinedData;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
+
+import kotlin.jvm.functions.Function1;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.HeartRateUtils;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.bloodpressure.BloodPressureChartData;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartLegendView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.DaySelections;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.GbChartView;
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.spec.ChartSpec;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileData;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileGridUtilKt;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
@@ -77,16 +71,14 @@ public class BloodPressurePeriodFragment extends AbstractChartFragment<BloodPres
     static int SEC_PER_DAY = 24 * 60 * 60;
     static int DATA_INVALID = -1;
 
-    private int BACKGROUND_COLOR;
-    private int CHART_TEXT_COLOR;
-    private int LEGEND_TEXT_COLOR;
     private int SYSTOLIC_COLOR;
     private int DIASTOLIC_COLOR;
     private int HEART_RATE_COLOR;
 
     private TextView mDateView;
     private LinearLayout mStatsContainer;
-    private CombinedChart mChart;
+    private GbChartView mChart;
+    private ChartLegendView mLegend;
     private int TOTAL_DAYS;
     private List<? extends BloodPressureSample> allSamples;
 
@@ -111,37 +103,31 @@ public class BloodPressurePeriodFragment extends AbstractChartFragment<BloodPres
 
     @Override
     protected void init() {
-        BACKGROUND_COLOR = GBApplication.getBackgroundColor(requireContext());
-        LEGEND_TEXT_COLOR = GBApplication.getTextColor(requireContext());
-        CHART_TEXT_COLOR = GBApplication.getSecondaryTextColor(requireContext());
         SYSTOLIC_COLOR = ContextCompat.getColor(requireContext(), R.color.blood_pressure_systolic_color);
         DIASTOLIC_COLOR = ContextCompat.getColor(requireContext(), R.color.blood_pressure_diastolic_color);
-        if (GBApplication.getPrefs().getBoolean("chart_heartrate_color", false)) {
-            HEART_RATE_COLOR = ContextCompat.getColor(requireContext(), R.color.chart_heartrate_alternative);
-        } else {
-            HEART_RATE_COLOR = ContextCompat.getColor(requireContext(), R.color.chart_heartrate);
-        }
+        HEART_RATE_COLOR = ContextCompat.getColor(requireContext(), GBApplication.getPrefs().getChartsHeartRateColor().getColorRes());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_blood_pressure_period, container, false);
 
-        rootView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) ->
-                getChartsHost().enableSwipeRefresh(scrollY == 0)
+        final View scrollView = rootView.findViewById(R.id.bp_scroll_view);
+        scrollView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) ->
+            getChartsHost().enableSwipeRefresh(scrollY == 0)
         );
 
         mDateView = rootView.findViewById(R.id.date_view);
         mStatsContainer = rootView.findViewById(R.id.bp_stats_container);
         mChart = rootView.findViewById(R.id.blood_pressure_chart);
-
-        setupChart();
+        mLegend = rootView.findViewById(R.id.blood_pressure_period_legend);
+        mChart.setZoomable(TOTAL_DAYS > 7);
+        mChart.dismissSelectionOnTapOutside(scrollView);
 
         FloatingActionButton exportFab = rootView.findViewById(R.id.bp_export_fab);
         exportFab.setOnClickListener(v -> showExportDialog());
 
         refresh();
-        setupLegend(mChart);
 
         return rootView;
     }
@@ -152,12 +138,13 @@ public class BloodPressurePeriodFragment extends AbstractChartFragment<BloodPres
     }
 
     private int getStartTs() {
-        Calendar day = Calendar.getInstance();
+        final Calendar day = Calendar.getInstance();
         day.setTime(getEndDate());
         day.set(Calendar.HOUR_OF_DAY, 0);
         day.set(Calendar.MINUTE, 0);
         day.set(Calendar.SECOND, 0);
-        return (int) (day.getTimeInMillis() / 1000) - SEC_PER_DAY * (TOTAL_DAYS - 1);
+        day.add(Calendar.DATE, -(TOTAL_DAYS - 1));
+        return (int) (day.getTimeInMillis() / 1000);
     }
 
     private BloodPressureDayData fetchDataForDay(DBHandler db, GBDevice device, int startTs) {
@@ -222,23 +209,28 @@ public class BloodPressurePeriodFragment extends AbstractChartFragment<BloodPres
         final Accumulator systolicAvgAcc = new Accumulator();
         final Accumulator diastolicAvgAcc = new Accumulator();
 
-        final ArrayList<CandleEntry> systolicCandleEntries = new ArrayList<>();
-        final ArrayList<CandleEntry> diastolicCandleEntries = new ArrayList<>();
-        final ArrayList<Entry> heartRateEntries = new ArrayList<>();
-
-        for (int i = 0; i < data.days.size(); i++) {
+        final int n = data.days.size();
+        final long firstDay = Instant.ofEpochSecond(startTs).atZone(ZoneId.systemDefault()).toLocalDate().toEpochDay();
+        final long[] epochDays = new long[n];
+        final int[] systolicMin = new int[n];
+        final int[] systolicMax = new int[n];
+        final int[] diastolicMin = new int[n];
+        final int[] diastolicMax = new int[n];
+        final int[] heartRateAvg = new int[n];
+        for (int i = 0; i < n; i++) {
             final BloodPressureDayData dayData = data.days.get(i);
+            epochDays[i] = firstDay + i;
             if (dayData.systolicMin > 0 && dayData.systolicMax > 0) {
                 systolicAvgAcc.add(dayData.systolicAvg);
-                systolicCandleEntries.add(new CandleEntry(i, dayData.systolicMax, dayData.systolicMin, dayData.systolicMin, dayData.systolicMax));
+                systolicMin[i] = dayData.systolicMin;
+                systolicMax[i] = dayData.systolicMax;
             }
             if (dayData.diastolicMin > 0 && dayData.diastolicMax > 0) {
                 diastolicAvgAcc.add(dayData.diastolicAvg);
-                diastolicCandleEntries.add(new CandleEntry(i, dayData.diastolicMax, dayData.diastolicMin, dayData.diastolicMin, dayData.diastolicMax));
+                diastolicMin[i] = dayData.diastolicMin;
+                diastolicMax[i] = dayData.diastolicMax;
             }
-            if (dayData.heartRateAvg > 0) {
-                heartRateEntries.add(new Entry(i, dayData.heartRateAvg));
-            }
+            heartRateAvg[i] = Math.max(dayData.heartRateAvg, 0);
         }
 
         final String emptyValue = requireContext().getString(R.string.stats_empty_value);
@@ -261,8 +253,8 @@ public class BloodPressurePeriodFragment extends AbstractChartFragment<BloodPres
         }
 
         final String average = (systolicAvg > 0 && diastolicAvg > 0)
-                ? getString(R.string.blood_pressure_avg_format, systolicAvg, diastolicAvg)
-                : emptyValue;
+            ? getString(R.string.blood_pressure_avg_format, systolicAvg, diastolicAvg)
+            : emptyValue;
 
         final List<StatTileData> stats = new ArrayList<>();
         stats.add(new StatTileData(systolicLast > 0 ? String.valueOf(systolicLast) : emptyValue, getString(R.string.blood_pressure_systolic)));
@@ -272,62 +264,27 @@ public class BloodPressurePeriodFragment extends AbstractChartFragment<BloodPres
         mStatsContainer.removeAllViews();
         StatTileGridUtilKt.addStatTileGrid(mStatsContainer, requireContext(), stats, 0);
 
-        mChart.getXAxis().setValueFormatter(createDayFormatter(startTs));
-
-        final CombinedData combinedData = new CombinedData();
-
-        // Systolic candle data (range bars)
-        if (!systolicCandleEntries.isEmpty()) {
-            CandleDataSet systolicCandleDataSet = new CandleDataSet(systolicCandleEntries, getString(R.string.blood_pressure_systolic));
-            systolicCandleDataSet.setDrawValues(false);
-            systolicCandleDataSet.setDrawIcons(false);
-            systolicCandleDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-            systolicCandleDataSet.setShadowColor(SYSTOLIC_COLOR);
-            systolicCandleDataSet.setShadowWidth(2f);
-            systolicCandleDataSet.setDecreasingColor(SYSTOLIC_COLOR);
-            systolicCandleDataSet.setDecreasingPaintStyle(Paint.Style.FILL);
-            systolicCandleDataSet.setIncreasingColor(SYSTOLIC_COLOR);
-            systolicCandleDataSet.setIncreasingPaintStyle(Paint.Style.FILL);
-            systolicCandleDataSet.setNeutralColor(SYSTOLIC_COLOR);
-            systolicCandleDataSet.setBarSpace(0.15f);
-            systolicCandleDataSet.setShowCandleBar(true);
-
-            // Diastolic candle data as second set
-            if (!diastolicCandleEntries.isEmpty()) {
-                CandleDataSet diastolicCandleDataSet = new CandleDataSet(diastolicCandleEntries, getString(R.string.blood_pressure_diastolic));
-                diastolicCandleDataSet.setDrawValues(false);
-                diastolicCandleDataSet.setDrawIcons(false);
-                diastolicCandleDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-                diastolicCandleDataSet.setShadowColor(DIASTOLIC_COLOR);
-                diastolicCandleDataSet.setShadowWidth(2f);
-                diastolicCandleDataSet.setDecreasingColor(DIASTOLIC_COLOR);
-                diastolicCandleDataSet.setDecreasingPaintStyle(Paint.Style.FILL);
-                diastolicCandleDataSet.setIncreasingColor(DIASTOLIC_COLOR);
-                diastolicCandleDataSet.setIncreasingPaintStyle(Paint.Style.FILL);
-                diastolicCandleDataSet.setNeutralColor(DIASTOLIC_COLOR);
-                diastolicCandleDataSet.setBarSpace(0.15f);
-                diastolicCandleDataSet.setShowCandleBar(true);
-                combinedData.setData(new CandleData(systolicCandleDataSet, diastolicCandleDataSet));
-            } else {
-                combinedData.setData(new CandleData(systolicCandleDataSet));
-            }
-        }
-
-        // Heart rate line data
-        if (!heartRateEntries.isEmpty()) {
-            final LineDataSet heartRateDataSet = new LineDataSet(heartRateEntries, getString(R.string.heart_rate));
-            heartRateDataSet.setColor(HEART_RATE_COLOR);
-            heartRateDataSet.setCircleColor(HEART_RATE_COLOR);
-            heartRateDataSet.setDrawCircles(true);
-            heartRateDataSet.setCircleRadius(3f);
-            heartRateDataSet.setDrawCircleHole(false);
-            heartRateDataSet.setLineWidth(2.2f);
-            heartRateDataSet.setDrawValues(false);
-            heartRateDataSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
-            combinedData.setData(new LineData(heartRateDataSet));
-        }
-
-        mChart.setData(combinedData);
+        final String pressureUnit = getString(R.string.unit_millimetre_of_mercury);
+        final String pulseUnit = getString(R.string.bpm);
+        final List<String> labels = Arrays.asList(
+            getString(R.string.blood_pressure_systolic),
+            getString(R.string.blood_pressure_diastolic),
+            getString(R.string.heart_rate)
+        );
+        final List<Integer> colors = Arrays.asList(SYSTOLIC_COLOR, DIASTOLIC_COLOR, HEART_RATE_COLOR);
+        final ChartSpec spec = BloodPressureChartData.periodSpec(
+            epochDays, systolicMin, systolicMax, diastolicMin, diastolicMax, heartRateAvg,
+            labels.toArray(new String[0]), new int[]{SYSTOLIC_COLOR, DIASTOLIC_COLOR, HEART_RATE_COLOR},
+            pressureUnit, pulseUnit,
+            HeartRateUtils.getInstance().getMinHeartRate(), HeartRateUtils.getInstance().getMaxHeartRate()
+        );
+        final List<Function1<Integer, String>> rowTexts = new ArrayList<>();
+        rowTexts.add(i -> systolicMin[i] > 0 ? systolicMin[i] + " \u2013 " + systolicMax[i] + " " + pressureUnit : emptyValue);
+        rowTexts.add(i -> diastolicMin[i] > 0 ? diastolicMin[i] + " \u2013 " + diastolicMax[i] + " " + pressureUnit : emptyValue);
+        rowTexts.add(i -> heartRateAvg[i] > 0 ? heartRateAvg[i] + " " + pulseUnit : emptyValue);
+        mChart.setSelectionContent(x -> DaySelections.of(epochDays, x, labels, colors, rowTexts, emptyValue));
+        mChart.setSpec(spec);
+        mLegend.setSeries(spec.getSeries().size() > 1 ? spec.getSeries() : Collections.emptyList());
     }
 
     private void showExportDialog() {
@@ -336,140 +293,20 @@ public class BloodPressurePeriodFragment extends AbstractChartFragment<BloodPres
         }
         String dateLabel = mDateView.getText().toString();
         String[] options = {"PDF", "CSV"};
-        new AlertDialog.Builder(requireContext())
-                .setTitle(R.string.appmanager_app_share)
-                .setItems(options, (dialog, which) -> {
-                    if (which == 0) {
-                        BloodPressureExportHelper.exportPdf(requireContext(), allSamples, dateLabel, getWhiteChartBitmap());
-                    } else {
-                        BloodPressureExportHelper.exportCsv(requireContext(), allSamples);
-                    }
-                })
-                .show();
-    }
-
-    private ValueFormatter createDayFormatter(final int startTs) {
-        final String fmt = TOTAL_DAYS == 7 ? "EEE" : "dd";
-        final SimpleDateFormat formatDay = new SimpleDateFormat(fmt, Locale.getDefault());
-        return new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                int dayIndex = Math.round(value);
-                if (dayIndex < 0 || dayIndex >= TOTAL_DAYS) {
-                    return "";
+        new MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.appmanager_app_share)
+            .setItems(options, (dialog, which) -> {
+                if (which == 0) {
+                    BloodPressureExportHelper.exportPdf(requireContext(), allSamples, dateLabel, mChart.toLightBitmap());
+                } else {
+                    BloodPressureExportHelper.exportCsv(requireContext(), allSamples);
                 }
-                int ts = startTs + SEC_PER_DAY * dayIndex;
-                return formatDay.format(new Date(ts * 1000L));
-            }
-        };
-    }
-
-    private Bitmap getWhiteChartBitmap() {
-        // Temporarily switch to light colors for PDF export
-        mChart.setBackgroundColor(0xFFFFFFFF);
-        mChart.getXAxis().setTextColor(0xFF000000);
-        mChart.getAxisLeft().setTextColor(0xFF000000);
-        mChart.getAxisRight().setTextColor(0xFF000000);
-        mChart.getAxisRight().setAxisLineColor(0xFF000000);
-        mChart.getLegend().setTextColor(0xFF000000);
-        mChart.invalidate();
-
-        Bitmap bitmap = mChart.getChartBitmap();
-
-        // Restore original colors
-        mChart.setBackgroundColor(BACKGROUND_COLOR);
-        mChart.getXAxis().setTextColor(CHART_TEXT_COLOR);
-        mChart.getAxisLeft().setTextColor(CHART_TEXT_COLOR);
-        mChart.getAxisRight().setTextColor(CHART_TEXT_COLOR);
-        mChart.getLegend().setTextColor(LEGEND_TEXT_COLOR);
-        mChart.invalidate();
-
-        return bitmap;
-    }
-
-    private void setupChart() {
-        mChart.setBackgroundColor(BACKGROUND_COLOR);
-        mChart.getDescription().setEnabled(false);
-        mChart.setDrawOrder(new CombinedChart.DrawOrder[]{
-                CombinedChart.DrawOrder.CANDLE,
-                CombinedChart.DrawOrder.LINE
-        });
-
-        if (TOTAL_DAYS <= 7) {
-            mChart.setTouchEnabled(false);
-            mChart.setPinchZoom(false);
-        }
-        mChart.setDoubleTapToZoomEnabled(false);
-
-        final XAxis xAxisBottom = mChart.getXAxis();
-        xAxisBottom.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxisBottom.setDrawLabels(true);
-        xAxisBottom.setDrawGridLines(false);
-        xAxisBottom.setEnabled(true);
-        xAxisBottom.setDrawLimitLinesBehindData(true);
-        xAxisBottom.setTextColor(CHART_TEXT_COLOR);
-        xAxisBottom.setGranularity(1f);
-        xAxisBottom.setGranularityEnabled(true);
-        xAxisBottom.setAxisMinimum(-0.5f);
-        xAxisBottom.setAxisMaximum(TOTAL_DAYS - 0.5f);
-
-        final YAxis yAxisLeft = mChart.getAxisLeft();
-        yAxisLeft.setDrawGridLines(true);
-        yAxisLeft.setAxisMaximum(200f);
-        yAxisLeft.setAxisMinimum(40f);
-        yAxisLeft.setDrawTopYLabelEntry(true);
-        yAxisLeft.setTextColor(CHART_TEXT_COLOR);
-        yAxisLeft.setEnabled(true);
-        yAxisLeft.setGranularity(10f);
-        yAxisLeft.setGranularityEnabled(true);
-        final String unitMmHg = getString(R.string.unit_millimetre_of_mercury);
-        yAxisLeft.setValueFormatter(new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                return String.format(Locale.ROOT, "%d " + unitMmHg, (int) value);
-            }
-        });
-
-        final YAxis yAxisRight = mChart.getAxisRight();
-        yAxisRight.setEnabled(true);
-        yAxisRight.setDrawLabels(true);
-        yAxisRight.setDrawGridLines(false);
-        yAxisRight.setDrawAxisLine(true);
-        yAxisRight.setDrawTopYLabelEntry(true);
-        yAxisRight.setTextColor(CHART_TEXT_COLOR);
-        yAxisRight.setAxisMaximum(HeartRateUtils.getInstance().getMaxHeartRate());
-        yAxisRight.setAxisMinimum(HeartRateUtils.getInstance().getMinHeartRate());
-        final String unitBpm = getString(R.string.bpm);
-        yAxisRight.setValueFormatter(new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                return String.format(Locale.ROOT, "%d " + unitBpm, (int) value);
-            }
-        });
+            })
+            .show();
     }
 
     @Override
     protected void setupLegend(Chart<?> chart) {
-        List<LegendEntry> legendEntries = new ArrayList<>(3);
-
-        LegendEntry systolicEntry = new LegendEntry();
-        systolicEntry.label = getString(R.string.blood_pressure_systolic);
-        systolicEntry.formColor = SYSTOLIC_COLOR;
-        legendEntries.add(systolicEntry);
-
-        LegendEntry diastolicEntry = new LegendEntry();
-        diastolicEntry.label = getString(R.string.blood_pressure_diastolic);
-        diastolicEntry.formColor = DIASTOLIC_COLOR;
-        legendEntries.add(diastolicEntry);
-
-        LegendEntry heartRateEntry = new LegendEntry();
-        heartRateEntry.label = getString(R.string.heart_rate);
-        heartRateEntry.formColor = HEART_RATE_COLOR;
-        legendEntries.add(heartRateEntry);
-
-        mChart.getLegend().setCustom(legendEntries);
-        mChart.getLegend().setTextColor(LEGEND_TEXT_COLOR);
-        mChart.getLegend().setWordWrapEnabled(true);
     }
 
     @Override

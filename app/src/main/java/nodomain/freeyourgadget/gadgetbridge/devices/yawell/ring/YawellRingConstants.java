@@ -46,6 +46,7 @@ public class YawellRingConstants {
     public static final byte CMD_SYNC_ACTIVITY = 0x43;
     public static final byte CMD_FIND_DEVICE = 0x50;
     public static final byte CMD_MANUAL_HEART_RATE = 0x69;
+    public static final byte CMD_PUSH_MESSAGE = 0x72;
     public static final byte CMD_NOTIFICATION = 0x73;
     public static final byte CMD_BIG_DATA_V2 = (byte) 0xbc;
     public static final byte CMD_FACTORY_RESET = (byte) 0xff;
@@ -59,6 +60,15 @@ public class YawellRingConstants {
     public static final byte NOTIFICATION_NEW_STEPS_DATA = 0x04;
     public static final byte NOTIFICATION_BATTERY_LEVEL = 0x0c;
     public static final byte NOTIFICATION_LIVE_ACTIVITY = 0x12;
+
+    // Push message types. The H59 firmware vibrates for types 0x01-0x0e
+    // (all with the same short buzz) and ignores 0x0f and above.
+    public static final byte PUSH_TYPE_CALL_INCOMING = 0x00;
+    public static final byte PUSH_TYPE_SMS = 0x01;
+    public static final byte PUSH_TYPE_CALL_STOP = 0x04;
+    public static final int PUSH_CHUNK_SIZE = 11;
+    public static final int PUSH_MAX_CHUNKS = 4;
+    public static final String PREF_NOTIFICATION_VIBRATION_COUNT = "yawell_notification_vibration_count";
 
     public static final byte BIG_DATA_TYPE_TEMPERATURE = 0x25;
     public static final byte BIG_DATA_TYPE_SLEEP = 0x27;

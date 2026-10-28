@@ -47,7 +47,7 @@ public class GarminPaiSampleProvider implements TimeSampleProvider<PaiSample> {
     @NonNull
     @Override
     public List<PaiSample> getAllSamples(final long timestampFrom, final long timestampTo) {
-        // Intensity minutes reset every monday, so we need to go to the previous monday if we
+        // Intensity minutes reset every Monday, so we need to go to the previous Monday if we
         // are not there yet
         final ZoneId tz = ZoneId.systemDefault();
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestampFrom), tz);
@@ -73,7 +73,7 @@ public class GarminPaiSampleProvider implements TimeSampleProvider<PaiSample> {
         for (final GarminIntensityMinutesSample sample : allSamples) {
             final LocalDate sampleDate = LocalDate.ofInstant(Instant.ofEpochMilli(sample.getTimestamp()), tz);
 
-            // Since we only persist minute samples for days where there was activity, we need to fill any gaps
+            // Since we only persist minute samples for days when there was activity, we need to fill any gaps
             for (LocalDate d = lastSampleDate.plusDays(1); d.isBefore(sampleDate); d = d.plusDays(1)) {
                 if (lastSampleDate.getDayOfWeek() != d.getDayOfWeek()) {
                     currentDay = 0;

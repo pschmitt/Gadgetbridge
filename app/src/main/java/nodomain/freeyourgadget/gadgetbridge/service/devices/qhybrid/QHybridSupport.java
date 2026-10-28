@@ -143,10 +143,10 @@ public class QHybridSupport extends QHybridBaseSupport {
         super(logger);
         addSupportedService(UUID.fromString("108b5094-4c03-e51c-555e-105d1a1155f0"));
         addSupportedService(UUID.fromString("3dda0001-957f-7d4a-34a6-74696673696d"));
-        addSupportedService(GattService.UUID_SERVICE_DEVICE_INFORMATION);
-        addSupportedService(GattService.UUID_SERVICE_GENERIC_ACCESS);
-        addSupportedService(GattService.UUID_SERVICE_HEART_RATE);
-        addSupportedService(GattService.UUID_SERVICE_BATTERY_SERVICE);
+        addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
+        addSupportedService(GattService.SERVICE_GAP.uuid);
+        addSupportedService(GattService.SERVICE_HEART_RATE.uuid);
+        addSupportedService(GattService.SERVICE_BATTERY.uuid);
         IntentFilter commandFilter = new IntentFilter(QHYBRID_COMMAND_CONTROL);
         commandFilter.addAction(QHYBRID_COMMAND_UNCONTROL);
         commandFilter.addAction(QHYBRID_COMMAND_SET);

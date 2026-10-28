@@ -26,6 +26,7 @@ import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.model.NotificationSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.WeatherSpec;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.BLETypeConversions;
+import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.calendar.CalendarEvent;
 
 public class G1Communications {
@@ -794,12 +795,10 @@ public class G1Communications {
                 notificationJson.put("app_identifier",
                                      notificationSpec.getSourceAppId().substring(
                                              0,Math.min(notificationSpec.getSourceAppId().length(), 31)));
-                if (notificationSpec.getTitle() != null)
-                    notificationJson.put("title", notificationSpec.getTitle());
+                notificationJson.put("title", StringUtils.ensureNotNull(notificationSpec.getTitle()));
                 if (notificationSpec.getSubject() != null)
                     notificationJson.put("subtitle", notificationSpec.getSubject());
-                if (notificationSpec.getBody() != null)
-                    notificationJson.put("message", notificationSpec.getBody());
+                notificationJson.put("message", StringUtils.ensureNotNull(notificationSpec.getBody()));
                 notificationJson.put("time_s", notificationSpec.getWhen() / 1000);
                 notificationJson.put("date", new Date(notificationSpec.getWhen()).toString());
                 notificationJson.put("display_name", notificationSpec.getSourceName());

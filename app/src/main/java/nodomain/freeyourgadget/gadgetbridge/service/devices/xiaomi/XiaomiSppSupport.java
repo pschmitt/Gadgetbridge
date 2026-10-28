@@ -124,6 +124,7 @@ public class XiaomiSppSupport extends XiaomiConnectionSupport {
     public void dispose() {
         commsSupport.dispose();
         mVersionResponseTimeoutHandler.removeCallbacksAndMessages(null);
+        mProtocol.dispose();
     }
 
     protected XiaomiAuthService getAuthService() {
@@ -239,9 +240,9 @@ public class XiaomiSppSupport extends XiaomiConnectionSupport {
         final byte[] commandBytes = command.toByteArray();
         LOG.debug("sendCommand(): encoded command for task '{}': {}", builder.getTaskName(), GB.lazyHexdump(commandBytes));
         if (command.getType() == XiaomiAuthService.COMMAND_TYPE) {
-            builder.write(mProtocol.encodePacket(Channel.Authentication, commandBytes));
+            mProtocol.writePacket(builder, Channel.Authentication, commandBytes);
         } else {
-            builder.write(mProtocol.encodePacket(Channel.ProtobufCommand, commandBytes));
+            mProtocol.writePacket(builder, Channel.ProtobufCommand, commandBytes);
         }
         // do not queue here, that's the job of the caller
     }
@@ -249,9 +250,9 @@ public class XiaomiSppSupport extends XiaomiConnectionSupport {
     @Override
     public void sendDataChunk(final String taskName, final byte[] chunk, @Nullable final XiaomiSendCallback callback) {
         LOG.debug("sendDataChunk(): encoded data chunk for task '{}': {}", taskName, GB.lazyHexdump(chunk));
-        this.commsSupport.createTransactionBuilder("send " + taskName)
-            .write(mProtocol.encodePacket(Channel.Data, chunk))
-            .queue();
+        final TransactionBuilder builder = this.commsSupport.createTransactionBuilder("send " + taskName);
+        mProtocol.writePacket(builder, Channel.Data, chunk);
+        builder.queue();
 
         if (callback != null) {
             // callback puts a SetProgressAction onto the queue
@@ -273,6 +274,7 @@ public class XiaomiSppSupport extends XiaomiConnectionSupport {
             // TODO handle different protocol versions
             if (payloadBytes[0] >= 2) {
                 LOG.info("handleVersionPacket(): detected protocol version higher than 2, switching protocol");
+                mProtocol.dispose();
                 mProtocol = new XiaomiSppProtocolV2(this);
             }
         }
@@ -286,6 +288,7 @@ public class XiaomiSppSupport extends XiaomiConnectionSupport {
         buffer.reset();
         mVersionResponseTimeoutHandler.removeCallbacksAndMessages(null);
         // FIXME this is a bit ugly, reset the protocol back to V1 so we're able to parse the version packet
+        mProtocol.dispose();
         mProtocol = new XiaomiSppProtocolV1(this);
     }
 
