@@ -162,6 +162,9 @@ public abstract class AbstractAppManagerFragment extends Fragment {
                 if (appstoreIdEntry != null && appstoreIdEntry.getUpdateAvailable()) {
                     app.setUpToDate(false);
                 }
+                if (!isCacheManager() && !isUpdateManager()) {
+                    app.setOnDevice(true);
+                }
             }
             LOG.debug("App list refresh: " + app.getName() + ", isUpToDate=" + app.isUpToDate());
             if (filterApp(app)) {
