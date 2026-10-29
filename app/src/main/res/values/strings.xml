@@ -6706,4 +6706,5 @@
     <string name="vendor_data_import_garmin_step_4">Download the zip file to this phone. Do not extract it.</string>
     <string name="vendor_data_import_garmin_step_5">Select the zip file.</string>
     <string name="vendor_data_import_garmin_unknown_product">Garmin product %1$d</string>
+    <string name="appmanager_everything_up_to_date_message">Everything is up to date</string>
 </resources>
