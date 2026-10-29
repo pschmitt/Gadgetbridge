@@ -153,8 +153,8 @@ public class ZeppECoordinator extends HuamiCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return ZeppESupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new ZeppESupport();
     }
 
     @Override

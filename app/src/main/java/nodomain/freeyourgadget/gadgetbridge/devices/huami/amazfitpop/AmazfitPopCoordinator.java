@@ -50,7 +50,7 @@ public class AmazfitPopCoordinator extends AmazfitBipUCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return AmazfitPopSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new AmazfitPopSupport();
     }
 }

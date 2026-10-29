@@ -47,8 +47,8 @@ public class DomyosT540Coordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return DomyosT540Support.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new DomyosT540Support();
     }
 
     @Override

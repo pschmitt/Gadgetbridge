@@ -158,8 +158,8 @@ public class AmazfitGTS2Coordinator extends HuamiCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return AmazfitGTS2Support.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new AmazfitGTS2Support();
     }
 
     @Override

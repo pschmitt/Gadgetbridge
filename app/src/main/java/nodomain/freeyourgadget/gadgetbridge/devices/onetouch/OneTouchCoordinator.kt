@@ -21,8 +21,8 @@ class OneTouchCoordinator : AbstractBLEDeviceCoordinator() {
         return "LifeScan"
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport?> {
-        return OneTouchSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return OneTouchSupport()
     }
 
     override fun getInitialFlags(): EnumSet<ServiceDeviceSupport.Flags> {

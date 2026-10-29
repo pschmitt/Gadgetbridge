@@ -36,8 +36,8 @@ class SinilinkCoordinator : AbstractBLEDeviceCoordinator() {
         return "Xinyi Electronics"
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport?> {
-        return SinilinkSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return SinilinkSupport()
     }
 
     override fun getBondingStyle(): Int {

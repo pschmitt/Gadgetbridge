@@ -103,8 +103,8 @@ public class No1F1Coordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return No1F1Support.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new No1F1Support();
     }
 
 

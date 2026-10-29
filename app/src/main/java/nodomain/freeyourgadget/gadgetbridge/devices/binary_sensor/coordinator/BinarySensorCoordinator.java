@@ -78,8 +78,8 @@ public class BinarySensorCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return BinarySensorSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new BinarySensorSupport();
     }
 
     @Override

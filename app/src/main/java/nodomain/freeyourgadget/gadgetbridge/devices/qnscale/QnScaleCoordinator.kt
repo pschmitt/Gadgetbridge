@@ -66,8 +66,8 @@ class QnScaleCoordinator : AbstractBLEDeviceCoordinator() {
         return true
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport?> {
-        return QnScaleDeviceSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return QnScaleDeviceSupport()
     }
 
     override fun getDeviceNameResource(): Int {

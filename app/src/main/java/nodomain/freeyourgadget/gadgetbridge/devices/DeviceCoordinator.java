@@ -1202,8 +1202,11 @@ public interface DeviceCoordinator {
 
     int getOrderPriority();
 
+    /**
+     * Instantiates a new {@link  DeviceSupport}.
+     */
     @NonNull
-    Class<? extends DeviceSupport> getDeviceSupportClass(@NonNull final GBDevice device);
+    DeviceSupport createDeviceSupport(@NonNull final GBDevice device);
 
     EnumSet<ServiceDeviceSupport.Flags> getInitialFlags();
 

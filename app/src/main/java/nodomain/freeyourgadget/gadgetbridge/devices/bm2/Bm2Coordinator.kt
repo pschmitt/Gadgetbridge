@@ -17,8 +17,8 @@ class Bm2Coordinator : AbstractBLEDeviceCoordinator() {
         return "Matson"
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return Bm2Support::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return Bm2Support()
     }
 
     override fun getDeviceNameResource(): Int {

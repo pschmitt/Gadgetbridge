@@ -56,8 +56,8 @@ public class NutCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return NutSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new NutSupport();
     }
 
     @Override

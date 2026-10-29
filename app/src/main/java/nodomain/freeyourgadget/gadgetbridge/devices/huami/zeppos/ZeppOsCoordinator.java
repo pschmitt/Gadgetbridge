@@ -119,7 +119,7 @@ public abstract class ZeppOsCoordinator extends HuamiCoordinator {
 
     @NonNull
     @Override
-    public final Class<? extends DeviceSupport> getDeviceSupportClass(@NonNull final GBDevice device) {
+    public final DeviceSupport createDeviceSupport(@NonNull final GBDevice device) {
         // Prioritize user choice
         DeviceCoordinator.ConnectionType connType = GBApplication.getDevicePrefs(device).getForcedConnectionTypeFromPrefs();
         if (connType == DeviceCoordinator.ConnectionType.BOTH) {
@@ -127,8 +127,8 @@ public abstract class ZeppOsCoordinator extends HuamiCoordinator {
         }
 
         return switch (connType) {
-            case BOTH, BT_CLASSIC -> ZeppOsBtbrSupport.class;
-            default -> ZeppOsBtleSupport.class;
+            case BOTH, BT_CLASSIC -> new ZeppOsBtbrSupport();
+            default -> new ZeppOsBtleSupport();
         };
     }
 

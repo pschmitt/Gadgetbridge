@@ -30,8 +30,8 @@ class InnovoPulseOximeterCoordinator : AbstractBLEDeviceCoordinator() {
         return R.string.devicetype_innovo_ip900bp_b
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return InnovoPulseOximeterSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return InnovoPulseOximeterSupport()
     }
 
     override fun getBondingStyle(): Int {

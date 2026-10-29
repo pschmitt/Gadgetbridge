@@ -140,8 +140,8 @@ public class UnknownDeviceCoordinator extends AbstractDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return UnknownDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new UnknownDeviceSupport();
     }
 
     @Override

@@ -193,8 +193,8 @@ abstract class SoundcoreEarbudsCoordinator : AbstractBLClassicDeviceCoordinator(
     /* IMPORTANT: To dynamically set the UUID, set this string in your coordinator. */
     open fun getModelName(): String = "0"
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> =
-        SoundcoreDeviceSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport =
+        SoundcoreDeviceSupport()
 
     /** Multipoint activity commands supported by this model. */
     open fun getSupportedMultipointActions(): Set<String> = setOf(

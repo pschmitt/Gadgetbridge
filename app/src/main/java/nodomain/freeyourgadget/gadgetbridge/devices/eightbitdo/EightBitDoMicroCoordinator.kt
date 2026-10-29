@@ -30,8 +30,8 @@ class EightBitDoMicroCoordinator : AbstractBLEDeviceCoordinator() {
         return "8BitDo"
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport?> {
-        return EightBitDoMicroSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return EightBitDoMicroSupport()
     }
 
     override fun createDevice(candidate: GBDeviceCandidate, deviceType: DeviceType): GBDevice? {

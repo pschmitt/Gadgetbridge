@@ -33,8 +33,8 @@ open class UgreenHituneMax5cCoordinator : AbstractBLClassicDeviceCoordinator() {
 
     override fun getManufacturer(): String = "UGREEN"
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return UgreenHituneMax5cSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return UgreenHituneMax5cSupport()
     }
 
     override fun getDeviceNameResource(): Int {

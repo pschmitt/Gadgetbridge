@@ -121,8 +121,8 @@ public class CasioGBX100DeviceCoordinator extends Casio2C2DDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return CasioGBX100DeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new CasioGBX100DeviceSupport();
     }
 
     @Override

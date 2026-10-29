@@ -225,8 +225,8 @@ public class WearFitCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(GBDevice device) {
-        return WearFitDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(GBDevice device) {
+        return new WearFitDeviceSupport();
     }
 
     @Override

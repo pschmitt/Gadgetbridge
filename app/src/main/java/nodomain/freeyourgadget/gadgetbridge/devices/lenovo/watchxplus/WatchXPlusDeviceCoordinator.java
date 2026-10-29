@@ -172,8 +172,8 @@ public class WatchXPlusDeviceCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return WatchXPlusDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new WatchXPlusDeviceSupport();
     }
 
     @Override

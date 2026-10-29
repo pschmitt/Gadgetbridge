@@ -54,8 +54,8 @@ import java.util.Locale
 abstract class OppoHeadphonesCoordinator : AbstractBLClassicDeviceCoordinator() {
     override fun getManufacturer(): String = "Oppo"
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> =
-        OppoHeadphonesSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport =
+        OppoHeadphonesSupport()
 
     override fun getDefaultIconResource(): Int = R.drawable.ic_device_nothingear
 

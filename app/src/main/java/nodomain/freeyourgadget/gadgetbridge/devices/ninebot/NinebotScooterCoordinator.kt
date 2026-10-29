@@ -52,8 +52,8 @@ class NinebotScooterCoordinator : AbstractBLEDeviceCoordinator() {
 
     override fun getDeviceNameResource(): Int = R.string.devicetype_ninebot_kickscooter
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport?> =
-        NinebotScooterSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport =
+        NinebotScooterSupport()
 
     override fun isExperimental(): Boolean = true
 

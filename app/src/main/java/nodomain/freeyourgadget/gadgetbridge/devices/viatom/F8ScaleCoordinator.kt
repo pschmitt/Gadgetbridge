@@ -109,8 +109,8 @@ class F8ScaleCoordinator : AbstractBLEDeviceCoordinator() {
         return "Viatom"
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport?> {
-        return F8Support::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return F8Support()
     }
 
     override fun getDeviceNameResource(): Int {

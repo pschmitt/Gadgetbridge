@@ -152,8 +152,8 @@ public class FitProDeviceCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return FitProDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new FitProDeviceSupport();
     }
 
     @Override

@@ -56,8 +56,8 @@ public class PixelBudsACoordinator extends AbstractBLClassicDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return PixelBudsADeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new PixelBudsADeviceSupport();
     }
 
     @Override

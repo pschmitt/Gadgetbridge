@@ -92,7 +92,7 @@ public class HaylouS35AncCoordinator extends AbstractBLClassicDeviceCoordinator 
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return HaylouS35AncSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new HaylouS35AncSupport();
     }
 }

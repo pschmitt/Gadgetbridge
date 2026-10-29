@@ -36,8 +36,8 @@ class SonyReonPocketProCoordinator : AbstractBLEDeviceCoordinator() {
 
     override fun getManufacturer(): String = "Sony"
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return SonyReonPocketProSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return SonyReonPocketProSupport()
     }
 
     override fun getBondingStyle(): Int = BONDING_STYLE_NONE

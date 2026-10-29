@@ -56,8 +56,8 @@ class SennheiserMomentumInEarWirelessCoordinator : AbstractBLClassicDeviceCoordi
 
     override fun supportsPowerOff(device: GBDevice): Boolean = true
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> =
-        SennheiserMomentumSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport =
+        SennheiserMomentumSupport()
 
     override fun getDeviceSettings(device: GBDevice): DeviceSettingsSpec = deviceSettings {
         screen(

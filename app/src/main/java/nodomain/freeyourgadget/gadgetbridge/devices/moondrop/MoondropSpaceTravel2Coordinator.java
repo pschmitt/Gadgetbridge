@@ -63,7 +63,7 @@ public class MoondropSpaceTravel2Coordinator extends MoondropSpaceTravelCoordina
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return MoondropSpaceTravel2DeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new MoondropSpaceTravel2DeviceSupport();
     }
 }

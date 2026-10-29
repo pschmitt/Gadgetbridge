@@ -44,8 +44,8 @@ public class PixooCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return PixooSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new PixooSupport();
     }
 
     @Override

@@ -171,8 +171,8 @@ public class AmazfitBip3ProCoordinator extends HuamiCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return AmazfitBip3ProSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new AmazfitBip3ProSupport();
     }
 
     @Override

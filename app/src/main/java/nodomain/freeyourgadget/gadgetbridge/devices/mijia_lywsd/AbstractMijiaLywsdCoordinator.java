@@ -51,8 +51,8 @@ public abstract class AbstractMijiaLywsdCoordinator extends AbstractBLEDeviceCoo
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return MijiaLywsdSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new MijiaLywsdSupport();
     }
 
     @Override

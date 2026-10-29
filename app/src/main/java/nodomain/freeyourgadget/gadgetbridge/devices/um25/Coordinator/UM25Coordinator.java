@@ -84,8 +84,8 @@ public class UM25Coordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return UM25Support.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new UM25Support();
     }
 
     @Override

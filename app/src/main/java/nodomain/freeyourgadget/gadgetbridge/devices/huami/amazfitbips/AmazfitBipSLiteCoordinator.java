@@ -49,7 +49,7 @@ public class AmazfitBipSLiteCoordinator extends AmazfitBipSCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return AmazfitBipSLiteSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new AmazfitBipSLiteSupport();
     }
 }

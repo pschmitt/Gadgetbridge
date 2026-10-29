@@ -49,8 +49,8 @@ public class HuaweiFreeClip2Coordinator extends HuaweiFreebudsCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return HuaweiFreebudsSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new HuaweiFreebudsSupport();
     }
 
     @Override

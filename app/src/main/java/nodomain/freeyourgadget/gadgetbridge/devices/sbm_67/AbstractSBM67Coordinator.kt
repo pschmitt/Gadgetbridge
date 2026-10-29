@@ -31,8 +31,8 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.generic_bp.GenericBl
  * SBM67 devices seem to be sold under multiple brands, with slightly different bluetooth names and bonding behaviors.
  */
 abstract class AbstractSBM67Coordinator : AbstractBLEDeviceCoordinator() {
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return GenericBloodPressureSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return GenericBloodPressureSupport()
     }
 
     override fun getDeviceKind(device: GBDevice): DeviceCoordinator.DeviceKind {

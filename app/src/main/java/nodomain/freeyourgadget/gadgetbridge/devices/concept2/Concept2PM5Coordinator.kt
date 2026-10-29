@@ -41,7 +41,7 @@ class Concept2PM5Coordinator : AbstractBLEDeviceCoordinator() {
 
     override fun suggestUnbindBeforePair(): Boolean = false
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> = Concept2PM5Support::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport = Concept2PM5Support()
 
     override fun getDeviceNameResource(): Int = R.string.devicetype_concept2_pm5
 

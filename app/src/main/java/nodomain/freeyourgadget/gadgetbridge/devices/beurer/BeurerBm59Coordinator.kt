@@ -27,8 +27,8 @@ class BeurerBm59Coordinator : AbstractBLEDeviceCoordinator() {
         return BONDING_STYLE_LAZY
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return BeurerBm59Support::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return BeurerBm59Support()
     }
 
     override fun getDeviceKind(device: GBDevice): DeviceCoordinator.DeviceKind {

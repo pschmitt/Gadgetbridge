@@ -69,8 +69,8 @@ public class OneByoneScaleCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return OneByoneScaleDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new OneByoneScaleDeviceSupport();
     }
 
     @Override

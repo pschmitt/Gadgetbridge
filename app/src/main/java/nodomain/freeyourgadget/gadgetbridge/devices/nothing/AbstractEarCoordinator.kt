@@ -63,8 +63,8 @@ abstract class AbstractEarCoordinator : AbstractBLClassicDeviceCoordinator() {
         return arrayOf<BatteryConfig>(battery1, battery2, battery3)
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return Ear1Support::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return Ear1Support()
     }
 
     override fun getDeviceSettings(device: GBDevice): DeviceSettingsSpec {

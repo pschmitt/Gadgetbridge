@@ -97,8 +97,8 @@ public class MiBand2HRXCoordinator extends HuamiCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return MiBand2Support.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new MiBand2Support();
     }
 
     @Override

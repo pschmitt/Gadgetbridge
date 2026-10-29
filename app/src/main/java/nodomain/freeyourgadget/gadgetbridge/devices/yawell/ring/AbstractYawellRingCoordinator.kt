@@ -50,8 +50,8 @@ abstract class AbstractYawellRingCoordinator : AbstractBLEDeviceCoordinator() {
         return "Colmi"
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return YawellRingDeviceSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return YawellRingDeviceSupport()
     }
 
     override fun getDefaultIconResource(): Int {

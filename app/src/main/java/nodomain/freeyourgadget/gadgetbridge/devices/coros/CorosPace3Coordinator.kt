@@ -40,8 +40,8 @@ class CorosPace3Coordinator : AbstractBLEDeviceCoordinator() {
     override fun getDeviceKind(device: GBDevice): DeviceCoordinator.DeviceKind =
         DeviceCoordinator.DeviceKind.WATCH
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> =
-        CorosPace3Support::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport =
+        CorosPace3Support()
 
     override fun getBondingStyle(): Int = BONDING_STYLE_NONE
 

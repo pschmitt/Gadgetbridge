@@ -51,7 +51,7 @@ public class MakibesF68Coordinator extends HPlusCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return MakibesF68Support.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new MakibesF68Support();
     }
 }
