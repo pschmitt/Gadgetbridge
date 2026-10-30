@@ -85,4 +85,47 @@ public class GarminHttpRequestTest extends TestBase {
         Assert.assertEquals("{\"name\":\"a b&c\",\"count\":3}",
                 new String(request.getBodyToSend(), StandardCharsets.UTF_8));
     }
+
+    /**
+     * The request's Content-Type (Communications.REQUEST_CONTENT_TYPE_*, carried inside the
+     * app's header dictionary) and the expected response type (Communications.HTTP_RESPONSE_CONTENT_TYPE_*,
+     * carried in the response_type field) are independent: mapping the first must not change
+     * how a response is handed back for any value of the second.
+     */
+    @Test
+    public void requestContentTypeDoesNotAffectResponseHandling() throws Exception {
+        final Object[] requestContentTypes = {1, 0, "application/json; charset=utf-8", null};
+        final String[] serverContentTypes = {"application/json", "text/plain"};
+        for (final GdiHttp.ConnectIQHTTPRequest.ResponseType responseType : GdiHttp.ConnectIQHTTPRequest.ResponseType.values()) {
+            for (final String serverContentType : serverContentTypes) {
+                final GdiHttp.ConnectIQHTTPResponse baseline = HttpHandler.createWebResponse(
+                        post(null, body(), responseType), serverResponse(serverContentType));
+                for (final Object requestContentType : requestContentTypes) {
+                    final String label = "request " + requestContentType + ", response_type " + responseType
+                            + ", server " + serverContentType;
+                    final GarminHttpRequest request = post(
+                            requestContentType == null ? null : contentType(requestContentType), body(), responseType);
+                    Assert.assertEquals(label, responseType, request.getWebRequest().getResponseType());
+                    Assert.assertEquals(label, baseline,
+                            HttpHandler.createWebResponse(request, serverResponse(serverContentType)));
+                }
+            }
+        }
+    }
+
+    private static GarminHttpRequest post(final JsonObject headers, final JsonObject body,
+                                          final GdiHttp.ConnectIQHTTPRequest.ResponseType responseType) throws Exception {
+        final GdiHttp.ConnectIQHTTPRequest.Builder builder = post(headers, body).getWebRequest().toBuilder()
+                .setResponseType(responseType)
+                .setMaxResponseLength(4096);
+        return new GarminHttpRequest(builder.build(), 1);
+    }
+
+    private static GarminHttpResponse serverResponse(final String contentType) {
+        final GarminHttpResponse response = new GarminHttpResponse();
+        response.setStatus(200);
+        response.getHeaders().put("Content-Type", contentType);
+        response.setBody("{\"ok\":true}".getBytes(StandardCharsets.UTF_8));
+        return response;
+    }
 }
