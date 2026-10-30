@@ -346,6 +346,7 @@ public class DeviceSettingsPreferenceConst {
     public static final String PREF_NOTIFICATION_WAKE_ON_OPEN = "notification_wake_on_open";
     public static final String PREF_AUTOREMOVE_NOTIFICATIONS = "autoremove_notifications";
     public static final String PREF_NAVIGATION_CONTINUOUS_UPDATES = "navigation_continuous_updates";
+    public static final String PREF_NAVIGATION_SYMBOLS = "navigation_symbols";
     public static final String PREF_NAVIGATION_UPDATE_RATE = "navigation_update_rate";
     public static final String PREF_SCREEN_ON_ON_NOTIFICATIONS = "screen_on_on_notifications";
     public static final String PREF_SCREEN_ON_ON_NOTIFICATIONS_TIMEOUT = "screen_on_on_notifications_timeout";

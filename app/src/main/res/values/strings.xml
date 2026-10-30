@@ -260,6 +260,8 @@
     <string name="pref_summary_navigation_allow_unsupported_devices">Send navigation instructions as notifications to devices that do not support navigation</string>
     <string name="pref_title_navigation_right_hand_driving">Right-hand traffic</string>
     <string name="pref_description_navigation_right_hand_driving">Controls which navigation icon is shown for roundabouts.</string>
+    <string name="pref_title_navigation_symbols">Show arrows</string>
+    <string name="pref_description_navigation_symbols">Add a unicode arrow for the next maneuver to the notification title. Disable if the gadget shows empty boxes instead.</string>
     <string name="pref_title_navigation_continuous_updates">Send continuous updates</string>
     <string name="pref_description_navigation_continuous_updates">If enabled, updates are sent continuously to the gadget. If disabled, updates are sent at each turn.</string>
     <string name="pref_title_navigation_update_rate">Update rate for continuous mode (in milliseconds)</string>

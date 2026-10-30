@@ -5,6 +5,13 @@
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:icon="@drawable/ic_navigation"
+            android:key="navigation_symbols"
+            android:layout="@layout/preference_checkbox"
+            android:summary="@string/pref_description_navigation_symbols"
+            android:title="@string/pref_title_navigation_symbols" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:icon="@drawable/ic_navigation"
             android:key="navigation_continuous_updates"
             android:layout="@layout/preference_checkbox"
             android:summary="@string/pref_description_navigation_continuous_updates"
