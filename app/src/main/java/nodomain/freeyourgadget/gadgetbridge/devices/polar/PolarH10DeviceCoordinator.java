@@ -1,5 +1,7 @@
 package nodomain.freeyourgadget.gadgetbridge.devices.polar;
 
+import androidx.annotation.NonNull;
+
 import java.util.regex.Pattern;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
@@ -15,6 +17,11 @@ public class PolarH10DeviceCoordinator extends AbstractPolarDeviceCoordinator {
     @Override
     protected Pattern getSupportedDeviceName() {
         return Pattern.compile("^Polar H10.*");
+    }
+
+    @Override
+    public boolean supportsRealtimeData(@NonNull final GBDevice device) {
+        return true;
     }
 
     @Override
