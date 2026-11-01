@@ -55,7 +55,7 @@ class CorosPace3Coordinator : AbstractBLEDeviceCoordinator() {
 
     override fun supportsNotificationVibrationRepetitionPatterns(device: GBDevice): Boolean = false
 
-    override fun supportsNotifications(device: GBDevice): Boolean = true
+    override fun supportsAppNotifications(device: GBDevice): Boolean = true
 
     override fun getDeviceSettings(device: GBDevice): DeviceSettingsSpec = deviceSettings {
         screen(key = "screen_do_not_disturb_no_auto", title = R.string.mi2_prefs_do_not_disturb, icon = R.drawable.ic_block) {
