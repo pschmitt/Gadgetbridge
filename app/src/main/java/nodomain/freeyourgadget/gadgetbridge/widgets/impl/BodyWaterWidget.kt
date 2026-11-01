@@ -19,6 +19,7 @@ package nodomain.freeyourgadget.gadgetbridge.widgets.impl
 import android.content.Context
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.util.BodyCompositionCalculator
+import kotlin.math.roundToInt
 
 /**
  * Body water percentage estimated from the most recent weight measurement. Shown in a
@@ -32,7 +33,7 @@ object BodyWaterWidget : BodyCompositionWidget() {
     override fun valueOf(composition: BodyCompositionCalculator.BodyComposition) = composition.bodyWaterPercent
 
     override fun format(context: Context, value: Float): String =
-        context.getString(R.string.body_composition_percent, value)
+        context.getString(R.string.body_energy_percentage, value.roundToInt())
 
     override fun scale(value: Float): Float = fraction(value, 35f, 75f)
 }
