@@ -26,12 +26,18 @@ import nodomain.freeyourgadget.gadgetbridge.devices.test.TestDeviceRand;
 import nodomain.freeyourgadget.gadgetbridge.model.HrvSummarySample;
 
 public class TestHrvSummarySampleProvider extends AbstractTestSampleProvider<HrvSummarySample> {
+    private static final long WAKE_TIME_MILLIS = 7 * 60 * 60 * 1000L;
+
     @NonNull
     @Override
     protected List<HrvSummarySample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<HrvSummarySample> samples = new ArrayList<>();
 
-        for (long ts = timestampFrom; ts < timestampTo; ts += 24 * 60 * 60 * 1000L) {
+        for (long day = startOfDay(timestampFrom); day < timestampTo; day += DAY_MILLIS) {
+            final long ts = day + WAKE_TIME_MILLIS;
+            if (ts < timestampFrom || ts >= timestampTo) {
+                continue;
+            }
             samples.add(new TestHrvSummarySample(ts));
         }
 
@@ -41,27 +47,29 @@ public class TestHrvSummarySampleProvider extends AbstractTestSampleProvider<Hrv
     @Nullable
     @Override
     public HrvSummarySample getLatestSample() {
-        final long ts = System.currentTimeMillis();
-        return new TestHrvSummarySample(ts - TestDeviceRand.randLong(ts, 10 * 1000L, 2 * 60 * 60 * 1000L));
+        return getLatestSample(System.currentTimeMillis());
     }
 
     @Nullable
     @Override
     public HrvSummarySample getFirstSample() {
-        return new TestHrvSummarySample(TestDeviceRand.BASE_TIMESTAMP);
+        return new TestHrvSummarySample(startOfDay(TestDeviceRand.BASE_TIMESTAMP) + WAKE_TIME_MILLIS);
     }
 
     protected static class TestHrvSummarySample implements HrvSummarySample {
         private final long timestamp;
+        private final int lastNightAverage;
         private final int weeklyAverage;
 
         public TestHrvSummarySample(final long timestamp) {
-            this(timestamp, TestDeviceRand.randInt(timestamp, 30, 95));
-        }
-
-        public TestHrvSummarySample(final long timestamp, final int weeklyAverage) {
             this.timestamp = timestamp;
-            this.weeklyAverage = weeklyAverage;
+            this.lastNightAverage = TestHrvValueSampleProvider.nightlyAverage(timestamp);
+
+            int sum = 0;
+            for (int i = 0; i < 7; i++) {
+                sum += TestHrvValueSampleProvider.nightlyAverage(timestamp - i * DAY_MILLIS);
+            }
+            this.weeklyAverage = Math.round(sum / 7f);
         }
 
         @Override
@@ -76,12 +84,12 @@ public class TestHrvSummarySampleProvider extends AbstractTestSampleProvider<Hrv
 
         @Override
         public Integer getLastNightAverage() {
-            return TestDeviceRand.randInt(timestamp, 55, 90);
+            return lastNightAverage;
         }
 
         @Override
         public Integer getLastNight5MinHigh() {
-            return TestDeviceRand.randInt(timestamp, 90, 110);
+            return lastNightAverage + TestDeviceRand.randInt(timestamp, 10, 16);
         }
 
         @Override

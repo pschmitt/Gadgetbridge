@@ -26,20 +26,38 @@ import nodomain.freeyourgadget.gadgetbridge.devices.test.TestDeviceRand;
 import nodomain.freeyourgadget.gadgetbridge.model.HrvValueSample;
 
 public class TestHrvValueSampleProvider extends AbstractTestSampleProvider<HrvValueSample> {
+    private static final long HOUR_MILLIS = 60 * 60 * 1000L;
+    private static final long INTERVAL_MILLIS = 5 * 60 * 1000L;
+    private static final long NIGHT_START_MILLIS = -HOUR_MILLIS;
+    private static final long NIGHT_END_MILLIS = 7 * HOUR_MILLIS;
+
+    /**
+     * Returns the average HRV of the night that ends on the given day.
+     */
+    static int nightlyAverage(final long day) {
+        final long dayIndex = Math.round(startOfDay(day) / (double) DAY_MILLIS);
+        final double trend = 8 * Math.sin(2 * Math.PI * dayIndex / 30.0);
+        return (int) Math.round(70 + trend + TestDeviceRand.randInt(dayIndex * DAY_MILLIS, -6, 6));
+    }
+
     @NonNull
     @Override
     protected List<HrvValueSample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<HrvValueSample> samples = new ArrayList<>();
 
-        int hrv = TestDeviceRand.randInt(timestampFrom, 50, 95);
-
-        for (long ts = timestampFrom; ts < timestampTo; ts += 5 * 60 * 1000L) {
-            hrv = clamp(hrv + TestDeviceRand.randInt(ts, -3, 3), 30, 110);
-
-            final int hour = hourOfDay(ts);
-            if (hour < 7 || hour >= 23) {
-                samples.add(new TestHrvValueSample(ts, hrv));
+        final long firstTs = (timestampFrom + INTERVAL_MILLIS - 1) / INTERVAL_MILLIS * INTERVAL_MILLIS;
+        for (long ts = firstTs; ts < timestampTo; ts += INTERVAL_MILLIS) {
+            // The night belongs to the day on which it ends
+            final long day = startOfDay(ts - NIGHT_START_MILLIS);
+            final long sinceNightStart = ts - (day + NIGHT_START_MILLIS);
+            if (sinceNightStart >= NIGHT_END_MILLIS - NIGHT_START_MILLIS) {
+                continue;
             }
+
+            // Increase HRV during the night
+            final float progress = (float) sinceNightStart / (NIGHT_END_MILLIS - NIGHT_START_MILLIS);
+            final int hrv = nightlyAverage(day) + Math.round((progress - 0.5f) * 16) + TestDeviceRand.randInt(ts, -4, 4);
+            samples.add(new TestHrvValueSample(ts, clamp(hrv, 30, 110)));
         }
 
         return samples;
@@ -48,11 +66,7 @@ public class TestHrvValueSampleProvider extends AbstractTestSampleProvider<HrvVa
     @Nullable
     @Override
     public HrvValueSample getLatestSample() {
-        final long ts = System.currentTimeMillis();
-        return new TestHrvValueSample(
-            ts - TestDeviceRand.randLong(ts, 10 * 1000L, 2 * 60 * 60 * 1000L),
-            TestDeviceRand.randInt(ts, 50, 95)
-        );
+        return getLatestSample(System.currentTimeMillis());
     }
 
     @Nullable
@@ -60,7 +74,7 @@ public class TestHrvValueSampleProvider extends AbstractTestSampleProvider<HrvVa
     public HrvValueSample getFirstSample() {
         return new TestHrvValueSample(
             TestDeviceRand.BASE_TIMESTAMP,
-            TestDeviceRand.randInt(TestDeviceRand.BASE_TIMESTAMP, 50, 95)
+            nightlyAverage(TestDeviceRand.BASE_TIMESTAMP)
         );
     }
 
