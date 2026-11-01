@@ -43,6 +43,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivityPoint
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryData
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries
+import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrack
 import nodomain.freeyourgadget.gadgetbridge.model.GPSCoordinate
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary
@@ -142,17 +143,21 @@ internal object RecordedWorkoutSyncer {
                 val recordsToInsert = mutableListOf<Record>()
                 val exerciseType = WorkoutSyncerUtils.mapActivityKindToExerciseType(activityKind)
 
-                var activityPoints: List<ActivityPoint>? = null
-
-                if (useDetailedSync) {
-                    activityPoints = loadActivityPoints(workout, gbDevice, context)
+                val needsTrackForSets = WorkoutSyncerUtils.usesSetSegments(exerciseType)
+                val loadedTrack = if (useDetailedSync || needsTrackForSets) {
+                    loadActivityTrack(workout, gbDevice, context)
+                } else {
+                    null
                 }
+                val activityPoints = loadedTrack?.points
 
-                if (activityPoints != null && activityPoints.isNotEmpty()) {
+                if (useDetailedSync && loadedTrack != null && activityPoints != null && activityPoints.isNotEmpty()) {
                     LOG.info("Using detailed sync with ${activityPoints.size} activity points for workout (Type: ${activityKind}, Start: $workoutStartInstant).")
+                    correctElevation(workout, gbDevice, context, activityPoints)
                     processDetailedWorkout(
                         workout,
                         activityPoints,
+                        loadedTrack.track.sets,
                         workoutStartInstant,
                         workoutEndInstant,
                         startOffset,
@@ -169,15 +174,12 @@ internal object RecordedWorkoutSyncer {
                     )
                 } else {
                     if (useDetailedSync) {
-                        if (activityPoints == null) {
-                            LOG.info("No track file available for workout, falling back to aggregate data.")
-                        } else {
-                            LOG.info("Track file contains no activity points, falling back to aggregate data.")
-                        }
+                        LOG.info("No track file or no activity points for workout, falling back to aggregate data.")
                     }
                     processAggregateWorkout(
                         gbDevice,
                         workout,
+                        loadedTrack?.track?.sets.orEmpty(),
                         workoutStartInstant,
                         workoutEndInstant,
                         startOffset,
@@ -334,19 +336,24 @@ internal object RecordedWorkoutSyncer {
         }
     }
 
-    private fun loadActivityPoints(workout: BaseActivitySummary, device: GBDevice, context: Context): List<ActivityPoint>? {
+    private data class LoadedTrack(val track: ActivityTrack, val points: List<ActivityPoint>)
+
+    private fun loadActivityTrack(workout: BaseActivitySummary, device: GBDevice, context: Context): LoadedTrack? {
         val activityTrackProvider = device.deviceCoordinator.getActivityTrackProvider(device, context)
         if (activityTrackProvider == null) {
             LOG.debug("No activity track provider available device '{}'.", device)
             return null
         }
 
-        val points = activityTrackProvider.getActivityTrack(workout)?.allPoints
-        if (points.isNullOrEmpty()) {
+        val activityTrack = activityTrackProvider.getActivityTrack(workout) ?: return null
+        val points = activityTrack.allPoints
+        if (points.isEmpty()) {
             LOG.debug("Track file for workout {} contains no activity points", workout.id)
-            return null
         }
+        return LoadedTrack(activityTrack, points)
+    }
 
+    private fun correctElevation(workout: BaseActivitySummary, device: GBDevice, context: Context, points: List<ActivityPoint>) {
         // Altitude from imported elevation tiles replaces what the device recorded, and so does
         // the elevation gained read from the summary below
         if (ElevationTiles.correct(context, device, ActivityKind.fromCode(workout.activityKind), points)) {
@@ -355,12 +362,12 @@ internal object RecordedWorkoutSyncer {
                 workout.summaryData = summaryData.toString()
             }
         }
-        return points
     }
 
-    private fun processDetailedWorkout(
+    internal fun processDetailedWorkout(
         workout: BaseActivitySummary,
         activityPoints: List<ActivityPoint>,
+        sets: List<ActivityTrack.SetInfo>,
         workoutStartInstant: Instant,
         workoutEndInstant: Instant,
         startOffset: ZoneOffset,
@@ -383,6 +390,13 @@ internal object RecordedWorkoutSyncer {
             null
         }
 
+        val exerciseSegments = WorkoutSyncerUtils.buildExerciseSegments(
+            sets,
+            workoutStartInstant,
+            workoutEndInstant,
+            exerciseType
+        )
+
         recordsToInsert.add(
             ExerciseSessionRecord(
                 startTime = workoutStartInstant,
@@ -391,6 +405,7 @@ internal object RecordedWorkoutSyncer {
                 endZoneOffset = endOffset,
                 exerciseType = exerciseType,
                 title = workout.name ?: activityKind.getLabel(context),
+                segments = exerciseSegments,
                 exerciseRoute = exerciseRoute,
                 metadata = WorkoutSyncerUtils.workoutRecordMetadata(
                     metadata,
@@ -500,9 +515,10 @@ internal object RecordedWorkoutSyncer {
         }
     }
 
-    private fun processAggregateWorkout(
+    internal fun processAggregateWorkout(
         gbDevice: GBDevice,
         workout: BaseActivitySummary,
+        sets: List<ActivityTrack.SetInfo>,
         workoutStartInstant: Instant,
         workoutEndInstant: Instant,
         startOffset: ZoneOffset,
@@ -525,6 +541,12 @@ internal object RecordedWorkoutSyncer {
                 endZoneOffset = endOffset,
                 exerciseType = exerciseType,
                 title = workout.name ?: activityKind.getLabel(context),
+                segments = WorkoutSyncerUtils.buildExerciseSegments(
+                    sets,
+                    workoutStartInstant,
+                    workoutEndInstant,
+                    exerciseType
+                ),
                 metadata = WorkoutSyncerUtils.workoutRecordMetadata(
                     metadata,
                     WorkoutSyncerUtils.RECORD_TYPE_SESSION,

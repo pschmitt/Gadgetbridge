@@ -29,8 +29,10 @@ import java.util.Objects;
 
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.FitFile;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.RecordData;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.Event;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.EventType;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.ExerciseCategory;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.exception.FitParseException;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitLap;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitLength;
@@ -41,6 +43,9 @@ import nodomain.freeyourgadget.gadgetbridge.util.FileUtils;
 
 public class FitActivityTrackProvider implements ActivityTrackProvider {
     private static final Logger LOG = LoggerFactory.getLogger(FitActivityTrackProvider.class);
+
+    private static final int SET_FIELD_CATEGORY = 7;
+    private static final int SET_FIELD_CATEGORY_SUBTYPE = 8;
 
     @Nullable
     @Override
@@ -150,6 +155,7 @@ public class FitActivityTrackProvider implements ActivityTrackProvider {
             } else if (rd instanceof FitSet set) {
                 final Long startTime = set.getStartTime();
                 if (startTime == null) continue;
+                final SetCategory setCategory = readSetCategory(set);
                 activityTrack.addSet(new ActivityTrack.SetInfo(
                         startTime,
                         set.getDuration(),
@@ -157,11 +163,54 @@ public class FitActivityTrackProvider implements ActivityTrackProvider {
                         set.getWeight(),
                         set.getSetType(),
                         set.getWeightDisplayUnit(),
-                        set.getMessageIndex()));
+                        set.getMessageIndex(),
+                        setCategory.category(),
+                        setCategory.subtype()));
             }
         }
 
         return activityTrack;
+    }
+
+    public record SetCategory(@Nullable ExerciseCategory category, @Nullable Integer subtype) {
+    }
+
+    /**
+     * FIT writes the set category and subtype as value arrays that may hold invalid entries at
+     * any index, and an unrecognized id decodes to {@link ExerciseCategory#CATEGORY_UNKNOWN}.
+     * Reads the first real entry of both arrays at the same index so the pair stays together.
+     */
+    @NonNull
+    public static SetCategory readSetCategory(@NonNull final RecordData set) {
+        return pickSetCategory(
+                asArray(set.getFieldByNumber(SET_FIELD_CATEGORY)),
+                asArray(set.getFieldByNumber(SET_FIELD_CATEGORY_SUBTYPE)));
+    }
+
+    @NonNull
+    public static SetCategory pickSetCategory(@NonNull final Object[] categories, @NonNull final Object[] subtypes) {
+        for (int i = 0; i < categories.length; i++) {
+            if (!(categories[i] instanceof ExerciseCategory category)) {
+                continue;
+            }
+            if (category == ExerciseCategory.CATEGORY_UNKNOWN) {
+                continue;
+            }
+            final Integer subtype = i < subtypes.length && subtypes[i] instanceof Integer value ? value : null;
+            return new SetCategory(category, subtype);
+        }
+
+        return new SetCategory(null, null);
+    }
+
+    private static Object[] asArray(@Nullable final Object value) {
+        if (value instanceof Object[]) {
+            return (Object[]) value;
+        }
+        if (value == null) {
+            return new Object[0];
+        }
+        return new Object[]{value};
     }
 
     /**

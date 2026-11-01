@@ -1,11 +1,16 @@
 package nodomain.freeyourgadget.gadgetbridge.util.healthconnect.syncers
 
+import androidx.health.connect.client.records.ExerciseSegment
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind
+import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrack
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.ExerciseCategory
 import org.junit.Assert.*
 import org.junit.Test
+import java.time.Instant
+import java.time.ZoneOffset
 
 class WorkoutSyncerUtilsTest {
     @Test
@@ -295,4 +300,269 @@ class WorkoutSyncerUtilsTest {
             assertTrue("Exercise type should be a valid int", exerciseType >= 0)
         }
     }
+
+    @Test
+    fun buildExerciseSegments_skipsNonStrengthSessions() {
+        val sets = listOf(set(1000L, 60.0, 10, ExerciseCategory.CATEGORY_SQUAT))
+
+        val segments = WorkoutSyncerUtils.buildExerciseSegments(
+            sets,
+            Instant.ofEpochSecond(900),
+            Instant.ofEpochSecond(3000),
+            ExerciseSessionRecord.EXERCISE_TYPE_RUNNING
+        )
+
+        assertTrue(segments.isEmpty())
+    }
+
+    @Test
+    fun buildExerciseSegments_mapsActiveSetsAndSkipsRest() {
+        val sets = listOf(
+            set(1000L, 45.0, 10, ExerciseCategory.CATEGORY_SQUAT),
+            set(1075L, 60.0, null, null, setType = 0),
+            set(1160L, 30.0, 8, ExerciseCategory.CATEGORY_BENCH_PRESS)
+        )
+
+        val segments = WorkoutSyncerUtils.buildExerciseSegments(
+            sets,
+            Instant.ofEpochSecond(900),
+            Instant.ofEpochSecond(3000),
+            ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING
+        )
+
+        assertEquals(2, segments.size)
+        assertEquals(Instant.ofEpochSecond(1000), segments[0].startTime)
+        assertEquals(Instant.ofEpochSecond(1045), segments[0].endTime)
+        assertEquals(10, segments[0].repetitions)
+        assertEquals(ExerciseSegment.EXERCISE_SEGMENT_TYPE_SQUAT, segments[0].segmentType)
+        assertEquals(ExerciseSegment.EXERCISE_SEGMENT_TYPE_BENCH_PRESS, segments[1].segmentType)
+    }
+
+    @Test
+    fun buildExerciseSegments_clipsToSessionBoundsAndProducesValidSession() {
+        val sessionStart = Instant.ofEpochSecond(1000)
+        val sessionEnd = Instant.ofEpochSecond(2000)
+        val sets = listOf(
+            set(900L, 200.0, 5, ExerciseCategory.CATEGORY_SQUAT),
+            set(1100L, 300.0, 5, ExerciseCategory.CATEGORY_DEADLIFT),
+            set(2500L, 30.0, 5, ExerciseCategory.CATEGORY_PLANK),
+            set(1500L, null, 5, ExerciseCategory.CATEGORY_LUNGE)
+        )
+
+        val segments = WorkoutSyncerUtils.buildExerciseSegments(
+            sets,
+            sessionStart,
+            sessionEnd,
+            ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING
+        )
+
+        assertEquals(3, segments.size)
+        assertEquals(sessionStart, segments.first().startTime)
+        assertTrue(segments.all { !it.startTime.isBefore(sessionStart) && !it.endTime.isAfter(sessionEnd) })
+        assertTrue(segments.zipWithNext().all { (a, b) -> !a.endTime.isAfter(b.startTime) })
+
+        // Health Connect validates segment bounds, ordering, and session compatibility
+        // in the record constructor, so a segment list it rejects never reaches the service.
+        ExerciseSessionRecord(
+            startTime = sessionStart,
+            startZoneOffset = ZoneOffset.UTC,
+            endTime = sessionEnd,
+            endZoneOffset = ZoneOffset.UTC,
+            exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING,
+            segments = segments,
+            metadata = metadata()
+        )
+    }
+
+    @Test
+    fun buildExerciseSegments_clipsSetThatRunsIntoTheNextOne() {
+        val sets = listOf(
+            set(1000L, 600.0, 5, ExerciseCategory.CATEGORY_SQUAT),
+            set(1200L, 60.0, 5, ExerciseCategory.CATEGORY_BENCH_PRESS)
+        )
+
+        val segments = WorkoutSyncerUtils.buildExerciseSegments(
+            sets,
+            Instant.ofEpochSecond(900),
+            Instant.ofEpochSecond(3000),
+            ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING
+        )
+
+        assertEquals(2, segments.size)
+        assertEquals(Instant.ofEpochSecond(1000), segments[0].startTime)
+        assertEquals(Instant.ofEpochSecond(1200), segments[0].endTime)
+        assertEquals(Instant.ofEpochSecond(1200), segments[1].startTime)
+        assertEquals(Instant.ofEpochSecond(1260), segments[1].endTime)
+    }
+
+    @Test
+    fun buildExerciseSegments_clipsSetThatOverrunsTheSessionEnd() {
+        val sessionEnd = Instant.ofEpochSecond(2000)
+        val sets = listOf(set(1500L, 5000.0, 5, ExerciseCategory.CATEGORY_SQUAT))
+
+        val segments = WorkoutSyncerUtils.buildExerciseSegments(
+            sets,
+            Instant.ofEpochSecond(1000),
+            sessionEnd,
+            ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING
+        )
+
+        assertEquals(1, segments.size)
+        assertEquals(Instant.ofEpochSecond(1500), segments[0].startTime)
+        assertEquals(sessionEnd, segments[0].endTime)
+    }
+
+    @Test
+    fun mapExerciseCategoryToSegmentType_fallsBackForUnmappedCategories() {
+        assertEquals(
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_OTHER_WORKOUT,
+            WorkoutSyncerUtils.mapExerciseCategoryToSegmentType(null)
+        )
+        assertEquals(
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_OTHER_WORKOUT,
+            WorkoutSyncerUtils.mapExerciseCategoryToSegmentType(ExerciseCategory.CATEGORY_UNKNOWN)
+        )
+        assertEquals(
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_OTHER_WORKOUT,
+            WorkoutSyncerUtils.mapExerciseCategoryToSegmentType(ExerciseCategory.CATEGORY_ROW)
+        )
+    }
+
+    @Test
+    fun mapExerciseCategoryToSegmentType_mapsEachKnownCategory() {
+        val expected = mapOf(
+            ExerciseCategory.CATEGORY_BENCH_PRESS to ExerciseSegment.EXERCISE_SEGMENT_TYPE_BENCH_PRESS,
+            ExerciseCategory.CATEGORY_CRUNCH to ExerciseSegment.EXERCISE_SEGMENT_TYPE_CRUNCH,
+            ExerciseCategory.CATEGORY_CURL to ExerciseSegment.EXERCISE_SEGMENT_TYPE_ARM_CURL,
+            ExerciseCategory.CATEGORY_DEADLIFT to ExerciseSegment.EXERCISE_SEGMENT_TYPE_DEADLIFT,
+            ExerciseCategory.CATEGORY_HIP_RAISE to ExerciseSegment.EXERCISE_SEGMENT_TYPE_HIP_THRUST,
+            ExerciseCategory.CATEGORY_HIP_SWING to ExerciseSegment.EXERCISE_SEGMENT_TYPE_KETTLEBELL_SWING,
+            ExerciseCategory.CATEGORY_HYPEREXTENSION to ExerciseSegment.EXERCISE_SEGMENT_TYPE_BACK_EXTENSION,
+            ExerciseCategory.CATEGORY_LATERAL_RAISE to ExerciseSegment.EXERCISE_SEGMENT_TYPE_LATERAL_RAISE,
+            ExerciseCategory.CATEGORY_LEG_CURL to ExerciseSegment.EXERCISE_SEGMENT_TYPE_LEG_CURL,
+            ExerciseCategory.CATEGORY_LEG_RAISE to ExerciseSegment.EXERCISE_SEGMENT_TYPE_LEG_RAISE,
+            ExerciseCategory.CATEGORY_LUNGE to ExerciseSegment.EXERCISE_SEGMENT_TYPE_LUNGE,
+            ExerciseCategory.CATEGORY_PLANK to ExerciseSegment.EXERCISE_SEGMENT_TYPE_PLANK,
+            ExerciseCategory.CATEGORY_PULL_UP to ExerciseSegment.EXERCISE_SEGMENT_TYPE_PULL_UP,
+            ExerciseCategory.CATEGORY_SHOULDER_PRESS to ExerciseSegment.EXERCISE_SEGMENT_TYPE_SHOULDER_PRESS,
+            ExerciseCategory.CATEGORY_SIT_UP to ExerciseSegment.EXERCISE_SEGMENT_TYPE_SIT_UP,
+            ExerciseCategory.CATEGORY_SQUAT to ExerciseSegment.EXERCISE_SEGMENT_TYPE_SQUAT
+        )
+
+        for ((category, segmentType) in expected) {
+            assertEquals(category.name, segmentType, WorkoutSyncerUtils.mapExerciseCategoryToSegmentType(category))
+        }
+    }
+
+    @Test
+    fun mapExerciseCategoryToSegmentType_allCategoriesAreValidInsideStrengthSessions() {
+        val start = Instant.ofEpochSecond(1000)
+        val end = Instant.ofEpochSecond(2000)
+        val sessionTypes = listOf(
+            ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING,
+            ExerciseSessionRecord.EXERCISE_TYPE_WEIGHTLIFTING
+        )
+
+        for (category in ExerciseCategory.entries) {
+            val segment = ExerciseSegment(
+                start,
+                end,
+                WorkoutSyncerUtils.mapExerciseCategoryToSegmentType(category),
+                0
+            )
+            for (sessionType in sessionTypes) {
+                ExerciseSessionRecord(
+                    startTime = start,
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = end,
+                    endZoneOffset = ZoneOffset.UTC,
+                    exerciseType = sessionType,
+                    segments = listOf(segment),
+                    metadata = metadata()
+                )
+            }
+        }
+    }
+
+    @Test
+    fun buildExerciseSegments_treatsMissingSetTypeAsActive() {
+        val sets = listOf(set(1000L, 30.0, 10, ExerciseCategory.CATEGORY_SQUAT, setType = null))
+
+        val segments = WorkoutSyncerUtils.buildExerciseSegments(
+            sets,
+            Instant.ofEpochSecond(900),
+            Instant.ofEpochSecond(3000),
+            ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING
+        )
+
+        assertEquals(1, segments.size)
+        assertEquals(ExerciseSegment.EXERCISE_SEGMENT_TYPE_SQUAT, segments[0].segmentType)
+    }
+
+    @Test
+    fun buildExerciseSegments_usesNextSetStartWhenDurationIsMissing() {
+        val sets = listOf(
+            set(1000L, null, 10, ExerciseCategory.CATEGORY_SQUAT),
+            set(1300L, 30.0, 8, ExerciseCategory.CATEGORY_BENCH_PRESS)
+        )
+
+        val segments = WorkoutSyncerUtils.buildExerciseSegments(
+            sets,
+            Instant.ofEpochSecond(900),
+            Instant.ofEpochSecond(3000),
+            ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING
+        )
+
+        assertEquals(2, segments.size)
+        assertEquals(Instant.ofEpochSecond(1000), segments[0].startTime)
+        assertEquals(Instant.ofEpochSecond(1300), segments[0].endTime)
+        assertEquals(Instant.ofEpochSecond(1300), segments[1].startTime)
+        assertEquals(Instant.ofEpochSecond(1330), segments[1].endTime)
+    }
+
+    @Test
+    fun buildExerciseSegments_clipsDurationlessSetAtTheNextSetOfAnyType() {
+        val sets = listOf(
+            set(1000L, null, 10, ExerciseCategory.CATEGORY_SQUAT),
+            set(1060L, 60.0, null, null, setType = 0),
+            set(1120L, 30.0, 8, ExerciseCategory.CATEGORY_BENCH_PRESS)
+        )
+
+        val segments = WorkoutSyncerUtils.buildExerciseSegments(
+            sets,
+            Instant.ofEpochSecond(900),
+            Instant.ofEpochSecond(3000),
+            ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING
+        )
+
+        assertEquals(2, segments.size)
+        assertEquals(Instant.ofEpochSecond(1000), segments[0].startTime)
+        assertEquals(Instant.ofEpochSecond(1060), segments[0].endTime)
+        assertEquals(Instant.ofEpochSecond(1120), segments[1].startTime)
+        assertEquals(Instant.ofEpochSecond(1150), segments[1].endTime)
+    }
+
+    @Test
+    fun buildExerciseSegments_dropsTrailingSetWithoutDuration() {
+        val sets = listOf(set(1000L, null, 10, ExerciseCategory.CATEGORY_SQUAT))
+
+        val segments = WorkoutSyncerUtils.buildExerciseSegments(
+            sets,
+            Instant.ofEpochSecond(900),
+            Instant.ofEpochSecond(3000),
+            ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING
+        )
+
+        assertTrue(segments.isEmpty())
+    }
+
+    private fun set(
+        startTimeSec: Long,
+        durationSec: Double?,
+        repetitions: Int?,
+        category: ExerciseCategory?,
+        setType: Int? = 1
+    ) = ActivityTrack.SetInfo(startTimeSec, durationSec, repetitions, null, setType, null, null, category, null)
+
+    private fun metadata() = Metadata.autoRecorded(Device(Device.TYPE_WATCH, "Acme", "Test"))
 }
