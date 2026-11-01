@@ -20,6 +20,12 @@
             android:key="pref_header_voice_service"
             android:title="@string/voice_service">
 
+            <Preference
+                android:key="pref_voice_service_info"
+                android:selectable="false"
+                android:summary="@string/voice_service_zepp_os_info"
+                app:iconSpaceReserved="false" />
+
             <EditTextPreference
                 android:key="voice_service_package"
                 android:summary="@string/voice_service_package_summary"

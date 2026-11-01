@@ -17,6 +17,8 @@
 package nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.services;
 
 import static nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst.PREF_VOICE_SERVICE_LANGUAGE;
+import static nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst.PREF_VOICE_SERVICE_PACKAGE;
+import static nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst.PREF_VOICE_SERVICE_CLASS;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -42,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsUtils;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventUpdatePreferences;
@@ -56,7 +59,7 @@ import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
 import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
 
-public class ZeppOsAssistantService extends AbstractZeppOsService {
+public class ZeppOsAssistantService extends AbstractZeppOsService implements ZeppOsVoiceServiceBridge.Callback {
     private static final Logger LOG = LoggerFactory.getLogger(ZeppOsAssistantService.class);
 
     public static final short ENDPOINT_ALEXA = 0x0011;
@@ -98,6 +101,21 @@ public class ZeppOsAssistantService extends AbstractZeppOsService {
 
     private OpusDecoder opusDecoder;
     private AudioTrack audioTrack;
+    private ZeppOsVoiceServiceBridge voiceServiceBridge;
+
+    /**
+     * The watch records for ~15s and then waits without sending {@link #CMD_END}, so end the recording
+     * a bit earlier ourselves.
+     */
+    private static final long RECORDING_LIMIT_MS = 14_000;
+    private boolean recordingLimitScheduled;
+    private final Runnable recordingLimit = () -> {
+        LOG.info("Recording limit of {}ms reached", RECORDING_LIMIT_MS);
+        sendCmdTriggered(); // the watch stops listening and waits for the reply
+        if (isVoiceServiceActive()) {
+            voiceServiceBridge.end();
+        }
+    };
 
     private static final boolean DUMP_RAW_VOICE = false;
     private OutputStream rawVoiceOutputStream;
@@ -143,6 +161,7 @@ public class ZeppOsAssistantService extends AbstractZeppOsService {
     @Override
     public void dispose() {
         handler.removeCallbacksAndMessages(null);
+        stopVoiceService();
         opusDecoder = null;
         if (audioTrack != null) {
             audioTrack.release();
@@ -191,6 +210,7 @@ public class ZeppOsAssistantService extends AbstractZeppOsService {
     @Override
     public void initialize(final ZeppOsTransactionBuilder builder) {
         handler.removeCallbacksAndMessages(null);
+        stopVoiceService();
         opusDecoder = null;
         if (audioTrack != null) {
             audioTrack.release();
@@ -382,12 +402,13 @@ public class ZeppOsAssistantService extends AbstractZeppOsService {
             LOG.warn("Unsupported assistant service version {}", mVersion);
             return;
         }
-        final byte var1 = payload[2];
+        // Some devices (e.g. Amazfit Band 7, version 3) only send 3 bytes
+        final byte var1 = payload.length > 2 ? payload[2] : -1;
         if (var1 != 1) {
             LOG.warn("Unexpected value for var1 '{}'", var1);
         }
-        final byte var2 = payload[3];
-        if (var1 != 1) {
+        final byte var2 = payload.length > 3 ? payload[3] : -1;
+        if (var2 != 1) {
             LOG.warn("Unexpected value for var2 '{}'", var2);
         }
 
@@ -411,6 +432,14 @@ public class ZeppOsAssistantService extends AbstractZeppOsService {
         LOG.info("Assistant starting: var1={}, var2={}, var3={}, var4={}, params={}", var1, var2, var3, var4, params);
 
         final int sampleRate = 16000; // FIXME how to detect sample rate?
+
+        recordingLimitScheduled = false;
+        handler.removeCallbacks(recordingLimit);
+        if (startVoiceService()) {
+            // The external voice service gets the raw opus frames, no need to decode or play them
+            handler.postDelayed(this::sendStartAck, 700);
+            return;
+        }
 
         try {
             opusDecoder = new OpusDecoder(sampleRate, 1);
@@ -455,6 +484,7 @@ public class ZeppOsAssistantService extends AbstractZeppOsService {
     }
 
     private void handleEnd(final byte[] payload) {
+        LOG.info("Assistant session ended");
         voiceBuffer.position(0);
 
         if (opusDecoder != null) {
@@ -473,7 +503,10 @@ public class ZeppOsAssistantService extends AbstractZeppOsService {
             }
         }
 
-        // TODO do something else?
+        handler.removeCallbacks(recordingLimit);
+        if (isVoiceServiceActive()) {
+            voiceServiceBridge.end();
+        }
     }
 
     public void handleVoiceData(final byte[] payload) {
@@ -528,6 +561,15 @@ public class ZeppOsAssistantService extends AbstractZeppOsService {
 
             LOG.trace("Voice Data Frame: {}", GB.lazyHexdump(frame));
 
+            if (isVoiceServiceActive()) {
+                if (!recordingLimitScheduled) {
+                    recordingLimitScheduled = true;
+                    handler.postDelayed(recordingLimit, RECORDING_LIMIT_MS);
+                }
+                voiceServiceBridge.sendVoiceFrame(frame);
+                continue;
+            }
+
             if (opusDecoder != null) {
                 try {
                     final byte[] pcm = new byte[MAX_FRAME_SIZE * CHANNELS * 2];
@@ -570,6 +612,52 @@ public class ZeppOsAssistantService extends AbstractZeppOsService {
                 .withPreference(PREF_VOICE_SERVICE_LANGUAGE, currentLanguage.replace("-", "_"))
                 .withPreference(DeviceSettingsUtils.getPrefPossibleValuesKey(PREF_VOICE_SERVICE_LANGUAGE), TextUtils.join(",", allLanguages).replace("-", "_"));
         getSupport().evaluateGBDeviceEvent(evt);
+    }
+
+    /**
+     * Starts forwarding the voice session to the external voice service, if one is configured.
+     *
+     * @return true if voice will be handled by the external voice service
+     */
+    private boolean startVoiceService() {
+        final Prefs devicePrefs = getDevicePrefs();
+        final String servicePackage = devicePrefs.getString(PREF_VOICE_SERVICE_PACKAGE, "");
+        final String serviceClass = devicePrefs.getString(PREF_VOICE_SERVICE_CLASS, "");
+        if (!ZeppOsVoiceServiceBridge.isConfigured(servicePackage, serviceClass)) {
+            return false;
+        }
+        if (voiceServiceBridge == null) {
+            voiceServiceBridge = new ZeppOsVoiceServiceBridge(getContext(), this);
+        }
+        if (!voiceServiceBridge.start(servicePackage, serviceClass)) {
+            GB.toast(getContext().getString(R.string.voice_service_not_found), Toast.LENGTH_LONG, GB.ERROR);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isVoiceServiceActive() {
+        return voiceServiceBridge != null && voiceServiceBridge.isActive();
+    }
+
+    private void stopVoiceService() {
+        if (voiceServiceBridge != null) {
+            voiceServiceBridge.stop();
+        }
+    }
+
+    @Override
+    public void onVoiceServiceReply(final String title, final String subtitle, final String text) {
+        if (StringUtils.isNullOrEmpty(title) && StringUtils.isNullOrEmpty(subtitle)) {
+            sendReply(text);
+        } else {
+            sendReply(title, subtitle, text);
+        }
+    }
+
+    @Override
+    public void onVoiceServiceError(final String message) {
+        sendReply(message);
     }
 
     public static boolean isSupported(final Prefs devicePrefs) {

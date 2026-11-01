@@ -4764,6 +4764,8 @@
     <string name="voice_service_class_title">Voice service class</string>
     <string name="voice_service_class_summary">Full service path handling voice commands</string>
     <string name="voice_service">Voice Service</string>
+    <string name="voice_service_not_found">Voice service not found, check the voice service package and class</string>
+    <string name="voice_service_zepp_os_info">When a voice service is set, opening the voice assistant on the watch records up to 14 seconds of audio and sends it to that app instead of playing it on the phone. The app can reply with text, which is shown on the watch.</string>
     <string name="pref_app_logs_title">App logs</string>
     <string name="pref_app_logs_summary">Enable logs from watch apps</string>
     <string name="pref_app_logs_start_summary">Start logging from watch apps</string>

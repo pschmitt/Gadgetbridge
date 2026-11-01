@@ -774,6 +774,8 @@ public class DeviceSettingsPreferenceConst {
     public static final String PREF_HOURLY_CHIME_END = "hourly_chime_end";
 
     public static final String PREF_VOICE_SERVICE_LANGUAGE = "voice_service_language";
+    public static final String PREF_VOICE_SERVICE_PACKAGE = "voice_service_package";
+    public static final String PREF_VOICE_SERVICE_CLASS = "voice_service_class";
 
     public static final String PREF_FAKE_ANDROID_ID = "fake_android_id";
 
