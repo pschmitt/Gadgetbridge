@@ -552,6 +552,9 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
             final String deviceAddress = gbDevice.getAddress();
 
             LOG.debug("Will attempt to connect to {}", gbDevice);
+            final GBDevice.State stateBeforeConnect = gbDevice.getState();
+            final boolean automaticReconnect = stateBeforeConnect == GBDevice.State.WAITING_FOR_RECONNECT ||
+                    stateBeforeConnect == GBDevice.State.WAITING_FOR_SCAN;
 
             if (!gbDevice.getDeviceCoordinator().isConnectable()) {
                 // we cannot connect to beacons, skip this device
@@ -664,6 +667,8 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
                     final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
                     if (adapter == null) {
                         GB.toast(this, getString(R.string.bluetooth_is_not_supported_), Toast.LENGTH_SHORT, GB.WARN);
+                    } else if (!adapter.isEnabled() && automaticReconnect) {
+                        LOG.warn("connectToDevice - {} Bluetooth is disabled", deviceAddress);
                     } else if (!adapter.isEnabled()) {
                         GB.toast(this, getString(R.string.bluetooth_is_disabled_), Toast.LENGTH_SHORT, GB.WARN);
                     } else {
