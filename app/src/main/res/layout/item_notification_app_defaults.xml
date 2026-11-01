@@ -97,6 +97,48 @@
                 android:clickable="false"
                 android:focusable="false" />
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/notification_app_calls_ignore_list_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:minHeight="56dp"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pref_title_notification_calls_ignore_application_list"
+                    android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pref_summary_notification_calls_ignore_application_list"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/notification_app_calls_ignore_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:focusable="false" />
+        </LinearLayout>
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

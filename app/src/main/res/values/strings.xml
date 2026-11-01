@@ -371,6 +371,8 @@
     <string name="pref_summary_notification_times_enabled">Only send notifications between specific times</string>
     <string name="pref_title_notification_media_ignores_application_list">Media notifications ignore app list</string>
     <string name="pref_summary_notification_media_ignores_application_list">Process media notifications before the app list. If this preference is unchecked, media applications need to be allowed in the application list for media controls to work on the device.</string>
+    <string name="pref_title_notification_calls_ignore_application_list">Calls ignore app list</string>
+    <string name="pref_summary_notification_calls_ignore_application_list">Forward calls from apps that are not allowed in the application list. Requires \"Enable VoIP app calls\".</string>
     <string name="pref_header_notification_application_settings">Per application settings</string>
     <string name="pref_title_transliteration">Transliteration</string>
     <string name="pref_summary_transliteration">Enable this if your device has no support for your language\'s font</string>

@@ -431,9 +431,7 @@ public class NotificationListener extends NotificationListenerService {
             return;
         }
 
-        if (NotificationCompat.CATEGORY_CALL.equals(sbn.getNotification().category)
-                && prefs.getBoolean("notification_support_voip_calls", false)
-                && (sbn.isOngoing() || shouldDisplayNonOngoingCallNotification(sbn))) {
+        if (isVoipCallNotification(sbn, prefs)) {
             handleCallNotification(sbn);
             return;
         }
@@ -1189,6 +1187,10 @@ public class NotificationListener extends NotificationListenerService {
         }
 
         if (!NotificationAppRules.INSTANCE.shouldSend(appConfig, NotificationAppRepository.INSTANCE.getDefaultAction())) {
+            if (prefs.getBoolean("notification_calls_ignore_application_list", true) && isVoipCallNotification(sbn, prefs)) {
+                LOG.debug("Allowing VoIP call notification from {}, calls ignore the application list", source);
+                return false;
+            }
             LOG.info("Ignoring notification, application is not allowed to send notifications");
             return true;
         }
@@ -1226,6 +1228,12 @@ public class NotificationListener extends NotificationListenerService {
     private boolean isWorkProfile(StatusBarNotification sbn) {
         final UserHandle currentUser = Process.myUserHandle();
         return !sbn.getUser().equals(currentUser);
+    }
+
+    private boolean isVoipCallNotification(final StatusBarNotification sbn, final Prefs prefs) {
+        return NotificationCompat.CATEGORY_CALL.equals(sbn.getNotification().category)
+                && prefs.getBoolean("notification_support_voip_calls", false)
+                && (sbn.isOngoing() || shouldDisplayNonOngoingCallNotification(sbn));
     }
 
     private boolean shouldDisplayNonOngoingCallNotification(StatusBarNotification sbn) {
