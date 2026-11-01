@@ -12,7 +12,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.HeartRateSample;
 public class TestHeartRateRestingSampleProvider extends AbstractTestSampleProvider<HeartRateSample> {
     @NonNull
     @Override
-    public List<HeartRateSample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<HeartRateSample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<HeartRateSample> samples = new ArrayList<>();
 
         for (long day = startOfDay(timestampFrom); day <= timestampTo; day += DAY_MILLIS) {

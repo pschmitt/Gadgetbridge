@@ -14,7 +14,7 @@ public class TestBloodPressureSampleProvider extends AbstractTestSampleProvider<
 
     @NonNull
     @Override
-    public List<BloodPressureSample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<BloodPressureSample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<BloodPressureSample> samples = new ArrayList<>();
 
         for (long day = startOfDay(timestampFrom); day < timestampTo; day += DAY_MILLIS) {

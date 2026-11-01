@@ -28,7 +28,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.HrvValueSample;
 public class TestHrvValueSampleProvider extends AbstractTestSampleProvider<HrvValueSample> {
     @NonNull
     @Override
-    public List<HrvValueSample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<HrvValueSample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<HrvValueSample> samples = new ArrayList<>();
 
         int hrv = TestDeviceRand.randInt(timestampFrom, 50, 95);

@@ -21,7 +21,7 @@ public class TestCyclingSampleProvider extends AbstractTestSampleProvider<Cyclin
 
     @NonNull
     @Override
-    public List<CyclingSample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<CyclingSample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<CyclingSample> samples = new ArrayList<>();
 
         for (long day = startOfDay(timestampFrom); day < timestampTo; day += DAY_MILLIS) {

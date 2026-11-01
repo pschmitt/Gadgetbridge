@@ -33,7 +33,7 @@ public class TestTrainingLoadAcuteSampleProvider extends AbstractTestSampleProvi
 
     @NonNull
     @Override
-    public List<GenericTrainingLoadAcuteSample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<GenericTrainingLoadAcuteSample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<GenericTrainingLoadAcuteSample> samples = new ArrayList<>();
 
         for (long day = startOfDay(timestampFrom); day < timestampTo; day += DAY_MILLIS) {
@@ -50,7 +50,7 @@ public class TestTrainingLoadAcuteSampleProvider extends AbstractTestSampleProvi
     @Nullable
     @Override
     public GenericTrainingLoadAcuteSample getLatestSample() {
-        return createSample(startOfDay(System.currentTimeMillis()) + SAMPLE_TIME_MILLIS);
+        return getLatestSample(System.currentTimeMillis());
     }
 
     @Nullable

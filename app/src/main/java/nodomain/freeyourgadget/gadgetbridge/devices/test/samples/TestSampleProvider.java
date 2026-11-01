@@ -124,8 +124,9 @@ public class TestSampleProvider extends AbstractSampleProvider<TestSampleProvide
         final long wakeMinute = TestDeviceRand.randInt(timestamp_from, 0, 59);
 
         final Calendar cal = GregorianCalendar.getInstance();
+        final long timestampEnd = Math.min(timestamp_to * 1000L, System.currentTimeMillis());
 
-        for (long ts = timestamp_from * 1000L; ts < timestamp_to * 1000L; ts += 60 * 1000L) {
+        for (long ts = timestamp_from * 1000L; ts < timestampEnd; ts += 60 * 1000L) {
             cal.setTimeInMillis(ts);
             final int h = cal.get(Calendar.HOUR_OF_DAY);
             final int m = cal.get(Calendar.MINUTE);

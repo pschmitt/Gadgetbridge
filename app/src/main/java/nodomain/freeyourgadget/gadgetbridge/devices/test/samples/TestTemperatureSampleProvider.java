@@ -35,7 +35,7 @@ public class TestTemperatureSampleProvider extends AbstractTestSampleProvider<Te
 
     @NonNull
     @Override
-    public List<TemperatureSample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<TemperatureSample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<TemperatureSample> samples = new ArrayList<>();
 
         float temp = TestDeviceRand.randFloat(timestampFrom, 36f, 37.5f);

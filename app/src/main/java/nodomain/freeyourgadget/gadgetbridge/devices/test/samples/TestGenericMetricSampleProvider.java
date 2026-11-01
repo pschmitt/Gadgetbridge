@@ -43,6 +43,7 @@ public class TestGenericMetricSampleProvider extends GenericMetricSampleProvider
         }
 
         final List<GenericMetricSample> samples = new ArrayList<>();
+        final long timestampEnd = Math.min(timestampTo, System.currentTimeMillis());
 
         switch (metric) {
             case GENERIC_TRAINING_LOAD_ACUTE:
@@ -59,9 +60,9 @@ public class TestGenericMetricSampleProvider extends GenericMetricSampleProvider
                 break;
         }
 
-        for (long day = AbstractTestSampleProvider.startOfDay(timestampFrom); day < timestampTo; day += DAY_MILLIS) {
+        for (long day = AbstractTestSampleProvider.startOfDay(timestampFrom); day < timestampEnd; day += DAY_MILLIS) {
             final long ts = day + SAMPLE_TIME_MILLIS;
-            if (ts < timestampFrom || ts >= timestampTo) {
+            if (ts < timestampFrom || ts >= timestampEnd) {
                 continue;
             }
             samples.add(newSample(metric, ts, getValue(metric, ts)));

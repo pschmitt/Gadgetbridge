@@ -28,7 +28,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.HrvSummarySample;
 public class TestHrvSummarySampleProvider extends AbstractTestSampleProvider<HrvSummarySample> {
     @NonNull
     @Override
-    public List<HrvSummarySample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<HrvSummarySample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<HrvSummarySample> samples = new ArrayList<>();
 
         for (long ts = timestampFrom; ts < timestampTo; ts += 24 * 60 * 60 * 1000L) {
