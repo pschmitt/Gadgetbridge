@@ -62,6 +62,7 @@ public class BluetoothNameTest extends TestBase {
             put("soundcore P2", DeviceType.SOUNDCORE_P2); // #7006
             put("soundcore P2i", DeviceType.SOUNDCORE_P2I); // #7006
             put("soundcore P2 Mini", DeviceType.SOUNDCORE_P2_MINI); // #7006
+            put("Soundcore Motion+", DeviceType.SOUNDCORE_MOTION_PLUS); // #4648
             put("soundcore V20i", DeviceType.SOUNDCORE_V20I); // #4644
             put("Soundcore Q30", DeviceType.SOUNDCORE_Q30); // #4316
             put("soundcore Q30", DeviceType.SOUNDCORE_Q30); // #6371

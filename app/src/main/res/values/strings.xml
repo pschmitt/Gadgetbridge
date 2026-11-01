@@ -2490,6 +2490,7 @@
     <string name="devicetype_soundcore_a30i" translatable="false">Soundcore A30i</string>
     <string name="devicetype_soundcore_liberty3_pro" translatable="false">Soundcore Liberty 3 Pro</string>
     <string name="devicetype_soundcore_liberty4_nc" translatable="false">Soundcore Liberty 4 NC</string>
+    <string name="devicetype_soundcore_motion_plus" translatable="false">Soundcore Motion+</string>
     <string name="devicetype_soundcore_motion300" translatable="false">Soundcore Motion 300</string>
     <string name="devicetype_soundcore_q30" translatable="false">Soundcore Q30</string>
     <string name="devicetype_soundcore_space_one" translatable="false">Soundcore Space One</string>
@@ -4287,6 +4288,10 @@
     <string name="haylou_s35_anc_eq_classic">Classic</string>
     <string name="haylou_s35_anc_eq_bass">Bass</string>
     <string name="soundcore_equalizer_preset">Preset</string>
+    <string name="soundcore_equalizer_preset_bass_off">Bass Off</string>
+    <string name="soundcore_equalizer_preset_heavy">Heavy</string>
+    <string name="soundcore_equalizer_preset_classic">Classic</string>
+    <string name="soundcore_equalizer_preset_original">Original</string>
     <string name="soundcore_equalizer_preset_signature">soundcore Signature</string>
     <string name="soundcore_equalizer_preset_xtra_bass">Xtra Bass</string>
     <string name="soundcore_equalizer_preset_voice">Voice</string>

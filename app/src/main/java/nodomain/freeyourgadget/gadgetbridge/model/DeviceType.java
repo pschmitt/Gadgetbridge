@@ -603,6 +603,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.soundcore.SoundcoreLiberty4N
 import nodomain.freeyourgadget.gadgetbridge.devices.soundcore.SoundcoreLifeTuneCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.soundcore.SoundcoreLifeTuneXRCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.soundcore.SoundcoreMotion300Coordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.soundcore.SoundcoreMotionPlusCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.soundcore.SoundcoreQ30Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.soundcore.SoundcoreSpaceOneCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.soundcore.SoundcoreSportX20Coordinator;
@@ -1115,6 +1116,7 @@ public enum DeviceType {
     SOUNDCORE_LIBERTY3_PRO(SoundcoreLiberty3ProCoordinator.class),
     SOUNDCORE_LIBERTY4_NC(SoundcoreLiberty4NCCoordinator.class),
     SOUNDCORE_MOTION300(SoundcoreMotion300Coordinator.class),
+    SOUNDCORE_MOTION_PLUS(SoundcoreMotionPlusCoordinator.class),
     SOUNDCORE_Q30(SoundcoreQ30Coordinator.class),
     SOUNDCORE_SPACE_ONE(SoundcoreSpaceOneCoordinator.class),
     SOUNDCORE_LIFE_TUNE(SoundcoreLifeTuneCoordinator.class),
