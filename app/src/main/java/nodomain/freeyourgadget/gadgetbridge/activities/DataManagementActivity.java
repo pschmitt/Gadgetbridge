@@ -124,7 +124,7 @@ public class DataManagementActivity extends AbstractGBActivity {
         //
 
         final View vendorImportSection = findViewById(R.id.vendorImportSection);
-        vendorImportSection.setVisibility(VendorDataImportDeviceActivity.getSupportedDevices().isEmpty() ? View.GONE : View.VISIBLE);
+        vendorImportSection.setVisibility(GBApplication.app().getDeviceManager().getSupportedDevices().isEmpty() ? View.GONE : View.VISIBLE);
         final Button vendorImportButton = findViewById(R.id.vendorImportButton);
         vendorImportButton.setOnClickListener(v -> startActivity(new Intent(this, VendorDataImportDeviceActivity.class)));
 

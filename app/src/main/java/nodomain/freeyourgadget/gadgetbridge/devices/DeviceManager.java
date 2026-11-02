@@ -25,6 +25,7 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -88,6 +89,7 @@ public class DeviceManager {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable deviceChangedRunnable = this::onDeviceChanged;
     private boolean deviceChangedPending = false;
+    private boolean initialized = false;
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -141,6 +143,24 @@ public class DeviceManager {
 
     public DeviceManager(Context context) {
         this.context = context;
+    }
+
+    /**
+     * Starts managing devices: registers the broadcast receivers and loads the devices from the
+     * database. Must be called after the application has finished its initialization (prefs and
+     * database), and only once.
+     */
+    @MainThread
+    public void initialize() {
+        if (initialized) {
+            return;
+        }
+        initialized = true;
+        registerReceivers();
+        refreshPairedDevices();
+    }
+
+    private void registerReceivers() {
         IntentFilter filterLocal = new IntentFilter();
         filterLocal.addAction(DeviceManager.ACTION_REFRESH_DEVICELIST);
         filterLocal.addAction(GBDevice.ACTION_DEVICE_CHANGED);
@@ -152,8 +172,6 @@ public class DeviceManager {
         filterGlobal.addAction(BLUETOOTH_DEVICE_ACTION_ALIAS_CHANGED);
         filterGlobal.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         ContextCompat.registerReceiver(context, mReceiver, filterGlobal, ContextCompat.RECEIVER_EXPORTED);
-
-        refreshPairedDevices();
     }
 
     private void updateDeviceName(BluetoothDevice device, String newName) {
@@ -268,6 +286,19 @@ public class DeviceManager {
      */
     public List<GBDevice> getDevices() {
         return Collections.unmodifiableList(deviceList);
+    }
+
+    /**
+     * Returns the devices that support vendor data import.
+     */
+    public List<GBDevice> getSupportedDevices() {
+        final List<GBDevice> supportedDevices = new ArrayList<>();
+        for (final GBDevice device : deviceList) {
+            if (device.getDeviceCoordinator().getVendorDataImporter(device) != null) {
+                supportedDevices.add(device);
+            }
+        }
+        return supportedDevices;
     }
 
     @Nullable

@@ -1,18 +1,27 @@
 package nodomain.freeyourgadget.gadgetbridge
 
 import dagger.hilt.android.HiltAndroidApp
+import nodomain.freeyourgadget.gadgetbridge.devices.DeviceManager
+import javax.inject.Inject
 
 /**
  * The application entry point for Hilt.
  *
  * [GBApplication] remains in Java, since it is a large class with a lot of legacy initialization
- * logic. This subclass only exists so that Hilt can be enabled from Kotlin, which is required for
- * KSP to process the [HiltAndroidApp] annotation.
+ * logic. This subclass exists so that Hilt can be enabled from Kotlin, and so that the
+ * [DeviceManager] singleton can be injected before [GBApplication.onCreate] runs.
  *
- * Note that the generated Hilt base class injects the application component *before* calling
- * [GBApplication.onCreate], so the singleton graph is built before `app`, `prefs`, and
- * `deviceManager` are initialized. Hilt modules must therefore not eagerly depend on that legacy
- * state while the component is being created.
+ * [DeviceManager] is provided by [nodomain.freeyourgadget.gadgetbridge.di.AppModule] as a
+ * singleton. Its constructor does not touch any state that is only available after
+ * [GBApplication.onCreate], so it can be safely constructed while the Hilt component is created.
+ * [DeviceManager.initialize] is called from [GBApplication.onCreate] once prefs and the database
+ * are ready.
  */
 @HiltAndroidApp
-open class GBHiltApplication : GBApplication()
+open class GBHiltApplication : GBApplication() {
+    @Inject
+    lateinit var deviceManagerInstance: DeviceManager
+
+    @Deprecated("Deprecated in Java")
+    override fun getDeviceManager(): DeviceManager = deviceManagerInstance
+}

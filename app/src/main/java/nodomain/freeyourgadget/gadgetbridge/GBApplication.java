@@ -101,7 +101,7 @@ import nodomain.freeyourgadget.gadgetbridge.widgets.launcher.LauncherWidgets;
  * Main Application class that initializes and provides access to certain things like
  * logging and DB access.
  */
-public class GBApplication extends Application {
+public abstract class GBApplication extends Application {
     private static final Logger LOG = LoggerFactory.getLogger(GBApplication.class);
 
     private static GBApplication context;
@@ -132,7 +132,6 @@ public class GBApplication extends Application {
 
     private static Locale language;
 
-    private DeviceManager deviceManager;
     private BluetoothStateChangeReceiver bluetoothStateChangeReceiver;
 
     private OpenTracksContentObserver openTracksObserver;
@@ -267,7 +266,8 @@ public class GBApplication extends Application {
 
         Weather.initializeCache(new WeatherCacheManager(getCacheDir(), prefs.getBoolean("cache_weather", true)));
 
-        deviceManager = new DeviceManager(this);
+        // Prefs and the database are ready at this point.
+        getDeviceManager().initialize();
         String language = prefs.getString("language", "default");
         setLanguage(language);
 
@@ -721,9 +721,11 @@ public class GBApplication extends Application {
         return prefs;
     }
 
-    public DeviceManager getDeviceManager() {
-        return deviceManager;
-    }
+    /**
+     * @deprecated Use Hilt DI to access the {@link DeviceManager} instead.
+     */
+    @Deprecated
+    public abstract DeviceManager getDeviceManager();
 
     public static GBApplication app() {
         return app;
