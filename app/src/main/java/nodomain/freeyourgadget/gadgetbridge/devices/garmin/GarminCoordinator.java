@@ -396,6 +396,11 @@ public abstract class GarminCoordinator extends AbstractBLEDeviceCoordinator {
     }
 
     @Override
+    public boolean supportsWatchAppMessages(@NonNull final GBDevice device) {
+        return supports(device, GarminCapability.CONNECTIQ_WATCH_APP_DOWNLOAD);
+    }
+
+    @Override
     public boolean supportsAppsManagement(@NonNull final GBDevice device) {
         // FIXME: experimental until better polished
         return experimentalSettingEnabled(device, "garmin_experimental_app_management");
