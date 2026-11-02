@@ -2549,6 +2549,7 @@
     <string name="devicetype_soundcore_life_tune_xr" translatable="false">Soundcore Life Tune XR</string>
     <string name="devicetype_soundcore_aerofit2" translatable="false">Soundcore AeroFit 2</string>
     <string name="devicetype_soundcore_sport_x20" translatable="false">Soundcore Sport X20</string>
+    <string name="devicetype_soundcore_r50i_nc" translatable="false">Soundcore R50i NC</string>
     <string name="devicetype_soundcore_p42i" translatable="false">Soundcore P42i</string>
     <string name="devicetype_soundcore_p41i" translatable="false">Soundcore P41i</string>
     <string name="devicetype_soundcore_p40i" translatable="false">Soundcore P40i</string>
