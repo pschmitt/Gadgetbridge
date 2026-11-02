@@ -4,10 +4,11 @@
 
 #### Next version (WIP)
 
-* Initial support for Anker Soundcore Motion+, V20i
+* Initial support for Anker Soundcore Motion+, R50i NC, V20i
 * Initial support for Bettdow FB051 (MoYoung / Da Fit)
 * Initial support for Beurer BM59
 * Initial support for BRAZ/7HARRY (FitPro)
+* Initial support for Casio GG-B100
 * Initial support for Colmi P10
 * Initial support for Fire-Boltt 069, KW19-B, Ninja Phantom (MoYoung / Da Fit)
 * Initial support for GE Fit Plus (QN-Scale)
@@ -18,11 +19,13 @@
 * Initial support for some other iTag versions
 * Initial support for T70 (GloryFit)
 * Initial support for Teufel Mynd
-* Initial support for Xiaomi Smart Band 11, Watch S5
+* Initial support for Xiaomi Smart Band 11, Smart Band 11 Active, Watch S5
 * Initial support for Yawell Y27 AI Health WatchPad
 * Initial support for Zeblaze Stratos 4 Pro
 * Experimental support for Anker Soundcore Space One
 * Experimental support for Concept2 PM5
+* Experimental support for Coros Pace 3
+* Experimental support for Segway Ninebot F2 Pro KickScooter
 * Experimental support for 15 Anker Soundcore devices
 * Refresh design for alarms list and details
 * Refresh design for app manager
@@ -81,6 +84,7 @@
 * Deprecate SMS Receiver
 * Device list: Fix some crashes and resets
 * Discovery: Add device candidate details screen
+* Dismiss the welcome screen after the first device is paired
 * DJI Osmo Action 4: Add camera gallery via Wi-Fi
 * Do not display changelog on the very first run
 * Endurain: Add support for Endurain 0.20
@@ -95,6 +99,7 @@
 * Fix some settings in subscreens not working
 * Fossil: Add quick settings
 * Garmin: Add card item to send waypoints
+* Garmin: Add Intent API to send watch messages
 * Garmin: Add notification for app and watch crashes on debug builds
 * Garmin: Add support for custom apps for navigation and loyalty cards
 * Garmin: Add workout templates extra reps, load category
@@ -103,6 +108,7 @@
 * Garmin: Display workout set exercise name if available
 * Garmin: Dynamically check music and find devices capabilities
 * Garmin: Estimate sleep for older watches
+* Garmin: Fix request MIME type for some web requests
 * Garmin: Fix workout templates step names
 * Garmin: Improve JSON request decoding
 * Garmin: Improve PRG install process
@@ -113,6 +119,7 @@
 * Garmin: Send waypoints from Plus Codes
 * H59: Add notification and incoming call support
 * Health Connect: Do not sync samples with a timestamp in the future
+* Health Connect: Export strength workout sets as exercise segments
 * Health Connect: Implement deletion of activities
 * Health Connect: Map aerobics to exercise class and CrossFit to boot camp
 * Health Connect: Skip weight samples with a value of zero
@@ -120,6 +127,7 @@
 * Huami / Zepp OS: Fix elevation correction
 * Huami: Enable SpO2 / Stress / PAI for devices that have it
 * Huami: Fix overlapping sleep sessions
+* Huami: Fix parsing of accelerometer data for older non-Zepp-OS devices
 * Huawei: Enable Sleep Breath feature
 * Hydration: Refresh dashboard after manual entry
 * iGPSPORT: Always send notification name and content
@@ -128,6 +136,7 @@
 * Maps: Fix tiles on preference change
 * Mi Body Composition Scale: Fix missing impedance
 * Mi Watch Color Sport: Improve workout parsing
+* Navigation: Optional arrow in generic navigation notifications
 * Notifications: Add Khmer and Thai transliterations
 * Notifications: Allow forwarding local-only notifications
 * Notifications: Allow ignoring app list for VoIP calls
@@ -136,8 +145,11 @@
 * Oppo Headphones: Add ANC level support
 * Oppo Headphones: Add quick controls
 * Pebble: Add preference for choosing which app store to use
+* Pebble: Allow starting/activating apps and watchfaces from the app manager
 * Pebble: Fix back button closing the app store
 * Pebble: Fix double-counting insets in the app store WebView
+* Pebble: Pebble: Add tab for app/watchface updates to app manager
+* Polar H9/H10: Enable support for live data
 * Quick Settings: Long press to device settings
 * Rename "Keep activity data on device" developer setting
 * Revamp app notifications configuration
@@ -153,6 +165,7 @@
 * Test Device: Fix feature overrides when multiple test devices exist
 * Test device: Fix test HR samples
 * Test device: Improve configuration of enabled features
+* Test Device: Improve random data generation
 * Throttle device list updates
 * Update some old dialogs to Material 3
 * Weather: Optimise solar calculations
@@ -168,6 +181,7 @@
 * Workouts: Add statistics overview
 * Workouts: Simplify weight column for whole KGs
 * Workouts: Update filter screen to Material 3
+* Xiaomi-protobuf: Add Intent API to send watch messages
 * Xiaomi-protobuf: Add settings for irregular heart rhythm alert and sleep breathing rate
 * Xiaomi-protobuf: Always allow raw summary, details and GPS sharing
 * Xiaomi-protobuf: Fix NPE when fetching body energy samples
@@ -180,6 +194,7 @@
 * Yawell/Colmi: Fix sync getting stuck and blocking calls
 * Zepp OS: Allow importing shared workout template JSON
 * Zepp OS: Enable HRV if BioCharge app is available
+* Zepp OS: Export swim intervals as FIT length records
 * Zepp OS: Optimise notification image conversion
 * Zepp OS: Respect notification picture orientation
 * Zepp OS: Sync calendar from watch to phone
