@@ -106,7 +106,7 @@
     <string name="pref_summary_enable_pebblekit">Activer le support expérimental pour les applications Android utilisant PebbleKit</string>
     <string name="pref_header_pebble_timeline">Timeline Pebble</string>
     <string name="pref_title_sunrise_sunset">Lever et coucher de soleil</string>
-    <string name="pref_summary_sunrise_sunset">Envoyer les heures de lever et coucher du soleil dans l’historique Pebble en fonction de l\'emplacement</string>
+    <string name="pref_summary_sunrise_sunset">Envoyer les heures de lever et coucher du soleil dans l’historique Pebble en fonction de la position</string>
     <string name="pref_title_enable_calendar_sync">Synchroniser le calendrier</string>
     <string name="pref_summary_enable_calendar_sync">Envoyer les événements du calendrier sur la timeline</string>
     <string name="pref_title_autoremove_notifications">Effacer automatiquement les notifications rejetées</string>
@@ -115,14 +115,14 @@
     <string name="pref_pebble_privacy_mode_off">Notifications normales</string>
     <string name="pref_pebble_privacy_mode_content">Déplace les notifications hors de l\'écran</string>
     <string name="pref_pebble_privacy_mode_complete">Ne montre que l\'icône de notification</string>
-    <string name="pref_header_location">Emplacement</string>
-    <string name="pref_title_location_aquire">Obtenir l\'emplacement</string>
+    <string name="pref_header_location">Position</string>
+    <string name="pref_title_location_aquire">Obtenir la position</string>
     <string name="pref_title_location_latitude">Latitude</string>
     <string name="pref_title_location_longitude">Longitude</string>
-    <string name="pref_title_location_keep_uptodate">Garder l’emplacement à jour</string>
-    <string name="pref_summary_location_keep_uptodate">Essayer de garder la localisation à jour pendant le fonctionnement, sinon utiliser l’emplacement enregistré</string>
+    <string name="pref_title_location_keep_uptodate">Garder la position à jour</string>
+    <string name="pref_summary_location_keep_uptodate">Essayer de garder la position à jour pendant le fonctionnement, sinon utiliser la position enregistrée</string>
     <string name="toast_enable_networklocationprovider">Veuillez activer la localisation réseau</string>
-    <string name="toast_aqurired_networklocation">Emplacement obtenu</string>
+    <string name="toast_aqurired_networklocation">Position obtenue</string>
     <string name="pref_title_pebble_forceprotocol">Forcer le protocole de notification</string>
     <string name="pref_summary_pebble_forceprotocol">Cette option force l\'utilisation du protocole de notification le plus récent selon votre version du micrologiciel. À VOS PROPRES RISQUES ET PÉRILS !</string>
     <string name="pref_title_pebble_forceuntested">Activer les fonctionnalités non testées</string>
@@ -192,7 +192,7 @@
     <string name="miband_pairing_using_dummy_userdata">Aucune donnée utilisateur valide fournie, utilisation de données fictives pour le moment.</string>
     <string name="miband_pairing_tap_hint">Quand votre Mi Band vibre et clignote, appuyez dessus plusieurs fois d\'affilée.</string>
     <string name="appinstaller_install">Installer</string>
-    <string name="discovery_connected_devices_hint">Rendez votre appareil détectable. Les appareils déjà connectés ne seront probablement pas détectés. Activez la localisation (par exemple, le GPS). Désactivez Privacy Guard pour Gadgetbridge, car cela peut provoquer des plantages ou redémarrer votre téléphone. Si aucun appareil n’est trouvé après quelques minutes, redémarrez votre mobile et réessayez.</string>
+    <string name="discovery_connected_devices_hint">Rendez votre appareil détectable. Les appareils déjà connectés ne seront probablement pas détectés. Activez la Position (par exemple, le GPS).</string>
     <string name="discovery_note">Note :</string>
     <string name="candidate_item_device_image">Image de l\'appareil</string>
     <string name="miband_prefs_alias">Nom/Pseudo</string>
@@ -449,7 +449,7 @@
     <string name="interval_thirty_minutes">Toutes les 30 minutes</string>
     <string name="interval_one_hour">Une fois par heure</string>
     <string name="pref_title_weather">Météo</string>
-    <string name="pref_title_weather_location">Emplacement météo (du fournisseur météo LineageOS)</string>
+    <string name="pref_title_weather_location">Position météo (du fournisseur météo LineageOS)</string>
     <string name="kind_firmware">Micrologiciel</string>
     <string name="kind_invalid">Données non valides</string>
     <string name="kind_font">Police</string>
@@ -461,7 +461,7 @@
     <string name="devicetype_unknown">Appareil inconnu</string>
     <string name="pref_header_auto_export">Exporter automatiquement</string>
     <string name="pref_title_auto_export_enabled">Exportation automatique activée</string>
-    <string name="pref_title_auto_export_location">Emplacement de l\'exportation</string>
+    <string name="pref_title_auto_export_location">Position de l\'exportation</string>
     <string name="pref_title_auto_export_interval">Intervalle d\'exportation</string>
     <string name="pref_summary_auto_export_interval">Exporter toutes les %d heures</string>
     <string name="notif_export_failed_title">L\'exportation de la base de données a échoué ! Veuillez vérifier vos paramètres.</string>
@@ -1448,7 +1448,7 @@
     <string name="pref_title_notifications_generic_settings">Configuration notifications Android</string>
     <string name="activity_db_management_autoexport_scheduled_yes">L\'export automatique a été (initialement) réglé pour %1$s</string>
     <string name="activity_db_management_autoexport_scheduled_no">L\'export automatique n\'a pas été planifié.</string>
-    <string name="activity_db_management_autoexport_location">L\'emplacement n\'a pas pu être détecté. Probablement un problème avec les nouvelles permissions du système Android. Très probablement, l\'export automatique ne fonctionne pas actuellement.</string>
+    <string name="activity_db_management_autoexport_location">La position n\'a pas pu être interprétée. Probablement un problème avec les nouvelles permissions du système Android. Très probablement, l\'export automatique ne fonctionne pas actuellement.</string>
     <string name="watchface_dialog_pre_setting_position">pré-configuration de la position à %s</string>
     <string name="watchface_setting_light_up_on_notification">S\'allumer pour une nouvelle notification</string>
     <string name="menuitem_email">Email</string>
@@ -2534,8 +2534,7 @@
 \nUTILISER À VOS RISQUES ET PÉRILS</string>
     <string name="pref_force_wear_location">Forcer la localisation</string>
     <string name="huawei_ignore_wakeup_status_end_description">Peut aider pour une bonne détection du sommeil. Visible immédiatement dans la vue des activités quotidiennes.</string>
-    <string name="pref_force_wear_location_summary">Forcer la gestion de l\'emplacement
-\nUTILISER À VOS RISQUES ET PÉRILS</string>
+    <string name="pref_force_wear_location_summary">Forcer la gestion de la position \nUTILISER À VOS RISQUES ET PÉRILS</string>
     <string name="pref_force_dnd_support">Forcer la gestion du mode Ne pas déranger</string>
     <string name="pref_force_dnd_support_summary">Forcer la gestion du mode Ne pas déranger
 \nUTILISER À VOS RISQUES ET PÉRILS</string>
@@ -3048,7 +3047,7 @@
     <string name="pref_deprecated_media_control_summary">Envoyez les commandes de contrôle des médias comme des événements clés au lieu du contrôleur des médias.</string>
     <string name="pref_description_dashboard">Widgets, dispositifs à inclure</string>
     <string name="pref_title_user_interface">Interface utilisateur</string>
-    <string name="pref_description_general">Démarrage, langue, région, emplacement</string>
+    <string name="pref_description_general">Démarrage, langue, région, position</string>
     <string name="activity_prefs_date_birth">Date de naissance</string>
     <string name="menuitem_stress_simple">Stress (simple)</string>
     <string name="pref_description_user_interface">Thème, écran principal</string>
@@ -3257,7 +3256,7 @@
     <string name="permission_notifications_summary">Transfert des notifications vers les gadgets connectés</string>
     <string name="permission_displayover_title">Afficher par-dessus d\'autres applications</string>
     <string name="permission_displayover_summary">Utilisé par Bangle.js pour démarrer des applications et d’autres fonctionnalités sur votre téléphone</string>
-    <string name="permission_background_location_summary">Recherche des périphériques Bluetooth en arrière-plan et envoi de l’emplacement à certains gadgets</string>
+    <string name="permission_background_location_summary">Recherche des périphériques Bluetooth en arrière-plan et envoi de la position à certains gadgets</string>
     <string name="pref_developer_add_test_activities_summary">Remplir la base de données avec des activités de test factices</string>
     <string name="pref_developer_add_test_activities_title">Ajouter des activités de test</string>
     <string name="music_add_to_playlist">Ajouter à la playlist</string>
@@ -3361,7 +3360,7 @@
     <string name="gree_controller_host">Hôte</string>
     <string name="pref_garmin_fake_oauth_summary">Corrige certaines fonctions telles que la météo et les mises à jour AGPS sans se connecter à l’application officielle tous les 90 jours.</string>
     <string name="permission_manage_dnd_summary">Modification de la politique du MDN (DND) sur les avis (notifications)</string>
-    <string name="permission_fine_location_title">Bon emplacement</string>
+    <string name="permission_fine_location_title">Position précise</string>
     <string name="redmi_buds_5_pro_transparency_strength">Force de la transparence</string>
     <string name="music_multiselect_limit">Limite pour la sélection de plus d’un élément atteinte</string>
     <string name="title_activity_even_realities_g1_pairing">Même appairage de G1</string>
@@ -4544,7 +4543,7 @@
     <string name="activity_summary_set_header_photo_title">Définir photo d’en-tête</string>
     <string name="activity_summary_remove_header_photo_title">Retirer photo d’en-tête</string>
     <string name="feature_exploresync_summary">Synchroniser les tracés GPS d\'activité via le protocole ExploreSync. À utiliser uniquement si l\'appareil ne fournit pas de fichiers FIT.</string>
-    <string name="pref_casio_interval_timer_title">Chronomètre à intervalles</string>
+    <string name="pref_casio_interval_timer_title">Minuteur à intervalles</string>
     <string name="casio_interval_timer_add">Ajouter minuteur</string>
     <string name="casio_interval_timer_empty">Aucun minuteur. Touchez + pour en ajouter un.</string>
     <string name="casio_interval_timer_limit_reached">Limite de 50 minuteurs atteinte</string>
@@ -5147,4 +5146,26 @@
     <string name="pref_device_card_quick_controls_summary">Personnalisez les contrôles rapides de la carte d\'appareil</string>
     <string name="device_card_items_reset_confirmation">Réinitialiser l\'ordre des éléments de carte d\'appareil et restaurer les éléments supprimés ?</string>
     <string name="pref_header_devices_screen">Écran des appareils</string>
+    <string name="pref_casio_location_indicator_title">Indicateur de position</string>
+    <string name="pref_description_navigation_symbols">Afficher une flèche Unicode pour ma prochaine manœuvre. Désactivez si l\'appareil affiche des cases vides à la place.</string>
+    <string name="casio_location_indicator_add">Ajouter un point de passage</string>
+    <string name="casio_location_indicator_active">Indicateur de position actif</string>
+    <string name="casio_location_indicator_default_label">Position %1$d</string>
+    <string name="casio_location_indicator_empty">Aucun point de passage enregistré</string>
+    <string name="casio_location_indicator_use_current">Utiliser la position actuelle</string>
+    <string name="discovery_requirements_permissions_text">Gadgetbridge a besoin des permissions Position et Bluetooth pour découvrir des appareils.</string>
+    <string name="activity_send_waypoint_center_on_location">Centrer la position actuelle</string>
+    <string name="activity_send_waypoint_use_location">Placer le point de passage à la position actuelle</string>
+    <string name="activity_send_waypoint_location_unavailable">Position actuelle non accessible</string>
+    <string name="casio_location_indicator_import_no_waypoints">Pas de points de passage dans le fichier</string>
+    <string name="casio_location_indicator_import_failed">Impossible d\'importer le fichier GPX</string>
+    <string name="casio_location_indicator_exported">GPX exporté</string>
+    <string name="casio_location_indicator_empty_export">Pas de points de passage à exporter</string>
+    <string name="casio_location_indicator_export_failed">Impossible d\'exporter le fichier GPX</string>
+    <string name="pref_casio_countdown_timer_title">Temps restant (HH:MM:SS)</string>
+    <string name="pref_casio_pressure_energy_calc_title">Utiliser les données de pression pour calculer l\'énergie</string>
+    <string name="pref_casio_compass_auto_correction_title">Auto-correction du compas</string>
+    <string name="pref_casio_altitude_interval_title">Intervalle de mesure automatique de l\'altitude</string>
+    <string name="pref_casio_altimeter_display_title">Affichage de l\'altimètre</string>
+    <string name="pref_casio_mode_carousel_title">Mode carrousel</string>
 </resources>
