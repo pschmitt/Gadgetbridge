@@ -4858,7 +4858,7 @@
     <string name="duration_short_six_months">6m</string>
     <string name="duration_short_year">1a</string>
     <string name="device_card_add_item">Ajouter un élément</string>
-    <string name="device_card_more_summary">Les éléments suivants seront affichés dans une popup</string>
+    <string name="device_card_more_summary">Les éléments suivant celui-ci seront affichés dans une popup</string>
     <string name="pref_summary_navigation_allow_unsupported_devices">Envoyer des instructions de navigation à des appareils qui ne gèrent pas la navigation</string>
     <string name="pref_title_navigation_right_hand_driving">Circulation à droite</string>
     <string name="pref_description_navigation_right_hand_driving">Détermine l\'icône de navigation utilisée pour les ronds-points.</string>
@@ -5124,4 +5124,27 @@
     <string name="prefs_voice_prompts_language">Langue des messages vocaux</string>
     <string name="prefs_shortcut_action">Action du raccourci</string>
     <string name="prefs_busylight">Témoin d\'occupation</string>
+    <string name="pref_device_card_items_summary">Personnalisez les éléments de la carte d\'appareil</string>
+    <string name="pref_device_card_items_title">Éléments de la carte</string>
+    <string name="pref_device_card_show_items_title">Afficher les éléments de la carte</string>
+    <string name="elevation_tiles_download_summary">Tuiles SRTM.hgt de 1 ou 3 secondes, à raison d\'une tuile par cellule d\'un degré, avec des noms comme N45E007.hgt</string>
+    <string name="elevation_tiles_import_title">Importer une tuile d\'élévation</string>
+    <string name="elevation_tiles_import_summary">Un fichier .hgt, ou un .zip en contenant un ou plus</string>
+    <string name="elevation_tiles">Tuiles d\'élévation</string>
+    <string name="elevation_tiles_empty">Aucune tuile d\'élévation. Gadgetbridge ne les importe pas : récupérez les tuiles de votre zone et importez-les ici.</string>
+    <string name="elevation_tile_details">%1$s • %2$s</string>
+    <string name="elevation_tile_resolution_1">1 arc-seconde (30 m)</string>
+    <string name="elevation_tile_resolution_3">3 arc-secondes (90 m)</string>
+    <string name="elevation_tile_imported">%1$s (%2$s) importé</string>
+    <plurals name="elevation_tiles_imported">
+        <item quantity="one">%d tuile d\'élévation importée</item>
+        <item quantity="many">%d tuiles d\'élévation importées</item>
+        <item quantity="other">%d tuiles d\'élévation importées</item>
+    </plurals>
+    <string name="elevation_tile_import_failed">Échec d\'importation de tuile : %1$s</string>
+    <string name="elevation_tile_delete_title">Effacer %1$s ?</string>
+    <string name="pref_header_device_card">Carte d\'appareil</string>
+    <string name="pref_device_card_quick_controls_summary">Personnalisez les contrôles rapides de la carte d\'appareil</string>
+    <string name="device_card_items_reset_confirmation">Réinitialiser l\'ordre des éléments de carte d\'appareil et restaurer les éléments supprimés ?</string>
+    <string name="pref_header_devices_screen">Écran des appareils</string>
 </resources>
