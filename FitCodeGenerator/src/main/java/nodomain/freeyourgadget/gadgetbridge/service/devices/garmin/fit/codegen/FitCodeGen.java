@@ -948,7 +948,7 @@ public enum FitCodeGen {
     }
 
     private static String capitalize(final String str) {
-        return str.substring(0, 1).toUpperCase() + str.substring(1);
+        return str.substring(0, 1).toUpperCase(Locale.ROOT) + str.substring(1);
     }
 
     /**
