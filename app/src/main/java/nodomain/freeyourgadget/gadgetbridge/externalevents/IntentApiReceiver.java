@@ -85,7 +85,7 @@ public class IntentApiReceiver extends BroadcastReceiver {
     public static final String COMMAND_DEBUG_HEAP_DUMP = "nodomain.freeyourgadget.gadgetbridge.command.DEBUG_HEAP_DUMP";
 
     public static final String INTENT_API_ALLOW_DEBUG_COMMANDS = "intent_api_allow_debug_commands";
-    public static final String INTENT_API_ALLOW_WATCH_APP_MESSAGES = "intent_api_allow_watch_app_messages";
+    public static final String THIRD_PARTY_APPS_WATCH_APP_MESSAGES = "third_party_apps_watch_app_messages";
 
     /// @deprecated use {@link #EXTRA_DEVICE} instead
     @Deprecated
@@ -162,8 +162,15 @@ public class IntentApiReceiver extends BroadcastReceiver {
                 break;
 
             case COMMAND_SEND_WATCH_APP_MESSAGE: {
-                if (!prefs.getBoolean(INTENT_API_ALLOW_WATCH_APP_MESSAGES, false)) {
-                    LOG.warn("Intent API watch app messages not allowed");
+                final DeviceService deviceService = getDeviceService(intent);
+                final GBDevice device = deviceService != null ? deviceService.getDevice() : null;
+                if (device == null) {
+                    LOG.warn("Watch app message needs the device extra with a known device");
+                    return;
+                }
+                if (!GBApplication.getDeviceSpecificSharedPrefs(device.getAddress())
+                        .getBoolean(THIRD_PARTY_APPS_WATCH_APP_MESSAGES, false)) {
+                    LOG.warn("Intent API watch app messages not allowed for {}", device.getAliasOrName());
                     return;
                 }
                 final String appId = intent.getStringExtra("appId");
@@ -172,13 +179,8 @@ public class IntentApiReceiver extends BroadcastReceiver {
                     LOG.warn("Watch app message needs the appId and payload extras");
                     return;
                 }
-                final DeviceService deviceService = getDeviceService(intent);
-                if (deviceService != null) {
-                    final GBDevice device = deviceService.getDevice();
-                    LOG.info("Sending a message to watch app {} on {}", appId,
-                            (device != null) ? device.getAliasOrName() : "all devices");
-                    deviceService.onSendWatchAppMessage(appId, payload.getBytes(StandardCharsets.UTF_8));
-                }
+                LOG.info("Sending a message to watch app {} on {}", appId, device.getAliasOrName());
+                deviceService.onSendWatchAppMessage(appId, payload.getBytes(StandardCharsets.UTF_8));
                 break;
             }
 

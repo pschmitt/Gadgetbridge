@@ -258,6 +258,11 @@ public abstract class XiaomiCoordinator extends AbstractBLEDeviceCoordinator {
     }
 
     @Override
+    public boolean supportsWatchAppMessages(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
     public boolean supportsCachedAppManagement(@NonNull final GBDevice device) {
         return false;
     }

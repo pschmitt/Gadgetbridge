@@ -1936,6 +1936,9 @@ public class DeviceSpecificSettingsFragment extends AbstractPreferenceFragment i
             if (coordinator.getAlarmSlotCount(device) > 0) {
                 intentApiSubScreens.add(R.xml.devicesettings_alarms_third_party_apps);
             }
+            if (coordinator.supportsWatchAppMessages(device)) {
+                intentApiSubScreens.add(R.xml.devicesettings_watch_app_messages_third_party_apps);
+            }
             deviceSpecificSettings.addRootScreen(
                     DeviceSpecificSettingsScreen.DEVELOPER,
                     intentApiSubScreens

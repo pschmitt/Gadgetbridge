@@ -671,6 +671,11 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
     }
 
     @Override
+    public boolean supportsWatchAppMessages(@NonNull final GBDevice device) {
+        return false;
+    }
+
+    @Override
     public boolean supportsCachedAppManagement(@NonNull final GBDevice device) {
         try {
             return supportsAppsManagement(device) && getAppCacheDir() != null;

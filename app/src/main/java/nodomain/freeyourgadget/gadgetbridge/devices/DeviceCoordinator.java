@@ -785,6 +785,11 @@ public interface DeviceCoordinator {
      */
     boolean supportsAppsManagement(@NonNull final GBDevice device);
 
+    /**
+     * Returns true if the phone can send messages to apps installed on this device.
+     */
+    boolean supportsWatchAppMessages(@NonNull final GBDevice device);
+
     boolean supportsCachedAppManagement(@NonNull final GBDevice device);
     boolean supportsInstalledAppManagement(@NonNull final GBDevice device);
     boolean supportsWatchfaceManagement(@NonNull final GBDevice device);
