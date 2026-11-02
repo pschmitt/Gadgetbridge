@@ -16,7 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.service.devices.garmin
 
-import com.google.common.collect.Lists
 import nodomain.freeyourgadget.gadgetbridge.model.RecordedDataTypes
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiDataTypes
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiFileAccess
