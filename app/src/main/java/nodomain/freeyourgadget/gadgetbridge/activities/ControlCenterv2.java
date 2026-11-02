@@ -28,6 +28,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -389,7 +390,7 @@ public class ControlCenterv2 extends AppCompatActivity
         barShades = new BarShade.ScrollListener(findViewById(R.id.main_content));
         updateBottomNavigationVisibility();
 
-        // A page's fragment, and its view, are created after the page is selected
+        // A page's fragment, and its view, are created after onCreate
         getSupportFragmentManager().registerFragmentLifecycleCallbacks(new FragmentManager.FragmentLifecycleCallbacks() {
             @Override
             public void onFragmentViewCreated(@NonNull final FragmentManager fm, @NonNull final Fragment fragment,
@@ -430,6 +431,15 @@ public class ControlCenterv2 extends AppCompatActivity
         if (savedInstanceState == null) {
             selectDefaultTab();
         }
+
+        // Create the pages next to the current page when the main thread is idle,
+        // after the current page is drawn.
+        Looper.myQueue().addIdleHandler(() -> {
+            if (!isDestroyed()) {
+                viewPager.setOffscreenPageLimit(1);
+            }
+            return false;
+        });
 
         // Make sure the SwipeRefreshLayout doesn't interfere with the ViewPager2
         viewPager.getChildAt(0).setOnTouchListener((v, event) -> {
