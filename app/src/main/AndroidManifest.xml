@@ -167,7 +167,7 @@
         android:required="false" />
 
     <application
-        android:name=".GBApplication"
+        android:name=".GBHiltApplication"
         android:allowBackup="false"
         android:supportsRtl="true"
         android:fullBackupContent="false"

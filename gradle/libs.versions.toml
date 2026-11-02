@@ -35,10 +35,12 @@ freemarker = "2.3.35"
 greendao = "2.2.1"
 gson = "2.15.0"
 hamcrest = "3.0"
+hilt = "2.60.1"
 json = "20260814"
 jsoup = "1.24.1"
 junit = "4.13.2"
 kotlin = "2.4.20"
+ksp = "2.3.13"
 logback-android = "3.0.0"
 mapsforge = "0.30.0"
 material = "1.14.0"
@@ -105,6 +107,8 @@ freemarker = { group = "org.freemarker", name = "freemarker", version.ref = "fre
 greendao = { group = "org.greenrobot", name = "greendao", version.ref = "greendao" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 hamcrest = { group = "org.hamcrest", name = "hamcrest-library", version.ref = "hamcrest" }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 json = { group = "org.json", name = "json", version.ref = "json" }
 jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -158,3 +162,5 @@ android-application = { id = "com.android.application", version.ref = "android-g
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobuf-plugin" }
 kaitai = { id = "org.freeyourgadget.kaitai", version.ref = "kaitai-plugin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }

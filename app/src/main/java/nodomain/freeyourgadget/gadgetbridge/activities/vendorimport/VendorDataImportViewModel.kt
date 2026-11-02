@@ -1,11 +1,14 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.vendorimport
 
-import android.app.Application
+import android.content.Context
 import android.net.Uri
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CancellationException
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -17,12 +20,21 @@ import nodomain.freeyourgadget.gadgetbridge.vendorimport.VendorExport
 import nodomain.freeyourgadget.gadgetbridge.vendorimport.VendorExportDevice
 import nodomain.freeyourgadget.gadgetbridge.vendorimport.VendorImportSelection
 import org.slf4j.LoggerFactory
+import javax.inject.Inject
 
-class VendorDataImportViewModel(
-    application: Application,
-    val device: GBDevice,
-    val importer: VendorDataImporter,
-) : AndroidViewModel(application) {
+@HiltViewModel
+class VendorDataImportViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    savedStateHandle: SavedStateHandle,
+) : ViewModel() {
+    val device: GBDevice = checkNotNull(savedStateHandle.get<GBDevice>(GBDevice.EXTRA_DEVICE)) {
+        "Missing ${GBDevice.EXTRA_DEVICE} extra"
+    }
+
+    val importer: VendorDataImporter = checkNotNull(
+        device.deviceCoordinator.getVendorDataImporter(device)
+    ) { "Device ${device.address} does not support vendor data import" }
+
     sealed class ScanState {
         data object Instructions : ScanState()
         data object Scanning : ScanState()
@@ -48,9 +60,9 @@ class VendorDataImportViewModel(
         viewModelScope.launch {
             _scanState.value = try {
                 val export = withContext(Dispatchers.IO) {
-                    val input = getApplication<Application>().contentResolver.openInputStream(uri)
+                    val input = context.contentResolver.openInputStream(uri)
                         ?: throw IllegalStateException("Failed to open $uri")
-                    input.use { importer.scan(getApplication(), it) }
+                    input.use { importer.scan(context, it) }
                 }
                 selectDevice(
                     export.devices.find { it.id == device.firmwareVersion2 } ?: export.devices.singleOrNull()
@@ -58,9 +70,8 @@ class VendorDataImportViewModel(
                 selectedAppCategories.clear()
                 selectedAppCategories.addAll(export.appEntries.keys)
                 ScanState.Scanned(uri, export)
-            } catch (e: CancellationException) {
-                throw e
             } catch (e: Exception) {
+                ensureActive()
                 LOG.error("Failed to scan {}", uri, e)
                 ScanState.Failed
             }

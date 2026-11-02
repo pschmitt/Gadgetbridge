@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kaitai)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 tasks.withType(Test).configureEach {
@@ -331,6 +333,9 @@ dependencies {
     implementation libs.androidx.security.crypto
     implementation libs.androidx.browser
     implementation libs.androidx.exifinterface
+
+    implementation libs.hilt.android
+    ksp libs.hilt.android.compiler
 
     implementation libs.material
     implementation libs.flexbox
