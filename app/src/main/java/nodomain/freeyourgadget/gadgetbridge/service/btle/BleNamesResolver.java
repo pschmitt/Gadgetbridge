@@ -599,9 +599,22 @@ public class BleNamesResolver {
         mServices.put("af9df7a1-e595-11e3-96b4-0002a5d5c51b", "(Propr: OneTouch");
         mServices.put("9b012401-bc30-ce9a-e111-0f67e491abde", "(Propr: Garmin GFDI V0)");
         mServices.put("6217ff4b-fb31-1140-ad5a-a45545d7ecf3", "(Propr: Polar Settings)");
+        mServices.put("00001001-7791-11e2-9452-f23c91aec05e", "(Propr: Garmin ANT)");
+        mServices.put("16aa8022-3769-4c74-a755-877dde3a2930", "(Propr: Garmin Connect IQ V0)");
         mServices.put("6a4e2401-667b-11e3-949a-0800200c9a66", "(Propr: Garmin GFDI V1)");
+        mServices.put("6a4e2403-667b-11e3-949a-0800200c9a66", "(Propr: Garmin Golf)");
+        mServices.put("6a4e2500-667b-11e3-949a-0800200c9a66", "(Propr: Garmin Realtime)");
+        mServices.put("6a4e2600-667b-11e3-949a-0800200c9a66", "(Propr: Garmin ML V0)");
         mServices.put("6a4e2800-667b-11e3-949a-0800200c9a66", "(Propr: Garmin ML)");
-        mServices.put("6a4e8022-667b-11e3-949a-0800200c9a66", "(Propr: Garmin Watch Apps)");
+        mServices.put("6a4e2f00-667b-11e3-949a-0800200c9a66", "(Propr: Garmin Radar 1)");
+        mServices.put("6a4e3200-667b-11e3-949a-0800200c9a66", "(Propr: Garmin Radar 2)");
+        mServices.put("6a4e3400-667b-11e3-949a-0800200c9a66", "(Propr: Garmin R10)");
+        mServices.put("6a4e4350-667b-11e3-949a-0800200c9a66", "(Propr: Garmin Marine)");
+        mServices.put("6a4e5000-667b-11e3-949a-0800200c9a66", "(Propr: Garmin Raw)");
+        mServices.put("6a4e564b-667b-11e3-949a-0800200c9a66", "(Propr: Garmin Vivo JR)");
+        mServices.put("6a4e564c-667b-11e3-949a-0800200c9a66", "(Propr: Garmin Dog)");
+        mServices.put("6a4e8022-667b-11e3-949a-0800200c9a66", "(Propr: Garmin Connect IQ)");
+        mServices.put("deab91e4-670f-11e1-9ace-30bc4824019b", "(Propr: Garmin RFCOMM)");
         mServices.put("86f61000-f706-58a0-95b2-1fb9261e4dc7", "(Propr: Ultrahuman State)");
         mServices.put("86f65000-f706-58a0-95b2-1fb9261e4dc7", "(Propr: Ultrahuman Request)");
         mServices.put("86f66000-f706-58a0-95b2-1fb9261e4dc7", "(Propr: Ultrahuman Data)");
@@ -611,6 +624,10 @@ public class BleNamesResolver {
         mServices.put("0000ae00-0000-1000-8000-00805f9b34fb", "(Propr: Sinilink-APP)");
         mServices.put("0000ff10-0000-1000-8000-00805f9b34fb", "(Propr: 8BitDo)");
         mServices.put("65970000-4bda-4c1e-af4b-551c4cf74769", "(Propr: Victron)");
+        mServices.put("00000000-deca-fade-deca-deafdecacaff", "(Propr: Apple MFi iAP2 Accessory)");
+        mServices.put("00000000-deca-fade-deca-deafdecacafe", "(Propr: Apple MFi iAP2 Host)");
+        mServices.put("82ff3820-8411-400c-b85a-55bdb32cf060", "(Propr: Huawei SDP)");
+        mServices.put("c9770a18-4c3d-453a-8aaf-d7ec7bbd2785", "(Propr: Honor SDP)");
 
         // common characteristics
         for (GattCharacteristic characteristic : GattCharacteristic.values()) {
@@ -634,6 +651,11 @@ public class BleNamesResolver {
         mCharacteristics.put("6a4e2823-667b-11e3-949a-0800200c9a66", "(Propr: Garmin ML 3 TX)");
         mCharacteristics.put("6a4e2814-667b-11e3-949a-0800200c9a66", "(Propr: Garmin ML 4 RX)");
         mCharacteristics.put("6a4e2824-667b-11e3-949a-0800200c9a66", "(Propr: Garmin ML 4 TX)");
+        mCharacteristics.put("6a4e3203-667b-11e3-949a-0800200c9a66", "(Propr: Garmin Radar RX V1)");
+        mCharacteristics.put("6a4e3204-667b-11e3-949a-0800200c9a66", "(Propr: Garmin Radar RX V2)");
+        mCharacteristics.put("6a4e3401-667b-11e3-949a-0800200c9a66", "(Propr: Garmin R10 Measurement)");
+        mCharacteristics.put("6a4e3402-667b-11e3-949a-0800200c9a66", "(Propr: Garmin R10 Control)");
+        mCharacteristics.put("6a4e3403-667b-11e3-949a-0800200c9a66", "(Propr: Garmin R10 Status)");
         mCharacteristics.put("00000051-0000-1000-8000-00805f9b34fb", "(Propr: Xiaomi V1 Command Read)");
         mCharacteristics.put("00000052-0000-1000-8000-00805f9b34fb", "(Propr: Xiaomi V1 Command Write)");
         mCharacteristics.put("00000053-0000-1000-8000-00805f9b34fb", "(Propr: Xiaomi V1 Activity Data)");

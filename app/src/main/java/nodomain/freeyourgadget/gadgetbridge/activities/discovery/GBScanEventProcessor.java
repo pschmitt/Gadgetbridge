@@ -1,4 +1,4 @@
-/*  Copyright (C) 2023-2024 Daniel Dakhno, José Rebelo
+/*  Copyright (C) 2023-2026 Daniel Dakhno, José Rebelo, Thomas Kuehne
 
     This file is part of Gadgetbridge.
 
@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceCandidate;
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceType;
+import nodomain.freeyourgadget.gadgetbridge.service.btle.BleNamesResolver;
 import nodomain.freeyourgadget.gadgetbridge.util.DeviceHelper;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 
@@ -193,7 +194,7 @@ public final class GBScanEventProcessor implements Runnable {
         if (LOG.isDebugEnabled()) {
             final ParcelUuid[] uuids = candidate.getServiceUuids();
             for (ParcelUuid uuid : uuids) {
-                LOG.debug("  supports uuid: {}", uuid.toString());
+                LOG.debug("  supports uuid: {} - {}", uuid.toString(), BleNamesResolver.resolveServiceName(uuid.getUuid()));
             }
         }
 

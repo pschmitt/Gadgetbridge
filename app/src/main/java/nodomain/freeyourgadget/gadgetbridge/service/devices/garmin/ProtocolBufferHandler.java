@@ -525,11 +525,10 @@ public class ProtocolBufferHandler implements MessageHandler {
 
         if (coreService.hasConnectionReadyNotification()) {
             LOG.info("Got ConnectedNotification");
-            // ping-pong to notify the gadget that the connection is live and working
-            return Smart.newBuilder().setCoreService(
-                    GdiCore.CoreService.newBuilder().setConnectionReadyNotification(
-                            GdiCore.ConnectionReadyNotification.newBuilder().build()
-                    )).build();
+            // No tested FW version requires a Protobuf response.
+            // Some tested FW versions seem to have state-tracking issues when a
+            // Protobuf response is send.
+            return null;
         }
 
         LOG.warn("Unknown CoreService request: {}", coreService);

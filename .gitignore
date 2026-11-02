@@ -80,3 +80,6 @@ app/.cxx/
 *.patch
 
 __pycache__/
+
+# Kotlin LSP
+kls_database.db

@@ -391,6 +391,8 @@ public class CommunicatorV2 implements ICommunicator {
                         yield new RealtimeRespirationCallback();
                     case REALTIME_HRV:
                         yield new RealtimeHrvCallback();
+                    case REALTIME_CALORIES:
+                        yield new RealtimeCaloriesCallback();
                     case FILE_TRANSFER_2:
                     case FILE_TRANSFER_4:
                     case FILE_TRANSFER_6:
@@ -747,7 +749,10 @@ public class CommunicatorV2 implements ICommunicator {
 
     private enum Service {
         GFDI(1),
+        NFC(2),
+        HEALTH_SDK(3),
         REGISTRATION(4),
+        CONNEXT(5),
         REALTIME_HR(6),
         REALTIME_STEPS(7),
         REALTIME_CALORIES(8),
@@ -755,10 +760,13 @@ public class CommunicatorV2 implements ICommunicator {
         REALTIME_INTENSITY(10),
         REALTIME_HRV(12),
         REALTIME_STRESS(13),
+        ECHO(15),
         REALTIME_ACCELEROMETER(16),
         REALTIME_SPO2(19),
         REALTIME_BODY_BATTERY(20),
         REALTIME_RESPIRATION(21),
+        KEEP_ALIVE(22),
+        REALTIME_ACTIVE_TIME(26),
         FILE_TRANSFER_2(0x2018),
         FILE_TRANSFER_4(0x4018),
         FILE_TRANSFER_6(0x6018),

@@ -16,7 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.service.devices.garmin
 
-import com.google.common.collect.Lists
 import nodomain.freeyourgadget.gadgetbridge.model.RecordedDataTypes
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiDataTypes
 import nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiFileAccess
@@ -39,11 +38,22 @@ class FileSyncServiceHandler(val deviceSupport: GarminSupport) {
             fileSyncService.hasTransferStatusRequest() -> handleTransferStatusRequest(fileSyncService.transferStatusRequest)
             fileSyncService.hasItemUpdatedNotification() -> handleItemUpdatedNotification(fileSyncService.itemUpdatedNotification)
             fileSyncService.hasSyncButtonNotification() -> handleSyncButtonNotification(fileSyncService.syncButtonNotification)
+            fileSyncService.hasResourceUpdateNotification() -> handleResourceUpdateNotification(fileSyncService.resourceUpdateNotification)
             else -> {
                 LOG.warn("Unhandled file sync service: {}", fileSyncService)
                 return null
             }
         }
+    }
+
+    private fun handleResourceUpdateNotification(resourceUpdateNotification: GdiFileAccess.ResourceUpdateNotification): GdiFileAccess.Service? {
+        LOG.debug(
+            "Got ResourceUpdateNotification: {} {}",
+            resourceUpdateNotification.status,
+            resourceUpdateNotification.currentPriority
+        )
+        // no action required
+        return null
     }
 
     private fun handleSyncButtonNotification(startSyncNotification: GdiFileAccess.SyncButtonNotification): GdiFileAccess.Service? {
