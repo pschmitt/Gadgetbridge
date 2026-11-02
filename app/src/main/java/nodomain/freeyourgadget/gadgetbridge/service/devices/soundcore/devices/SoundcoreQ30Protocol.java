@@ -59,7 +59,10 @@ public class SoundcoreQ30Protocol extends SoundcoreProtocolImplV1 {
 
     @Override
     public byte[] encodeSendConfiguration(String config) {
+        Prefs prefs = getDevicePrefs();
         switch (config) {
+            case DeviceSettingsPreferenceConst.PREF_SOUNDCORE_EQUALIZER_PRESET:
+                return encodeByteCommand(CMD_SET_EQUALIZER_PRESET, Integer.parseInt(prefs.getString(config, "0")));
             case DeviceSettingsPreferenceConst.PREF_SOUNDCORE_AMBIENT_SOUND_CONTROL:
             case DeviceSettingsPreferenceConst.PREF_SOUNDCORE_ANC_MODE:
                 return encodeAudioMode();

@@ -243,6 +243,8 @@ public class SoundcoreMotion300Protocol extends SoundcoreProtocolImplV1 {
         Prefs prefs = getDevicePrefs();
 
         switch (config) {
+            case PREF_SOUNDCORE_EQUALIZER_PRESET:
+                return encodeByteCommand(CMD_SET_EQUALIZER_PRESET, Integer.parseInt(prefs.getString(config, "0")));
             case PREF_SOUNDCORE_EQUALIZER_DIRECTION:
                 return encodeRequest(CMD_GET_EQUALIZER);
             case PREF_SOUNDCORE_EQUALIZER_BAND1_FREQ:

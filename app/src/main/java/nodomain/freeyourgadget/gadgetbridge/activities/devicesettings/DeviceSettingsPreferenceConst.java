@@ -571,6 +571,7 @@ public class DeviceSettingsPreferenceConst {
     public static final String PREF_SOUNDCORE_LIGHT_COLOR_GREEN = "pref_soundcore_light_color_green";
     public static final String PREF_SOUNDCORE_LIGHT_COLOR_BLUE = "pref_soundcore_light_color_blue";
     public static final String PREF_SOUNDCORE_ADAPTIVE_DIRECTION = "pref_soundcore_adaptive_direction";
+    public static final String PREF_SOUNDCORE_EQUALIZER_COMMAND = "pref_soundcore_equalizer_command";
     public static final String PREF_SOUNDCORE_EQUALIZER_PRESET = "pref_soundcore_equalizer_preset";
     public static final String PREF_SOUNDCORE_EQUALIZER_CUSTOM = "pref_soundcore_equalizer_custom";
     public static final String PREF_SOUNDCORE_EQUALIZER_DIRECTION = "pref_soundcore_equalizer_direction";

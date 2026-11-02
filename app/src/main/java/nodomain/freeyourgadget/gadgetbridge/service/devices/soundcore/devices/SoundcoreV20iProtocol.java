@@ -78,12 +78,6 @@ public class SoundcoreV20iProtocol extends SoundcoreProtocolImplV1 {
     }
 
     @Override
-    protected GBDeviceEvent[] decodeCommand(final short command, final byte[] payload) {
-        // Setter replies acknowledge receipt, not the resulting device state.
-        return new GBDeviceEvent[0];
-    }
-
-    @Override
     public byte[] encodeSendConfiguration(final String config) {
         final Prefs prefs = getDevicePrefs();
         switch (config) {

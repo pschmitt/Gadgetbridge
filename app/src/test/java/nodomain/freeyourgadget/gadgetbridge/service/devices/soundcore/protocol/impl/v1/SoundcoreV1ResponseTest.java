@@ -1,5 +1,6 @@
 package nodomain.freeyourgadget.gadgetbridge.service.devices.soundcore.protocol.impl.v1;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -9,6 +10,8 @@ import java.nio.ByteOrder;
 
 import org.junit.Test;
 
+import nodomain.freeyourgadget.gadgetbridge.service.devices.soundcore.SoundcoreEqualizer;
+import nodomain.freeyourgadget.gadgetbridge.util.StringUtils;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEvent;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventBatteryInfo;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventVersionInfo;
@@ -169,6 +172,42 @@ public class SoundcoreV1ResponseTest {
         assertEquals(100, ((GBDeviceEventBatteryInfo) events[1]).level);
     }
 
+    @Test
+    public void compactEqualizerResponseStoresPresetAndBands() {
+        final TestProtocol protocol = new TestProtocol();
+        protocol.decodeResponse(devicePacket((short) 0x8302, StringUtils.hexToBytes(
+                "040096966464788c96a078007a7c7477787a797d7800")));
+
+        assertNotNull(protocol.lastEqualizer);
+        assertEquals(4, protocol.lastEqualizer.getIndex());
+        assertArrayEquals(new int[]{3, 3, -2, -2, 0, 2, 3, 4, 0},
+                protocol.lastEqualizer.getBands());
+    }
+
+    @Test
+    public void compactEqualizerIgnoresAcknowledgementsAndTruncatedPayloads() {
+        final TestProtocol protocol = new TestProtocol();
+        for (int length = 0; length < 22; length++) {
+            protocol.decodeResponse(devicePacket((short) 0x8302, new byte[length]));
+            assertNull(protocol.lastEqualizer);
+        }
+    }
+
+    @Test
+    public void fullEqualizerResponseKeepsItsBandOffsetAndMinimumLength() {
+        final TestProtocol protocol = new TestProtocol();
+        protocol.decodeResponse(devicePacket(SoundcoreProtocolImplV1.CMD_SET_EQUALIZER, new byte[89]));
+        assertNull(protocol.lastEqualizer);
+        protocol.decodeResponse(devicePacket(SoundcoreProtocolImplV1.CMD_SET_EQUALIZER,
+                SoundcoreEqualizer.buildPayload(4,
+                        new int[]{3, 3, -2, -2, 0, 2, 3, 4}, new int[9])));
+
+        assertNotNull(protocol.lastEqualizer);
+        assertEquals(4, protocol.lastEqualizer.getIndex());
+        assertArrayEquals(new int[]{3, 3, -2, -2, 0, 2, 3, 4, 0},
+                protocol.lastEqualizer.getBands());
+    }
+
     private static void putAscii(final byte[] target, final int offset, final String value) {
         final byte[] bytes = value.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         System.arraycopy(bytes, 0, target, offset, bytes.length);
@@ -197,6 +236,13 @@ public class SoundcoreV1ResponseTest {
     }
 
     private static final class TestProtocol extends SoundcoreProtocolImplV1 {
+        private SoundcoreEqualizer lastEqualizer;
+
+        @Override
+        protected void storeEqualizer(final SoundcoreEqualizer equalizer) {
+            lastEqualizer = equalizer;
+        }
+
         private short lastCommand;
         private int lastPayloadLength;
 

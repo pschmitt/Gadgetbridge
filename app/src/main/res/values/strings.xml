@@ -4339,6 +4339,8 @@
     <string name="soundcore_light_effect_music">Music follows</string>
     <string name="haylou_s35_anc_eq_classic">Classic</string>
     <string name="haylou_s35_anc_eq_bass">Bass</string>
+    <string name="soundcore_equalizer_command">Equalizer command</string>
+    <string name="soundcore_equalizer_command_compact">Compact</string>
     <string name="soundcore_equalizer_preset">Preset</string>
     <string name="soundcore_equalizer_preset_bass_off">Bass Off</string>
     <string name="soundcore_equalizer_preset_heavy">Heavy</string>

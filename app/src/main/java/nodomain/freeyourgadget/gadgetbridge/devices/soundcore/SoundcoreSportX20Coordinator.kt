@@ -44,8 +44,6 @@ class SoundcoreSportX20Coordinator : SoundcoreEarbudsCoordinator() {
         Capability.AudioEqualizer,
     )
 
-    override fun getCustomEqualizerPresetArray(): Int = R.array.soundcore_sport_x20_equalizer_preset_names
-
     override val supportedButtonActions: List<ButtonAction> = listOf(
         ButtonAction.SINGLE_TAP,
         ButtonAction.DOUBLE_TAP,
