@@ -49,6 +49,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.casio.gbd200.CasioGBD200Devi
 import nodomain.freeyourgadget.gadgetbridge.devices.casio.gbx100.CasioGBX100DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.casio.gwb5600.CasioGMWB5000DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.casio.gwb5600.CasioGWB5600DeviceCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.casio.ggb100.CasioGGB100DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.cmfwatchpro.CmfWatchPro2Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.cmfwatchpro.CmfWatchPro3Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.cmfwatchpro.CmfWatchProCoordinator;
@@ -836,6 +837,7 @@ public enum DeviceType {
     CASIOGBD200(CasioGBD200DeviceCoordinator.class),
     CASIOGWB5600(CasioGWB5600DeviceCoordinator.class),
     CASIOGMWB5000(CasioGMWB5000DeviceCoordinator.class),
+    CASIOGGB100(CasioGGB100DeviceCoordinator.class),
     MISMARTSCALE(MiSmartScaleCoordinator.class),
     MICOMPOSITIONSCALE(MiCompositionScaleCoordinator.class),
     ONEBYONE_SCALE(OneByoneScaleCoordinator.class),

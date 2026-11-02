@@ -274,6 +274,7 @@ public class BluetoothNameTest extends TestBase {
             put("Bip S Lite", DeviceType.AMAZFITBIPS_LITE); // #2055
             put("Mi Smart Band 5", DeviceType.MIBAND5); // #1929
             put("CASIO STB-1000", DeviceType.CASIOGB6900); // #1902
+            put("CASIO GG-B100", DeviceType.CASIOGGB100);
             put("Amazfit Bip 3 Pro", DeviceType.AMAZFITBIP3PRO); // #3249
             put("Redmi Band Pro AB01", DeviceType.REDMISMARTBANDPRO); // #3069
             put("HRM600:1234", DeviceType.GARMIN_HRM_600); // #5633

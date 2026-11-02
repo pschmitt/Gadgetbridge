@@ -326,14 +326,20 @@ public class DeviceSettingsPreferenceConst {
     public static final String PREF_PREVIEW_MESSAGE_IN_TITLE = "preview_message_in_title";
 
     public static final String PREF_CASIO_ALERT_CALENDAR = "casio_alert_calendar";
-
     public static final String PREF_CASIO_ALERT_CALL = "casio_alert_call";
-
     public static final String PREF_CASIO_ALERT_EMAIL = "casio_alert_email";
-
     public static final String PREF_CASIO_ALERT_OTHER = "casio_alert_other";
-
     public static final String PREF_CASIO_ALERT_SMS = "casio_alert_sms";
+    public static final String PREF_CASIO_COUNTDOWN_TIMER = "casio_countdown_timer";
+    public static final String PREF_CASIO_PRESSURE_ENERGY_CALC = "casio_pressure_energy_calc";
+    public static final String PREF_CASIO_COMPASS_AUTO_CORRECTION = "casio_compass_auto_correction";
+    public static final String PREF_CASIO_USER_PROFILE = "casio_user_profile";
+    public static final String PREF_CASIO_ALTITUDE_MEASUREMENT_INTERVAL = "casio_altitude_measurement_interval";
+    public static final String PREF_CASIO_ALTIMETER_DISPLAY = "casio_altimeter_display";
+    public static final String PREF_CASIO_PRESSURE_GRAPH = "casio_pressure_graph";
+    public static final String PREF_CASIO_MODE_CAROUSEL = "casio_mode_carousel";
+    public static final String PREF_CASIO_DISPLAY_SCREENS = "casio_display_screens";
+
     public static final String PREF_LIGHT_DURATION_LONGER = "light_duration_longer";
     public static final String PREF_AUTOREMOVE_MESSAGE = "autoremove_message";
     public static final String PREF_SEND_APP_NOTIFICATIONS = "send_app_notifications";

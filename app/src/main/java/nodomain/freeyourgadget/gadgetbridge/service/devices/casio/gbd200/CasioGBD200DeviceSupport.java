@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -44,7 +43,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -52,14 +50,8 @@ import java.util.UUID;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
-import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
-import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventFindPhone;
 import nodomain.freeyourgadget.gadgetbridge.devices.casio.CasioConstants;
-import nodomain.freeyourgadget.gadgetbridge.devices.casio.gbx100.CasioGBX100SampleProvider;
-import nodomain.freeyourgadget.gadgetbridge.entities.CasioGBX100ActivitySample;
-import nodomain.freeyourgadget.gadgetbridge.entities.Device;
-import nodomain.freeyourgadget.gadgetbridge.entities.User;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.opentracks.OpenTracksController;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
 import nodomain.freeyourgadget.gadgetbridge.model.Alarm;
@@ -186,20 +178,7 @@ public class CasioGBD200DeviceSupport extends Casio2C2DSupport
      */
     @Override
     public void writeCurrentTime(TransactionBuilder builder, ZonedDateTime time) {
-        int dow = time.getDayOfWeek() == DayOfWeek.SUNDAY ? 0 : time.getDayOfWeek().getValue();
-        byte[] arr = new byte[11];
-        arr[0]  = FEATURE_CURRENT_TIME;
-        arr[1]  = (byte) (time.getYear() & 0xff);
-        arr[2]  = (byte) ((time.getYear() >> 8) & 0xff);
-        arr[3]  = (byte) time.getMonthValue();
-        arr[4]  = (byte) time.getDayOfMonth();
-        arr[5]  = (byte) time.getHour();
-        arr[6]  = (byte) time.getMinute();
-        arr[7]  = (byte) time.getSecond();
-        arr[8]  = (byte) dow;
-        arr[9]  = 0x00; // fractions256
-        arr[10] = 0x01; // reason = manual sync
-        writeAllFeatures(builder, arr);
+        writeAllFeatures(builder, Casio2C2DSupport.buildCurrentTimePacket(time));
     }
 
     @Override
@@ -389,10 +368,14 @@ public class CasioGBD200DeviceSupport extends Casio2C2DSupport
                     } catch (IOException e) {
                         LOG.warn("session_event_ack failed: {}", e.getMessage());
                     }
-                    OpenTracksController.startRecording(getContext(), ActivityKind.RUNNING);
+                    if (getDevicePrefs().getBoolean(DeviceSettingsPreferenceConst.PREF_WORKOUT_START_ON_PHONE, false)) {
+                        OpenTracksController.startRecording(getContext(), ActivityKind.RUNNING);
+                    }
                 } else if (data[1] == 0x01) {
                     LOG.info("Running session ended on watch (0x48 0x01)");
-                    OpenTracksController.stopRecording(getContext());
+                    if (getDevicePrefs().getBoolean(DeviceSettingsPreferenceConst.PREF_WORKOUT_START_ON_PHONE, false)) {
+                        OpenTracksController.stopRecording(getContext());
+                    }
                 }
                 return true;
             }
@@ -450,52 +433,6 @@ public class CasioGBD200DeviceSupport extends Casio2C2DSupport
         } catch (IOException e) {
             GB.toast(getContext(), "Error fetching sport data",
                     Toast.LENGTH_SHORT, GB.ERROR, e);
-        }
-    }
-
-    // ── Activity DB helpers (used by FetchStepCountDataOperation) ─────────────
-
-    public CasioGBX100ActivitySample getSumWithinRange(int ts_from, int ts_to) {
-        int steps = 0, calories = 0;
-        try (DBHandler db = GBApplication.acquireDB()) {
-            User user     = DBHelper.getUser(db.getDaoSession());
-            Device device = DBHelper.getDevice(this.getDevice(), db.getDaoSession());
-            CasioGBX100SampleProvider provider =
-                    new CasioGBX100SampleProvider(this.getDevice(), db.getDaoSession());
-            List<CasioGBX100ActivitySample> samples =
-                    provider.getActivitySamples(ts_from, ts_to);
-            for (CasioGBX100ActivitySample s : samples) {
-                if (s.getDevice().equals(device) && s.getUser().equals(user)) {
-                    steps    += s.getSteps();
-                    calories += s.getCalories();
-                }
-            }
-        } catch (Exception e) {
-            LOG.error("Error fetching step sum: {}", e.getMessage());
-        }
-        CasioGBX100ActivitySample ret = new CasioGBX100ActivitySample();
-        ret.setSteps(steps);
-        ret.setCalories(calories);
-        return ret;
-    }
-
-    public void stepCountDataFetched(int totalSteps, int totalCalories,
-                                     ArrayList<CasioGBX100ActivitySample> data) {
-        LOG.info("Steps fetched: total={} kcal={}", totalSteps, totalCalories);
-        try (DBHandler db = GBApplication.acquireDB()) {
-            User user     = DBHelper.getUser(db.getDaoSession());
-            Device device = DBHelper.getDevice(this.getDevice(), db.getDaoSession());
-            CasioGBX100SampleProvider provider =
-                    new CasioGBX100SampleProvider(this.getDevice(), db.getDaoSession());
-            for (CasioGBX100ActivitySample s : data) {
-                s.setDevice(device);
-                s.setUser(user);
-                s.setProvider(provider);
-                provider.addGBActivitySample(s);
-            }
-        } catch (Exception e) {
-            GB.toast(getContext(), "Error saving steps: " + e.getLocalizedMessage(),
-                    Toast.LENGTH_LONG, GB.ERROR, e);
         }
     }
 

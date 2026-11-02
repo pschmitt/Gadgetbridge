@@ -48,6 +48,11 @@ public class CasioGBD200DeviceCoordinator extends CasioGBX100DeviceCoordinator {
         return Pattern.compile("^CASIO GBD-200.*");
     }
 
+    @Override
+    public int getBatteryCount(final GBDevice device) {
+        return 0;
+    }
+
     @NonNull
     @Override
     public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
@@ -95,7 +100,8 @@ public class CasioGBD200DeviceCoordinator extends CasioGBX100DeviceCoordinator {
                 R.xml.devicesettings_preview_message_in_title,
                 R.xml.devicesettings_casio_alert,
                 R.xml.devicesettings_world_clocks,
-                R.xml.devicesettings_casio_interval_timer
+                R.xml.devicesettings_casio_interval_timer,
+                R.xml.devicesettings_workout_start_on_phone
         };
     }
 

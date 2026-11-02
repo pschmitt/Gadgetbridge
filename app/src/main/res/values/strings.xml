@@ -466,6 +466,51 @@
     <string name="casio_interval_timer_repeat">Auto-repeat</string>
     <string name="casio_interval_timer_default_label">Timer %1$d</string>
     <string name="casio_interval_timer_total">Total: %1$s × %2$d = %3$s</string>
+    <string name="pref_casio_location_indicator_title">Location indicator</string>
+    <string name="casio_location_indicator_add">Add waypoint</string>
+    <string name="casio_location_indicator_active">Active location</string>
+    <string name="casio_location_indicator_empty">No waypoints saved yet</string>
+    <string name="casio_location_indicator_default_label">Location %1$d</string>
+    <string name="casio_location_indicator_no_fix">No GPS fix</string>
+    <string name="casio_location_indicator_invalid_coordinates">Invalid coordinates</string>
+    <string name="casio_location_indicator_use_current">Use current location</string>
+    <string name="casio_location_indicator_import_gpx">Import GPX</string>
+    <string name="casio_location_indicator_export_gpx">Export GPX</string>
+    <string name="casio_location_indicator_imported">Imported %1$d waypoints</string>
+    <string name="casio_location_indicator_import_no_waypoints">No waypoints found in file</string>
+    <string name="casio_location_indicator_import_failed">Could not import GPX file</string>
+    <string name="casio_location_indicator_exported">GPX exported</string>
+    <string name="casio_location_indicator_empty_export">No waypoints to export</string>
+    <string name="casio_location_indicator_export_failed">Could not export GPX file</string>
+    <string name="pref_casio_countdown_timer_title">Countdown timer (HH:MM:SS)</string>
+    <string name="pref_casio_pressure_energy_calc_title">Use pressure data for energy calculation</string>
+    <string name="pref_casio_compass_auto_correction_title">Compass auto-correction</string>
+    <string name="pref_casio_altitude_interval_title">Altitude auto-measurement interval</string>
+    <string name="pref_casio_altimeter_display_title">Altimeter display</string>
+    <string name="pref_casio_mode_carousel_title">Mode carousel</string>
+    <string name="pref_casio_mode_carousel_summary">Enable and reorder the watch modes</string>
+    <string name="pref_casio_display_screens_title">Display screens</string>
+    <string name="pref_casio_display_screens_summary">Enable and reorder the timekeeping screens</string>
+    <string name="pref_casio_mode_carousel_barometer">Barometer</string>
+    <string name="pref_casio_mode_carousel_temperature">Temperature</string>
+    <string name="pref_casio_mode_carousel_data_recall">Data recall</string>
+    <string name="pref_casio_mode_carousel_sunrise_sunset">Sunrise/sunset</string>
+    <string name="pref_casio_mode_carousel_stopwatch">Stopwatch</string>
+    <string name="pref_casio_mode_carousel_timer">Timer</string>
+    <string name="pref_casio_mode_carousel_alarm">Alarm</string>
+    <string name="pref_casio_mode_carousel_world_time">World time</string>
+    <string name="pref_casio_display_screens_day_date">Day and date</string>
+    <string name="pref_casio_display_screens_pressure_graph_date">Pressure graph + date</string>
+    <string name="pref_casio_display_screens_hours_min_sec">Hours/min/sec</string>
+    <string name="pref_casio_display_screens_steps_today">Steps (today)</string>
+    <string name="pref_casio_display_screens_year_date">Year date</string>
+    <string name="pref_casio_display_screens_pressure_graph">Pressure graph</string>
+    <string name="pref_casio_display_screens_world_time">World time (HH:MM)</string>
+    <string name="pref_casio_display_screens_sunrise_sunset_today">Sunrise/sunset (today)</string>
+    <string name="pref_casio_altimeter_display_plain">Altitude</string>
+    <string name="pref_casio_altimeter_display_100">Altitude ±100 m</string>
+    <string name="pref_casio_altimeter_display_1000">Altitude ±1000 m</string>
+    <string name="pref_casio_pressure_graph_title">Pressure graph</string>
     <string name="pref_title_autoremove_notifications">Autoremove dismissed notifications</string>
     <string name="pref_summary_autoremove_notifications">Notifications are automatically removed from the device when dismissed from the phone</string>
     <string name="pref_title_screen_on_on_notifications">Screen On on Notifications</string>
@@ -2435,6 +2480,7 @@
     <string name="devicetype_casiogwb5600" translatable="false">Casio GW-B5600</string>
     <string name="devicetype_casiogmwb5000" translatable="false">Casio GMW-B5000</string>
     <string name="devicetype_casiogbd200" translatable="false">Casio GBD-200</string>
+    <string name="devicetype_casioggb100" translatable="false">Casio GG-B100</string>
     <string name="devicetype_mismartscale" translatable="false">Mi Smart Scale 2</string>
     <string name="devicetype_micompositionscale" translatable="false">Mi Body Composition Scale 2</string>
     <string name="devicetype_qnscale" translatable="false">QN-Scale (Chipsea CS20)</string>
@@ -2820,6 +2866,8 @@
     <string name="menuitem_temperature">Temperature</string>
     <string name="body_mass_index">BMI</string>
     <string name="menuitem_weight">Weight</string>
+    <string name="menuitem_altitude">Altitude</string>
+    <string name="altitude_value_format">%1$d m</string>
     <string name="menuitem_barometer">Barometer</string>
     <string name="menuitem_flashlight">Flashlight</string>
     <string name="menuitem_text_size">Text Size</string>

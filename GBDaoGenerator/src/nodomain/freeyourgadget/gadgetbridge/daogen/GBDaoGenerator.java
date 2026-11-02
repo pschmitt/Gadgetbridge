@@ -78,6 +78,7 @@ public class GBDaoGenerator {
     private static final String SAMPLE_RESPIRATORY_RATE = "respiratoryRate";
     private static final String SAMPLE_SLEEP_SCORE = "sleepScore";
     private static final String SAMPLE_SPO2 = "spo2";
+    private static final String SAMPLE_ALTITUDE = "altitude";
     private static final String SAMPLE_STRESS = "stress";
     private static final String SAMPLE_TEMPERATURE = "temperature";
     private static final String SAMPLE_WEIGHT_KG = "weightKg";
@@ -307,6 +308,7 @@ public class GBDaoGenerator {
 
         sampleProvidersToGenerate.add(addGenericHeartRateSample(schema, user, device));
         sampleProvidersToGenerate.add(addGenericSpo2Sample(schema, user, device));
+        sampleProvidersToGenerate.add(addGenericAltitudeSample(schema, user, device));
         sampleProvidersToGenerate.add(addGenericRespiratoryRateSample(schema, user, device));
         sampleProvidersToGenerate.add(addGenericStressSample(schema, user, device));
         sampleProvidersToGenerate.add(addGenericHrvValueSample(schema, user, device));
@@ -2866,6 +2868,13 @@ public class GBDaoGenerator {
         addCommonTimeSampleProperties("AbstractSpo2Sample", spo2sample, user, device);
         spo2sample.addIntProperty(SAMPLE_SPO2).notNull().codeBeforeGetter(OVERRIDE);
         return spo2sample;
+    }
+
+    private static Entity addGenericAltitudeSample(Schema schema, Entity user, Entity device) {
+        Entity altitudeSample = addEntity(schema, "GenericAltitudeSample");
+        addCommonTimeSampleProperties("AbstractAltitudeSample", altitudeSample, user, device);
+        altitudeSample.addIntProperty(SAMPLE_ALTITUDE).notNull().codeBeforeGetter(OVERRIDE);
+        return altitudeSample;
     }
 
     private static Entity addGenericRespiratoryRateSample(Schema schema, Entity user, Entity device) {

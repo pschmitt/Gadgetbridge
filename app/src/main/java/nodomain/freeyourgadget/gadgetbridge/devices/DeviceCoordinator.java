@@ -63,6 +63,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryParser;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrackProvider;
 import nodomain.freeyourgadget.gadgetbridge.model.Alarm;
+import nodomain.freeyourgadget.gadgetbridge.model.AltitudeSample;
 import nodomain.freeyourgadget.gadgetbridge.model.BatteryConfig;
 import nodomain.freeyourgadget.gadgetbridge.model.BloodPressureSample;
 import nodomain.freeyourgadget.gadgetbridge.model.BodyEnergySample;
@@ -428,6 +429,12 @@ public interface DeviceCoordinator {
     boolean supportsWeightMeasurement(@NonNull final GBDevice device);
 
     /**
+     * Returns true if altitude measurement and fetching is supported by the device
+     * (with this coordinator).
+     */
+    boolean supportsPointAltitudeMeasurement(@NonNull final GBDevice device);
+
+    /**
      * Returns true if storing hydration entries is supported for the device.
      */
     boolean supportsHydration(@NonNull final GBDevice device);
@@ -576,6 +583,12 @@ public interface DeviceCoordinator {
      */
     @Nullable
     TimeSampleProvider<? extends WeightSample> getWeightSampleProvider(@NonNull final GBDevice device, @NonNull final DaoSession session);
+
+    /**
+     * Returns the sample provider for altitude data, for the device being supported.
+     */
+    @Nullable
+    TimeSampleProvider<? extends AltitudeSample> getAltitudeSampleProvider(@NonNull final GBDevice device, @NonNull final DaoSession session);
 
     /**
      * Returns the sample provider for hydration data, for the device being supported.

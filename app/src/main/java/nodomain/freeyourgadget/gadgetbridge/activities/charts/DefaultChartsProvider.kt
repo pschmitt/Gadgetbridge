@@ -109,6 +109,9 @@ open class DefaultChartsProvider : DeviceChartsProvider {
         if (coordinator.supportsWeightMeasurement(device)) {
             supportedCharts.add("weight")
         }
+        if (coordinator.supportsPointAltitudeMeasurement(device)) {
+            supportedCharts.add("altitude")
+        }
         if (coordinator.supportsActiveCalories(device)) {
             supportedCharts.add("calories")
         }
@@ -167,6 +170,7 @@ open class DefaultChartsProvider : DeviceChartsProvider {
             "bloodpressure" -> context.getString(R.string.blood_pressure)
             "cycling" -> context.getString(R.string.title_cycling)
             "weight" -> context.getString(R.string.menuitem_weight)
+            "altitude" -> context.getString(R.string.menuitem_altitude)
             "calories" -> context.getString(R.string.calories)
             "hydration" -> context.getString(R.string.pref_header_hydration)
             "respiratoryrate" -> context.getString(R.string.respiratoryrate)
@@ -208,6 +212,7 @@ open class DefaultChartsProvider : DeviceChartsProvider {
             "bloodpressure" -> BloodPressureCollectionFragment.newInstance(allowSwipe)
             "cycling" -> CyclingChartFragment()
             "weight" -> WeightChartFragment()
+            "altitude" -> AltitudeChartFragment()
             "calories" -> CaloriesCollectionFragment.newInstance(allowSwipe)
             "hydration" -> HydrationCollectionFragment.newInstance(allowSwipe)
             "respiratoryrate" -> RespiratoryRateCollectionFragment.newInstance(allowSwipe)
@@ -235,6 +240,7 @@ open class DefaultChartsProvider : DeviceChartsProvider {
             "bloodpressure" -> R.drawable.ic_pressure
             "cycling" -> R.drawable.ic_directions_bike
             "weight" -> R.drawable.ic_weight
+            "altitude" -> R.drawable.ic_altitude_24px
             "calories" -> R.drawable.ic_calories
             "hydration" -> R.drawable.ic_drink
             "respiratoryrate" -> R.drawable.ic_activity_meditation
@@ -405,6 +411,11 @@ open class DefaultChartsProvider : DeviceChartsProvider {
                 ?.weightKg
                 ?.takeIf { it > 0 }
                 ?.let { WeightUnit.formatWeight(context, it.toDouble(), GBApplication.getPrefs().weightUnit) }
+
+            // Altitude - latest value until the end of the time range
+            "altitude" -> coordinator.getAltitudeSampleProvider(device, session)
+                ?.getLatestSample(end)
+                ?.let { context.getString(R.string.altitude_value_format, it.altitude) }
 
             // Hydration - daily total for the time range
             "hydration" -> {
