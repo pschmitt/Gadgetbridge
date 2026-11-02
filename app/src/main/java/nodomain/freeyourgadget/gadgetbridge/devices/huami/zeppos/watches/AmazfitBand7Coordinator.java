@@ -53,6 +53,11 @@ public class AmazfitBand7Coordinator extends ZeppOsCoordinator {
         return false;
     }
 
+    @Override
+    public boolean supportsSleepScore(@NonNull final GBDevice device) {
+        // Zepp OS 1.0
+        return false;
+    }
 
     @Override
     public int getDeviceNameResource() {
