@@ -38,6 +38,7 @@ public class BluetoothNameTest extends TestBase {
             put("Amazfit GTS 4 mini New", DeviceType.AMAZFITGTS4MININEW); // #5472
             put("Mi Smart Band 4C_D77E", DeviceType.MIBAND4C);
             put("Xiaomi Band 9 Active AB01", DeviceType.MIBAND9ACTIVE);
+            put("Xiaomi Band 11 Active D1F4", DeviceType.MIBAND11ACTIVE); // #7239
             put("vívoactive 3 Music", DeviceType.GARMIN_VIVOACTIVE_3_MUSIC); // #6619
             put("vívoactive 6", DeviceType.GARMIN_VIVOACTIVE_6);
             put("CIRQA Smart Band", DeviceType.GARMIN_CIRQA); // matrix

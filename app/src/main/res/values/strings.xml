@@ -2196,6 +2196,7 @@
     <string name="devicetype_miband8pro" translatable="false">Xiaomi Smart Band 8 Pro</string>
     <string name="devicetype_miband9" translatable="false">Xiaomi Smart Band 9</string>
     <string name="devicetype_miband9active" translatable="false">Xiaomi Smart Band 9 Active</string>
+    <string name="devicetype_miband11active" translatable="false">Xiaomi Smart Band 11 Active</string>
     <string name="devicetype_miband9pro" translatable="false">Xiaomi Smart Band 9 Pro</string>
     <string name="devicetype_miband10" translatable="false">Xiaomi Smart Band 10</string>
     <string name="devicetype_miband10pro" translatable="false">Xiaomi Smart Band 10 Pro</string>
