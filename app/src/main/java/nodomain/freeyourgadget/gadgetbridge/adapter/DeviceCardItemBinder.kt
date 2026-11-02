@@ -3,7 +3,9 @@ package nodomain.freeyourgadget.gadgetbridge.adapter
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
@@ -75,6 +77,13 @@ object DeviceCardItemBinder {
         view.visibility = View.VISIBLE
         busy.visibility = View.GONE
         label.alpha = 1.0f
+        icon.visibility = View.VISIBLE
+        // The text items change the size of the label
+        val defaultSize = (label.getTag(R.id.card_item_label) as? Float)
+            ?: label.textSize.also { label.setTag(R.id.card_item_label, it) }
+        label.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultSize)
+        label.setTypeface(null, Typeface.NORMAL)
+        label.setTextColor(MaterialColors.getColor(label, R.attr.textColorSecondary))
         ImageViewCompat.setImageTintList(
             icon,
             ColorStateList.valueOf(MaterialColors.getColor(icon, R.attr.textColorSecondary))
@@ -198,7 +207,16 @@ object DeviceCardItemBinder {
             ImageViewCompat.setImageTintList(icon, ColorStateList.valueOf(it))
         }
         setDescription(view, action.getDescription(device, context))
-        setLabel(label, action.getLabel(device, context))
+        val text = action.getText(device, context)
+        if (text != null) {
+            icon.visibility = View.GONE
+            label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
+            label.setTypeface(null, Typeface.BOLD)
+            action.getIconTint(device, context)?.let { label.setTextColor(it) }
+            setLabel(label, text)
+        } else {
+            setLabel(label, action.getLabel(device, context))
+        }
         if (item.busyIndicator && device.isBusy) {
             busy.visibility = View.VISIBLE
         }

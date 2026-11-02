@@ -864,6 +864,19 @@ public class DeviceSettingsPreferenceConst {
     public static final String PREF_ATC_BLE_OEPL_BLE_ADV_INTERVAL = "pref_atc_ble_oepl_ble_adv_interval";
     public static final String PREF_ATC_BLE_OEPL_OEPL_PROTOCOL_ENABLE = "pref_atc_ble_oepl_oepl_protocol_enable";
 
+    public static final String PREF_NINEBOT_UNLOCK = "ninebot_unlock";
+    public static final String PREF_NINEBOT_AUTO_UNLOCK = "ninebot_auto_unlock";
+    public static final String PREF_NINEBOT_LOCK_STATE = "ninebot_lock_state";
+    public static final String PREF_NINEBOT_KERS = "ninebot_kers";
+    public static final String PREF_NINEBOT_CHARGE_LIMIT = "ninebot_charge_limit";
+    public static final String PREF_NINEBOT_POWER_ON = "ninebot_power_on";
+    public static final String PREF_NINEBOT_POWER_OFF = "ninebot_power_off";
+    public static final String PREF_NINEBOT_RANGE = "ninebot_range";
+    public static final String PREF_NINEBOT_ODOMETER = "ninebot_odometer";
+    public static final String PREF_NINEBOT_TEMPERATURE = "ninebot_temperature";
+    public static final String PREF_NINEBOT_MODE = "ninebot_mode";
+    public static final String PREF_NINEBOT_SEARCH = "ninebot_search";
+
     public static final String PREF_XIAOMI_SCOOTER_MOTOR_LOCKED = "xiaomi_scooter_motor_locked";
     public static final String PREF_XIAOMI_SCOOTER_RIDE_MODE = "xiaomi_scooter_ride_mode";
     public static final String PREF_XIAOMI_SCOOTER_SPEED_UNIT = "xiaomi_scooter_speed_unit";

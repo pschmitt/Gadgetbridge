@@ -160,6 +160,7 @@ public class BluetoothNameTest extends TestBase {
             put("fenix 6S Pro Solar", DeviceType.GARMIN_FENIX_6S_PRO_SOLAR); // #5568
             put("fenix 6S", DeviceType.GARMIN_FENIX_6S);
             put("xiaomi.scooter.5max", DeviceType.XIAOMI_SCOOTER_5_MAX);
+            put("NAGVF2421C0000", DeviceType.NINEBOT_KICKSCOOTER); // #7136
             put("R50Pro", DeviceType.R50PRO);
             put("P22B1", DeviceType.P22B1);
             put("SBM67", DeviceType.SILVERCREST_SBM_67);

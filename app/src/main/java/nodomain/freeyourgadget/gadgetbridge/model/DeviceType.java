@@ -477,6 +477,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.mijia_lywsd.MijiaMhoC303Coor
 import nodomain.freeyourgadget.gadgetbridge.devices.mijia_lywsd.MijiaXmwsdj04Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.miscale.MiCompositionScaleCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.miscale.MiSmartScaleCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.ninebot.NinebotScooterCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.moyoung.KW19BCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.onebyone.OneByoneScaleCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.moondrop.MoondropSpaceTravel2Coordinator;
@@ -1248,6 +1249,7 @@ public enum DeviceType {
     REALME_BUDS_AIR_6_PRO(RealmeBudsAir6ProCoordinator.class),
     SOFLOW_SO6(SoFlowCoordinator.class),
     XIAOMI_SCOOTER_5_MAX(XiaomiScooter5MaxCoordinator.class),
+    NINEBOT_KICKSCOOTER(NinebotScooterCoordinator.class),
     XIAOMI_HIPEE_P1(XiaomiHipeeP1Coordinator.class),
     WITHINGS_STEEL_HR(WithingsSteelHRDeviceCoordinator.class),
     SONY_WENA_3(SonyWena3Coordinator.class),

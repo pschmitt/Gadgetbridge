@@ -4589,6 +4589,7 @@
     <string name="pref_title_debug">Debug request</string>
     <string name="devicetype_asteroidos" translatable="false">AsteroidOS</string>
     <string name="devicetype_soflow_s06" translatable="false">SoFlow SO6</string>
+    <string name="devicetype_ninebot_kickscooter" translatable="false">Ninebot KickScooter</string>
     <string name="devicetype_xiaomi_scooter_5_max" translatable="false">Xiaomi Scooter 5 Max</string>
     <string name="scooter_lock_motor_title">Lock motor</string>
     <string name="scooter_lock_motor_summary">After 24h, the scooter will automatically turn off and won\'t remain locked when it is off. This function cannot protect the scooter from being stolen.</string>
@@ -4636,6 +4637,37 @@
     <string name="xiaomi_scooter_tire_pressure_reset_title">Reset reminder</string>
     <string name="xiaomi_scooter_tire_pressure_reset_summary">Click this button to restart the tire pressure maintenance timer.</string>
     <string name="xiaomi_scooter_tire_pressure_reset_confirmation">Reset the tire pressure maintenance reminder?</string>
+    <string name="ninebot_press_power_button">Press the power button on the scooter to confirm the pairing</string>
+    <string name="ninebot_retrying">No answer from the scooter, trying again (%1$d/%2$d)</string>
+    <string name="ninebot_pairing_failed">Pairing with the scooter failed. If you used the original app in between, connect again and press the power button.</string>
+    <string name="ninebot_code_protection_title">Code protection</string>
+    <string name="ninebot_unlock_title">Unlock</string>
+    <string name="ninebot_unlock_summary">Unlock the scooter now</string>
+    <string name="ninebot_auto_unlock_title">Unlock on connect</string>
+    <string name="ninebot_auto_unlock_summary">Unlock the scooter as soon as it connects to this phone</string>
+    <string name="ninebot_lock_state_title">Lock state</string>
+    <string name="ninebot_lock_state_locked">Locked</string>
+    <string name="ninebot_lock_state_unlocked">Unlocked</string>
+    <string name="ninebot_kers_title">Energy recovery</string>
+    <string name="ninebot_kers_weak">Weak</string>
+    <string name="ninebot_kers_medium">Medium</string>
+    <string name="ninebot_kers_strong">Strong</string>
+    <string name="ninebot_charge_limit_title">Charge limit</string>
+    <string name="ninebot_charge_limit_95">95 %</string>
+    <string name="ninebot_charge_limit_100">100 %</string>
+    <string name="ninebot_power_on_title">Switch on</string>
+    <string name="ninebot_power_on_summary">Switch the scooter on after it was switched off with this app.</string>
+    <string name="ninebot_power_off_title">Switch off</string>
+    <string name="ninebot_power_off_summary">Switch the scooter off. It has to be switched on with the power button again.</string>
+    <string name="ninebot_range_title">Remaining range</string>
+    <string name="ninebot_odometer_title">Total distance</string>
+    <string name="ninebot_temperature_title">Temperature</string>
+    <string name="ninebot_mode_title">Riding mode</string>
+    <string name="ninebot_mode_eco">Eco</string>
+    <string name="ninebot_mode_dynamic">Dynamic</string>
+    <string name="ninebot_mode_sport">Sport</string>
+    <string name="ninebot_search_title">Search for the scooter</string>
+    <string name="ninebot_search_summary">Looks for the scooter every 3 seconds and unlocks it as soon as it is found. Uses more battery of the phone.</string>
     <string name="mi_hipee_p1_history">Raw posture history</string>
     <string name="mi_hipee_p1_position">Position</string>
     <string name="mi_hipee_p1_history_forward">Forward (humpback)</string>
