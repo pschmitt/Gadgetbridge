@@ -1,7 +1,7 @@
 syntax = "proto2";
 package GDI.Proto.HeartRate;
 
-option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin.GdiSmartProto";
+option java_package = "nodomain.freeyourgadget.gadgetbridge.proto.garmin";
 option java_outer_classname = "GdiHeartRate";
 
 message MeasurementNotification {
