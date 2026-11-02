@@ -4544,7 +4544,7 @@
     <string name="activity_summary_set_header_photo_title">Définir photo d’en-tête</string>
     <string name="activity_summary_remove_header_photo_title">Retirer photo d’en-tête</string>
     <string name="feature_exploresync_summary">Synchroniser les tracés GPS d\'activité via le protocole ExploreSync. À utiliser uniquement si l\'appareil ne fournit pas de fichiers FIT.</string>
-    <string name="pref_casio_interval_timer_title">Minuteur d\'intervalle</string>
+    <string name="pref_casio_interval_timer_title">Chronomètre à intervalles</string>
     <string name="casio_interval_timer_add">Ajouter minuteur</string>
     <string name="casio_interval_timer_empty">Aucun minuteur. Touchez + pour en ajouter un.</string>
     <string name="casio_interval_timer_limit_reached">Limite de 50 minuteurs atteinte</string>
