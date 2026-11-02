@@ -391,6 +391,8 @@ public class CommunicatorV2 implements ICommunicator {
                         yield new RealtimeRespirationCallback();
                     case REALTIME_HRV:
                         yield new RealtimeHrvCallback();
+                    case REALTIME_CALORIES:
+                        yield new RealtimeCaloriesCallback();
                     case FILE_TRANSFER_2:
                     case FILE_TRANSFER_4:
                     case FILE_TRANSFER_6:
