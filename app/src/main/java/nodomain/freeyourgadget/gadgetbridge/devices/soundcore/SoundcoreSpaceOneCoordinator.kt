@@ -3,6 +3,7 @@ package nodomain.freeyourgadget.gadgetbridge.devices.soundcore
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
+import nodomain.freeyourgadget.gadgetbridge.service.devices.soundcore.devices.SoundcoreSpaceOneProtocol
 import java.util.regex.Pattern
 
 class SoundcoreSpaceOneCoordinator : SoundcoreEarbudsCoordinator() {
@@ -20,6 +21,8 @@ class SoundcoreSpaceOneCoordinator : SoundcoreEarbudsCoordinator() {
     override fun getDeviceKind(device: GBDevice): DeviceCoordinator.DeviceKind = DeviceCoordinator.DeviceKind.HEADPHONES
 
     override fun getBatteryCount(device: GBDevice): Int = 1
+
+    override fun createProtocol(device: GBDevice): SoundcoreSpaceOneProtocol = SoundcoreSpaceOneProtocol(device)
 
     override fun supportsExtendedInfoRequest(): Boolean = false
 
