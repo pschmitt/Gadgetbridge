@@ -75,7 +75,7 @@ class RawSleepNightsTest : TestBase() {
     }
 
     private fun import(device: GBDevice, minutes: List<SleepMinute>) =
-        RawSleepNights.importMinutes(device, daoSession, null, minutes)
+        RawSleepNights.importMinutes(device, daoSession, app, minutes)
 
     private fun sleepEvents(device: GBDevice): List<GarminEventSample> =
         GarminEventSampleProvider(device, daoSession).getSleepEvents(0, Long.MAX_VALUE).sortedBy { it.timestamp }
@@ -157,7 +157,7 @@ class RawSleepNightsTest : TestBase() {
         events.persistSamples(listOf(
             sleepEvent(fakedStart, EventType.START, -1L),
             sleepEvent(bedtime.plusSeconds(11 * 3600), EventType.STOP, -1L),
-        ), null)
+        ), app)
 
         val minutes = night(bedtime)
         import(device, minutes)
@@ -182,8 +182,8 @@ class RawSleepNightsTest : TestBase() {
                 stage = SleepLevel.DEEP.num
             }
         }
-        GarminEventSampleProvider(device, daoSession).persistSamples(watchEvents, null)
-        GarminSleepStageSampleProvider(device, daoSession).persistSamples(watchStages, null)
+        GarminEventSampleProvider(device, daoSession).persistSamples(watchEvents, app)
+        GarminSleepStageSampleProvider(device, daoSession).persistSamples(watchStages, app)
 
         import(device, minutes)
         import(device, minutes)

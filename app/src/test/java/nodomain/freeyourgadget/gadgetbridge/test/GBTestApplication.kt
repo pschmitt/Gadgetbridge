@@ -1,9 +1,9 @@
 package nodomain.freeyourgadget.gadgetbridge.test
 
-import nodomain.freeyourgadget.gadgetbridge.GBHiltApplication
+import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import org.slf4j.LoggerFactory
 
-class GBTestApplication : GBHiltApplication() {
+class GBTestApplication : GBApplication() {
     override fun migratePrefsIfNeeded() {
         // In tests, do not migrate preferences
         // FIXME: This is not ideal. In tests, do not migrate preferences. We should be able to initialize

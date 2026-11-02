@@ -18,335 +18,275 @@
 
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
-package nodomain.freeyourgadget.gadgetbridge;
+package nodomain.freeyourgadget.gadgetbridge
 
-import static nodomain.freeyourgadget.gadgetbridge.util.GB.NOTIFICATION_CHANNEL_HIGH_PRIORITY_ID;
-import static nodomain.freeyourgadget.gadgetbridge.util.GB.NOTIFICATION_ID_ERROR;
-
-import android.Manifest;
-import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.Application;
-import android.app.NotificationManager;
-import android.app.NotificationManager.Policy;
-import android.app.PendingIntent;
-import android.app.UiModeManager;
-import android.bluetooth.BluetoothAdapter;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Build.VERSION;
-import android.os.Bundle;
-import android.os.StrictMode;
-import android.preference.PreferenceManager;
-import android.provider.ContactsContract.PhoneLookup;
-import android.util.TypedValue;
-import android.view.Window;
-import android.view.WindowManager;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.StyleRes;
-import androidx.annotation.VisibleForTesting;
-import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import androidx.lifecycle.ProcessLifecycleOwner;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Locale;
-
-import nodomain.freeyourgadget.gadgetbridge.activities.ControlCenterv2;
-import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
-import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
-import nodomain.freeyourgadget.gadgetbridge.database.PeriodicDbExporter;
-import nodomain.freeyourgadget.gadgetbridge.devices.DeviceManager;
-import nodomain.freeyourgadget.gadgetbridge.externalevents.BluetoothStateChangeReceiver;
-import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationAppRepository;
-import nodomain.freeyourgadget.gadgetbridge.externalevents.opentracks.OpenTracksContentObserver;
-import nodomain.freeyourgadget.gadgetbridge.externalservices.ExternalServiceRegistry;
-import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
-import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceService;
-import nodomain.freeyourgadget.gadgetbridge.model.DeviceService;
-import nodomain.freeyourgadget.gadgetbridge.model.weather.Weather;
-import nodomain.freeyourgadget.gadgetbridge.model.weather.WeatherCacheManager;
-import nodomain.freeyourgadget.gadgetbridge.prefs.GBPrefsMigrator;
-import nodomain.freeyourgadget.gadgetbridge.service.NotificationCollectorMonitorService;
-import nodomain.freeyourgadget.gadgetbridge.util.AndroidUtils;
-import nodomain.freeyourgadget.gadgetbridge.util.CompanionDeviceUtil;
-import nodomain.freeyourgadget.gadgetbridge.util.GB;
-import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
-import nodomain.freeyourgadget.gadgetbridge.util.InternetHelperSingleton;
-import nodomain.freeyourgadget.gadgetbridge.util.LimitedQueue;
-import nodomain.freeyourgadget.gadgetbridge.util.PermissionsUtils;
-import nodomain.freeyourgadget.gadgetbridge.util.backup.PeriodicZipExporter;
-import nodomain.freeyourgadget.gadgetbridge.util.healthconnect.HealthConnectPermissionManager;
-import nodomain.freeyourgadget.gadgetbridge.util.preferences.DevicePrefs;
-import nodomain.freeyourgadget.gadgetbridge.widgets.launcher.LauncherWidgets;
+import android.Manifest
+import android.app.Activity
+import android.app.AlarmManager
+import android.app.Application
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.UiModeManager
+import android.bluetooth.BluetoothAdapter
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.content.res.Resources
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.os.StrictMode
+import android.preference.PreferenceManager
+import android.provider.ContactsContract.PhoneLookup
+import android.util.TypedValue
+import android.view.WindowManager
+import androidx.annotation.StyleRes
+import androidx.annotation.VisibleForTesting
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.edit
+import androidx.core.net.toUri
+import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import dagger.hilt.android.HiltAndroidApp
+import nodomain.freeyourgadget.gadgetbridge.activities.ControlCenterv2
+import nodomain.freeyourgadget.gadgetbridge.database.DBHandler
+import nodomain.freeyourgadget.gadgetbridge.database.DBHelper
+import nodomain.freeyourgadget.gadgetbridge.database.PeriodicDbExporter
+import nodomain.freeyourgadget.gadgetbridge.devices.DeviceManager
+import nodomain.freeyourgadget.gadgetbridge.externalevents.BluetoothStateChangeReceiver
+import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationAppRepository
+import nodomain.freeyourgadget.gadgetbridge.externalevents.opentracks.OpenTracksContentObserver
+import nodomain.freeyourgadget.gadgetbridge.externalservices.ExternalServiceRegistry
+import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
+import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceService
+import nodomain.freeyourgadget.gadgetbridge.model.DeviceService
+import nodomain.freeyourgadget.gadgetbridge.model.weather.Weather
+import nodomain.freeyourgadget.gadgetbridge.model.weather.WeatherCacheManager
+import nodomain.freeyourgadget.gadgetbridge.prefs.GBPrefsMigrator
+import nodomain.freeyourgadget.gadgetbridge.service.NotificationCollectorMonitorService
+import nodomain.freeyourgadget.gadgetbridge.util.AndroidUtils
+import nodomain.freeyourgadget.gadgetbridge.util.CompanionDeviceUtil
+import nodomain.freeyourgadget.gadgetbridge.util.GB
+import nodomain.freeyourgadget.gadgetbridge.util.GB.NOTIFICATION_CHANNEL_HIGH_PRIORITY_ID
+import nodomain.freeyourgadget.gadgetbridge.util.GB.NOTIFICATION_ID_ERROR
+import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs
+import nodomain.freeyourgadget.gadgetbridge.util.InternetHelperSingleton
+import nodomain.freeyourgadget.gadgetbridge.util.LimitedQueue
+import nodomain.freeyourgadget.gadgetbridge.util.PermissionsUtils
+import nodomain.freeyourgadget.gadgetbridge.util.backup.PeriodicZipExporter
+import nodomain.freeyourgadget.gadgetbridge.util.healthconnect.HealthConnectPermissionManager
+import nodomain.freeyourgadget.gadgetbridge.util.preferences.DevicePrefs
+import nodomain.freeyourgadget.gadgetbridge.widgets.launcher.LauncherWidgets
+import org.slf4j.LoggerFactory
+import java.util.Locale
+import javax.inject.Inject
 
 /**
  * Main Application class that initializes and provides access to certain things like
  * logging and DB access.
+ *
+ * Static members are kept in the companion object and annotated with [JvmStatic] so that the
+ * existing Java call sites keep working unchanged.
  */
-public abstract class GBApplication extends Application {
-    private static final Logger LOG = LoggerFactory.getLogger(GBApplication.class);
+@HiltAndroidApp
+open class GBApplication : Application() {
+    @Inject
+    lateinit var deviceManagerInstance: DeviceManager
 
-    private static GBApplication context;
-    private static DeviceService deviceService;
-    private static SharedPreferences sharedPrefs;
-    private static final SharedPreferences.OnSharedPreferenceChangeListener themePreferenceListener = (final SharedPreferences sharedPreferences, final String key) -> {
-        if ("pref_key_theme".equals(key)) {
-            updateApplicationNightMode();
-        }
-    };
+    private var bluetoothStateChangeReceiver: BluetoothStateChangeReceiver? = null
 
-    private static final LimitedQueue<Integer, String> mIDSenderLookup = new LimitedQueue<>(16);
-    private static GBPrefs prefs;
-    /**
-     * Note: is null on Lollipop
-     */
-    private static NotificationManager notificationManager;
+    var openTracksObserver: OpenTracksContentObserver? = null
 
-    public static final String ACTION_QUIT
-            = "nodomain.freeyourgadget.gadgetbridge.gbapplication.action.quit";
-    public static final String ACTION_LANGUAGE_CHANGE = "nodomain.freeyourgadget.gadgetbridge.gbapplication.action.language_change";
-    public static final String ACTION_THEME_CHANGE = "nodomain.freeyourgadget.gadgetbridge.gbapplication.action.theme_change";
-    public static final String ACTION_NEW_DATA = "nodomain.freeyourgadget.gadgetbridge.action.new_data";
-    public static final String ACTION_APP_IS_IN_FOREGROUND = "nodomain.freeyourgadget.gadgetbridge.action.app_foreground";
-    public static final String ACTION_APP_IS_IN_BACKGROUND = "nodomain.freeyourgadget.gadgetbridge.action.app_background";
-
-    private static GBApplication app;
-
-    private static Locale language;
-
-    private BluetoothStateChangeReceiver bluetoothStateChangeReceiver;
-
-    private OpenTracksContentObserver openTracksObserver;
-
-    public static void quit() {
-        LOG.info("Quitting Gadgetbridge...");
-        CompanionDeviceUtil.StopObservingAll(getContext());
-        Intent quitIntent = new Intent(GBApplication.ACTION_QUIT);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(quitIntent);
-        GBApplication.deviceService().quit();
-        GBDatabaseManager.closeDatabase();
-        System.exit(0);
-    }
-
-    public static void restart() {
-        LOG.info("Restarting Gadgetbridge...");
-        CompanionDeviceUtil.StopObservingAll(getContext());
-        final Intent quitIntent = new Intent(GBApplication.ACTION_QUIT);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(quitIntent);
-        GBApplication.deviceService().quit();
-
-        GBDatabaseManager.closeDatabase();
-
-        final Intent startActivity = new Intent(context, ControlCenterv2.class);
-        final PendingIntent pendingIntent = PendingIntent.getActivity(
-                context,
-                1337,
-                startActivity,
-                PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-        final AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + 1500, pendingIntent);
-
-        Runtime.getRuntime().exit(0);
-    }
-
-    public GBApplication() {
-        context = this;
+    init {
+        appContext = this
+        context = this
         // don't do anything here, add it to onCreate instead
 
         if (BuildConfig.DEBUG) {
-            StrictMode.ThreadPolicy.Builder thread = new StrictMode.ThreadPolicy.Builder();
-            thread.detectCustomSlowCalls();
-            thread.permitDiskReads(); // log requires disk access
-            thread.permitDiskWrites(); // log requires disk access
-            thread.detectNetwork();
-            thread.detectResourceMismatches();
-            if (VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                thread.detectUnbufferedIo();
+            val thread = StrictMode.ThreadPolicy.Builder()
+            thread.detectCustomSlowCalls()
+            thread.permitDiskReads() // log requires disk access
+            thread.permitDiskWrites() // log requires disk access
+            thread.detectNetwork()
+            thread.detectResourceMismatches()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                thread.detectUnbufferedIo()
             }
-            if (VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                thread.detectExplicitGc();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                thread.detectExplicitGc()
             }
-            StrictMode.setThreadPolicy(thread.penaltyLog().build());
+            StrictMode.setThreadPolicy(thread.penaltyLog().build())
 
-            StrictMode.VmPolicy.Builder vm = new StrictMode.VmPolicy.Builder();
-            vm.detectLeakedSqlLiteObjects();
-            vm.detectLeakedClosableObjects();
-            vm.detectLeakedRegistrationObjects();
-            vm.detectFileUriExposure();
-            vm.detectCleartextNetwork();
-            if (VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vm.detectContentUriWithoutPermission();
-                vm.detectUntaggedSockets();
+            val vm = StrictMode.VmPolicy.Builder()
+            vm.detectLeakedSqlLiteObjects()
+            vm.detectLeakedClosableObjects()
+            vm.detectLeakedRegistrationObjects()
+            vm.detectFileUriExposure()
+            vm.detectCleartextNetwork()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vm.detectContentUriWithoutPermission()
+                vm.detectUntaggedSockets()
             }
-            if (VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 // androidx.appcompat causes:
                 // NonSdkApiUsedViolation: Landroid/view/ViewGroup;->makeOptionalFitsSystemWindows()V
                 // vm.detectNonSdkApiUsage();
             }
-            if (VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                vm.detectImplicitDirectBoot();
-                vm.detectCredentialProtectedWhileLocked();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                vm.detectImplicitDirectBoot()
+                vm.detectCredentialProtectedWhileLocked()
             }
-            if (VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                vm.detectIncorrectContextUse();
-                vm.detectUnsafeIntentLaunch();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                vm.detectIncorrectContextUse()
+                vm.detectUnsafeIntentLaunch()
             }
-            if (VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-                vm.detectBlockedBackgroundActivityLaunch();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                vm.detectBlockedBackgroundActivityLaunch()
             }
-            StrictMode.setVmPolicy(vm.penaltyLog().build());
+            StrictMode.setVmPolicy(vm.penaltyLog().build())
         }
     }
 
-    protected DeviceService createDeviceService() {
-        return new GBDeviceService(this);
+    protected open fun createDeviceService(): DeviceService {
+        return GBDeviceService(this)
     }
 
-    @Override
-    public void onCreate() {
-        if (app != null) {
-            super.onCreate();
+    override fun onCreate() {
+        if (appInstance != null) {
+            super.onCreate()
             // guard against multiple invocations (robolectric)
-            return;
+            return
         }
 
-        app = this;
-        super.onCreate();
-        ProcessLifecycleOwner.get().getLifecycle().addObserver(new AppLifecycleObserver());
+        appInstance = this
+        super.onCreate()
+        ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver())
 
-        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        prefs = new GBPrefs(sharedPrefs);
+        sharedPrefsInstance = PreferenceManager.getDefaultSharedPreferences(appContext)
+        prefsInstance = GBPrefs(sharedPrefsInstance)
 
-        final boolean environmentSetup = GBEnvironment.isEnvironmentSetup();
+        val environmentSetup = GBEnvironment.isEnvironmentSetup()
 
         // We need to set up the environment before initializing logging, so that the logging
         // path is properly set, and we should set up logging before the database setup, so that
         // the database upgrade also gets logged as expected.
         if (!environmentSetup) {
-            GBEnvironment.setupEnvironment(GBEnvironment.createDeviceEnvironment());
+            GBEnvironment.setupEnvironment(GBEnvironment.createDeviceEnvironment())
         }
 
         Logging.getInstance().initialize(
-                prefs.getBoolean("log_to_file", false),
-                prefs.getBoolean("log_level_trace", false)
-        );
+            prefsInstance.getBoolean("log_to_file", false),
+            prefsInstance.getBoolean("log_level_trace", false),
+        )
 
         if (!environmentSetup) {
             // setup db after the environment is set up, but don't do it in test mode
             // in test mode, it's done individually, see TestBase
-            GBDatabaseManager.setupDatabase(this);
+            GBDatabaseManager.setupDatabase(this)
         }
 
-        migratePrefsIfNeeded();
-        updateApplicationNightMode();
-        sharedPrefs.registerOnSharedPreferenceChangeListener(themePreferenceListener);
+        migratePrefsIfNeeded()
+        updateApplicationNightMode()
+        sharedPrefsInstance.registerOnSharedPreferenceChangeListener(themePreferenceListener)
 
-        setupExceptionHandler(prefs.getBoolean("crash_notification", isDebug()));
+        setupExceptionHandler(prefsInstance.getBoolean("crash_notification", isDebug()))
 
-        registerActivityLifecycleCallbacks(new GBActivityLifecycleCallbacks());
+        registerActivityLifecycleCallbacks(GBActivityLifecycleCallbacks())
 
-        Weather.initializeCache(new WeatherCacheManager(getCacheDir(), prefs.getBoolean("cache_weather", true)));
+        Weather.initializeCache(WeatherCacheManager(cacheDir, prefsInstance.getBoolean("cache_weather", true)))
 
         // Prefs and the database are ready at this point.
-        getDeviceManager().initialize();
-        String language = prefs.getString("language", "default");
-        setLanguage(language);
+        deviceManagerInstance.initialize()
+        val languageCode = prefsInstance.getString("language", "default") ?: "default"
+        setLanguage(languageCode)
 
-        deviceService = createDeviceService();
+        deviceServiceInstance = createDeviceService()
 
-        if (!GBEnvironment.env().isTest()) {
-            PeriodicDbExporter.INSTANCE.scheduleNextExecution(context);
-            PeriodicZipExporter.INSTANCE.scheduleNextExecution(context);
-            NotificationAppRepository.INSTANCE.loadInBackground();
+        if (!GBEnvironment.env().isTest) {
+            PeriodicDbExporter.scheduleNextExecution(appContext)
+            PeriodicZipExporter.scheduleNextExecution(appContext)
+            NotificationAppRepository.loadInBackground()
         }
 
-        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager = appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (isRunningOreoOrLater()) {
-            bluetoothStateChangeReceiver = new BluetoothStateChangeReceiver();
-            final IntentFilter bif = new IntentFilter();
-            bif.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-            if (isRunningPieOrLater())
-                bif.addAction(BluetoothStateChangeReceiver.ANDROID_BLUETOOTH_DEVICE_ACTION_BATTERY_LEVEL_CHANGED);
-            registerReceiver(bluetoothStateChangeReceiver, bif);
+            bluetoothStateChangeReceiver = BluetoothStateChangeReceiver()
+            val bif = IntentFilter()
+            bif.addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
+            if (isRunningPieOrLater()) {
+                bif.addAction(BluetoothStateChangeReceiver.ANDROID_BLUETOOTH_DEVICE_ACTION_BATTERY_LEVEL_CHANGED)
+            }
+            registerReceiver(bluetoothStateChangeReceiver, bif)
         }
-        startNotificationCollectorMonitorService();
+        startNotificationCollectorMonitorService()
 
-        CompanionDeviceUtil.StartObservingAll(getBaseContext());
+        CompanionDeviceUtil.StartObservingAll(baseContext)
 
-        if (prefs.getBoolean(GBPrefs.HEALTH_CONNECT_ENABLED, false)) {
-            HealthConnectPermissionManager.checkAndRectifyPermissions(this);
+        if (prefsInstance.getBoolean(GBPrefs.HEALTH_CONNECT_ENABLED, false)) {
+            HealthConnectPermissionManager.checkAndRectifyPermissions(this)
         }
 
         // Ensure the InternetHelper is bound, so that it works on first usage
-        InternetHelperSingleton.INSTANCE.ensureInternetHelperBound();
+        InternetHelperSingleton.ensureInternetHelperBound()
 
-        LauncherWidgets.registerUpdateTriggers(context);
+        LauncherWidgets.registerUpdateTriggers(appContext)
 
         // Let every external service schedule its own upkeep, such as renewing a token
-        if (!GBEnvironment.env().isTest()) {
-            ExternalServiceRegistry.scheduleBackgroundWork(context);
+        if (!GBEnvironment.env().isTest) {
+            ExternalServiceRegistry.scheduleBackgroundWork(appContext)
         }
     }
 
-    private void startNotificationCollectorMonitorService() {
-        if (!prefs.getBoolean("prefs_key_enable_deprecated_notificationcollectormonitor", false)) {
-            return;
+    private fun startNotificationCollectorMonitorService() {
+        if (!prefsInstance.getBoolean("prefs_key_enable_deprecated_notificationcollectormonitor", false)) {
+            return
         }
-        LOG.info("Starting the deprecated NotificationCollectorMonitorService foreground service.");
+        LOG.info("Starting the deprecated NotificationCollectorMonitorService foreground service.")
         try {
             //the following will ensure the notification manager is kept alive
-            Intent serviceIntent = new Intent(context, NotificationCollectorMonitorService.class);
+            val serviceIntent = Intent(appContext, NotificationCollectorMonitorService::class.java)
 
             //ContextCompat starts a background service on android < O automatically despite the method name
-            ContextCompat.startForegroundService(context, serviceIntent);
-
-        } catch (IllegalStateException e) {
-            String message = e.toString();
-            final Intent instructionsIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://gadgetbridge.org/basics/topics/background-service/"));
-            final PendingIntent pi = PendingIntent.getActivity(
-                    context,
-                    0,
-                    instructionsIntent,
-                    PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE
-            );
-            GB.notify(NOTIFICATION_ID_ERROR,
-                    new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_HIGH_PRIORITY_ID)
-                            .setSmallIcon(R.drawable.ic_notification)
-                            .setContentTitle(getString(R.string.error_background_service))
-                            .setContentText(getString(R.string.error_background_service_reason_truncated))
-                            .setContentIntent(pi)
-                            .setStyle(new NotificationCompat.BigTextStyle()
-                                    .bigText(getString(R.string.error_background_service_reason) + " \"" + message + "\""))
-                            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                            .build(), context);
+            ContextCompat.startForegroundService(appContext, serviceIntent)
+        } catch (e: IllegalStateException) {
+            val message = e.toString()
+            val instructionsIntent = Intent(
+                Intent.ACTION_VIEW,
+                "https://gadgetbridge.org/basics/topics/background-service/".toUri(),
+            )
+            val pi = PendingIntent.getActivity(
+                appContext,
+                0,
+                instructionsIntent,
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE,
+            )
+            GB.notify(
+                NOTIFICATION_ID_ERROR,
+                NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_HIGH_PRIORITY_ID)
+                    .setSmallIcon(R.drawable.ic_notification)
+                    .setContentTitle(getString(R.string.error_background_service))
+                    .setContentText(getString(R.string.error_background_service_reason_truncated))
+                    .setContentIntent(pi)
+                    .setStyle(
+                        NotificationCompat.BigTextStyle()
+                            .bigText(getString(R.string.error_background_service_reason) + " \"" + message + "\"")
+                    )
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .build(),
+                appContext,
+            )
         }
     }
 
-    @Override
-    public void onTrimMemory(int level) {
-        super.onTrimMemory(level);
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
         if (level >= TRIM_MEMORY_BACKGROUND) {
             if (!hasBusyDevice()) {
-                DBHelper.clearSession();
+                DBHelper.clearSession()
             }
         }
     }
@@ -356,455 +296,550 @@ public abstract class GBApplication extends Application {
      * or something similar.
      * Note: busy is not the same as connected or initialized!
      */
-    private boolean hasBusyDevice() {
-        List<GBDevice> devices = getDeviceManager().getDevices();
-        for (GBDevice device : devices) {
-            if (device.isBusy()) {
-                return true;
-            }
-        }
-        return false;
-    }
+    private fun hasBusyDevice(): Boolean = deviceManagerInstance.devices.any { it.isBusy }
 
-    private void setupExceptionHandler(final boolean notifyOnCrash) {
-        final GBExceptionHandler handler = new GBExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), notifyOnCrash);
-        Thread.setDefaultUncaughtExceptionHandler(handler);
-    }
-
-    public static boolean minimizeNotification() {
-        return prefs.getBoolean("minimize_priority", false);
-    }
-
-    public static Context getContext() {
-        return context;
-    }
-
-    /**
-     * Returns the facade for talking to devices. Devices are managed by
-     * an Android Service and this facade provides access to its functionality.
-     *
-     * @return the facade for talking to the service/devices.
-     */
-    public static DeviceService deviceService() {
-        return deviceService;
-    }
-
-    /**
-     * Returns the facade for talking to a specific device. Devices are managed by
-     * an Android Service and this facade provides access to its functionality.
-     *
-     * @return the facade for talking to the service/device.
-     */
-    public static DeviceService deviceService(GBDevice device) {
-        return deviceService.forDevice(device);
-    }
-
-    /**
-     * @see GBDatabaseManager#acquireWrite()
-     */
-    public static DBHandler acquireDB() throws GBException {
-        return GBDatabaseManager.acquireWrite();
-    }
-
-    /**
-     * @see GBDatabaseManager#acquireReadOnly()
-     */
-    public static DBHandler acquireDbReadOnly() throws GBException {
-        return GBDatabaseManager.acquireReadOnly();
-    }
-
-    public static boolean isRunningNougatOrLater() {
-        return VERSION.SDK_INT >= Build.VERSION_CODES.N;
-    }
-
-    public static boolean isRunningOreoOrLater() {
-        return VERSION.SDK_INT >= Build.VERSION_CODES.O;
-    }
-
-    public static boolean isRunningTenOrLater() {
-        return VERSION.SDK_INT >= Build.VERSION_CODES.Q;
-    }
-
-    public static boolean isRedVelvetCakeOrLater() {
-        return VERSION.SDK_INT >= Build.VERSION_CODES.R;
-    }
-
-    public static boolean isRunningTwelveOrLater() {
-        return VERSION.SDK_INT >= Build.VERSION_CODES.S;
-    }
-
-    public static boolean isRunningTiramisuOrLater() {
-        return VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
-    }
-
-    public static boolean isRunningPieOrLater() {
-        return VERSION.SDK_INT >= Build.VERSION_CODES.P;
-    }
-
-    private static boolean isPrioritySender(int prioritySenders, String number) {
-        if (prioritySenders == Policy.PRIORITY_SENDERS_ANY) {
-            return true;
-        } else if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            LOG.warn("Contacts permission not granted, unable to check if {} is a priority sender", number);
-            return true;
-        } else {
-            Uri uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
-            String[] projection = new String[]{PhoneLookup._ID, PhoneLookup.STARRED};
-            Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
-            boolean exists = false;
-            int starred = 0;
-            try {
-                if (cursor != null && cursor.moveToFirst()) {
-                    exists = true;
-                    starred = cursor.getInt(cursor.getColumnIndexOrThrow(PhoneLookup.STARRED));
-                }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
-            }
-            if (prioritySenders == Policy.PRIORITY_SENDERS_CONTACTS && exists) {
-                return true;
-            } else if (prioritySenders == Policy.PRIORITY_SENDERS_STARRED && starred == 1) {
-                return true;
-            }
-            return false;
-        }
-    }
-
-    public static boolean isPriorityNumber(int priorityType, String number) {
-        NotificationManager.Policy notificationPolicy = notificationManager.getNotificationPolicy();
-        if (priorityType == Policy.PRIORITY_CATEGORY_MESSAGES) {
-            if ((notificationPolicy.priorityCategories & Policy.PRIORITY_CATEGORY_MESSAGES) == Policy.PRIORITY_CATEGORY_MESSAGES) {
-                return isPrioritySender(notificationPolicy.priorityMessageSenders, number);
-            }
-        } else if (priorityType == Policy.PRIORITY_CATEGORY_CALLS) {
-            if ((notificationPolicy.priorityCategories & Policy.PRIORITY_CATEGORY_CALLS) == Policy.PRIORITY_CATEGORY_CALLS) {
-                return isPrioritySender(notificationPolicy.priorityCallSenders, number);
-            }
-        }
-        return false;
-    }
-
-    public static int getGrantedInterruptionFilter() {
-        if (notificationManager.isNotificationPolicyAccessGranted()) {
-            return notificationManager.getCurrentInterruptionFilter();
-        }
-        return NotificationManager.INTERRUPTION_FILTER_ALL;
+    private fun setupExceptionHandler(notifyOnCrash: Boolean) {
+        val handler = GBExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), notifyOnCrash)
+        Thread.setDefaultUncaughtExceptionHandler(handler)
     }
 
     @VisibleForTesting
-    protected void migratePrefsIfNeeded() {
-        GBPrefsMigrator.migratePrefsIfNeeded(sharedPrefs);
+    protected open fun migratePrefsIfNeeded() {
+        GBPrefsMigrator.migratePrefsIfNeeded(sharedPrefsInstance)
     }
 
-    public static SharedPreferences getDeviceSpecificSharedPrefs(CharSequence deviceIdentifier) {
-        if (deviceIdentifier == null || deviceIdentifier.length() < 1) {
-            return null;
-        }
-        return context.getSharedPreferences("devicesettings_" + deviceIdentifier.toString().toUpperCase(Locale.ROOT), Context.MODE_PRIVATE);
-    }
-
-    public static DevicePrefs getDevicePrefs(GBDevice gbDevice) {
-        return new DevicePrefs(getDeviceSpecificSharedPrefs(gbDevice.getAddress()), gbDevice);
-    }
-
-    public static void deleteDeviceSpecificSharedPrefs(CharSequence deviceIdentifier) {
-        if (deviceIdentifier == null || deviceIdentifier.length() < 1) {
-            return;
-        }
-        context.getSharedPreferences("devicesettings_" + deviceIdentifier.toString().toUpperCase(Locale.ROOT), Context.MODE_PRIVATE).edit().clear().apply();
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        updateLanguage(getLanguage())
     }
 
     /**
-     * The per-instance settings file for a dashboard widget instance, keyed by its instance id.
+     * @deprecated Use Hilt DI to access the [DeviceManager] instead.
      */
-    public static SharedPreferences getWidgetSharedPrefs(final CharSequence instanceId) {
-        //noinspection SizeReplaceableByIsEmpty
-        if (instanceId == null || instanceId.length() < 1) {
-            return null;
-        }
-        return context.getSharedPreferences("widgetsettings_" + instanceId, Context.MODE_PRIVATE);
-    }
+    @Deprecated("Use Hilt DI to access the DeviceManager instead.")
+    val deviceManager: DeviceManager
+        get() = deviceManagerInstance
 
-    public static void deleteWidgetSharedPrefs(final CharSequence instanceId) {
-        //noinspection SizeReplaceableByIsEmpty
-        if (instanceId == null || instanceId.length() < 1) {
-            return;
-        }
-        context.getSharedPreferences("widgetsettings_" + instanceId, Context.MODE_PRIVATE).edit().clear().apply();
-    }
-
-    public static void setLanguage(String lang) {
-        if (lang.equals("default")) {
-            language = Resources.getSystem().getConfiguration().locale;
-        } else if (lang.length() == 2) {
-            language = new Locale(lang);
-        } else {
-            final String[] split = lang.split("_");
-            if (split.length == 2) {
-                language = new Locale(split[0], split[1]);
-            } else {
-                // Unexpected format, fallback to system default
-                language = Resources.getSystem().getConfiguration().locale;
-            }
-        }
-        updateLanguage(language);
-    }
-
-    public static void updateLanguage(Locale locale) {
-        AndroidUtils.setLanguage(context, locale);
-
-        Intent intent = new Intent();
-        intent.setAction(ACTION_LANGUAGE_CHANGE);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-    }
-
-    public static LimitedQueue<Integer, String> getIDSenderLookup() {
-        return mIDSenderLookup;
-    }
-
-    public static boolean isDarkThemeEnabled() {
-        String selectedTheme = prefs.getString("pref_key_theme", context.getString(R.string.pref_theme_value_system));
-        Resources resources = context.getResources();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                (selectedTheme.equals(context.getString(R.string.pref_theme_value_system)) || selectedTheme.equals(context.getString(R.string.pref_theme_value_dynamic)))) {
-            return (resources.getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
-        } else {
-            return selectedTheme.equals(context.getString(R.string.pref_theme_value_dark));
+    fun getVersion(): String? {
+        return try {
+            packageManager.getPackageInfo(packageName, PackageManager.GET_META_DATA).versionName
+        } catch (e: PackageManager.NameNotFoundException) {
+            LOG.warn("Unable to determine Gadgetbridge's version", e)
+            "0.0.0"
         }
     }
 
-    /**
-     * Ensures the splash screen follows the theme preference, if manually set to light or derk.
-     */
-    private static void updateApplicationNightMode() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            return;
-        }
-        final String selectedTheme = prefs.getString("pref_key_theme", context.getString(R.string.pref_theme_value_system));
-        final int nightMode;
-        if (selectedTheme.equals(context.getString(R.string.pref_theme_value_light))) {
-            nightMode = UiModeManager.MODE_NIGHT_NO;
-        } else if (selectedTheme.equals(context.getString(R.string.pref_theme_value_dark))) {
-            nightMode = UiModeManager.MODE_NIGHT_YES;
-        } else {
-            nightMode = UiModeManager.MODE_NIGHT_AUTO;
-        }
-        final UiModeManager uiModeManager = context.getSystemService(UiModeManager.class);
-        if (uiModeManager != null) {
-            uiModeManager.setApplicationNightMode(nightMode);
+    fun getNameAndVersion(): String {
+        return try {
+            val appInfo = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+            val packageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_META_DATA)
+            String.format("%s %s", appInfo.name, packageInfo.versionName)
+        } catch (e: PackageManager.NameNotFoundException) {
+            LOG.warn("Unable to determine Gadgetbridge's name/version", e)
+            "Gadgetbridge"
         }
     }
 
-    public static boolean isAmoledBlackEnabled() {
-        return prefs.getBoolean("pref_key_theme_amoled_black", false);
-    }
-
-    public static boolean areDynamicColorsEnabled() {
-        String selectedTheme = prefs.getString("pref_key_theme", context.getString(R.string.pref_theme_value_system));
-        return selectedTheme.equals(context.getString(R.string.pref_theme_value_dynamic));
-    }
-
-    public static final String PREF_ACCENT_COLOR = "pref_key_accent_color";
-    public static final String PREF_ACCENT_COLOR_DEFAULT = "red";
-
-    /**
-     * The ThemeOverlay for the user's chosen accent color preset (Settings > User interface).
-     * Not meaningful when {@link #areDynamicColorsEnabled()} is true - callers should skip
-     * applying it in that case, since Dynamic Color already ties these colors to the wallpaper.
-     */
-    @StyleRes
-    public static int getAccentColorOverlay(final boolean dark) {
-        final String accent = prefs.getString(PREF_ACCENT_COLOR, PREF_ACCENT_COLOR_DEFAULT);
-        switch (accent) {
-            case "coral":
-                return dark ? R.style.ThemeOverlay_App_Accent_Coral_Dark : R.style.ThemeOverlay_App_Accent_Coral_Light;
-            case "orange":
-                return dark ? R.style.ThemeOverlay_App_Accent_Orange_Dark : R.style.ThemeOverlay_App_Accent_Orange_Light;
-            case "amber":
-                return dark ? R.style.ThemeOverlay_App_Accent_Amber_Dark : R.style.ThemeOverlay_App_Accent_Amber_Light;
-            case "lime":
-                return dark ? R.style.ThemeOverlay_App_Accent_Lime_Dark : R.style.ThemeOverlay_App_Accent_Lime_Light;
-            case "green":
-                return dark ? R.style.ThemeOverlay_App_Accent_Green_Dark : R.style.ThemeOverlay_App_Accent_Green_Light;
-            case "teal":
-                return dark ? R.style.ThemeOverlay_App_Accent_Teal_Dark : R.style.ThemeOverlay_App_Accent_Teal_Light;
-            case "cyan":
-                return dark ? R.style.ThemeOverlay_App_Accent_Cyan_Dark : R.style.ThemeOverlay_App_Accent_Cyan_Light;
-            case "blue":
-                return dark ? R.style.ThemeOverlay_App_Accent_Blue_Dark : R.style.ThemeOverlay_App_Accent_Blue_Light;
-            case "indigo":
-                return dark ? R.style.ThemeOverlay_App_Accent_Indigo_Dark : R.style.ThemeOverlay_App_Accent_Indigo_Light;
-            case "violet":
-                return dark ? R.style.ThemeOverlay_App_Accent_Violet_Dark : R.style.ThemeOverlay_App_Accent_Violet_Light;
-            case "pink":
-                return dark ? R.style.ThemeOverlay_App_Accent_Pink_Dark : R.style.ThemeOverlay_App_Accent_Pink_Light;
-            case "white":
-                return dark ? R.style.ThemeOverlay_App_Accent_White_Dark : R.style.ThemeOverlay_App_Accent_White_Light;
-            case "red":
-            default:
-                return dark ? R.style.ThemeOverlay_App_Accent_Red_Dark : R.style.ThemeOverlay_App_Accent_Red_Light;
-        }
-    }
-
-    public static final String PREF_CONTRASTING_SURFACES = "pref_key_contrasting_surfaces";
-
-    public static boolean areContrastingSurfacesEnabled(final boolean dark) {
-        return prefs.getBoolean(PREF_CONTRASTING_SURFACES, dark);
-    }
-
-    @StyleRes
-    public static int getContrastingSurfacesOverlay(final boolean dark) {
-        if (areDynamicColorsEnabled()) {
-            if (dark && isAmoledBlackEnabled()) {
-                return R.style.ThemeOverlay_App_ContrastingSurfaces_Dynamic_Black;
-            }
-            return R.style.ThemeOverlay_App_ContrastingSurfaces_Dynamic;
-        }
-        if (!dark) {
-            return R.style.ThemeOverlay_App_ContrastingSurfaces_Light;
-        }
-        return isAmoledBlackEnabled() ? R.style.ThemeOverlay_App_ContrastingSurfaces_Black : R.style.ThemeOverlay_App_ContrastingSurfaces_Dark;
-    }
-
-    public static int getTextColor(Context context) {
-        if (AndroidUtils.isDynamicColorActive()) {
-            return AndroidUtils.getDynamicColor(context, com.google.android.material.R.attr.colorOnSurface);
-        } else if (GBApplication.isDarkThemeEnabled()) {
-            return context.getResources().getColor(R.color.primarytext_dark);
-        } else {
-            return context.getResources().getColor(R.color.primarytext_light);
-        }
-    }
-
-    public static int getSecondaryTextColor(Context context) {
-        if (AndroidUtils.isDynamicColorActive()) {
-            return AndroidUtils.getDynamicColor(context, com.google.android.material.R.attr.colorOnSurfaceVariant);
-        } else if (isDarkThemeEnabled()) {
-            return context.getResources().getColor(R.color.on_surface_variant_dark);
-        } else {
-            return context.getResources().getColor(R.color.on_surface_variant_light);
-        }
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        updateLanguage(getLanguage());
-    }
-
-    public static int getBackgroundColor(Context context) {
-        TypedValue typedValue = new TypedValue();
-        Resources.Theme theme = context.getTheme();
-        theme.resolveAttribute(android.R.attr.background, typedValue, true);
-        return typedValue.data;
-    }
-
-    public static int getWindowBackgroundColor(Context context) {
-        TypedValue typedValue = new TypedValue();
-        Resources.Theme theme = context.getTheme();
-        theme.resolveAttribute(android.R.attr.windowBackground, typedValue, true);
-        return typedValue.data;
-    }
-
-    public static boolean hasDirectInternetAccess() {
-        return PermissionsUtils.checkPermission(getContext(), Manifest.permission.INTERNET);
-    }
-
-    public static boolean hasInternetAccess() {
-        return hasDirectInternetAccess() || InternetHelperSingleton.INSTANCE.ensureInternetHelperBound();
-    }
-
-    public static GBPrefs getPrefs() {
-        return prefs;
-    }
-
-    /**
-     * @deprecated Use Hilt DI to access the {@link DeviceManager} instead.
-     */
-    @Deprecated
-    public abstract DeviceManager getDeviceManager();
-
-    public static GBApplication app() {
-        return app;
-    }
-
-    public static Locale getLanguage() {
-        return language;
-    }
-
-    public static boolean isNightly() {
-        //noinspection ConstantValue - false positive
-        return BuildConfig.APPLICATION_ID.contains("nightly");
-    }
-
-    public static boolean isDebug() {
-        return BuildConfig.DEBUG;
-    }
-
-    public String getVersion() {
-        try {
-            return getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_META_DATA).versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            LOG.warn("Unable to determine Gadgetbridge's version", e);
-            return "0.0.0";
-        }
-    }
-
-    public String getNameAndVersion() {
-        try {
-            ApplicationInfo appInfo = getPackageManager().getApplicationInfo(getContext().getPackageName(), PackageManager.GET_META_DATA);
-            PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_META_DATA);
-            return String.format("%s %s", appInfo.name, packageInfo.versionName);
-        } catch (PackageManager.NameNotFoundException e) {
-            LOG.warn("Unable to determine Gadgetbridge's name/version", e);
-            return "Gadgetbridge";
-        }
-    }
-
-    public void setOpenTracksObserver(OpenTracksContentObserver openTracksObserver) {
-        this.openTracksObserver = openTracksObserver;
-    }
-
-    public OpenTracksContentObserver getOpenTracksObserver() {
-        return openTracksObserver;
-    }
-
-    private static class GBActivityLifecycleCallbacks implements ActivityLifecycleCallbacks{
-        @Override
-        public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
-            boolean preventScreenshots = getPrefs().getBoolean(GBPrefs.BLOCK_SCREENSHOTS, false);
+    private class GBActivityLifecycleCallbacks : Application.ActivityLifecycleCallbacks {
+        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+            val preventScreenshots = GBApplication.getPrefs().getBoolean(GBPrefs.BLOCK_SCREENSHOTS, false)
             if (preventScreenshots) {
-                LOG.debug("set FLAG_SECURE for {}", activity.getLocalClassName());
-                Window window = activity.getWindow();
-                window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+                LOG.debug("set FLAG_SECURE for {}", activity.localClassName)
+                activity.window.setFlags(
+                    WindowManager.LayoutParams.FLAG_SECURE,
+                    WindowManager.LayoutParams.FLAG_SECURE,
+                )
             }
         }
 
-        @Override
-        public void onActivityDestroyed(@NonNull Activity activity) {
+        override fun onActivityStarted(activity: Activity) {
         }
 
-        @Override
-        public void onActivityPaused(@NonNull Activity activity) {
+        override fun onActivityResumed(activity: Activity) {
         }
 
-        @Override
-        public void onActivityResumed(@NonNull Activity activity) {
+        override fun onActivityPaused(activity: Activity) {
         }
 
-        @Override
-        public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
+        override fun onActivityStopped(activity: Activity) {
         }
 
-        @Override
-        public void onActivityStarted(@NonNull Activity activity) {
+        override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
         }
 
-        @Override
-        public void onActivityStopped(@NonNull Activity activity) {
+        override fun onActivityDestroyed(activity: Activity) {
+        }
+
+        companion object {
+            private val LOG = LoggerFactory.getLogger(GBActivityLifecycleCallbacks::class.java)
+        }
+    }
+
+    companion object {
+        private val LOG = LoggerFactory.getLogger(GBApplication::class.java)
+
+        private lateinit var appContext: GBApplication
+        private var context: GBApplication? = null
+        private var appInstance: GBApplication? = null
+        private lateinit var deviceServiceInstance: DeviceService
+        private lateinit var sharedPrefsInstance: SharedPreferences
+        private lateinit var prefsInstance: GBPrefs
+        private lateinit var notificationManager: NotificationManager
+        private lateinit var language: Locale
+        private val idSenderLookup = LimitedQueue<Int, String>(16)
+
+        private val themePreferenceListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if ("pref_key_theme" == key) {
+                updateApplicationNightMode()
+            }
+        }
+
+        const val ACTION_QUIT = "nodomain.freeyourgadget.gadgetbridge.gbapplication.action.quit"
+        const val ACTION_LANGUAGE_CHANGE = "nodomain.freeyourgadget.gadgetbridge.gbapplication.action.language_change"
+        const val ACTION_THEME_CHANGE = "nodomain.freeyourgadget.gadgetbridge.gbapplication.action.theme_change"
+        const val ACTION_NEW_DATA = "nodomain.freeyourgadget.gadgetbridge.action.new_data"
+        const val ACTION_APP_IS_IN_FOREGROUND = "nodomain.freeyourgadget.gadgetbridge.action.app_foreground"
+        const val ACTION_APP_IS_IN_BACKGROUND = "nodomain.freeyourgadget.gadgetbridge.action.app_background"
+
+        const val PREF_ACCENT_COLOR = "pref_key_accent_color"
+        const val PREF_ACCENT_COLOR_DEFAULT = "red"
+        const val PREF_CONTRASTING_SURFACES = "pref_key_contrasting_surfaces"
+
+        @JvmStatic
+        fun quit() {
+            LOG.info("Quitting Gadgetbridge...")
+            CompanionDeviceUtil.StopObservingAll(getContext())
+            val quitIntent = Intent(ACTION_QUIT)
+            LocalBroadcastManager.getInstance(appContext).sendBroadcast(quitIntent)
+            deviceServiceInstance.quit()
+            GBDatabaseManager.closeDatabase()
+            System.exit(0)
+        }
+
+        @JvmStatic
+        fun restart() {
+            LOG.info("Restarting Gadgetbridge...")
+            CompanionDeviceUtil.StopObservingAll(getContext())
+            val quitIntent = Intent(ACTION_QUIT)
+            LocalBroadcastManager.getInstance(appContext).sendBroadcast(quitIntent)
+            deviceServiceInstance.quit()
+
+            GBDatabaseManager.closeDatabase()
+
+            val startActivity = Intent(appContext, ControlCenterv2::class.java)
+            val pendingIntent = PendingIntent.getActivity(
+                appContext,
+                1337,
+                startActivity,
+                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+            val alarmManager = appContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + 1500, pendingIntent)
+
+            Runtime.getRuntime().exit(0)
+        }
+
+        @JvmStatic
+        fun minimizeNotification(): Boolean {
+            return prefsInstance.getBoolean("minimize_priority", false)
+        }
+
+        @JvmStatic
+        fun getContext(): Context {
+            return context as Context
+        }
+
+        /**
+         * Returns the application context if it has been created, or null during early startup
+         * (e.g. while broadcast receivers are being registered) and in unit tests.
+         */
+        @JvmStatic
+        fun getContextOrNull(): Context? {
+            return context
+        }
+
+        /**
+         * Returns the facade for talking to devices. Devices are managed by
+         * an Android Service and this facade provides access to its functionality.
+         *
+         * @return the facade for talking to the service/devices.
+         */
+        @JvmStatic
+        fun deviceService(): DeviceService {
+            return deviceServiceInstance
+        }
+
+        /**
+         * Returns the facade for talking to a specific device. Devices are managed by
+         * an Android Service and this facade provides access to its functionality.
+         *
+         * @return the facade for talking to the service/device.
+         */
+        @JvmStatic
+        fun deviceService(device: GBDevice?): DeviceService {
+            return deviceServiceInstance.forDevice(device)
+        }
+
+        /**
+         * @see GBDatabaseManager.acquireWrite
+         */
+        @JvmStatic
+        @Throws(GBException::class)
+        fun acquireDB(): DBHandler {
+            return GBDatabaseManager.acquireWrite()
+        }
+
+        /**
+         * @see GBDatabaseManager.acquireReadOnly
+         */
+        @JvmStatic
+        @Throws(GBException::class)
+        fun acquireDbReadOnly(): DBHandler {
+            return GBDatabaseManager.acquireReadOnly()
+        }
+
+        @JvmStatic
+        fun isRunningNougatOrLater(): Boolean {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+        }
+
+        @JvmStatic
+        fun isRunningOreoOrLater(): Boolean {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+        }
+
+        @JvmStatic
+        fun isRunningTenOrLater(): Boolean {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+        }
+
+        @JvmStatic
+        fun isRedVelvetCakeOrLater(): Boolean {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+        }
+
+        @JvmStatic
+        fun isRunningTwelveOrLater(): Boolean {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        }
+
+        @JvmStatic
+        fun isRunningTiramisuOrLater(): Boolean {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+        }
+
+        @JvmStatic
+        fun isRunningPieOrLater(): Boolean {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+        }
+
+        private fun isPrioritySender(prioritySenders: Int, number: String): Boolean {
+            if (prioritySenders == NotificationManager.Policy.PRIORITY_SENDERS_ANY) {
+                return true
+            } else if (ContextCompat.checkSelfPermission(
+                    appContext,
+                    Manifest.permission.READ_CONTACTS,
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                LOG.warn("Contacts permission not granted, unable to check if {} is a priority sender", number)
+                return true
+            } else {
+                val uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number))
+                val projection = arrayOf(PhoneLookup._ID, PhoneLookup.STARRED)
+                val cursor = appContext.contentResolver.query(uri, projection, null, null, null)
+                var exists = false
+                var starred = 0
+                cursor?.use {
+                    if (it.moveToFirst()) {
+                        exists = true
+                        starred = it.getInt(it.getColumnIndexOrThrow(PhoneLookup.STARRED))
+                    }
+                }
+                return if (prioritySenders == NotificationManager.Policy.PRIORITY_SENDERS_CONTACTS && exists) {
+                    true
+                } else {
+                    prioritySenders == NotificationManager.Policy.PRIORITY_SENDERS_STARRED && starred == 1
+                }
+            }
+        }
+
+        @JvmStatic
+        fun isPriorityNumber(priorityType: Int, number: String): Boolean {
+            val notificationPolicy = notificationManager.notificationPolicy
+            if (priorityType == NotificationManager.Policy.PRIORITY_CATEGORY_MESSAGES) {
+                if ((notificationPolicy.priorityCategories and NotificationManager.Policy.PRIORITY_CATEGORY_MESSAGES) == NotificationManager.Policy.PRIORITY_CATEGORY_MESSAGES) {
+                    return isPrioritySender(notificationPolicy.priorityMessageSenders, number)
+                }
+            } else if (priorityType == NotificationManager.Policy.PRIORITY_CATEGORY_CALLS) {
+                if ((notificationPolicy.priorityCategories and NotificationManager.Policy.PRIORITY_CATEGORY_CALLS) == NotificationManager.Policy.PRIORITY_CATEGORY_CALLS) {
+                    return isPrioritySender(notificationPolicy.priorityCallSenders, number)
+                }
+            }
+            return false
+        }
+
+        @JvmStatic
+        fun getGrantedInterruptionFilter(): Int {
+            return if (notificationManager.isNotificationPolicyAccessGranted) {
+                notificationManager.currentInterruptionFilter
+            } else {
+                NotificationManager.INTERRUPTION_FILTER_ALL
+            }
+        }
+
+        @JvmStatic
+        fun getDeviceSpecificSharedPrefs(deviceIdentifier: CharSequence?): SharedPreferences {
+            require(!deviceIdentifier.isNullOrEmpty()) { "Invalid device identifier" }
+            return appContext.getSharedPreferences(
+                "devicesettings_" + deviceIdentifier.toString().uppercase(Locale.ROOT),
+                Context.MODE_PRIVATE,
+            )
+        }
+
+        @JvmStatic
+        fun getDevicePrefs(gbDevice: GBDevice): DevicePrefs {
+            return DevicePrefs(getDeviceSpecificSharedPrefs(gbDevice.address), gbDevice)
+        }
+
+        @JvmStatic
+        fun deleteDeviceSpecificSharedPrefs(deviceIdentifier: CharSequence?) {
+            if (deviceIdentifier.isNullOrEmpty()) {
+                return
+            }
+            appContext.getSharedPreferences(
+                "devicesettings_" + deviceIdentifier.toString().uppercase(Locale.ROOT),
+                Context.MODE_PRIVATE,
+            ).edit { clear() }
+        }
+
+        /**
+         * The per-instance settings file for a dashboard widget instance, keyed by its instance id.
+         */
+        @JvmStatic
+        fun getWidgetSharedPrefs(instanceId: CharSequence?): SharedPreferences? {
+            if (instanceId.isNullOrEmpty()) {
+                return null
+            }
+            return appContext.getSharedPreferences("widgetsettings_$instanceId", MODE_PRIVATE)
+        }
+
+        @JvmStatic
+        fun deleteWidgetSharedPrefs(instanceId: CharSequence?) {
+            if (instanceId.isNullOrEmpty()) {
+                return
+            }
+            appContext.getSharedPreferences("widgetsettings_$instanceId", MODE_PRIVATE)
+                .edit {
+                    clear()
+                }
+        }
+
+        @JvmStatic
+        fun setLanguage(lang: String) {
+            language = if (lang == "default") {
+                Resources.getSystem().configuration.locale
+            } else if (lang.length == 2) {
+                Locale(lang)
+            } else {
+                val split = lang.split("_")
+                if (split.size == 2) {
+                    Locale(split[0], split[1])
+                } else {
+                    // Unexpected format, fallback to system default
+                    Resources.getSystem().configuration.locale
+                }
+            }
+            updateLanguage(language)
+        }
+
+        @JvmStatic
+        fun updateLanguage(locale: Locale) {
+            AndroidUtils.setLanguage(appContext, locale)
+
+            val intent = Intent()
+            intent.action = ACTION_LANGUAGE_CHANGE
+            LocalBroadcastManager.getInstance(appContext).sendBroadcast(intent)
+        }
+
+        @JvmStatic
+        fun getIDSenderLookup(): LimitedQueue<Int, String> {
+            return idSenderLookup
+        }
+
+        @JvmStatic
+        fun isDarkThemeEnabled(): Boolean {
+            val selectedTheme = prefsInstance.getString(
+                "pref_key_theme",
+                appContext.getString(R.string.pref_theme_value_system),
+            )
+            val resources = appContext.resources
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                (selectedTheme == appContext.getString(R.string.pref_theme_value_system) ||
+                    selectedTheme == appContext.getString(R.string.pref_theme_value_dynamic))
+            ) {
+                return (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+            } else {
+                return selectedTheme == appContext.getString(R.string.pref_theme_value_dark)
+            }
+        }
+
+        /**
+         * Ensures the splash screen follows the theme preference, if manually set to light or derk.
+         */
+        private fun updateApplicationNightMode() {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                return
+            }
+            val selectedTheme = prefsInstance.getString(
+                "pref_key_theme",
+                appContext.getString(R.string.pref_theme_value_system),
+            )
+            val nightMode = when (selectedTheme) {
+                appContext.getString(R.string.pref_theme_value_light) -> UiModeManager.MODE_NIGHT_NO
+                appContext.getString(R.string.pref_theme_value_dark) -> UiModeManager.MODE_NIGHT_YES
+                else -> UiModeManager.MODE_NIGHT_AUTO
+            }
+            appContext.getSystemService(UiModeManager::class.java)?.setApplicationNightMode(nightMode)
+        }
+
+        @JvmStatic
+        fun isAmoledBlackEnabled(): Boolean {
+            return prefsInstance.getBoolean("pref_key_theme_amoled_black", false)
+        }
+
+        @JvmStatic
+        fun areDynamicColorsEnabled(): Boolean {
+            val selectedTheme = prefsInstance.getString(
+                "pref_key_theme",
+                appContext.getString(R.string.pref_theme_value_system),
+            )
+            return selectedTheme == appContext.getString(R.string.pref_theme_value_dynamic)
+        }
+
+        /**
+         * The ThemeOverlay for the user's chosen accent color preset (Settings > User interface).
+         * Not meaningful when [areDynamicColorsEnabled] is true - callers should skip
+         * applying it in that case, since Dynamic Color already ties these colors to the wallpaper.
+         */
+        @JvmStatic
+        @StyleRes
+        fun getAccentColorOverlay(dark: Boolean): Int {
+            val accent = prefsInstance.getString(PREF_ACCENT_COLOR, PREF_ACCENT_COLOR_DEFAULT)
+            return when (accent) {
+                "coral" -> if (dark) R.style.ThemeOverlay_App_Accent_Coral_Dark else R.style.ThemeOverlay_App_Accent_Coral_Light
+                "orange" -> if (dark) R.style.ThemeOverlay_App_Accent_Orange_Dark else R.style.ThemeOverlay_App_Accent_Orange_Light
+                "amber" -> if (dark) R.style.ThemeOverlay_App_Accent_Amber_Dark else R.style.ThemeOverlay_App_Accent_Amber_Light
+                "lime" -> if (dark) R.style.ThemeOverlay_App_Accent_Lime_Dark else R.style.ThemeOverlay_App_Accent_Lime_Light
+                "green" -> if (dark) R.style.ThemeOverlay_App_Accent_Green_Dark else R.style.ThemeOverlay_App_Accent_Green_Light
+                "teal" -> if (dark) R.style.ThemeOverlay_App_Accent_Teal_Dark else R.style.ThemeOverlay_App_Accent_Teal_Light
+                "cyan" -> if (dark) R.style.ThemeOverlay_App_Accent_Cyan_Dark else R.style.ThemeOverlay_App_Accent_Cyan_Light
+                "blue" -> if (dark) R.style.ThemeOverlay_App_Accent_Blue_Dark else R.style.ThemeOverlay_App_Accent_Blue_Light
+                "indigo" -> if (dark) R.style.ThemeOverlay_App_Accent_Indigo_Dark else R.style.ThemeOverlay_App_Accent_Indigo_Light
+                "violet" -> if (dark) R.style.ThemeOverlay_App_Accent_Violet_Dark else R.style.ThemeOverlay_App_Accent_Violet_Light
+                "pink" -> if (dark) R.style.ThemeOverlay_App_Accent_Pink_Dark else R.style.ThemeOverlay_App_Accent_Pink_Light
+                "white" -> if (dark) R.style.ThemeOverlay_App_Accent_White_Dark else R.style.ThemeOverlay_App_Accent_White_Light
+                "red", null -> if (dark) R.style.ThemeOverlay_App_Accent_Red_Dark else R.style.ThemeOverlay_App_Accent_Red_Light
+                else -> if (dark) R.style.ThemeOverlay_App_Accent_Red_Dark else R.style.ThemeOverlay_App_Accent_Red_Light
+            }
+        }
+
+        @JvmStatic
+        fun areContrastingSurfacesEnabled(dark: Boolean): Boolean {
+            return prefsInstance.getBoolean(PREF_CONTRASTING_SURFACES, dark)
+        }
+
+        @JvmStatic
+        @StyleRes
+        fun getContrastingSurfacesOverlay(dark: Boolean): Int {
+            if (areDynamicColorsEnabled()) {
+                if (dark && isAmoledBlackEnabled()) {
+                    return R.style.ThemeOverlay_App_ContrastingSurfaces_Dynamic_Black
+                }
+                return R.style.ThemeOverlay_App_ContrastingSurfaces_Dynamic
+            }
+            if (!dark) {
+                return R.style.ThemeOverlay_App_ContrastingSurfaces_Light
+            }
+            return if (isAmoledBlackEnabled()) {
+                R.style.ThemeOverlay_App_ContrastingSurfaces_Black
+            } else {
+                R.style.ThemeOverlay_App_ContrastingSurfaces_Dark
+            }
+        }
+
+        @JvmStatic
+        fun getTextColor(context: Context): Int {
+            return if (AndroidUtils.isDynamicColorActive()) {
+                AndroidUtils.getDynamicColor(context, com.google.android.material.R.attr.colorOnSurface)
+            } else if (isDarkThemeEnabled()) {
+                context.resources.getColor(R.color.primarytext_dark)
+            } else {
+                context.resources.getColor(R.color.primarytext_light)
+            }
+        }
+
+        @JvmStatic
+        fun getSecondaryTextColor(context: Context): Int {
+            return if (AndroidUtils.isDynamicColorActive()) {
+                AndroidUtils.getDynamicColor(context, com.google.android.material.R.attr.colorOnSurfaceVariant)
+            } else if (isDarkThemeEnabled()) {
+                context.resources.getColor(R.color.on_surface_variant_dark)
+            } else {
+                context.resources.getColor(R.color.on_surface_variant_light)
+            }
+        }
+
+        @JvmStatic
+        fun getBackgroundColor(context: Context): Int {
+            val typedValue = TypedValue()
+            val theme = context.theme
+            theme.resolveAttribute(android.R.attr.background, typedValue, true)
+            return typedValue.data
+        }
+
+        @JvmStatic
+        fun getWindowBackgroundColor(context: Context): Int {
+            val typedValue = TypedValue()
+            val theme = context.theme
+            theme.resolveAttribute(android.R.attr.windowBackground, typedValue, true)
+            return typedValue.data
+        }
+
+        @JvmStatic
+        fun hasDirectInternetAccess(): Boolean {
+            return PermissionsUtils.checkPermission(getContext(), Manifest.permission.INTERNET)
+        }
+
+        @JvmStatic
+        fun hasInternetAccess(): Boolean {
+            return hasDirectInternetAccess() || InternetHelperSingleton.ensureInternetHelperBound()
+        }
+
+        @JvmStatic
+        fun getPrefs(): GBPrefs {
+            return prefsInstance
+        }
+
+        @JvmStatic
+        fun app(): GBApplication {
+            return checkNotNull(appInstance) { "GBApplication is not initialized" }
+        }
+
+        @JvmStatic
+        fun getLanguage(): Locale {
+            return language
+        }
+
+        @JvmStatic
+        fun isNightly(): Boolean {
+            //noinspection ConstantValue - false positive
+            return BuildConfig.APPLICATION_ID.contains("nightly")
+        }
+
+        @JvmStatic
+        fun isDebug(): Boolean {
+            return BuildConfig.DEBUG
         }
     }
 }

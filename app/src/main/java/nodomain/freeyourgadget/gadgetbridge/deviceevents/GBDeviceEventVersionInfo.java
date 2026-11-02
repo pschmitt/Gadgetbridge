@@ -48,10 +48,11 @@ public class GBDeviceEventVersionInfo extends GBDeviceEvent {
     public Integer fwUpdateTargetSlot = null;
 
     public GBDeviceEventVersionInfo() {
-        if (GBApplication.getContext() != null) {
+        final Context context = GBApplication.getContextOrNull();
+        if (context != null) {
             // Only get from context if there is one (eg. not in unit tests)
-            this.fwVersion = GBApplication.getContext().getString(R.string.n_a);
-            this.hwVersion = GBApplication.getContext().getString(R.string.n_a);
+            this.fwVersion = context.getString(R.string.n_a);
+            this.hwVersion = context.getString(R.string.n_a);
         }
     }
 

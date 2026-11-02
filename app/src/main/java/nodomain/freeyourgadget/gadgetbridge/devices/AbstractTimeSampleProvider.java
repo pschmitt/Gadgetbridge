@@ -222,7 +222,7 @@ public abstract class AbstractTimeSampleProvider<T extends AbstractTimeSample> i
     protected abstract Property getDeviceIdentifierSampleProperty();
 
     @Override
-    public boolean persistSamples(@NonNull final List<T> samples, @Nullable final Context context) {
+    public boolean persistSamples(@NonNull final List<T> samples, @NonNull final Context context) {
         if (samples.isEmpty()) {
             return true;
         }
@@ -255,9 +255,8 @@ public abstract class AbstractTimeSampleProvider<T extends AbstractTimeSample> i
             addSamples(samples);
         } catch (final Exception e) {
             LOG.error("Error saving samples", e);
-            final Context ctx = (context != null) ? context : GBApplication.getContext();
-            final String message = ctx.getString(R.string.persisting_samples_failed, e.getLocalizedMessage());
-            toast(ctx, message, Toast.LENGTH_LONG, GB.ERROR, e);
+            final String message = context.getString(R.string.persisting_samples_failed, e.getLocalizedMessage());
+            toast(context, message, Toast.LENGTH_LONG, GB.ERROR, e);
             return false;
         }
         return true;

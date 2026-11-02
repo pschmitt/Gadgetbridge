@@ -109,7 +109,14 @@ public class IGPSportDeviceSupport extends AbstractBTLESingleDeviceSupport {
     private IGPSportDownloadManager downloadManager;
     private IGPSportWeather weatherManager;
     private MediaManager mediaManager;
-    private static GBPrefs prefs = GBApplication.getPrefs();
+    private static GBPrefs prefs;
+
+    private static GBPrefs prefs() {
+        if (prefs == null) {
+            prefs = GBApplication.getPrefs();
+        }
+        return prefs;
+    }
 
 
     private int mtuSize=247; //FIXME use actual device mtu
@@ -639,9 +646,9 @@ public class IGPSportDeviceSupport extends AbstractBTLESingleDeviceSupport {
 
         Config.unit_msg.Builder unitMsgBuilder = Config.unit_msg.newBuilder();
 
-        final DistanceUnit distanceUnit = prefs.getDistanceUnit();
-        final TemperatureUnit temperatureUnit = prefs.getTemperatureUnit();
-        final WeightUnit weightUnit = prefs.getWeightUnit();
+        final DistanceUnit distanceUnit = prefs().getDistanceUnit();
+        final TemperatureUnit temperatureUnit = prefs().getTemperatureUnit();
+        final WeightUnit weightUnit = prefs().getWeightUnit();
 
         if (distanceUnit == DistanceUnit.METRIC) {
             configMsgBuilder.addUnitMessage(Config.unit_msg.newBuilder().setUnitItem(Config.UNIT_ITEM.enum_UNIT_ITEM_DISTANCE).setUnitType(Config.UNIT_TYPE.enum_UNIT_TYPE_METRIC));

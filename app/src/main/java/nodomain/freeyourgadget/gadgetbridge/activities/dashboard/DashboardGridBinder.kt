@@ -433,7 +433,7 @@ class DashboardGridBinder(
     }
 
     private fun configOf(item: PlacedWidget): WidgetConfig {
-        val prefs = Prefs(GBApplication.getWidgetSharedPrefs(item.instance.instanceId))
+        val prefs = Prefs(requireNotNull(GBApplication.getWidgetSharedPrefs(item.instance.instanceId)))
         return WidgetConfig(item.instance, prefs, dashboardShowAllDevices, dashboardDeviceList, item.variant)
     }
 

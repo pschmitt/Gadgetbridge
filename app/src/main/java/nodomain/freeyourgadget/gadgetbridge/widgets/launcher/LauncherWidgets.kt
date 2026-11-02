@@ -145,7 +145,7 @@ object LauncherWidgets {
         val prefs = GBApplication.getPrefs()
         return WidgetConfig(
             launcherWidget.instance,
-            Prefs(GBApplication.getWidgetSharedPrefs(launcherWidget.instance.instanceId)),
+            Prefs(requireNotNull(GBApplication.getWidgetSharedPrefs(launcherWidget.instance.instanceId))),
             prefs.getBoolean("dashboard_devices_all", true),
             prefs.getStringSet("dashboard_devices_multiselect", emptySet()),
             variant,

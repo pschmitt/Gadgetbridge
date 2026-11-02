@@ -63,7 +63,7 @@ object RawSleepNights {
      * estimate and shows none.
      */
     @JvmStatic
-    fun importMinutes(device: GBDevice, session: DaoSession, context: Context?, minutes: List<SleepMinute>) {
+    fun importMinutes(device: GBDevice, session: DaoSession, context: Context, minutes: List<SleepMinute>) {
         if (minutes.isEmpty()) {
             return
         }

@@ -39,7 +39,6 @@ import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventCallContro
 public class GBCallControlReceiver extends BroadcastReceiver {
     public static final String ACTION_CALLCONTROL = "nodomain.freeyourgadget.gadgetbridge.callcontrol";
     private static final Logger LOG = LoggerFactory.getLogger(GBCallControlReceiver.class);
-    private Context mContext = GBApplication.getContext();
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -77,7 +76,8 @@ public class GBCallControlReceiver extends BroadcastReceiver {
     @RequiresApi(api = Build.VERSION_CODES.P)
     public void handleCallCmdTelecomManager(GBDeviceEventCallControl.Event callCmd) {
         try {
-            TelecomManager tm = (TelecomManager) mContext.getSystemService(Context.TELECOM_SERVICE);
+            Context context = GBApplication.getContext();
+            TelecomManager tm = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
 
             if (callCmd == GBDeviceEventCallControl.Event.END || callCmd == GBDeviceEventCallControl.Event.REJECT) {
                 tm.endCall();
