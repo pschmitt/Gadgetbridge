@@ -5965,4 +5965,11 @@
     <string name="vendor_data_import_garmin_unknown_product">Garmin 产品 %1$d</string>
     <string name="pref_deprecated_sms_receiver_title">废弃的 SMS 接收器</string>
     <string name="pref_deprecated_sms_receiver_summary">从系统而不是消息应用的通知来接收 SMS 消息。</string>
+    <string name="pref_title_notification_calls_ignore_application_list">通话忽略应用列表</string>
+    <string name="pref_summary_notification_calls_ignore_application_list">转发来自应用列表中不允许的应用的通话。需要“启用 VoIP 应用通话”。</string>
+    <string name="soundcore_equalizer_preset_bass_off">低音关闭</string>
+    <string name="soundcore_equalizer_preset_heavy">重音</string>
+    <string name="soundcore_equalizer_preset_classic">古典</string>
+    <string name="soundcore_equalizer_preset_original">原声</string>
+    <string name="workout_template_import_failed">无法导入此锻炼模板</string>
 </resources>
