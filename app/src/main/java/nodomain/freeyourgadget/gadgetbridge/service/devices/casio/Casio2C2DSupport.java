@@ -18,7 +18,10 @@ package nodomain.freeyourgadget.gadgetbridge.service.devices.casio;
 
 import java.time.ZonedDateTime;
 import java.time.ZoneId;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 import android.bluetooth.BluetoothGatt;
@@ -55,7 +58,12 @@ import nodomain.freeyourgadget.gadgetbridge.util.BcdUtil;
 import nodomain.freeyourgadget.gadgetbridge.model.Alarm;
 import nodomain.freeyourgadget.gadgetbridge.model.Reminder;
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceService;
+import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
+import nodomain.freeyourgadget.gadgetbridge.devices.casio.gbx100.CasioGBX100SampleProvider;
+import nodomain.freeyourgadget.gadgetbridge.entities.CasioGBX100ActivitySample;
+import nodomain.freeyourgadget.gadgetbridge.entities.Device;
+import nodomain.freeyourgadget.gadgetbridge.entities.User;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.TransactionBuilder;
 import nodomain.freeyourgadget.gadgetbridge.devices.casio.CasioConstants;
 
@@ -92,6 +100,7 @@ public abstract class Casio2C2DSupport extends CasioSupport {
     public static final byte FEATURE_VERSION_INFORMATION = 0x20;
     public static final byte FEATURE_APP_INFORMATION = 0x22;
     public static final byte FEATURE_WATCH_NAME = 0x23;
+    public static final byte FEATURE_GPS = 0x24;
     public static final byte FEATURE_MODULE_ID = 0x26;
     public static final byte FEATURE_WATCH_CONDITION = 0x28;
     public static final byte FEATURE_DST_WATCH_STATE = (byte) 0x1d;
@@ -106,11 +115,26 @@ public abstract class Casio2C2DSupport extends CasioSupport {
     public static final byte FEATURE_SETTING_FOR_USER_PROFILE = 0x45;
     public static final byte FEATURE_SERVICE_DISCOVERY_MANAGER = 0x47;
     public static final byte FEATURE_SESSION_EVENT = 0x48;
+    
     // GBD-200 specific features
-    public static final byte FEATURE_GPS = 0x24;
     public static final byte FEATURE_FEAT_2F = 0x2f;
     public static final byte FEATURE_CONVOY_INIT = 0x1c;
     public static final byte FEATURE_BLE_PARAM = 0x3d;
+
+    // GG-B100 specific features
+    public static final byte FEATURE_STATUS_BLOCK = 0x05;
+    public static final byte FEATURE_COUNTDOWN_TIMER = 0x18;
+    public static final byte FEATURE_MISSION_LOG_DATA = 0x19;
+    public static final byte FEATURE_LIFE_LOG = 0x11;
+    public static final byte FEATURE_TRANSACTION_BEGIN_END = 0x21;
+    public static final byte FEATURE_USER_PROFILE = 0x2d;
+    public static final byte FEATURE_DISPLAY_CONFIG = 0x2f;
+    public static final byte FEATURE_LOCATION_INDICATOR = 0x35;
+    // public static final byte FEATURE_STILL_UNKNOWN = 0x36;
+    public static final byte FEATURE_NEW_DATA_STATUS = 0x37;
+    public static final byte FEATURE_MODE_DISPLAY_CUSTOMIZATION = 0x38;
+    
+    
 
     protected static Logger LOG;
     LinkedList<RequestWithHandler> requests = new LinkedList<>();
@@ -335,6 +359,93 @@ public abstract class Casio2C2DSupport extends CasioSupport {
         writeAllFeatures(builder, arr);
     }
 
+    /**
+     * CURRENT_TIME (0x09) packet in the Casio convention: day-of-week Sun=0..Sat=6,
+     * unlike the BLE CTS standard (Mon=1..Sun=7) used by {@link #writeCurrentTime}.
+     * Matches the GBD-200/GG-B100 captures; reason byte is 1 (sync).
+     */
+    public static byte[] buildCurrentTimePacket(ZonedDateTime time) {
+        final int dow = time.getDayOfWeek() == DayOfWeek.SUNDAY
+                ? 0 : time.getDayOfWeek().getValue();
+        final byte[] arr = new byte[11];
+        arr[0]  = FEATURE_CURRENT_TIME;
+        arr[1]  = (byte) (time.getYear() & 0xff);
+        arr[2]  = (byte) ((time.getYear() >> 8) & 0xff);
+        arr[3]  = (byte) time.getMonthValue();
+        arr[4]  = (byte) time.getDayOfMonth();
+        arr[5]  = (byte) time.getHour();
+        arr[6]  = (byte) time.getMinute();
+        arr[7]  = (byte) time.getSecond();
+        arr[8]  = (byte) dow;
+        arr[9]  = 0x00; // fractions256
+        arr[10] = 0x01; // reason = sync
+        return arr;
+    }
+
+    /**
+     * GPS chunk: 24 {@code <slot>} 01 {@code <lat float64 BE>} {@code <lon float64 BE>} 04.
+     * On the GG-B100 slot 0 is the phone's position and slot 1 the world-city
+     * coordinates; on the GBD-200 slot 1 carries altitude instead, so that device
+     * keeps its own encoding for it.
+     */
+    public static byte[] buildGpsChunk(int slot, double lat, double lon) {
+        final ByteBuffer buf = ByteBuffer.allocate(20).order(ByteOrder.BIG_ENDIAN);
+        buf.put((byte) 0x24);
+        buf.put((byte) slot);
+        buf.put((byte) 0x01);
+        buf.putDouble(lat);
+        buf.putDouble(lon);
+        buf.put((byte) 0x04);
+        return buf.array();
+    }
+
+    // ── Activity DB helpers (used by the CONVOY fetch operations) ────────────
+
+    public CasioGBX100ActivitySample getSumWithinRange(int ts_from, int ts_to) {
+        int steps = 0, calories = 0;
+        try (DBHandler db = GBApplication.acquireDB()) {
+            User user     = DBHelper.getUser(db.getDaoSession());
+            Device device = DBHelper.getDevice(this.getDevice(), db.getDaoSession());
+            CasioGBX100SampleProvider provider =
+                    new CasioGBX100SampleProvider(this.getDevice(), db.getDaoSession());
+            List<CasioGBX100ActivitySample> samples =
+                    provider.getActivitySamples(ts_from, ts_to);
+            for (CasioGBX100ActivitySample s : samples) {
+                if (s.getDevice().equals(device) && s.getUser().equals(user)) {
+                    steps    += s.getSteps();
+                    calories += s.getCalories();
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("Error fetching step sum: {}", e.getMessage());
+        }
+        CasioGBX100ActivitySample ret = new CasioGBX100ActivitySample();
+        ret.setSteps(steps);
+        ret.setCalories(calories);
+        return ret;
+    }
+
+    public void stepCountDataFetched(int totalSteps, int totalCalories,
+                                     ArrayList<CasioGBX100ActivitySample> data) {
+        LOG.info("Steps fetched: total={} kcal={}", totalSteps, totalCalories);
+        try (DBHandler db = GBApplication.acquireDB()) {
+            User user     = DBHelper.getUser(db.getDaoSession());
+            Device device = DBHelper.getDevice(this.getDevice(), db.getDaoSession());
+            CasioGBX100SampleProvider provider =
+                    new CasioGBX100SampleProvider(this.getDevice(), db.getDaoSession());
+            for (CasioGBX100ActivitySample s : data) {
+                s.setDevice(device);
+                s.setUser(user);
+                s.setProvider(provider);
+                provider.addGBActivitySample(s);
+            }
+        } catch (Exception e) {
+            GB.toast(getContext(), "Error saving steps: " + e.getLocalizedMessage(),
+                    Toast.LENGTH_LONG, GB.ERROR, e);
+            GB.updateTransferNotification(null, "Data transfer failed", false, 0, getContext());
+        }
+    }
+
     /** Writes a full clock-slot set (slot 0 = home, slots 1+ = world) inside the 0x21
      *  settings-session bracket. withNames=false for devices without 0x1f (e.g. WS-B1000). */
     protected void writeClocks(TransactionBuilder builder, CasioTimeZone[] zones, boolean withNames) {
@@ -467,7 +578,7 @@ public abstract class Casio2C2DSupport extends CasioSupport {
         }
     }
 
-    void initializeDeviceSettings(TransactionBuilder builder) {
+    protected void initializeDeviceSettings(TransactionBuilder builder) {
         Set<FeatureRequest> deviceSettingFeatures = new LinkedHashSet();
         for (DeviceSetting ds: deviceSettings)
             deviceSettingFeatures.addAll(Arrays.asList(ds.getFeatureRequests()));
@@ -733,7 +844,7 @@ public abstract class Casio2C2DSupport extends CasioSupport {
     }
 
     public abstract class DevicePreference extends DeviceSetting {
-        byte feature;
+        protected byte feature;
         public final FeatureRequest getFeatureRequest() {
             return new FeatureRequest(feature);
         };
@@ -743,7 +854,7 @@ public abstract class Casio2C2DSupport extends CasioSupport {
             return new FeatureRequest[] {getFeatureRequest()};
         };
 
-        String name;
+        protected String name;
         public final String getName() {
             return name;
         }
@@ -811,8 +922,8 @@ public abstract class Casio2C2DSupport extends CasioSupport {
     }
 
     public class BoolDevicePreference extends DevicePreference {
-        int index;
-        byte mask;
+        protected int index;
+        protected byte mask;
 
         @Override
         public void updateValue(byte[] data) {

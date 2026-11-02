@@ -342,6 +342,16 @@ public class DeviceActionHandler {
             case ACTION_POWER_OFF:
                 deviceSupport.onPowerOff();
                 break;
+            case ACTION_SEND_WATCH_APP_MESSAGE: {
+                final String appId = intentCopy.getStringExtra(EXTRA_WATCH_APP_ID);
+                final byte[] payload = intentCopy.getByteArrayExtra(EXTRA_WATCH_APP_PAYLOAD);
+                if (appId == null || payload == null) {
+                    LOG.warn("Watch app message without app id or payload");
+                    break;
+                }
+                deviceSupport.onSendWatchAppMessage(appId, payload);
+                break;
+            }
             case ACTION_SET_FM_FREQUENCY:
                 final float frequency = intentCopy.getFloatExtra(EXTRA_FM_FREQUENCY, -1);
                 if (frequency != -1) {

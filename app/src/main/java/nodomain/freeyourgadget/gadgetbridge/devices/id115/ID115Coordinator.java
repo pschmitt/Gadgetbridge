@@ -86,8 +86,8 @@ public class ID115Coordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return ID115Support.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new ID115Support();
     }
 
 

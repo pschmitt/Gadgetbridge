@@ -4209,4 +4209,14 @@
     <string name="unit_ampere">A</string>
     <string name="unit_ampere_hour">Ah</string>
     <string name="unit_kilojoule">kJ</string>
+    <string name="range_integer">%1$d – %2$d</string>
+    <string name="controlcenter_snackbar_discovering_services">Oppdager tjenester…</string>
+    <string name="controlcenter_get_spo2_measurement">Hent blodoksgenmåling</string>
+    <string name="duration_short_day">1d</string>
+    <string name="duration_short_week">1u</string>
+    <string name="duration_short_two_weeks">2u</string>
+    <string name="duration_short_month">1mnd</string>
+    <string name="duration_short_six_months">6mnd</string>
+    <string name="duration_short_three_months">3mnd</string>
+    <string name="duration_short_year">1år</string>
 </resources>

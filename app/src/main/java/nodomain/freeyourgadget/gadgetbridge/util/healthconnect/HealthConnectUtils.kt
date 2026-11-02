@@ -612,10 +612,22 @@ class HealthConnectUtils {
                     return@use null
                 }
 
-                val endTs = getLastSampleTimestamp(deviceCoordinator, gbDevice, db, dataType)
-                if (endTs == null) {
+                val lastSampleTs = getLastSampleTimestamp(deviceCoordinator, gbDevice, db, dataType)
+                if (lastSampleTs == null) {
                     CompanionLogger.info("$HC_SYNC_TAG No ending point (latest sample) for {} on device {}. Skipping.", dataType.name, gbDevice.aliasOrName)
                     return@use null
+                }
+
+                // #6814 - Health Connect rejects records in the future
+                val now = Instant.now()
+                val endTs = if (lastSampleTs.isAfter(now)) {
+                    CompanionLogger.warn(
+                        "$HC_SYNC_TAG Latest sample for {}({}) is in the future ({}), limiting sync range end to {}",
+                        gbDevice.aliasOrName, dataType.name, lastSampleTs, now
+                    )
+                    now
+                } else {
+                    lastSampleTs
                 }
 
                 CompanionLogger.info("$HC_SYNC_TAG Determined sync range for {}({}): {} to {}", gbDevice.aliasOrName, dataType.name, startTs, endTs)

@@ -41,6 +41,9 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -766,6 +769,34 @@ public class GarminSupport extends AbstractBTLESingleDeviceSupport implements IC
     @Override
     public void onSetLoyaltyCards(final ArrayList<LoyaltyCard> cards) {
         loyaltyCardsApp.onSetLoyaltyCards(cards);
+    }
+
+    @Override
+    public void onSendWatchAppMessage(@NonNull final String appId, @NonNull final byte[] payload) {
+        if (watchAppCommunicator == null) {
+            LOG.warn("Watch app communicator is null, unable to send a message to {}", appId);
+            return;
+        }
+
+        final UUID app;
+        try {
+            app = UUID.fromString(appId);
+        } catch (final IllegalArgumentException e) {
+            LOG.warn("Watch app id {} is not a UUID", appId);
+            return;
+        }
+
+        final String payloadString = new String(payload, StandardCharsets.UTF_8);
+        JsonElement message;
+        try {
+            message = JsonParser.parseString(payloadString);
+        } catch (final JsonParseException e) {
+            // Not JSON, send as a string
+            message = new JsonPrimitive(payloadString);
+        }
+
+        LOG.debug("Sending message to watch app {}: {}", app, message);
+        watchAppCommunicator.sendMessage(app, message, false, null);
     }
 
     public void onWatchAppMessage(final UUID app, final JsonElement message) {

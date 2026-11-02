@@ -88,8 +88,8 @@ public class SMAQ2OSSCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return SMAQ2OSSSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new SMAQ2OSSSupport();
     }
 
     @Override

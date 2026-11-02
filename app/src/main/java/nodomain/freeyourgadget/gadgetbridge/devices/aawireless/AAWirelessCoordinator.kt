@@ -51,8 +51,8 @@ class AAWirelessCoordinator : AbstractBLClassicDeviceCoordinator() {
         return "AAWireless"
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return AAWirelessSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return AAWirelessSupport()
     }
 
     override fun getDeviceNameResource(): Int {

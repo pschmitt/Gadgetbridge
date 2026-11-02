@@ -16,6 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.model;
 
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 
 import nodomain.freeyourgadget.gadgetbridge.entities.Device;
 import nodomain.freeyourgadget.gadgetbridge.entities.User;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.enums.ExerciseCategory;
 
 public class ActivityTrack {
 
@@ -140,7 +143,7 @@ public class ActivityTrack {
         }
     }
 
-    /** Per-set strength-training metadata from FIT set messages (msg 27).
+    /** Per-set strength-training metadata from FIT set messages (msg 225).
      *  Endurain renders these in its workout-set table. Carried on the track so the
      *  exporter can re-emit set records for strength activities. */
     public static final class SetInfo {
@@ -151,6 +154,11 @@ public class ActivityTrack {
         public final Integer setType;            // 0=rest, 1=active
         public final Integer weightDisplayUnit;
         public final Integer messageIndex;
+        /** Garmin exercise category and subtype of the set, if the FIT file carried them. */
+        @Nullable
+        public final ExerciseCategory exerciseCategory;
+        @Nullable
+        public final Integer categorySubtype;
 
         public SetInfo(final long startTimeSec,
                        final Double durationSec,
@@ -158,7 +166,9 @@ public class ActivityTrack {
                        final Float weightKg,
                        final Integer setType,
                        final Integer weightDisplayUnit,
-                       final Integer messageIndex) {
+                       final Integer messageIndex,
+                       @Nullable final ExerciseCategory exerciseCategory,
+                       @Nullable final Integer categorySubtype) {
             this.startTimeSec = startTimeSec;
             this.durationSec = durationSec;
             this.repetitions = repetitions;
@@ -166,6 +176,8 @@ public class ActivityTrack {
             this.setType = setType;
             this.weightDisplayUnit = weightDisplayUnit;
             this.messageIndex = messageIndex;
+            this.exerciseCategory = exerciseCategory;
+            this.categorySubtype = categorySubtype;
         }
     }
 

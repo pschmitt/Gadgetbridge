@@ -35,8 +35,8 @@ public class EarFunAirSCoordinator extends AbstractEarFunCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return EarFunAirSDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new EarFunAirSDeviceSupport();
     }
 
     @Override

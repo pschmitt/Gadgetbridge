@@ -31,8 +31,8 @@ public abstract class AbstractEarFunCoordinator extends AbstractBLClassicDeviceC
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return EarFunDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new EarFunDeviceSupport();
     }
 
     @Override

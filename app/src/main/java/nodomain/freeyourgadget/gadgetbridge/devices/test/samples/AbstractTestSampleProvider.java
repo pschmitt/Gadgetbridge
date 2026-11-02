@@ -16,6 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.test.samples;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.Calendar;
@@ -62,6 +63,15 @@ public abstract class AbstractTestSampleProvider<S extends TimeSample> implement
      */
     protected static float clamp(final float value, final float min, final float max) {
         return Math.min(max, Math.max(min, value));
+    }
+
+    @NonNull
+    protected abstract List<S> generateSamples(long timestampFrom, long timestampTo);
+
+    @NonNull
+    @Override
+    public final List<S> getAllSamples(final long timestampFrom, final long timestampTo) {
+        return generateSamples(timestampFrom, Math.min(timestampTo, System.currentTimeMillis()));
     }
 
     @Nullable

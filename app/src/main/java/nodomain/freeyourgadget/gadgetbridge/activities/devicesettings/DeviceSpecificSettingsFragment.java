@@ -898,6 +898,14 @@ public class DeviceSpecificSettingsFragment extends AbstractPreferenceFragment i
         addPreferenceHandlerFor(PREF_CASIO_ALERT_CALL);
         addPreferenceHandlerFor(PREF_CASIO_ALERT_CALENDAR);
         addPreferenceHandlerFor(PREF_CASIO_ALERT_OTHER);
+        addPreferenceHandlerFor(PREF_CASIO_COUNTDOWN_TIMER);
+        addPreferenceHandlerFor(PREF_CASIO_PRESSURE_ENERGY_CALC);
+        addPreferenceHandlerFor(PREF_CASIO_COMPASS_AUTO_CORRECTION);
+        addPreferenceHandlerFor(PREF_CASIO_ALTITUDE_MEASUREMENT_INTERVAL);
+        addPreferenceHandlerFor(PREF_CASIO_ALTIMETER_DISPLAY);
+        addPreferenceHandlerFor(PREF_CASIO_PRESSURE_GRAPH);
+        addPreferenceHandlerFor(PREF_CASIO_MODE_CAROUSEL);
+        addPreferenceHandlerFor(PREF_CASIO_DISPLAY_SCREENS);
         addPreferenceHandlerFor(PREF_SCREEN_ON_ON_NOTIFICATIONS);
         addPreferenceHandlerFor(PREF_SCREEN_ON_ON_NOTIFICATIONS_TIMEOUT);
         addPreferenceHandlerFor(PREF_WORKOUT_KEEP_SCREEN_ON);
@@ -1927,6 +1935,9 @@ public class DeviceSpecificSettingsFragment extends AbstractPreferenceFragment i
             );
             if (coordinator.getAlarmSlotCount(device) > 0) {
                 intentApiSubScreens.add(R.xml.devicesettings_alarms_third_party_apps);
+            }
+            if (coordinator.supportsWatchAppMessages(device)) {
+                intentApiSubScreens.add(R.xml.devicesettings_watch_app_messages_third_party_apps);
             }
             deviceSpecificSettings.addRootScreen(
                     DeviceSpecificSettingsScreen.DEVELOPER,

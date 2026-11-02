@@ -51,7 +51,7 @@ public class Q8Coordinator extends HPlusCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return Q8Support.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new Q8Support();
     }
 }

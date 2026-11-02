@@ -10,6 +10,28 @@ message Rpk{
   optional RpkInfoList rpkDel = 5;
 
   optional RpkInstallStart rpkInstallStart = 3;
+
+  // 20, 4 - launch the wear app before messaging it; band answers 20, 6 with rpkDel set to the app
+  optional RpkLaunch rpkLaunch = 6;
+  // 20, 7 - end of a message session
+  optional RpkSessionEnd rpkSessionEnd = 8;
+  // 20, 8 - message for the wear app
+  optional RpkMessage rpkMessage = 9;
+}
+
+message RpkLaunch {
+  optional RpkInfoList app = 1; // id + sha from the rpk list
+  optional string wearPackage = 2; // package of the app on the band; the band also accepts the rpk id
+}
+
+message RpkSessionEnd {
+  optional RpkInfoList app = 1;
+  optional uint32 unknown2 = 2; // 1
+}
+
+message RpkMessage {
+  optional RpkInfoList app = 1;
+  optional bytes payload = 2;
 }
 
 message RpkList {

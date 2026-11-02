@@ -28,7 +28,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.RespiratoryRateSample;
 public class TestRespiratoryRateSampleProvider extends AbstractTestSampleProvider<RespiratoryRateSample> {
     @NonNull
     @Override
-    public List<RespiratoryRateSample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<RespiratoryRateSample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<RespiratoryRateSample> samples = new ArrayList<>();
 
         for (long ts = timestampFrom; ts < timestampTo; ts += 15 * 60 * 1000L) {

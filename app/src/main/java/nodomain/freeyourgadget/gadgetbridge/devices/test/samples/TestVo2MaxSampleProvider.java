@@ -23,7 +23,7 @@ public class TestVo2MaxSampleProvider extends AbstractTestSampleProvider<Vo2MaxS
 
     @NonNull
     @Override
-    public List<Vo2MaxSample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<Vo2MaxSample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<Vo2MaxSample> samples = new ArrayList<>();
 
         final boolean multiSport = device.getDeviceCoordinator().supportsVO2MultiSport(device);

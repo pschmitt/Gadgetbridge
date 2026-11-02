@@ -26,6 +26,15 @@ object ZeppOsWorkoutCodes {
         else -> throw IllegalArgumentException("Unsupported type $stepType")
     }
 
+    fun stepType(trainingType: Int): WorkoutStepType? = when (trainingType) {
+        TRAINING_TYPE_WARMUP -> WorkoutStepType.WARMUP
+        TRAINING_TYPE_TRAINING -> WorkoutStepType.ACTIVE
+        TRAINING_TYPE_REST -> WorkoutStepType.REST
+        TRAINING_TYPE_RECOVER -> WorkoutStepType.RECOVER
+        TRAINING_TYPE_COOLDOWN -> WorkoutStepType.COOLDOWN
+        else -> null
+    }
+
     const val DURATION_DISTANCE = 0
     const val DURATION_TIME = 1
     const val DURATION_CALORIES = 2
@@ -107,23 +116,33 @@ object ZeppOsWorkoutCodes {
         else -> 0
     }
 
+    fun measurementSystem(code: Int): WorkoutMeasurementSystem? = when (code) {
+        0 -> WorkoutMeasurementSystem.METRIC
+        1 -> WorkoutMeasurementSystem.IMPERIAL
+        else -> null
+    }
+
     /**
      * The Zepp OS `sportType` of [activityKind], or null when it has none.
      */
-    fun sportType(activityKind: ActivityKind): Int? = when (activityKind) {
-        ActivityKind.OUTDOOR_RUNNING -> 1
-        ActivityKind.TREADMILL -> 8
-        ActivityKind.OUTDOOR_CYCLING -> 9
-        ActivityKind.INDOOR_CYCLING -> 10
-        ActivityKind.JUMP_ROPING -> 21
-        ActivityKind.ROWING_MACHINE -> 23
-        ActivityKind.INDOOR_FITNESS -> 24
-        ActivityKind.MOUNTAIN_BIKE -> 47
-        ActivityKind.BMX -> 48
-        ActivityKind.CORE_TRAINING -> 50
-        ActivityKind.STRENGTH_TRAINING -> 52
-        ActivityKind.STAIR_CLIMBER -> 108
-        ActivityKind.RACE_WALKING -> 131
-        else -> null
-    }
+    fun sportType(activityKind: ActivityKind): Int? = SPORT_TYPES[activityKind]
+
+    fun activityKind(sportType: Int): ActivityKind? =
+        SPORT_TYPES.entries.firstOrNull { it.value == sportType }?.key
+
+    private val SPORT_TYPES = mapOf(
+        ActivityKind.OUTDOOR_RUNNING to 1,
+        ActivityKind.TREADMILL to 8,
+        ActivityKind.OUTDOOR_CYCLING to 9,
+        ActivityKind.INDOOR_CYCLING to 10,
+        ActivityKind.JUMP_ROPING to 21,
+        ActivityKind.ROWING_MACHINE to 23,
+        ActivityKind.INDOOR_FITNESS to 24,
+        ActivityKind.MOUNTAIN_BIKE to 47,
+        ActivityKind.BMX to 48,
+        ActivityKind.CORE_TRAINING to 50,
+        ActivityKind.STRENGTH_TRAINING to 52,
+        ActivityKind.STAIR_CLIMBER to 108,
+        ActivityKind.RACE_WALKING to 131,
+    )
 }

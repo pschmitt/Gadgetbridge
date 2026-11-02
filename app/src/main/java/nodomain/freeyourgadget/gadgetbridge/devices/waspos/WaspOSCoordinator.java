@@ -106,8 +106,8 @@ public class WaspOSCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return WaspOSDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new WaspOSDeviceSupport();
     }
 
     @Override

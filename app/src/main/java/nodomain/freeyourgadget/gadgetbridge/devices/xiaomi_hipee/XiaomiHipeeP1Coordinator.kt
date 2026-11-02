@@ -53,8 +53,8 @@ class XiaomiHipeeP1Coordinator : AbstractBLEDeviceCoordinator() {
 
     override fun getBondingStyle(): Int = BONDING_STYLE_NONE
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> =
-        XiaomiHipeeP1Support::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport =
+        XiaomiHipeeP1Support()
 
     override fun getDeviceKind(device: GBDevice): DeviceCoordinator.DeviceKind =
         DeviceCoordinator.DeviceKind.FITNESS_BAND

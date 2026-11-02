@@ -28,7 +28,7 @@ public abstract class  HonorBRCoordinator extends  HuaweiBRCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return HonorBRSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new HonorBRSupport();
     }
 }

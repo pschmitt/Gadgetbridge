@@ -270,8 +270,8 @@ public class MiBandCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return MiBandSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new MiBandSupport();
     }
 
     private boolean isMi1S(String hardwareVersion) {

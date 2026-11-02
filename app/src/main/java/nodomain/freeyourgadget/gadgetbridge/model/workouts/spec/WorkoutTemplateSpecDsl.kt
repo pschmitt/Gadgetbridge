@@ -194,6 +194,7 @@ class WorkoutTemplateSpecBuilder(
     var nameMaxLength: Int = 200
     var noteMaxLength: Int = 200
     var exporter: WorkoutTemplateExporter? = null
+    var importer: WorkoutTemplateImporter? = null
     private val sports = mutableMapOf<ActivityKind, SportSpec>()
 
     fun sport(activityKind: ActivityKind, block: SportSpecBuilder.() -> Unit) {
@@ -202,7 +203,7 @@ class WorkoutTemplateSpecBuilder(
 
     fun build(): WorkoutTemplateSpec =
         WorkoutTemplateSpec(
-            vendorId, exerciseCatalog, maxTemplates, nameMaxLength, noteMaxLength, sports.toMap(), exporter
+            vendorId, exerciseCatalog, maxTemplates, nameMaxLength, noteMaxLength, sports.toMap(), exporter, importer
         )
 }
 

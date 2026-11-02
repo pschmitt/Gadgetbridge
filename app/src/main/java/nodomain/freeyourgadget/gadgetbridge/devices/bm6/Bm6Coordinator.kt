@@ -27,8 +27,8 @@ class Bm6Coordinator : AbstractBLEDeviceCoordinator() {
         return "BM6"
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return Bm6Support::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return Bm6Support()
     }
 
     override fun getDeviceNameResource(): Int {

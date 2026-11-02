@@ -59,6 +59,12 @@ public class AmazfitBip5UnityCoordinator extends ZeppOsCoordinator {
     }
 
     @Override
+    public boolean supportsSleepScore(@NonNull final GBDevice device) {
+        // Zepp OS 3.0
+        return false;
+    }
+
+    @Override
     public int getDeviceNameResource() {
         return R.string.devicetype_amazfit_bip5_unity;
     }

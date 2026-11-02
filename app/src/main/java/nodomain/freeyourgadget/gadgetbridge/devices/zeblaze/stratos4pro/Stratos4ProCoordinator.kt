@@ -70,8 +70,8 @@ class Stratos4ProCoordinator : AbstractBLEDeviceCoordinator() {
         return DeviceCoordinator.DeviceKind.WATCH
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return Stratos4ProSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return Stratos4ProSupport()
     }
 
     override fun suggestUnbindBeforePair(): Boolean {

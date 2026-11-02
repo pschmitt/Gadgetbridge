@@ -28,7 +28,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.Spo2Sample;
 public class TestSpo2SampleProvider extends AbstractTestSampleProvider<Spo2Sample> {
     @NonNull
     @Override
-    public List<Spo2Sample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<Spo2Sample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<Spo2Sample> samples = new ArrayList<>();
 
         int spo2 = TestDeviceRand.randInt(timestampFrom, 92, 99);

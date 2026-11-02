@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <EditText
+            android:id="@+id/location_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:hint="@string/world_clock_label" />
+
+        <EditText
+            android:id="@+id/location_lat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal|numberSigned"
+            android:hint="@string/pref_title_location_latitude" />
+
+        <EditText
+            android:id="@+id/location_lon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal|numberSigned"
+            android:hint="@string/pref_title_location_longitude" />
+
+        <EditText
+            android:id="@+id/location_elevation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal|numberSigned"
+            android:hint="@string/Elevation" />
+
+        <Button
+            android:id="@+id/location_use_current"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            style="?attr/materialButtonOutlinedStyle"
+            android:text="@string/casio_location_indicator_use_current" />
+    </LinearLayout>
+</ScrollView>

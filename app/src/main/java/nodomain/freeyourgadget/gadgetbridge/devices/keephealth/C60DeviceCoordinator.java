@@ -59,8 +59,8 @@ public class C60DeviceCoordinator extends AbstractDeviceCoordinator  {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return C60DeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new C60DeviceSupport();
     }
 
     @Override

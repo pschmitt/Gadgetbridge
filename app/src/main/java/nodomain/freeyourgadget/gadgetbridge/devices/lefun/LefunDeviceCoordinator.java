@@ -146,8 +146,8 @@ public class LefunDeviceCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return LefunDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new LefunDeviceSupport();
     }
 
     @Override

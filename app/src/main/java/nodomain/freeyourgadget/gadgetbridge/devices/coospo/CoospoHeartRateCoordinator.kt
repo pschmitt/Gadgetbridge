@@ -32,8 +32,8 @@ abstract class CoospoHeartRateCoordinator: AbstractBLEDeviceCoordinator() {
         return "Coospo"
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return GenericHeartRateSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return GenericHeartRateSupport()
     }
 
     override fun getDefaultIconResource(): Int {

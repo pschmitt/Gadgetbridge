@@ -32,14 +32,28 @@ package nodomain.freeyourgadget.gadgetbridge.devices.qnscale
  * history sync, decoded and checksum-verified byte-by-byte against that capture.
  */
 object QnScaleProtocol {
-    /** Seconds between the Unix epoch and 2000-01-01 00:00:00 UTC, the epoch this protocol's timestamps use. */
+    /** Seconds added to a classic QN-Scale timestamp to get Unix time. */
     const val QN_EPOCH_OFFSET_SECONDS = 946_702_800L
+
+    /**
+     * VA scales count from 2000-01-01 00:00:00 UTC: the vendor app sets their clock that way, so
+     * readings stored before Gadgetbridge first synced the clock come out at the right time.
+     */
+    const val VA_EPOCH_OFFSET_SECONDS = 946_684_800L
 
     const val OPCODE_LIVE_WEIGHT = 0x10
     const val OPCODE_SCALE_INFO = 0x12
     const val OPCODE_CONFIG_ACK = 0x14
     const val OPCODE_HISTORY_TRIGGER = 0x21
     const val OPCODE_STORED_MEASUREMENT = 0x23
+
+    /** The "VA" protocol type the GE Fit Plus reports in its 0x12 frame. */
+    const val PROTOCOL_TYPE_VA: Byte = 0xFF.toByte()
+
+    /** VA replies to the 0xA0 user exchange: `[0xA1, len, step, ...]`. */
+    const val OPCODE_VA_USER_REPLY = 0xA1
+    const val VA_STEP_HELLO = 0x04
+    const val VA_STEP_PROFILE = 0x02
 
     fun checksum(buf: ByteArray, from: Int, toInclusive: Int): Byte {
         var sum = 0
@@ -78,18 +92,29 @@ object QnScaleProtocol {
         /** 0x21: the scale wants a history sync; reply with a 0x22 stored-data query. */
         data object HistoryTrigger : Frame
 
+        /** 0xA1: a VA scale accepted step [step] of the 0xA0 user exchange. */
+        data class VaUserReply(val step: Int) : Frame
+
+        /** 0x23 from a VA scale whose stored-record count is zero. */
+        data object NoStoredMeasurements : Frame
+
         data class Unknown(val opcode: Int) : Frame
     }
 
-    /** Parses one notification payload. [weightScaleFactor] should be the value from the most recent [Frame.ScaleInfo]. */
-    fun parse(data: ByteArray, weightScaleFactor: Float): Frame {
+    /**
+     * Parses one notification payload. [weightScaleFactor] and [protocolType] should be the values
+     * from the most recent [Frame.ScaleInfo] (null before it arrives).
+     */
+    fun parse(data: ByteArray, weightScaleFactor: Float, protocolType: Byte?): Frame {
         if (data.size < 3) return Frame.Unknown(-1)
         return when (data[0].toInt() and 0xFF) {
-            OPCODE_LIVE_WEIGHT -> parseLiveWeight(data, weightScaleFactor)
+            OPCODE_LIVE_WEIGHT -> parseLiveWeight(data, weightScaleFactor, protocolType)
             OPCODE_SCALE_INFO -> parseScaleInfo(data)
             OPCODE_CONFIG_ACK -> Frame.ConfigAck
             OPCODE_HISTORY_TRIGGER -> Frame.HistoryTrigger
-            OPCODE_STORED_MEASUREMENT -> parseStoredMeasurement(data, weightScaleFactor)
+            OPCODE_STORED_MEASUREMENT ->
+                if (protocolType == PROTOCOL_TYPE_VA) parseVaStoredMeasurement(data) else parseStoredMeasurement(data, weightScaleFactor)
+            OPCODE_VA_USER_REPLY -> Frame.VaUserReply(data[2].toInt() and 0xFF)
             else -> Frame.Unknown(data[0].toInt() and 0xFF)
         }
     }
@@ -103,12 +128,30 @@ object QnScaleProtocol {
         return Frame.ScaleInfo(factor, protocolType)
     }
 
-    private fun parseLiveWeight(data: ByteArray, weightScaleFactor: Float): Frame {
+    /**
+     * Classic: bytes[3,4] = weight, byte[5] = stable, bytes[6-9] = resistances. VA (GE Fit Plus,
+     * checked against a capture of the Fit Profile app): byte[4] = state (0 measuring, 1 settling,
+     * 2 final), bytes[5,6] = weight, bytes[7-10] = resistances; only the final frame carries
+     * resistances, in ohms.
+     */
+    private fun parseLiveWeight(data: ByteArray, weightScaleFactor: Float, protocolType: Byte?): Frame {
         if (data.size < 10) return Frame.Unknown(OPCODE_LIVE_WEIGHT)
-        val stable = data[5].toInt() == 1
-        val raw = u16be(data[3], data[4])
-        val r1 = u16be(data[6], data[7])
-        val r2 = u16be(data[8], data[9])
+        val stable: Boolean
+        val raw: Int
+        val r1: Int
+        val r2: Int
+        if (protocolType == PROTOCOL_TYPE_VA) {
+            if (data.size < 11) return Frame.Unknown(OPCODE_LIVE_WEIGHT)
+            stable = data[4].toInt() == 0x02
+            raw = u16be(data[5], data[6])
+            r1 = u16be(data[7], data[8])
+            r2 = u16be(data[9], data[10])
+        } else {
+            stable = data[5].toInt() == 1
+            raw = u16be(data[3], data[4])
+            r1 = u16be(data[6], data[7])
+            r2 = u16be(data[8], data[9])
+        }
 
         var weightKg = raw / weightScaleFactor
         if (weightKg <= 5f || weightKg >= 250f) weightKg /= 10.0f
@@ -133,8 +176,71 @@ object QnScaleProtocol {
         return Frame.StoredMeasurement(weightKg = weightKg, resistance1 = r1, deviceEpochSeconds = deviceSeconds)
     }
 
+    /**
+     * VA (Fit Plus) 0x23 record, checked against a capture of the Fit Profile app: byte[3] = number
+     * of stored records (0 = none), byte[4] = this record's index, bytes[6-9] = timestamp (QN epoch
+     * seconds, little-endian), bytes[10,11] = weight in hundredths of a kg (big-endian),
+     * bytes[12,13] = resistance in ohms (big-endian, 0 for a weight-only reading). Each record is
+     * followed by 0x24 and 0x25 frames of the scale's own body-composition figures, which are not used.
+     */
+    private fun parseVaStoredMeasurement(data: ByteArray): Frame {
+        if (data.size < 15) return Frame.Unknown(OPCODE_STORED_MEASUREMENT)
+        if (data[3].toInt() == 0) return Frame.NoStoredMeasurements
+        return Frame.StoredMeasurement(
+            weightKg = u16be(data[10], data[11]) / 100.0f,
+            resistance1 = u16be(data[12], data[13]),
+            deviceEpochSeconds = u32le(data[6], data[7], data[8], data[9]),
+        )
+    }
+
+    /** First step of the VA user exchange, sent in reply to a 0x21 history trigger. */
+    fun buildVaHello(): ByteArray {
+        val frame = byteArrayOf(0xA0.toByte(), 0x0D, VA_STEP_HELLO.toByte(), 0xFE.toByte(), 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        frame[frame.lastIndex] = checksum(frame, 0, frame.lastIndex - 1)
+        return frame
+    }
+
+    /**
+     * Second step of the VA user exchange: the user's profile, laid out as the Fit Profile app
+     * sends it. User id 1000 and the trailing 04 02 are copied from that app's capture.
+     */
+    fun buildVaProfile(heightCm: Int, ageYears: Int, isMale: Boolean): ByteArray {
+        val heightMm = heightCm.coerceIn(40, 240) * 10
+        val frame = byteArrayOf(
+            0xA0.toByte(), 0x0D, VA_STEP_PROFILE.toByte(), 0x01, 0x03, 0xE8.toByte(),
+            if (isMale) 0x00 else 0x01,
+            ageYears.coerceIn(0, 255).toByte(),
+            (heightMm shr 8).toByte(), heightMm.toByte(),
+            0x04, 0x02, 0x00,
+        )
+        frame[frame.lastIndex] = checksum(frame, 0, frame.lastIndex - 1)
+        return frame
+    }
+
+    /** VA stored-data query, sent once the scale accepts the profile. */
+    fun buildVaStoredDataQuery(protocolType: Byte): ByteArray {
+        val frame = byteArrayOf(0x22, 0x06, protocolType, 0x00, 0x03, 0x00)
+        frame[frame.lastIndex] = checksum(frame, 0, frame.lastIndex - 1)
+        return frame
+    }
+
+    /** The user's last weight, sent by the Fit Profile app right after the stored-data query. */
+    fun buildVaLastWeight(weightKg: Float): ByteArray {
+        val raw = Math.round(weightKg * 100).coerceIn(0, 0xFFFF)
+        val frame = byteArrayOf(0xA2.toByte(), 0x06, 0x01, (raw shr 8).toByte(), raw.toByte(), 0x00)
+        frame[frame.lastIndex] = checksum(frame, 0, frame.lastIndex - 1)
+        return frame
+    }
+
     /** 0x13 config frame: unit + user height/age/gender, gated by the scale's own protocolType. */
     fun buildConfigFrame(protocolType: Byte, unitByte: Byte, heightCm: Int, ageYears: Int, isMale: Boolean): ByteArray {
+        if (protocolType == PROTOCOL_TYPE_VA) {
+            // VA scales read bytes 5-7 as measurement flags, not a profile: an odd value there
+            // turns bioimpedance off or enables baby weighing (openScale QNHandler), so keep them clear.
+            val frame = byteArrayOf(0x13, 0x09, protocolType, unitByte, 0x10, 0x00, 0x00, 0x00, 0x00)
+            frame[frame.lastIndex] = checksum(frame, 0, frame.lastIndex - 1)
+            return frame
+        }
         val frame = byteArrayOf(
             0x13, 0x09, protocolType, unitByte, 0x10,
             heightCm.coerceIn(60, 220).toByte(),
@@ -180,7 +286,11 @@ object QnScaleProtocol {
         return frame
     }
 
-    fun nowAsQnEpochSeconds(): Long = (System.currentTimeMillis() / 1000L) - QN_EPOCH_OFFSET_SECONDS
+    private fun epochOffsetSeconds(protocolType: Byte?): Long =
+        if (protocolType == PROTOCOL_TYPE_VA) VA_EPOCH_OFFSET_SECONDS else QN_EPOCH_OFFSET_SECONDS
 
-    fun qnEpochSecondsToMillis(qnEpochSeconds: Long): Long = (qnEpochSeconds + QN_EPOCH_OFFSET_SECONDS) * 1000L
+    fun nowAsQnEpochSeconds(protocolType: Byte?): Long = (System.currentTimeMillis() / 1000L) - epochOffsetSeconds(protocolType)
+
+    fun qnEpochSecondsToMillis(qnEpochSeconds: Long, protocolType: Byte?): Long =
+        (qnEpochSeconds + epochOffsetSeconds(protocolType)) * 1000L
 }

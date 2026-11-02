@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:icon="@drawable/ic_air"
+        android:key="casio_pressure_energy_calc"
+        android:layout="@layout/preference_checkbox"
+        android:title="@string/pref_casio_pressure_energy_calc_title" />
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:icon="@drawable/ic_explore"
+        android:key="casio_compass_auto_correction"
+        android:layout="@layout/preference_checkbox"
+        android:title="@string/pref_casio_compass_auto_correction_title" />
+</androidx.preference.PreferenceScreen>

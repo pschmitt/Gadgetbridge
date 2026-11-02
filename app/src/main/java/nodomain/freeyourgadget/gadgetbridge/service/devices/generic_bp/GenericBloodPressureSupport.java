@@ -24,6 +24,7 @@ import android.widget.Toast;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Calendar;
 import java.util.List;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
@@ -35,6 +36,8 @@ import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.GenericBloodPressureSample;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.AbstractBTLESingleDeviceSupport;
+import nodomain.freeyourgadget.gadgetbridge.service.btle.BLETypeConversions;
+import nodomain.freeyourgadget.gadgetbridge.service.btle.GattCharacteristic;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.GattService;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.TransactionBuilder;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.actions.SetDeviceStateAction;
@@ -58,6 +61,7 @@ public class GenericBloodPressureSupport extends AbstractBTLESingleDeviceSupport
 
         addSupportedService(GattService.SERVICE_BLOOD_PRESSURE.uuid);
         addSupportedService(GattService.SERVICE_DEVICE_INFORMATION.uuid);
+        addSupportedService(GattService.SERVICE_CURRENT_TIME.uuid);
 
         deviceInfoProfile = new DeviceInfoProfile<>(this);
         deviceInfoProfile.addListener(this);
@@ -83,6 +87,13 @@ public class GenericBloodPressureSupport extends AbstractBTLESingleDeviceSupport
         // request device info
         deviceInfoProfile.requestDeviceInfo(builder);
 
+        final BluetoothGattCharacteristic currentTimeCharacteristic =
+                getCharacteristic(GattCharacteristic.CHARACTERISTIC_CURRENT_TIME.uuid);
+        if (shouldSyncTime() && supportsTimeWrite(currentTimeCharacteristic)) {
+            final Calendar now = BLETypeConversions.createCalendar();
+            builder.write(currentTimeCharacteristic, BLETypeConversions.calendarToCurrentTime(now, 0));
+        }
+
         // enable blood pressure notifications
         bloodPressureProfile.enableNotify(builder, true);
 
@@ -90,6 +101,16 @@ public class GenericBloodPressureSupport extends AbstractBTLESingleDeviceSupport
         builder.add(new SetDeviceStateAction(getDevice(), GBDevice.State.INITIALIZED, getContext()));
 
         return builder;
+    }
+
+    private static boolean supportsTimeWrite(BluetoothGattCharacteristic currentTime) {
+        return currentTime != null && (currentTime.getProperties() &
+                (BluetoothGattCharacteristic.PROPERTY_WRITE |
+                        BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) != 0;
+    }
+
+    protected boolean shouldSyncTime() {
+        return false;
     }
 
     @Override

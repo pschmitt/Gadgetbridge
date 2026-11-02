@@ -92,8 +92,8 @@ public class AsteroidOSDeviceCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return AsteroidOSDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new AsteroidOSDeviceSupport();
     }
 
     @Override

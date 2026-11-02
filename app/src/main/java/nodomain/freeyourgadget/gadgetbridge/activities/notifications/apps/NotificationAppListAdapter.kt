@@ -27,6 +27,7 @@ class NotificationAppListAdapter(
     private val scope: CoroutineScope,
     private val onDefaultActionClick: (NotificationDefaultAction) -> Unit,
     private val onMediaIgnoresListChange: (Boolean) -> Unit,
+    private val onCallsIgnoreListChange: (Boolean) -> Unit,
     private val onAppClick: (packageName: String) -> Unit,
 ) : ListAdapter<NotificationAppListItem, RecyclerView.ViewHolder>(DIFF) {
     private val icons = LruCache<String, Drawable>(ICON_CACHE_SIZE)
@@ -71,6 +72,10 @@ class NotificationAppListAdapter(
             binding.notificationAppMediaIgnoresList.isChecked = item.mediaIgnoresList
             binding.notificationAppMediaIgnoresListRow.setOnClickListener {
                 onMediaIgnoresListChange(!binding.notificationAppMediaIgnoresList.isChecked)
+            }
+            binding.notificationAppCallsIgnoreList.isChecked = item.callsIgnoreList
+            binding.notificationAppCallsIgnoreListRow.setOnClickListener {
+                onCallsIgnoreListChange(!binding.notificationAppCallsIgnoreList.isChecked)
             }
         }
     }

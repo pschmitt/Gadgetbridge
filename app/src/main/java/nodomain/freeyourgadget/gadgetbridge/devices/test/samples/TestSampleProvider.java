@@ -111,6 +111,7 @@ public class TestSampleProvider extends AbstractSampleProvider<TestSampleProvide
         int sleepStageCurrent = 0;
         int sleepStageDirection = 1;
         int sleepStageDurationRemaining = TestDeviceRand.randInt(timestamp_from * 1000L, 30, 90);
+        int awakeDurationRemaining = 0;
 
         boolean isActive = false;
         float dayActivityFactor = TestDeviceRand.randFloat(timestamp_from * 1000L, 0f, 1f);
@@ -124,8 +125,9 @@ public class TestSampleProvider extends AbstractSampleProvider<TestSampleProvide
         final long wakeMinute = TestDeviceRand.randInt(timestamp_from, 0, 59);
 
         final Calendar cal = GregorianCalendar.getInstance();
+        final long timestampEnd = Math.min(timestamp_to * 1000L, System.currentTimeMillis());
 
-        for (long ts = timestamp_from * 1000L; ts < timestamp_to * 1000L; ts += 60 * 1000L) {
+        for (long ts = timestamp_from * 1000L; ts < timestampEnd; ts += 60 * 1000L) {
             cal.setTimeInMillis(ts);
             final int h = cal.get(Calendar.HOUR_OF_DAY);
             final int m = cal.get(Calendar.MINUTE);
@@ -147,7 +149,16 @@ public class TestSampleProvider extends AbstractSampleProvider<TestSampleProvide
                 isActive = TestDeviceRand.randBool(ts, 0.05F);
             }
 
-            final boolean isAwakeSleep = isSleep && supportsAwakeSleep && TestDeviceRand.randBool(ts, 0.03f);
+            // Make awake phases last a few minutes and occur about twice per night,
+            // to avoid random micro-spikes
+            if (!isSleep || !supportsAwakeSleep) {
+                awakeDurationRemaining = 0;
+            } else if (awakeDurationRemaining > 0) {
+                awakeDurationRemaining--;
+            } else if (TestDeviceRand.randBool(ts, 0.004f)) {
+                awakeDurationRemaining = TestDeviceRand.randInt(ts, 3, 15);
+            }
+            final boolean isAwakeSleep = awakeDurationRemaining > 0;
 
             final int targetHr;
             final int targetIntensity;

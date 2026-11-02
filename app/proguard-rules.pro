@@ -23,20 +23,12 @@
     public static *;
 }
 
-# Keep constructors for support classes, as they're called by reflection in DeviceSupportFactory#createServiceDeviceSupport
--keep public class * extends nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport
--keepclassmembers class * extends nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport {
-    public <init>(nodomain.freeyourgadget.gadgetbridge.model.DeviceType);
-    public <init>();
-}
 -keepattributes JavascriptInterface
 
-# Keep coordinators, they're only referenced from DeviceType
--keep public class * implements nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
--keepclassmembers class * implements nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator {
-  <init>();
+# DeviceType is the root for DeviceCoordinators and their DeviceSupports
+-keep class nodomain.freeyourgadget.gadgetbridge.model.DeviceType {
+    *;
 }
-
 # https://github.com/tony19/logback-android/issues/29
 -dontwarn javax.mail.**
 

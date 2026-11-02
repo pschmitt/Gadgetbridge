@@ -102,24 +102,19 @@ public class DeviceSupportFactory {
 
     private ServiceDeviceSupport createServiceDeviceSupport(GBDevice device) throws GBException {
         final DeviceCoordinator coordinator = device.getDeviceCoordinator();
-        final Class<?> supportClass = coordinator.getDeviceSupportClass(device);
 
-        try {
-            final Constructor<?> constructor = supportClass.getConstructor();
-            final DeviceSupport supportInstance = (DeviceSupport) constructor.newInstance();
-            final EnumSet<ServiceDeviceSupport.Flags> initialFlags = coordinator.getInitialFlags();
-            if (BuildConfig.DEBUG && initialFlags.contains(ServiceDeviceSupport.Flags.BUSY_CHECKING)) {
-                final DevicePrefs devicePrefs = GBApplication.getDevicePrefs(device);
-                if (devicePrefs.getBoolean("pref_device_debug_remove_busy_checking", false)) {
-                    LOG.warn("Removing BUSY_CHECKING flag from {}", device.getAddress());
-                    initialFlags.remove(ServiceDeviceSupport.Flags.BUSY_CHECKING);
-                }
+        final DeviceSupport supportInstance = coordinator.createDeviceSupport(device);
+
+        final EnumSet<ServiceDeviceSupport.Flags> initialFlags = coordinator.getInitialFlags();
+        if (BuildConfig.DEBUG && initialFlags.contains(ServiceDeviceSupport.Flags.BUSY_CHECKING)) {
+            final DevicePrefs devicePrefs = GBApplication.getDevicePrefs(device);
+            if (devicePrefs.getBoolean("pref_device_debug_remove_busy_checking", false)) {
+                LOG.warn("Removing BUSY_CHECKING flag from {}", device.getAddress());
+                initialFlags.remove(ServiceDeviceSupport.Flags.BUSY_CHECKING);
             }
-            return new ServiceDeviceSupport(supportInstance, initialFlags);
-        } catch (ReflectiveOperationException e) {
-            LOG.error("error calling DeviceSupport constructor for {} with zero arguments", device.getAddress());
-            throw new GBException(e);
         }
+
+        return new ServiceDeviceSupport(supportInstance, initialFlags);
     }
 
     @Nullable

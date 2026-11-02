@@ -142,6 +142,17 @@ public class GPSCoordinate implements Parcelable {
         return 2 * EARTH_RADIUS_M * Math.asin(Math.min(1.0, Math.sqrt(h)));
     }
 
+    /** Initial bearing in degrees, clockwise from true north in the range [0, 360) */
+    public static double bearing(final GPSCoordinate a, final GPSCoordinate b) {
+        final double lat1 = Math.toRadians(a.getLatitude());
+        final double lat2 = Math.toRadians(b.getLatitude());
+        final double dLon = Math.toRadians(b.getLongitude() - a.getLongitude());
+        final double y = Math.sin(dLon) * Math.cos(lat2);
+        final double x = Math.cos(lat1) * Math.sin(lat2)
+                - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+        return (Math.toDegrees(Math.atan2(y, x)) + 360.0) % 360.0;
+    }
+
     public double getAltitudeDifference(GPSCoordinate source) {
         if (!hasAltitude())
             return 0;
@@ -188,10 +199,14 @@ public class GPSCoordinate implements Parcelable {
         return new BigDecimal(value).setScale(8, RoundingMode.HALF_UP).toPlainString();
     }
 
+    private String formatElevation(double value) {
+        return new BigDecimal(value).setScale(2, RoundingMode.HALF_UP).toPlainString();
+    }
+
     @NonNull
     @Override
     public String toString() {
-        return "lon: " + formatLocation(longitude) + ", lat: " + formatLocation(latitude) + ", alt: " + formatLocation(altitude) + "m";
+        return "lon: " + formatLocation(longitude) + ", lat: " + formatLocation(latitude) + ", alt: " + formatElevation(altitude) + "m";
     }
 
     @Override

@@ -87,6 +87,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryParser;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrackProvider;
 import nodomain.freeyourgadget.gadgetbridge.model.Alarm;
+import nodomain.freeyourgadget.gadgetbridge.model.AltitudeSample;
 import nodomain.freeyourgadget.gadgetbridge.model.BatteryConfig;
 import nodomain.freeyourgadget.gadgetbridge.model.BloodPressureSample;
 import nodomain.freeyourgadget.gadgetbridge.model.BodyEnergySample;
@@ -487,6 +488,12 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
 
     @Override
     @Nullable
+    public TimeSampleProvider<? extends AltitudeSample> getAltitudeSampleProvider(GBDevice device, DaoSession session) {
+        return null;
+    }
+
+    @Override
+    @Nullable
     public HydrationSampleProvider getHydrationSampleProvider(final GBDevice device, final DaoSession session) {
         return null;
     }
@@ -660,6 +667,11 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
 
     @Override
     public boolean supportsAppsManagement(@NonNull final GBDevice device) {
+        return false;
+    }
+
+    @Override
+    public boolean supportsWatchAppMessages(@NonNull final GBDevice device) {
         return false;
     }
 
@@ -845,6 +857,7 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
             supportsSpo2(device) ||
             supportsTemperatureMeasurement(device) ||
             supportsWeightMeasurement(device) ||
+            supportsPointAltitudeMeasurement(device) ||
             supportsHydration(device) ||
             supportsActiveCalories(device) ||
             supportsCyclingData(device) ||
@@ -947,6 +960,11 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
 
     @Override
     public boolean supportsWeightMeasurement(@NonNull GBDevice device) {
+        return false;
+    }
+
+    @Override
+    public boolean supportsPointAltitudeMeasurement(@NonNull GBDevice device) {
         return false;
     }
 

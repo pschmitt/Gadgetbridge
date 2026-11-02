@@ -52,8 +52,8 @@ public class SonyWena3Coordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return SonyWena3DeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new SonyWena3DeviceSupport();
     }
 
     @Override

@@ -59,6 +59,14 @@ public interface DeviceCardAction {
         return null;
     }
 
+    /**
+     * Large text shown instead of the icon, or {@code null} for the usual icon. The tint colours the text.
+     */
+    @Nullable
+    default String getText(@NonNull final GBDevice device, @NonNull final Context context) {
+        return null;
+    }
+
     default boolean isVisible(@NonNull final GBDevice device) {
         return device.isConnected();
     }

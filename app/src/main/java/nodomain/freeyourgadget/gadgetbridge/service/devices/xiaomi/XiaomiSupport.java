@@ -396,6 +396,11 @@ public class XiaomiSupport extends AbstractBluetoothDeviceSupport {
     }
 
     @Override
+    public void onSendWatchAppMessage(@NonNull final String appId, @NonNull final byte[] payload) {
+        rpkService.sendWearAppMessage(appId, payload);
+    }
+
+    @Override
     public void onFetchRecordedData(final int dataTypes) {
         healthService.onFetchRecordedData(dataTypes);
     }

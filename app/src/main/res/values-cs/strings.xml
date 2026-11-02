@@ -5063,4 +5063,16 @@
     <string name="pref_header_device_card">Karta zařízení</string>
     <string name="pref_device_card_show_items_title">Zobrazit položky karet</string>
     <string name="pref_device_card_items_title">Položky karet</string>
+    <string name="controlcenter_snackbar_discovering_services">Objevování služeb…</string>
+    <string name="duration_short_three_months">3m</string>
+    <string name="pref_device_card_items_summary">Přizpůsobit položky na kartě zařízení</string>
+    <string name="pref_device_card_show_quick_controls_title">Zobrazit rychlé ovládání</string>
+    <string name="pref_device_card_quick_controls_title">Rychlé ovládání</string>
+    <string name="pref_device_card_quick_controls_summary">Přizpůsobit rychlé ovládání na kartě zařízení</string>
+    <string name="device_card_add_item">Přidat položku</string>
+    <string name="device_card_more_summary">Položky pod touto budou zobrazeny ve vyskakovacím okně</string>
+    <string name="device_card_items_reset_confirmation">Resetovat pořadí položek na kartě zařízení a obnovit odstraněné položky?</string>
+    <string name="device_card_quick_controls_reset_confirmation">Resetovat pořadí rychlého ovládání a obnovit odstraněná rychlá ovládání?</string>
+    <string name="pref_title_allow_unsupported_devices">Povolit nepodporovaná zařízení</string>
+    <string name="pref_summary_navigation_allow_unsupported_devices">Odesílat navigační pokyny jako oznámení do zařízení, která nepodporují navigaci</string>
 </resources>

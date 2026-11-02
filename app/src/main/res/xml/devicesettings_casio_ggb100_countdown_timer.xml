@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <EditTextPreference
+        android:defaultValue="0:00:00"
+        android:icon="@drawable/ic_timer"
+        android:key="casio_countdown_timer"
+        android:title="@string/pref_casio_countdown_timer_title"
+        app:useSimpleSummaryProvider="true" />
+</androidx.preference.PreferenceScreen>

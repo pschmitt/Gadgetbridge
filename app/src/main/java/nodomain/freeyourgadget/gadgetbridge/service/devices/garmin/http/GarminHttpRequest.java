@@ -4,10 +4,12 @@ import android.net.Uri;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -20,6 +22,13 @@ import nodomain.freeyourgadget.gadgetbridge.util.HttpUtils;
 
 public class GarminHttpRequest {
     private static final Logger LOG = LoggerFactory.getLogger(GarminHttpRequest.class);
+
+    // Connect IQ apps set the request body's Content-Type with a Communications.REQUEST_CONTENT_TYPE_*
+    // value, which reaches us as that enum's number. Garmin Connect maps it to the MIME type.
+    private static final String CIQ_CONTENT_TYPE_URL_ENCODED = "0";
+    private static final String CIQ_CONTENT_TYPE_JSON = "1";
+    private static final String MIME_URL_ENCODED = "application/x-www-form-urlencoded";
+    private static final String MIME_JSON = "application/json";
 
     private final GdiHttp.RawResourceRequest rawRequest;
     private final GdiHttp.ConnectIQHTTPRequest webRequest;
@@ -52,10 +61,22 @@ public class GarminHttpRequest {
             final JsonElement garminHeaders = GarminJson.decode(webRequest.getHttpHeaderFields().toByteArray());
             if (garminHeaders instanceof JsonObject jsonObject) {
                 for (String key : jsonObject.keySet()) {
-                    headers.put(key, jsonObject.get(key).getAsString());
+                    String value = jsonObject.get(key).getAsString();
+                    if ("content-type".equalsIgnoreCase(key)) {
+                        value = mimeTypeOf(value);
+                    }
+                    headers.put(key, value);
                 }
             }
         }
+    }
+
+    private static String mimeTypeOf(final String connectIqContentType) {
+        return switch (connectIqContentType) {
+            case CIQ_CONTENT_TYPE_URL_ENCODED -> MIME_URL_ENCODED;
+            case CIQ_CONTENT_TYPE_JSON -> MIME_JSON;
+            default -> connectIqContentType;
+        };
     }
 
     public int getMessageRequestId() {
@@ -100,7 +121,11 @@ public class GarminHttpRequest {
             final byte[] webRequestBodyBytes = webRequest.getHttpBody().toByteArray();
             if (webRequestBodyBytes != null) {
                 try {
-                    return GarminJson.decode(webRequestBodyBytes).toString().getBytes(StandardCharsets.UTF_8);
+                    final JsonElement body = GarminJson.decode(webRequestBodyBytes);
+                    if (isUrlEncoded() && body instanceof JsonObject form) {
+                        return urlEncode(form).getBytes(StandardCharsets.UTF_8);
+                    }
+                    return body.toString().getBytes(StandardCharsets.UTF_8);
                 } catch (final GarminJsonException e) {
                     LOG.error("WebRequest body is not GarminJson, will send raw bytes", e);
                     return webRequestBodyBytes;
@@ -108,6 +133,31 @@ public class GarminHttpRequest {
             }
         }
         return null;
+    }
+
+    private boolean isUrlEncoded() {
+        for (final Map.Entry<String, String> header : headers.entrySet()) {
+            if ("content-type".equalsIgnoreCase(header.getKey())) {
+                return header.getValue().startsWith(MIME_URL_ENCODED);
+            }
+        }
+        return false;
+    }
+
+    private static String urlEncode(final JsonObject form) {
+        final StringBuilder sb = new StringBuilder();
+        for (final Map.Entry<String, JsonElement> e : form.entrySet()) {
+            if (sb.length() > 0) {
+                sb.append('&');
+            }
+            final JsonElement value = e.getValue();
+            final String text = value instanceof JsonPrimitive primitive ? primitive.getAsString()
+                    : value.isJsonNull() ? "" : value.toString();
+            sb.append(URLEncoder.encode(e.getKey(), StandardCharsets.UTF_8))
+                    .append('=')
+                    .append(URLEncoder.encode(text, StandardCharsets.UTF_8));
+        }
+        return sb.toString();
     }
 
     public String getMethod() {

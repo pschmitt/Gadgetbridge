@@ -21,12 +21,16 @@ import com.google.protobuf.ByteString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 import java.util.UUID;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
@@ -37,9 +41,13 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceApp;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.Rpk;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.RpkInfo;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.RpkInfoList;
+import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.RpkLaunch;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.RpkList;
+import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.RpkMessage;
+import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.RpkSessionEnd;
 import nodomain.freeyourgadget.gadgetbridge.proto.xiaomi.XiaomiProto;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.XiaomiSupport;
+import nodomain.freeyourgadget.gadgetbridge.util.GB;
 
 public class XiaomiRpkService extends AbstractXiaomiService implements XiaomiDataUploadService.Callback {
     private static final Logger LOG = LoggerFactory.getLogger(XiaomiRpkService.class);
@@ -51,6 +59,15 @@ public class XiaomiRpkService extends AbstractXiaomiService implements XiaomiDat
     public static final int CMD_RPK_DELETE = 3;
     public static final int CMD_RPK_INSTALL = 1;
     public static final int CMD_RPK_INSTALLED = 2;
+    public static final int CMD_RPK_LAUNCH = 4;
+    public static final int CMD_RPK_LAUNCHED = 6;
+    public static final int CMD_RPK_SESSION_END = 7;
+    public static final int CMD_RPK_MESSAGE = 8;
+
+    // Messages waiting for CMD_RPK_LAUNCHED, by rpk id, oldest first
+    private final Map<String, Queue<byte[]>> pendingMessages = new HashMap<>();
+    // Rpk ids to launch once the rpk list arrives
+    private final Set<String> awaitingList = new HashSet<>();
 
 
     // Not null if we're installing a firmware
@@ -66,6 +83,9 @@ public class XiaomiRpkService extends AbstractXiaomiService implements XiaomiDat
     @Override
     public void handleCommand(final XiaomiProto.Command cmd) {
         switch (cmd.getSubtype()) {
+            case CMD_RPK_LAUNCHED:
+                onWearAppLaunched(cmd.getRpk().getRpkDel());
+                return;
             case CMD_RPK_LIST:
                 handleRpkList(cmd.getRpk().getRpkList());
                 return;
@@ -92,7 +112,92 @@ public class XiaomiRpkService extends AbstractXiaomiService implements XiaomiDat
                 return;
         }
 
-        LOG.warn("Unknown rpk command {}", cmd.getSubtype());
+        LOG.warn("Unknown rpk command {}: {}", cmd.getSubtype(), GB.hexdump(cmd.toByteArray()));
+    }
+
+    /**
+     * Send a message to an app installed on the band, as observed between the official app and the band:
+     * launch the app (CMD_RPK_LAUNCH), wait for CMD_RPK_LAUNCHED, send CMD_RPK_MESSAGE, end with CMD_RPK_SESSION_END.
+     * Messages sent before the app reports it launched are queued and all sent in that session, in order.
+     *
+     * @param appId rpk id as reported in the rpk list
+     */
+    public void sendWearAppMessage(final String appId, final byte[] payload) {
+        pendingMessages.computeIfAbsent(appId, k -> new ArrayDeque<>()).add(payload);
+        if (!shaMap.containsKey(appId)) {
+            // sha is only known from the rpk list, which is fetched on demand
+            LOG.debug("Rpk {} not in the cached list, requesting it", appId);
+            awaitingList.add(appId);
+            requestRpkList();
+            return;
+        }
+        launchWearApp(appId);
+    }
+
+    private void launchWearApp(final String appId) {
+        LOG.debug("Launching {}", appId);
+        // The official app sends the package of the app on the band as launch target; the band also accepts the rpk id
+        getSupport().sendCommand("launch wear app " + appId, buildLaunchCommand(rpkRef(appId, shaMap.get(appId)), appId));
+    }
+
+    private void launchAwaitingApps() {
+        for (final String appId : awaitingList) {
+            if (shaMap.containsKey(appId)) {
+                launchWearApp(appId);
+            } else {
+                LOG.warn("Rpk {} not installed, known: {}", appId, shaMap.keySet());
+                pendingMessages.remove(appId);
+            }
+        }
+        awaitingList.clear();
+    }
+
+    private void onWearAppLaunched(final RpkInfoList app) {
+        final Queue<byte[]> payloads = pendingMessages.remove(app.getId());
+        if (payloads == null) {
+            LOG.debug("Wear app {} launched, no pending message", app.getId());
+            return;
+        }
+        final RpkInfoList ref = rpkRef(app.getId(), app.getSha());
+        for (final byte[] payload : payloads) {
+            getSupport().sendCommand("wear app message " + app.getId(), buildMessageCommand(ref, payload));
+        }
+        getSupport().sendCommand("wear app session end " + app.getId(), buildSessionEndCommand(ref));
+    }
+
+    @Override
+    public void onDisconnect() {
+        // Otherwise messages from before the disconnect would go out with the next one, possibly much later
+        pendingMessages.clear();
+        awaitingList.clear();
+    }
+
+    static RpkInfoList rpkRef(final String id, final ByteString sha) {
+        return RpkInfoList.newBuilder().setId(id).setSha(sha).build();
+    }
+
+    static XiaomiProto.Command buildLaunchCommand(final RpkInfoList app, final String wearPackage) {
+        return XiaomiProto.Command.newBuilder()
+                .setType(COMMAND_TYPE)
+                .setSubtype(CMD_RPK_LAUNCH)
+                .setRpk(Rpk.newBuilder().setRpkLaunch(RpkLaunch.newBuilder().setApp(app).setWearPackage(wearPackage)))
+                .build();
+    }
+
+    static XiaomiProto.Command buildMessageCommand(final RpkInfoList app, final byte[] payload) {
+        return XiaomiProto.Command.newBuilder()
+                .setType(COMMAND_TYPE)
+                .setSubtype(CMD_RPK_MESSAGE)
+                .setRpk(Rpk.newBuilder().setRpkMessage(RpkMessage.newBuilder().setApp(app).setPayload(ByteString.copyFrom(payload))))
+                .build();
+    }
+
+    static XiaomiProto.Command buildSessionEndCommand(final RpkInfoList app) {
+        return XiaomiProto.Command.newBuilder()
+                .setType(COMMAND_TYPE)
+                .setSubtype(CMD_RPK_SESSION_END)
+                .setRpk(Rpk.newBuilder().setRpkSessionEnd(RpkSessionEnd.newBuilder().setApp(app).setUnknown2(1)))
+                .build();
     }
 
     public void requestRpkList() {
@@ -163,6 +268,8 @@ public class XiaomiRpkService extends AbstractXiaomiService implements XiaomiDat
         final GBDeviceEventAppInfo appInfoCmd = new GBDeviceEventAppInfo();
         appInfoCmd.apps = appsAndFaces.toArray(new GBDeviceApp[0]);
         getSupport().evaluateGBDeviceEvent(appInfoCmd);
+
+        launchAwaitingApps();
     }
 
 

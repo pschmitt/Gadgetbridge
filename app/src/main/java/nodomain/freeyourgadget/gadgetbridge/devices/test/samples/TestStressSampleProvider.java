@@ -28,7 +28,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.StressSample;
 public class TestStressSampleProvider extends AbstractTestSampleProvider<StressSample> {
     @NonNull
     @Override
-    public List<StressSample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<StressSample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<StressSample> samples = new ArrayList<>();
 
         int stress = TestDeviceRand.randInt(timestampFrom, 10, 90);

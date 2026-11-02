@@ -46,6 +46,7 @@ sealed interface NotificationAppListItem {
     data class Defaults(
         val defaultAction: NotificationDefaultAction,
         val mediaIgnoresList: Boolean,
+        val callsIgnoreList: Boolean,
     ) : NotificationAppListItem {
         override val id: String
             get() = "defaults"
@@ -111,6 +112,7 @@ class NotificationAppListViewModel(application: Application) : AndroidViewModel(
                 NotificationAppListItem.Defaults(
                     NotificationAppRepository.getDefaultAction(),
                     GBApplication.getPrefs().getBoolean(PREF_MEDIA_IGNORES_LIST, false),
+                    GBApplication.getPrefs().getBoolean(PREF_CALLS_IGNORE_LIST, true),
                 )
             }
         }
@@ -133,6 +135,12 @@ class NotificationAppListViewModel(application: Application) : AndroidViewModel(
         LOG.debug("Storing {} = {}", PREF_MEDIA_IGNORES_LIST, enabled)
         GBApplication.getPrefs().preferences.edit { putBoolean(PREF_MEDIA_IGNORES_LIST, enabled) }
         defaults.update { it?.copy(mediaIgnoresList = enabled) }
+    }
+
+    fun setCallsIgnoreList(enabled: Boolean) {
+        LOG.debug("Storing {} = {}", PREF_CALLS_IGNORE_LIST, enabled)
+        GBApplication.getPrefs().preferences.edit { putBoolean(PREF_CALLS_IGNORE_LIST, enabled) }
+        defaults.update { it?.copy(callsIgnoreList = enabled) }
     }
 
     fun resetAll() {
@@ -212,6 +220,7 @@ class NotificationAppListViewModel(application: Application) : AndroidViewModel(
         private val LOG = LoggerFactory.getLogger(NotificationAppListViewModel::class.java)
 
         private const val PREF_MEDIA_IGNORES_LIST = "notification_media_ignores_application_list"
+        private const val PREF_CALLS_IGNORE_LIST = "notification_calls_ignore_application_list"
         private const val LABEL_BATCH_SIZE = 50
     }
 }

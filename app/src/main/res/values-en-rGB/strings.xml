@@ -1448,4 +1448,7 @@
     <string name="pref_summary_opentracks_packagename">Used for starting/stopping GPS track recording in external fitness app.</string>
     <string name="pref_device_action_fitness_app_control_start">Fitness App Tracking Start</string>
     <string name="pref_device_action_fitness_app_control_stop">Fitness App Tracking Stop</string>
+    <string name="application_name_banglejs_main">Bangle.js Gadgetbridge</string>
+    <string name="title_activity_controlcenter_banglejs_main">Bangle.js Gadgetbridge</string>
+    <string name="about_activity_title_banglejs_main">About Bangle.js Gadgetbridge</string>
 </resources>

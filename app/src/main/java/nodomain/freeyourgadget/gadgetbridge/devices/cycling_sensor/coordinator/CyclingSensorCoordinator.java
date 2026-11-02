@@ -67,8 +67,8 @@ public class CyclingSensorCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return CyclingSensorSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new CyclingSensorSupport();
     }
 
     @Override

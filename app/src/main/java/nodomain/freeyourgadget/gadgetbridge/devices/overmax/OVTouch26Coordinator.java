@@ -54,8 +54,8 @@ public class OVTouch26Coordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return OVTouch26DeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new OVTouch26DeviceSupport();
     }
 
     @Override

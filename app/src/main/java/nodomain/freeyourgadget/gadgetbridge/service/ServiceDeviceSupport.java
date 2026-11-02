@@ -565,6 +565,14 @@ public class ServiceDeviceSupport implements DeviceSupport {
     }
 
     @Override
+    public void onSendWatchAppMessage(@NonNull final String appId, @NonNull final byte[] payload) {
+        if (checkBusy("send watch app message")) {
+            return;
+        }
+        delegate.onSendWatchAppMessage(appId, payload);
+    }
+
+    @Override
     public void onPowerOff() {
         if (checkBusy("power off event")) {
             return;

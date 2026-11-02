@@ -37,7 +37,8 @@ import java.util.regex.Pattern
  */
 class QnScaleCoordinator : AbstractBLEDeviceCoordinator() {
     override fun getSupportedDeviceName(): Pattern {
-        return Pattern.compile("QN-Scale.*")
+        // The GE Fit Plus is a QN-Scale sold under its own name.
+        return Pattern.compile("QN-Scale.*|Fit Plus", Pattern.CASE_INSENSITIVE)
     }
 
     override fun getManufacturer(): String {
@@ -65,8 +66,8 @@ class QnScaleCoordinator : AbstractBLEDeviceCoordinator() {
         return true
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport?> {
-        return QnScaleDeviceSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return QnScaleDeviceSupport()
     }
 
     override fun getDeviceNameResource(): Int {

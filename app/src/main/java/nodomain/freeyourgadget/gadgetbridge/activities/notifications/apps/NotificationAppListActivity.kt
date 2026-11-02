@@ -31,6 +31,7 @@ class NotificationAppListActivity : AbstractGBActivity() {
             scope = lifecycleScope,
             onDefaultActionClick = { showDefaultActionDialog(it) },
             onMediaIgnoresListChange = { viewModel.setMediaIgnoresList(it) },
+            onCallsIgnoreListChange = { viewModel.setCallsIgnoreList(it) },
             onAppClick = { appPackageName ->
                 startActivity(
                     Intent(this, NotificationAppSettingsActivity::class.java)

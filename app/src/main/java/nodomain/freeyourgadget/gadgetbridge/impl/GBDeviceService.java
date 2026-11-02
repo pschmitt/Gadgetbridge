@@ -580,6 +580,14 @@ public class GBDeviceService implements DeviceService {
     }
 
     @Override
+    public void onSendWatchAppMessage(@NonNull final String appId, @NonNull final byte[] payload) {
+        Intent intent = createIntent().setAction(ACTION_SEND_WATCH_APP_MESSAGE)
+                .putExtra(EXTRA_WATCH_APP_ID, appId)
+                .putExtra(EXTRA_WATCH_APP_PAYLOAD, payload);
+        invokeService(intent);
+    }
+
+    @Override
     public void onPowerOff() {
         Intent intent = createIntent().setAction(ACTION_POWER_OFF);
         invokeService(intent);

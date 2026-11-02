@@ -249,6 +249,11 @@ public abstract class AbstractDeviceSupport implements DeviceSupport {
 
     }
 
+    @Override
+    public void onSendWatchAppMessage(@NonNull final String appId, @NonNull final byte[] payload) {
+
+    }
+
     /**
      * If the device can be turned off by sending a command, this method
      * can be overridden and implemented by the device support class.

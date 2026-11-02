@@ -119,8 +119,8 @@ public abstract class AbstractMoyoungDeviceCoordinator extends AbstractBLEDevice
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(@NonNull final GBDevice device) {
-        return MoyoungDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(@NonNull final GBDevice device) {
+        return new MoyoungDeviceSupport();
     }
 
     @Override

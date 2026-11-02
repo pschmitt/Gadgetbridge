@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.mobeta.android.dslv.DragSortListPreference
+        android:icon="@drawable/ic_widgets"
+        android:defaultValue="@array/pref_casio_mode_carousel_default"
+        android:dialogTitle="@string/pref_casio_mode_carousel_title"
+        android:entries="@array/pref_casio_mode_carousel"
+        android:entryValues="@array/pref_casio_mode_carousel_values"
+        android:key="casio_mode_carousel"
+        android:persistent="true"
+        android:summary="@string/pref_casio_mode_carousel_summary"
+        android:title="@string/pref_casio_mode_carousel_title" />
+    <com.mobeta.android.dslv.DragSortListPreference
+        android:icon="@drawable/ic_dashboard"
+        android:defaultValue="@array/pref_casio_display_screens_default"
+        android:dialogTitle="@string/pref_casio_display_screens_title"
+        android:entries="@array/pref_casio_display_screens"
+        android:entryValues="@array/pref_casio_display_screens_values"
+        android:key="casio_display_screens"
+        android:persistent="true"
+        android:summary="@string/pref_casio_display_screens_summary"
+        android:title="@string/pref_casio_display_screens_title" />
+</androidx.preference.PreferenceScreen>

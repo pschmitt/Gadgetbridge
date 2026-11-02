@@ -439,6 +439,11 @@ public final class BtLEQueue implements Thread.UncaughtExceptionHandler {
             serverLatch.countDown();
         }
 
+        if (mDisposed.get()) {
+            LOG.debug("handleDisconnected: already disposed, not changing the device state");
+            return;
+        }
+
         boolean forceDisconnect;
         //noinspection EnhancedSwitchMigration
         switch(status) {

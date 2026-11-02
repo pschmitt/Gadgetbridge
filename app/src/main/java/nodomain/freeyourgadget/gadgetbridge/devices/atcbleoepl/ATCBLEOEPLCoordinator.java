@@ -55,8 +55,8 @@ public class ATCBLEOEPLCoordinator extends AbstractDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return ATCBLEOEPLDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new ATCBLEOEPLDeviceSupport();
     }
 
     @Override

@@ -39,8 +39,8 @@ public class ThermalPrinterCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(@NonNull GBDevice gbDevice) {
-        return GenericThermalPrinterSupport.class;
+    public DeviceSupport createDeviceSupport(@NonNull GBDevice gbDevice) {
+        return new GenericThermalPrinterSupport();
     }
 
     @Override
