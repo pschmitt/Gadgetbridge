@@ -4657,4 +4657,13 @@
     <string name="create_watchface">Crear esfera</string>
     <string name="expiration_notifications_title">Expiración de notificación</string>
     <string name="garmin_auth_expired_activity_description">El token de autenticación para \'%1$s\' ha expirado, por lo que algunas de las funciones (como clima o actualizaciones AGPS) podrían detenerse hasta que se vuelva a autenticar con la aplicación Garmin Connect oficial.\n\nComo solución alternativa, Gadgetbridge puede enviar respuestas de autenticación falsas al reloj en su lugar. No active esto si planea usar la aplicación Garmin Connect oficial o conectar el reloj a Internet, ya que podría necesitar restablecer de fábrica el reloj después para poder autenticarse.</string>
+    <string name="range_integer">%1$d – %2$d</string>
+    <string name="controlcenter_snackbar_discovering_services">Encontrando servicios…</string>
+    <string name="duration_short_day">1d</string>
+    <string name="duration_short_week">1s</string>
+    <string name="duration_short_two_weeks">2s</string>
+    <string name="duration_short_month">1m</string>
+    <string name="duration_short_six_months">6m</string>
+    <string name="duration_short_three_months">3m</string>
+    <string name="duration_short_year">1a</string>
 </resources>
