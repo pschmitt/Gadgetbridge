@@ -54,8 +54,11 @@ internal class ChartTooltipPainter(context: Context, theme: ChartTheme) {
 
     private fun textLeft(row: ChartSelection.Row) = if (row.color == null) 0f else swatchSize + swatchGap
 
+    private fun hasDivider(selection: ChartSelection, index: Int) = index > 0 && selection.rows[index].color == null
+
     fun height(selection: ChartSelection): Float =
-        paddingVertical * 2 + lineHeight(titlePaint) + selection.rows.size * (lineGap + rowHeight())
+        paddingVertical * 2 + lineHeight(titlePaint) + selection.rows.size * (lineGap + rowHeight()) +
+            selection.rows.indices.count { hasDivider(selection, it) } * lineGap
 
     fun draw(canvas: Canvas, selection: ChartSelection, left: Float, top: Float) {
         rect.set(left, top, left + width(selection), top + height(selection))
@@ -70,8 +73,12 @@ internal class ChartTooltipPainter(context: Context, theme: ChartTheme) {
         y += lineHeight(titlePaint)
 
         val rowHeight = rowHeight()
-        for (row in selection.rows) {
+        for ((index, row) in selection.rows.withIndex()) {
             y += lineGap
+            if (hasDivider(selection, index)) {
+                canvas.drawLine(x, y, left + width(selection) - paddingHorizontal, y, borderPaint)
+                y += lineGap
+            }
             val centerY = y + rowHeight / 2f
             row.color?.let {
                 swatchPaint.color = it
