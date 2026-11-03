@@ -57,7 +57,6 @@ import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.No
 import nodomain.freeyourgadget.gadgetbridge.externalevents.opentracks.OpenTracksContentObserver
 import nodomain.freeyourgadget.gadgetbridge.externalservices.ExternalServiceRegistry
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
-import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceService
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceService
 import nodomain.freeyourgadget.gadgetbridge.model.weather.Weather
 import nodomain.freeyourgadget.gadgetbridge.model.weather.WeatherCacheManager
@@ -112,6 +111,9 @@ open class GBApplication : Application() {
 
     @Inject
     lateinit var doNotDisturbPolicy: DoNotDisturbPolicy
+
+    @Inject
+    lateinit var deviceServiceInstance: DeviceService
 
     private val themePreferenceListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         if ("pref_key_theme" == key) {
@@ -172,10 +174,6 @@ open class GBApplication : Application() {
         }
     }
 
-    protected open fun createDeviceService(): DeviceService {
-        return GBDeviceService(this)
-    }
-
     /**
      * Every step must be safe to repeat: Robolectric creates a new application instance and calls
      * onCreate() for each test, while static and process-wide state survives across tests in the same JVM.
@@ -220,8 +218,6 @@ open class GBApplication : Application() {
         deviceManagerInstance.initialize()
         val languageCode = gbPrefs.getString("language", "default") ?: "default"
         setLanguage(languageCode)
-
-        deviceServiceInstance = createDeviceService()
 
         if (!GBEnvironment.env().isTest) {
             PeriodicDbExporter.scheduleNextExecution(appContext)
@@ -412,7 +408,6 @@ open class GBApplication : Application() {
         private lateinit var appContext: GBApplication
         private var context: GBApplication? = null
         private var appInstance: GBApplication? = null
-        private lateinit var deviceServiceInstance: DeviceService
         private lateinit var language: Locale
         private val idSenderLookup = LimitedQueue<Int, String>(16)
 
@@ -433,7 +428,7 @@ open class GBApplication : Application() {
             CompanionDeviceUtil.StopObservingAll(getContext())
             val quitIntent = Intent(ACTION_QUIT)
             LocalBroadcastManager.getInstance(appContext).sendBroadcast(quitIntent)
-            deviceServiceInstance.quit()
+            app().deviceServiceInstance.quit()
             GBDatabaseManager.closeDatabase()
             exitProcess(0)
         }
@@ -444,7 +439,7 @@ open class GBApplication : Application() {
             CompanionDeviceUtil.StopObservingAll(getContext())
             val quitIntent = Intent(ACTION_QUIT)
             LocalBroadcastManager.getInstance(appContext).sendBroadcast(quitIntent)
-            deviceServiceInstance.quit()
+            app().deviceServiceInstance.quit()
 
             GBDatabaseManager.closeDatabase()
 
@@ -485,10 +480,11 @@ open class GBApplication : Application() {
          * an Android Service and this facade provides access to its functionality.
          *
          * @return the facade for talking to the service/devices.
+         * @deprecated Use Hilt DI to inject [DeviceService] instead.
          */
         @JvmStatic
         fun deviceService(): DeviceService {
-            return deviceServiceInstance
+            return app().deviceServiceInstance
         }
 
         /**
@@ -496,10 +492,11 @@ open class GBApplication : Application() {
          * an Android Service and this facade provides access to its functionality.
          *
          * @return the facade for talking to the service/device.
+         * @deprecated Use Hilt DI to inject [DeviceService] and call [DeviceService.forDevice] instead.
          */
         @JvmStatic
         fun deviceService(device: GBDevice?): DeviceService {
-            return deviceServiceInstance.forDevice(device)
+            return app().deviceServiceInstance.forDevice(device)
         }
 
         /**

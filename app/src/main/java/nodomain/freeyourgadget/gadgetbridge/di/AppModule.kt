@@ -10,6 +10,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceManager
+import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceService
+import nodomain.freeyourgadget.gadgetbridge.model.DeviceService
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs
 import javax.inject.Singleton
 
@@ -41,4 +43,12 @@ object AppModule {
     @Singleton
     fun provideNotificationManager(@ApplicationContext context: Context): NotificationManager =
         context.getSystemService(NotificationManager::class.java)
+
+    /**
+     * The facade for talking to all devices. Use [DeviceService.forDevice] for a single device.
+     */
+    @Provides
+    @Singleton
+    fun provideDeviceService(@ApplicationContext context: Context): DeviceService =
+        GBDeviceService(context)
 }

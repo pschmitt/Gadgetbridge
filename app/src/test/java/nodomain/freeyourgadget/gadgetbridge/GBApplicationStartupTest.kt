@@ -75,6 +75,15 @@ class GBApplicationStartupTest : TestBase() {
     }
 
     @Test
+    fun deviceServiceIsTheOneInjectedIntoTheCurrentApplication() {
+        assertSame(GBApplication.deviceService(), app.deviceServiceInstance)
+
+        val device = createDummyGDevice(MAC)
+        val forDevice = GBApplication.deviceService(device)
+        assertSame(device, forDevice.device)
+    }
+
+    @Test
     fun onTerminateLeavesNoPreferenceListenersBehind() {
         val prefs = app.defaultSharedPreferences
         // The theme listener and the launcher widget triggers
