@@ -17,7 +17,7 @@ import nodomain.freeyourgadget.gadgetbridge.test.GBTestApplication;
  * message, as empty strings.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23, application = GBTestApplication.class)
+@Config(sdk = 24, application = GBTestApplication.class)
 public class G1NotificationPayloadTest {
 
     private static JSONObject payload(final String title, final String body) throws Exception {

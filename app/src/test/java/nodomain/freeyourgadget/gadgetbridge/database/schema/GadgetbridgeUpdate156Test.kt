@@ -2,6 +2,7 @@ package nodomain.freeyourgadget.gadgetbridge.database.schema
 
 import android.database.sqlite.SQLiteDatabase
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper
+import nodomain.freeyourgadget.gadgetbridge.test.GBTestApplication
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -13,7 +14,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [23])
+@Config(sdk = [24], application = GBTestApplication::class)
 class GadgetbridgeUpdate156Test {
 
     private lateinit var db: SQLiteDatabase

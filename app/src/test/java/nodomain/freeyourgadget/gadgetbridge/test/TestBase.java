@@ -35,7 +35,7 @@ import static org.junit.Assert.assertNotNull;
  * directory.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23, application = GBTestApplication.class)
+@Config(sdk = 24, application = GBTestApplication.class)
 public abstract class TestBase {
     protected GBApplication app = (GBApplication) RuntimeEnvironment.application;
     protected DaoSession daoSession;

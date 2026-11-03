@@ -1,9 +1,15 @@
 package nodomain.freeyourgadget.gadgetbridge.test
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
+import nodomain.freeyourgadget.gadgetbridge.GBEnvironment
 import org.slf4j.LoggerFactory
 
 class GBTestApplication : GBApplication() {
+    override fun onCreate() {
+        GBEnvironment.setupEnvironment(GBEnvironment.createLocalTestEnvironment())
+        super.onCreate()
+    }
+
     override fun migratePrefsIfNeeded() {
         // In tests, do not migrate preferences
         // FIXME: This is not ideal. In tests, do not migrate preferences. We should be able to initialize

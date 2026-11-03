@@ -26,7 +26,7 @@ import nodomain.freeyourgadget.gadgetbridge.test.GBTestApplication;
  * then message and session end once the band reports the app launched.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23, application = GBTestApplication.class)
+@Config(sdk = 24, application = GBTestApplication.class)
 public class XiaomiRpkMessageFlowTest {
     private static final String APP_ID = "org.example.watchapp";
     private static final ByteString SHA = ByteString.copyFrom(new byte[20]);
