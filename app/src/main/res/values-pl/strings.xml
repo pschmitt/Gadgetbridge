@@ -6070,4 +6070,8 @@
     <string name="ninebot_search_title">Szukaj hulajnogi</string>
     <string name="ninebot_search_summary">Szuka hulajnogi co 3 sekundy i odblokowuje ją po znalezieniu. Zużywa więcej baterii telefonu.</string>
     <string name="workout_template_import_failed">Nie udało się zaimportować tego szablonu treningu</string>
+    <string name="appmanager_watchapps_watchfaces_updates">Aktualizacje</string>
+    <string name="pref_title_navigation_symbols">Pokaż strzałki</string>
+    <string name="pref_description_navigation_symbols">Dodaj strzałkę Unicode wskazującą następny manewr do tytułu powiadomienia. Wyłącz tę opcję, jeśli gadżet wyświetla zamiast tego puste pola.</string>
+    <string name="appmanager_everything_up_to_date_message">Wszystko jest aktualne</string>
 </resources>
