@@ -173,7 +173,7 @@ public class DevicePrefs extends Prefs {
                 // sometimes country is null, no idea why, guess it.
                 country = language;
             }
-            localeString = language + "_" + country.toUpperCase();
+            localeString = language + "_" + country.toUpperCase(Locale.ROOT);
         }
         final Language language = Language.fromCode(localeString);
         return language != null ? language : defaultLanguage;

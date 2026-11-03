@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.UUID;
 
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEvent;
@@ -139,7 +140,7 @@ class AppMessageHandlerObsidian extends AppMessageHandler {
                 break;
         }
 
-        return (!isNight) ? iconToLoad : iconToLoad.toUpperCase();
+        return (!isNight) ? iconToLoad : iconToLoad.toUpperCase(Locale.ROOT);
     }
 
     private byte[] encodeObsidianWeather(WeatherSpec weatherSpec) {

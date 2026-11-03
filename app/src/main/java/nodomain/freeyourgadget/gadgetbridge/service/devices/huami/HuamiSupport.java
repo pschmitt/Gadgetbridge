@@ -3699,7 +3699,7 @@ public abstract class HuamiSupport extends AbstractBTLESingleDeviceSupport
                 // sometimes country is null, no idea why, guess it.
                 country = language;
             }
-            localeString = language + "_" + country.toUpperCase();
+            localeString = language + "_" + country.toUpperCase(Locale.ROOT);
         }
         LOG.info("Setting device to locale: " + localeString);
         final byte[] command_new = HuamiService.COMMAND_SET_LANGUAGE_NEW_TEMPLATE.clone();

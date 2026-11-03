@@ -911,7 +911,7 @@ public class G1DeviceSupport extends AbstractBTLEMultiDeviceSupport {
         if (localeString.equals("auto")) {
             String language = Locale.getDefault().getLanguage();
             String country = Locale.getDefault().getCountry();
-            localeString = language + "_" + country.toUpperCase();
+            localeString = language + "_" + country.toUpperCase(Locale.ROOT);
         }
 
         // If the language is set to one of the supported ones update the glasses to that language.

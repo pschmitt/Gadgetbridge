@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -103,7 +104,7 @@ public class HuaweiFwHelper {
 
             String currentFileName = uriHelper.getFileName();
 
-            if (TextUtils.isEmpty(currentFileName) || !currentFileName.toLowerCase().endsWith(".bin")) {
+            if (TextUtils.isEmpty(currentFileName) || !currentFileName.toLowerCase(Locale.ROOT).endsWith(".bin")) {
                 return false;
             }
 
