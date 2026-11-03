@@ -37,7 +37,7 @@ class SleepWidgetTest : TestBase() {
 
     @Test
     fun compositionSkipsUnsupportedStages() {
-        val composition = SleepWidget.stageComposition(stages, SleepWidget.StageSupport(rem = true, awake = false))
+        val composition = SleepWidget.stageComposition(context, stages, SleepWidget.StageSupport(rem = true, awake = false))
 
         assertArrayEquals(floatArrayOf(90f, 240f, 60f), composition.values, 0f)
         assertEquals(3, composition.colors.size)

@@ -54,7 +54,7 @@ object SleepScoreWidget : MetricWidget<SleepScoreWidget.Data>() {
 
     override fun model(context: Context, config: WidgetConfig, data: Data): TileModel {
         val history = data.nights?.let {
-            MiniChart.Bars(it, intArrayOf(WidgetColors.lightSleep), HISTORY_MIN, HISTORY_MAX, highlightLast = true)
+            MiniChart.Bars(it, intArrayOf(WidgetColors.lightSleep(context)), HISTORY_MIN, HISTORY_MAX, highlightLast = true)
         }
         if (data.value <= 0) {
             // no device reported a sleep score for the day
@@ -64,14 +64,14 @@ object SleepScoreWidget : MetricWidget<SleepScoreWidget.Data>() {
         if (config.isLargeStyle) {
             return TileModel(
                 value = data.value.toString(),
-                gauge = GaugeSpec.Progress(WidgetColors.lightSleep, data.value / 100f),
-                status = StatusLine.Chip(WidgetColors.lightSleep, context.getString(bandOf(data.value))),
+                gauge = GaugeSpec.Progress(WidgetColors.lightSleep(context), data.value / 100f),
+                status = StatusLine.Chip(WidgetColors.lightSleep(context), context.getString(bandOf(data.value))),
                 miniStats = if (data.asleepMinutes > 0) {
                     listOf(Stat(clock(data.asleepMinutes), context.getString(R.string.widget_stat_asleep)))
                 } else {
                     emptyList()
                 },
-                chart = stages?.let { SleepWidget.stageComposition(it, data.support) },
+                chart = stages?.let { SleepWidget.stageComposition(context, it, data.support) },
                 legend = stages?.let { SleepWidget.stageLegend(context, it, data.support) }.orEmpty(),
                 largeChart = history,
                 axis = if (history != null) TileAxis.weekdays(data.day, NIGHTS) else emptyList(),
@@ -79,8 +79,8 @@ object SleepScoreWidget : MetricWidget<SleepScoreWidget.Data>() {
         }
         return TileModel(
             value = data.value.toString(),
-            gauge = GaugeSpec.Progress(WidgetColors.lightSleep, data.value / 100f),
-            status = StatusLine.Chip(WidgetColors.lightSleep, context.getString(bandOf(data.value))),
+            gauge = GaugeSpec.Progress(WidgetColors.lightSleep(context), data.value / 100f),
+            status = StatusLine.Chip(WidgetColors.lightSleep(context), context.getString(bandOf(data.value))),
             chart = history,
             largeChart = if (config.isWide || config.isTall) history else null,
             axis = if ((config.isWide || config.isTall) && history != null) TileAxis.weekdays(data.day, NIGHTS) else emptyList(),

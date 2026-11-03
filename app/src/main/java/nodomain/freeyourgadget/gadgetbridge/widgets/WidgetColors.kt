@@ -1,7 +1,13 @@
 package nodomain.freeyourgadget.gadgetbridge.widgets
 
+import android.content.Context
 import android.graphics.Color
+import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
+import com.google.android.material.color.MaterialColors
+import nodomain.freeyourgadget.gadgetbridge.R
 
 /**
  * Shared palette for the dashboard widgets.
@@ -23,20 +29,23 @@ object WidgetColors {
     val exercise: Int = Color.rgb(255, 128, 0)
 
     @ColorInt
-    val deepSleep: Int = Color.rgb(0, 84, 163)
+    fun deepSleep(context: Context): Int = chartColor(context, R.attr.chart_deep_sleep, R.color.chart_deep_sleep_light)
 
     @ColorInt
-    val lightSleep: Int = Color.rgb(7, 158, 243)
+    fun lightSleep(context: Context): Int = chartColor(context, R.attr.chart_light_sleep, R.color.chart_light_sleep_light)
 
     @ColorInt
-    val remSleep: Int = Color.rgb(228, 39, 199)
+    fun remSleep(context: Context): Int = chartColor(context, R.attr.chart_rem_sleep, R.color.chart_rem_sleep_light)
 
     @ColorInt
-    val awakeSleep: Int = Color.rgb(0xff, 0x86, 0x6e)
+    fun awakeSleep(context: Context): Int = chartColor(context, R.attr.chart_awake_sleep, R.color.chart_awake_sleep_light)
 
     @ColorInt
     val distance: Int = Color.rgb(0xf2, 0xa9, 0x3b)
 
     @ColorInt
     val activeTime: Int = Color.rgb(0x8e, 0x63, 0xce)
+
+    private fun chartColor(context: Context, @AttrRes attr: Int, @ColorRes fallback: Int): Int =
+        MaterialColors.getColor(context, attr, ContextCompat.getColor(context, fallback))
 }

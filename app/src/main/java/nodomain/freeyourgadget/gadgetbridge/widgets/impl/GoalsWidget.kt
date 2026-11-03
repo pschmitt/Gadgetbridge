@@ -45,11 +45,13 @@ object GoalsWidget : GBWidget<GoalsWidget.Data> {
     private const val METERS_PER_KM = 1000.0
     private const val MILES_PER_METER = 0.000621371
 
-    enum class Goal(val label: Int, val color: Int) {
-        STEPS(R.string.steps, WidgetColors.activity),
-        DISTANCE(R.string.distance, WidgetColors.distance),
-        ACTIVE_TIME(R.string.activity_list_summary_active_time, WidgetColors.activeTime),
-        SLEEP(R.string.menuitem_sleep, WidgetColors.lightSleep),
+    enum class Goal(val label: Int, private val colorOf: (Context) -> Int) {
+        STEPS(R.string.steps, { WidgetColors.activity }),
+        DISTANCE(R.string.distance, { WidgetColors.distance }),
+        ACTIVE_TIME(R.string.activity_list_summary_active_time, { WidgetColors.activeTime }),
+        SLEEP(R.string.menuitem_sleep, WidgetColors::lightSleep);
+
+        fun color(context: Context): Int = colorOf(context)
     }
 
     /**
@@ -115,21 +117,21 @@ object GoalsWidget : GBWidget<GoalsWidget.Data> {
     override fun bind(view: View, variant: WidgetVariant, config: WidgetConfig, data: Data) {
         val context = view.context
         renderHeader(view, config.title(context, label), icon)
-        view.findViewById<GoalRingsView>(R.id.tile_goal_rings).setRings(data.goals.map { GoalRingsView.Ring(it.goal.color, it.fraction) })
+        view.findViewById<GoalRingsView>(R.id.tile_goal_rings).setRings(data.goals.map { GoalRingsView.Ring(it.goal.color(context), it.fraction) })
         if (isSmall(config)) {
             renderValues(view.findViewById(R.id.tile_goal_values), data.goals.map { it.goal to valueText(context, it) })
         } else {
             view.findViewById<View>(R.id.tile_empty).visibility = if (data.goals.isEmpty()) View.VISIBLE else View.GONE
             renderFlowLegend(
                 view.findViewById(R.id.tile_flow_legend),
-                if (showLegend(config)) data.goals.map { it.goal.color to context.getString(it.goal.label) } else emptyList(),
+                if (showLegend(config)) data.goals.map { it.goal.color(context) to context.getString(it.goal.label) } else emptyList(),
                 legendGap(config),
             )
         }
         renderLegendButton(
             view,
             config.title(context, label),
-            if (isSmall(config) || showLegend(config)) emptyList() else data.goals.map { it.goal.color to context.getString(it.goal.label) },
+            if (isSmall(config) || showLegend(config)) emptyList() else data.goals.map { it.goal.color(context) to context.getString(it.goal.label) },
         )
         view.contentDescription = describe(context, config, data)
     }
@@ -137,13 +139,13 @@ object GoalsWidget : GBWidget<GoalsWidget.Data> {
     override fun bindLoading(view: View, variant: WidgetVariant, config: WidgetConfig) {
         val context = view.context
         renderHeader(view, config.title(context, label), icon)
-        view.findViewById<GoalRingsView>(R.id.tile_goal_rings).setRings(Goal.entries.map { GoalRingsView.Ring(it.color, -1f) })
+        view.findViewById<GoalRingsView>(R.id.tile_goal_rings).setRings(Goal.entries.map { GoalRingsView.Ring(it.color(context), -1f) })
         if (isSmall(config)) {
             renderValues(view.findViewById(R.id.tile_goal_values), Goal.entries.map { it to context.getString(R.string.stats_empty_value) })
         } else {
             renderFlowLegend(
                 view.findViewById(R.id.tile_flow_legend),
-                if (showLegend(config)) Goal.entries.map { it.color to context.getString(it.label) } else emptyList(),
+                if (showLegend(config)) Goal.entries.map { it.color(context) to context.getString(it.label) } else emptyList(),
                 legendGap(config),
             )
         }
@@ -172,7 +174,7 @@ object GoalsWidget : GBWidget<GoalsWidget.Data> {
             val (goal, value) = row
             val item = inflater.inflate(R.layout.dashboard_widget_goal_value_row, container, false)
             val swatch = GradientDrawable()
-            swatch.setColor(goal.color)
+            swatch.setColor(goal.color(container.context))
             swatch.cornerRadius = 2 * density
             item.findViewById<View>(R.id.swatch).background = swatch
             item.findViewById<TextView>(R.id.swatch_label).text = container.context.getString(goal.label)
