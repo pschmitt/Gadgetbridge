@@ -1,5 +1,6 @@
 package nodomain.freeyourgadget.gadgetbridge
 
+import android.app.NotificationManager
 import android.content.Intent
 import androidx.lifecycle.LifecycleRegistry
 import androidx.core.content.edit
@@ -15,6 +16,7 @@ import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows.shadowOf
 
 /**
  * Robolectric creates a new application for every test, while process-wide state survives across tests. These
@@ -55,6 +57,21 @@ class GBApplicationStartupTest : TestBase() {
         GBApplication.getDeviceSpecificSharedPrefs(MAC).edit(commit = true) { putBoolean("key", true) }
         GBApplication.deleteDeviceSpecificSharedPrefs(MAC)
         assertFalse(app.scopedPrefs.getDeviceSpecificSharedPrefs(MAC).contains("key"))
+    }
+
+    @Test
+    fun doNotDisturbChecksGoThroughThePolicyInjectedIntoTheCurrentApplication() {
+        val notificationManager = app.getSystemService(NotificationManager::class.java)
+        // Without notification policy access, everything is allowed through
+        assertEquals(NotificationManager.INTERRUPTION_FILTER_ALL, GBApplication.getGrantedInterruptionFilter())
+
+        shadowOf(notificationManager).setNotificationPolicyAccessGranted(true)
+        notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
+        assertEquals(
+            app.doNotDisturbPolicy.getGrantedInterruptionFilter(),
+            GBApplication.getGrantedInterruptionFilter(),
+        )
+        assertEquals(NotificationManager.INTERRUPTION_FILTER_PRIORITY, GBApplication.getGrantedInterruptionFilter())
     }
 
     @Test

@@ -24,7 +24,6 @@ import android.Manifest
 import android.app.Activity
 import android.app.AlarmManager
 import android.app.Application
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.UiModeManager
 import android.bluetooth.BluetoothAdapter
@@ -35,11 +34,9 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
-import android.provider.ContactsContract.PhoneLookup
 import android.util.TypedValue
 import android.view.WindowManager
 import androidx.annotation.StyleRes
@@ -68,6 +65,7 @@ import nodomain.freeyourgadget.gadgetbridge.prefs.GBPrefsMigrator
 import nodomain.freeyourgadget.gadgetbridge.service.NotificationCollectorMonitorService
 import nodomain.freeyourgadget.gadgetbridge.util.AndroidUtils
 import nodomain.freeyourgadget.gadgetbridge.util.CompanionDeviceUtil
+import nodomain.freeyourgadget.gadgetbridge.util.DoNotDisturbPolicy
 import nodomain.freeyourgadget.gadgetbridge.util.GB
 import nodomain.freeyourgadget.gadgetbridge.util.GB.NOTIFICATION_CHANNEL_HIGH_PRIORITY_ID
 import nodomain.freeyourgadget.gadgetbridge.util.GB.NOTIFICATION_ID_ERROR
@@ -111,6 +109,9 @@ open class GBApplication : Application() {
 
     @Inject
     lateinit var scopedPrefs: ScopedPrefsProvider
+
+    @Inject
+    lateinit var doNotDisturbPolicy: DoNotDisturbPolicy
 
     private val themePreferenceListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         if ("pref_key_theme" == key) {
@@ -228,7 +229,6 @@ open class GBApplication : Application() {
             NotificationAppRepository.loadInBackground()
         }
 
-        notificationManager = appContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         if (isRunningOreoOrLater()) {
             bluetoothStateChangeReceiver = BluetoothStateChangeReceiver()
             val bif = IntentFilter()
@@ -413,7 +413,6 @@ open class GBApplication : Application() {
         private var context: GBApplication? = null
         private var appInstance: GBApplication? = null
         private lateinit var deviceServiceInstance: DeviceService
-        private lateinit var notificationManager: NotificationManager
         private lateinit var language: Locale
         private val idSenderLookup = LimitedQueue<Int, String>(16)
 
@@ -551,57 +550,20 @@ open class GBApplication : Application() {
             return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
         }
 
-        private fun isPrioritySender(prioritySenders: Int, number: String?): Boolean {
-            if (prioritySenders == NotificationManager.Policy.PRIORITY_SENDERS_ANY) {
-                return true
-            } else if (ContextCompat.checkSelfPermission(
-                    appContext,
-                    Manifest.permission.READ_CONTACTS,
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                LOG.warn("Contacts permission not granted, unable to check if {} is a priority sender", number)
-                return true
-            } else if (number.isNullOrEmpty()) {
-                // Unknown/hidden number cannot match a contact or a starred contact
-                return false
-            } else {
-                val uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number))
-                val projection = arrayOf(PhoneLookup._ID, PhoneLookup.STARRED)
-                val cursor = appContext.contentResolver.query(uri, projection, null, null, null)
-                var exists = false
-                var starred = 0
-                cursor?.use {
-                    if (it.moveToFirst()) {
-                        exists = true
-                        starred = it.getInt(it.getColumnIndexOrThrow(PhoneLookup.STARRED))
-                    }
-                }
-                return prioritySenders == NotificationManager.Policy.PRIORITY_SENDERS_CONTACTS && exists || prioritySenders == NotificationManager.Policy.PRIORITY_SENDERS_STARRED && starred == 1
-            }
-        }
-
+        /**
+         * @deprecated Use Hilt DI to inject [DoNotDisturbPolicy] instead.
+         */
         @JvmStatic
         fun isPriorityNumber(priorityType: Int, number: String?): Boolean {
-            val notificationPolicy = notificationManager.notificationPolicy
-            if (priorityType == NotificationManager.Policy.PRIORITY_CATEGORY_MESSAGES) {
-                if ((notificationPolicy.priorityCategories and NotificationManager.Policy.PRIORITY_CATEGORY_MESSAGES) == NotificationManager.Policy.PRIORITY_CATEGORY_MESSAGES) {
-                    return isPrioritySender(notificationPolicy.priorityMessageSenders, number)
-                }
-            } else if (priorityType == NotificationManager.Policy.PRIORITY_CATEGORY_CALLS) {
-                if ((notificationPolicy.priorityCategories and NotificationManager.Policy.PRIORITY_CATEGORY_CALLS) == NotificationManager.Policy.PRIORITY_CATEGORY_CALLS) {
-                    return isPrioritySender(notificationPolicy.priorityCallSenders, number)
-                }
-            }
-            return false
+            return app().doNotDisturbPolicy.isPriorityNumber(priorityType, number)
         }
 
+        /**
+         * @deprecated Use Hilt DI to inject [DoNotDisturbPolicy] instead.
+         */
         @JvmStatic
         fun getGrantedInterruptionFilter(): Int {
-            return if (notificationManager.isNotificationPolicyAccessGranted) {
-                notificationManager.currentInterruptionFilter
-            } else {
-                NotificationManager.INTERRUPTION_FILTER_ALL
-            }
+            return app().doNotDisturbPolicy.getGrantedInterruptionFilter()
         }
 
         /**
