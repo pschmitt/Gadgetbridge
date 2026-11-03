@@ -99,7 +99,7 @@ object TallTileRenderer : TileRenderer {
         renderStatus(view, model.status, model.trailing)
         renderChart(view.findViewById(R.id.tile_chart), model.chart?.takeIf { isBar(it) }, 0f)
         renderChart(view.findViewById(R.id.tile_large_chart), model.largeChart, LARGE_CHART_HEIGHT_DP)
-        renderAxis(view.findViewById(R.id.tile_axis), model.axis, model.largeChart != null)
+        renderAxis(view.findViewById(R.id.tile_axis), model.axis, model.largeChart != null, isPerBar(model.axis, model.largeChart))
         renderLegend(view.findViewById(R.id.tile_legend), model.legend)
     }
 
@@ -128,7 +128,7 @@ object WideTileRenderer : TileRenderer {
         val small = model.chart?.takeIf { isBar(it) && it !== right }
         renderChart(view.findViewById(R.id.tile_chart), small, 0f)
         renderChart(view.findViewById(R.id.tile_large_chart), right, LARGE_CHART_HEIGHT_DP)
-        renderAxis(view.findViewById(R.id.tile_axis), model.axis, right != null)
+        renderAxis(view.findViewById(R.id.tile_axis), model.axis, right != null, isPerBar(model.axis, right))
         val note = view.findViewById<TextView>(R.id.tile_note)
         note.text = model.notes.firstOrNull()
         note.visibility = if (model.notes.isEmpty()) View.GONE else View.VISIBLE
@@ -186,7 +186,7 @@ object LargeTileRenderer : TileRenderer {
             else -> BARS_HEIGHT_DP
         }
         renderChart(view.findViewById(R.id.tile_large_chart), large, height)
-        renderAxis(view.findViewById(R.id.tile_axis), model.axis, large != null)
+        renderAxis(view.findViewById(R.id.tile_axis), model.axis, large != null, isPerBar(model.axis, large))
         view.findViewById<View>(R.id.tile_stats).visibility = if (model.stats.isEmpty()) View.GONE else View.VISIBLE
         renderStats(view.findViewById(R.id.tile_stats_row), model.stats, mini = false)
     }
@@ -363,7 +363,7 @@ private fun renderChart(view: MiniChartView, chart: MiniChart?, heightDp: Float)
 /**
  * Spreads [labels] from end to end under a chart.
  */
-internal fun renderAxis(container: LinearLayout, labels: List<String>, hasChart: Boolean) {
+internal fun renderAxis(container: LinearLayout, labels: List<String>, hasChart: Boolean, perBar: Boolean = false) {
     if (!hasChart || labels.isEmpty()) {
         container.visibility = View.GONE
         return
@@ -380,12 +380,22 @@ internal fun renderAxis(container: LinearLayout, labels: List<String>, hasChart:
         val edge = i == 0 || i == labels.size - 1
         (label.layoutParams as LinearLayout.LayoutParams).weight = if (atEdges && edge) 0.5f else 1f
         label.gravity = when {
-            labels.size == 1 -> Gravity.CENTER_HORIZONTAL
+            labels.size == 1 || perBar -> Gravity.CENTER_HORIZONTAL
             i == 0 -> Gravity.START
             i == labels.size - 1 -> Gravity.END
             else -> Gravity.CENTER_HORIZONTAL
         }
     }
+}
+
+private fun isPerBar(labels: List<String>, chart: MiniChart?): Boolean {
+    val bars = when (chart) {
+        is MiniChart.Bars -> chart.values.size
+        is MiniChart.StackedBars -> chart.bottom.size
+        is MiniChart.RangeBars -> chart.series.maxOfOrNull { it.low.size } ?: 0
+        else -> return false
+    }
+    return labels.size == bars
 }
 
 /**
