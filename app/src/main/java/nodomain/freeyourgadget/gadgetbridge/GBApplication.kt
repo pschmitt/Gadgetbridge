@@ -208,7 +208,7 @@ open class GBApplication : Application() {
         if (!environmentSetup) {
             // setup db after the environment is set up, but don't do it in test mode
             // in test mode, it's done individually, see TestBase
-            databaseManager.setupDatabase(this)
+            databaseManager.setupDatabase()
         }
 
         migratePrefsIfNeeded()

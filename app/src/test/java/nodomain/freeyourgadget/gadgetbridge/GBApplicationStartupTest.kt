@@ -13,6 +13,8 @@ import nodomain.freeyourgadget.gadgetbridge.model.weather.Weather
 import nodomain.freeyourgadget.gadgetbridge.test.TestBase
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -91,6 +93,17 @@ class GBApplicationStartupTest : TestBase() {
         app.databaseManager.acquireReadOnly().use { assertSame(daoSession, it.daoSession) }
         GBApplication.acquireDbReadOnly().use { assertSame(daoSession, it.daoSession) }
         GBDatabaseManager.acquireReadOnly().use { assertSame(daoSession, it.daoSession) }
+    }
+
+    @Test
+    fun databaseManagerReopensTheDatabaseWithItsOwnContext() {
+        // Closes the database and sets it up again, without being given a context
+        app.databaseManager.deleteActivityDatabase()
+
+        app.databaseManager.acquireReadOnly().use {
+            assertNotNull(it.daoSession)
+            assertNotSame(daoSession, it.daoSession)
+        }
     }
 
     @Test

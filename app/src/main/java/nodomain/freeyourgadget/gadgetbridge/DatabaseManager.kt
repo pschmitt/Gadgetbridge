@@ -1,6 +1,7 @@
 package nodomain.freeyourgadget.gadgetbridge
 
 import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper
 import org.slf4j.LoggerFactory
@@ -19,9 +20,11 @@ import kotlin.concurrent.withLock
  * Owns the Gadgetbridge database and the lock that guards every access to it.
  */
 @Singleton
-class DatabaseManager @Inject constructor() {
+class DatabaseManager @Inject constructor(
+    @ApplicationContext private val context: Context,
+) {
     private val dbLock = ReentrantReadWriteLock(true)
-    private val gbDatabase = GBDatabase()
+    private val gbDatabase = GBDatabase(context)
 
     fun closeDatabase() {
         LOG.trace("Trying to close database")
@@ -30,10 +33,10 @@ class DatabaseManager @Inject constructor() {
         }
     }
 
-    fun setupDatabase(context: Context) {
+    fun setupDatabase() {
         LOG.trace("Setting up database")
         dbLock.writeLock().withLock {
-            gbDatabase.setupDatabase(context)
+            gbDatabase.setupDatabase()
         }
     }
 
@@ -81,16 +84,16 @@ class DatabaseManager @Inject constructor() {
      *
      * @return true on successful deletion
      */
-    fun deleteActivityDatabase(context: Context): Boolean {
+    fun deleteActivityDatabase(): Boolean {
         LOG.trace("Deleting activity database")
         dbLock.writeLock().withLock {
             try {
                 gbDatabase.closeDatabase()
-                var result = deleteOldActivityDatabase(context)
+                var result = deleteOldActivityDatabase()
                 result = result and context.deleteDatabase(GBDatabase.DATABASE_NAME)
                 return result
             } finally {
-                gbDatabase.setupDatabase(context)
+                gbDatabase.setupDatabase()
             }
         }
     }
@@ -116,7 +119,7 @@ class DatabaseManager @Inject constructor() {
      *
      * @return true on successful deletion
      */
-    fun deleteOldActivityDatabase(context: Context): Boolean {
+    fun deleteOldActivityDatabase(): Boolean {
         LOG.trace("Deleting old activity database")
         val dbHelper = DBHelper(context)
         var result = true

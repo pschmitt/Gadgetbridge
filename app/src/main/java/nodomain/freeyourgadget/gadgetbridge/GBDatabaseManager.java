@@ -28,8 +28,11 @@ public class GBDatabaseManager {
         manager().closeDatabase();
     }
 
+    /**
+     * @param context ignored, the database always uses the application context
+     */
     public static void setupDatabase(final Context context) {
-        manager().setupDatabase(context);
+        manager().setupDatabase();
     }
 
     /**
@@ -47,10 +50,11 @@ public class GBDatabaseManager {
     }
 
     /**
-     * @see DatabaseManager#deleteActivityDatabase(Context)
+     * @param context ignored, the database always uses the application context
+     * @see DatabaseManager#deleteActivityDatabase()
      */
     public static boolean deleteActivityDatabase(final Context context) {
-        return manager().deleteActivityDatabase(context);
+        return manager().deleteActivityDatabase();
     }
 
     public static void exportDB(final File destFile) throws IOException {
@@ -62,10 +66,11 @@ public class GBDatabaseManager {
     }
 
     /**
-     * @see DatabaseManager#deleteOldActivityDatabase(Context)
+     * @param context ignored, the database always uses the application context
+     * @see DatabaseManager#deleteOldActivityDatabase()
      */
     public static boolean deleteOldActivityDatabase(final Context context) {
-        return manager().deleteOldActivityDatabase(context);
+        return manager().deleteOldActivityDatabase();
     }
 
     public static void importDB(final File fromFile) throws IllegalStateException, IOException {
