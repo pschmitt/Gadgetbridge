@@ -2367,6 +2367,8 @@
     <string name="devicetype_garmin_fenix_9_pro_solar" translatable="false">Garmin Fenix 9 Pro Solar</string>
     <string name="devicetype_garmin_quatix_6" translatable="false">Garmin Quatix 6</string>
     <string name="devicetype_garmin_quatix_6x" translatable="false">Garmin Quatix 6X</string>
+    <string name="devicetype_garmin_quatix_7" translatable="false">Garmin Quatix 7</string>
+    <string name="devicetype_garmin_quatix_7x" translatable="false">Garmin Quatix 7X</string>
     <string name="devicetype_garmin_quatix_8" translatable="false">Garmin Quatix 8</string>
     <string name="devicetype_garmin_tactix_7" translatable="false">Garmin Tactix 7</string>
     <string name="devicetype_garmin_tactix_8" translatable="false">Garmin Tactix 8</string>

@@ -234,6 +234,8 @@ import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.lily.GarminLi
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.lily.GarminLilyCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.quatix.GarminQuatix6Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.quatix.GarminQuatix6XCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.quatix.GarminQuatix7Coordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.quatix.GarminQuatix7XCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.quatix.GarminQuatix8Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.swim.GarminSwim2Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.tactix.GarminTactix7Coordinator;
@@ -994,6 +996,8 @@ public enum DeviceType {
     GARMIN_FORERUNNER_970(GarminForerunner970Coordinator::new),
     GARMIN_QUATIX_6(GarminQuatix6Coordinator::new),
     GARMIN_QUATIX_6X(GarminQuatix6XCoordinator::new),
+    GARMIN_QUATIX_7(GarminQuatix7Coordinator::new),
+    GARMIN_QUATIX_7X(GarminQuatix7XCoordinator::new),
     GARMIN_QUATIX_8(GarminQuatix8Coordinator::new),
     GARMIN_TACTIX_7(GarminTactix7Coordinator::new),
     GARMIN_TACTIX_8(GarminTactix8Coordinator::new),
