@@ -160,9 +160,7 @@
     <string name="discovery_stop_scanning">Stopp skanning</string>
     <string name="discovery_start_scanning">Start oppdagelse</string>
     <string name="action_discover">Koble til ny enhet</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="title_activity_android_pairing">Par enhet</string>
-    <string name="android_pairing_hint">Bruk Android Bluetooth-paringsdialogen til å pare enheten.</string>
     <string name="title_activity_mi_band_pairing">Par din Mi Band</string>
     <string name="pairing">Paring med %s…</string>
     <string name="pairing_creating_bond_with">Oppretter binding med %1$s (%2$s)</string>
@@ -219,7 +217,6 @@
     <string name="stats_y_axis_label">Skritt per minutt</string>
     <string name="control_center_find_lost_device">Finn tapt enhet</string>
     <string name="control_center_cancel_to_stop_vibration">Avbryt for å stoppe vibrasjon.</string>
-    <string name="title_activity_charts">Aktivitet og søvn</string>
     <string name="title_activity_set_alarm">Konfigurer alarmer</string>
     <string name="controlcenter_start_configure_alarms">Konfigurer alarmer</string>
     <string name="title_activity_alarm_details">Alarmdetaljer</string>
@@ -540,17 +537,8 @@
     <string name="language_and_region_prefs">Språk- og regioninnstillinger</string>
     <string name="debugactivity_really_factoryreset_title">Virkelig fabrikktilbakestille?</string>
     <string name="debugactivity_really_factoryreset">Å gjøre en fabrikktilbakestilling vil slette alle data fra den tilkoblede enheten (hvis støttet). Xiaomi/Huami-enheter endrer også Bluetooth MAC-adresse, så de vises som nye enheter for Gadgetbridge.</string>
-    <string name="title_activity_notification_filter">Varselfilter</string>
-    <string name="edittext_notification_filter_words_hint">Skriv inn ønskede ord, ny linje for hver</string>
-    <string name="toast_notification_filter_saved_successfully">Varselfilter lagret</string>
     <string name="filter_mode_none">Ikke filtrer</string>
-    <string name="filter_mode_whitelist">Vis når ord er inkludert</string>
-    <string name="filter_mode_blacklist">Blokker når ord er inkludert</string>
-    <string name="filter_submode_at_least_one">Minst ett av ordene</string>
-    <string name="filter_submode_all">Alle ordene</string>
-    <string name="toast_notification_filter_words_empty_hint">Vennligst skriv inn minst ett ord</string>
     <string name="filter_mode">Filtermodus</string>
-    <string name="mode_configuration">Moduskonfigurasjon</string>
     <string name="save_configuration">Lagre konfigurasjon</string>
     <string name="appwidget_not_connected">Ikke koblet til, alarm ikke satt.</string>
     <string name="activity_type_exercise">Øvelse</string>
@@ -624,8 +612,6 @@
     <string name="pref_header_charts">Diagraminnstillinger</string>
     <string name="pref_title_charts_average">Vis gjennomsnitt i diagrammene</string>
     <string name="pref_title_charts_range">Diagramområde</string>
-    <string name="pref_charts_range_on">Diagramområdet er satt til en måned</string>
-    <string name="pref_charts_range_off">Diagramområdet er satt til en uke</string>
     <string name="weekstepschart_steps_a_month">Trinn per måned</string>
     <string name="weeksleepchart_sleep_a_month">Søvn per måned</string>
     <string name="menuitem_nfc">NFC</string>
@@ -639,7 +625,6 @@
     <string name="activity_DB_delete_legacy_button">Slett gammel DB</string>
     <string name="activity_DB_empty_button">Tøm database</string>
     <string name="activity_db_management_empty_DB">Tøm database</string>
-    <string name="activity_db_management_exportimport_label">Eksporter og importer</string>
     <string name="activity_db_management_empty_db_warning">Advarsel! Ved å trykke denne knappen vil du slette databasen din og starte på nytt.</string>
     <string name="appwidget_sleep_alarm_widget_label">Søvn alarm</string>
     <string name="widget_listing_label">Status og alarmer</string>
@@ -689,7 +674,6 @@
     <string name="prefs_button_variable_actions">Detaljerte knappetrykkinnstillinger</string>
     <string name="prefs_button_long_press_action_selection_title">Lang trykk knapp handling</string>
     <string name="alarm_snooze">Sneoz</string>
-    <string name="error_no_location_access">Stedsadgang må gis og aktiveres for at skanning skal fungere riktig</string>
     <string name="pref_title_allow_high_mtu">Tillat høy MTU</string>
     <string name="pref_summary_allow_high_mtu">Øker overføringshastighet, men fungerer kanskje ikke på noen Android-enheter.</string>
     <string name="pref_summary_sync_calendar">Aktiverer kalendervarsler, selv når frakoblet</string>
@@ -820,7 +804,6 @@
     <string name="prefs_events_forwarding_title">Enhetsaksjoner</string>
     <string name="km">km</string>
     <string name="seconds_m">sek/m</string>
-    <string name="permission_granting_mandatory">Alle disse tillatelsene er påkrevd og ustabilitet kan oppstå hvis de ikke gis</string>
     <string name="about_additional_contributions">Mange takk til alle uoppførte bidragsytere for kodebidrag, oversettelser, støtte, ideer, motivasjon, feilrapporter, penger… ✊</string>
     <string name="about_core_team_title">Kjerne-team (i rekkefølge etter første kodebidrag)</string>
     <string name="activity_summary_detail">Sportaktivitet detalj</string>
@@ -967,7 +950,6 @@
     <string name="discovery_entered_invalid_authkey">Den hemmelige auth-nøkkelen du angav er ugyldig! Langtrykk på enheten for å redigere.</string>
     <string name="dbmanagementactivity_export_confirmation">Virkelig eksportere data? Tidligere eksporterte aktivitetsdata (hvis noen) og preferanser vil bli overskrevet.</string>
     <string name="dbmanagementactivity_export_data_title">Eksporter data\?</string>
-    <string name="activity_DB_ShowContentButton">Vis innhold i eksporter-/importmappen</string>
     <string name="activity_data_management_directory_content_title">Innhold i eksporter-/importmappe</string>
     <string name="prefs_autoremove_message">Fjern SMS-varsler automatisk</string>
     <string name="prefs_fake_ring_duration">Falsk kontinuerlig ringing</string>
@@ -1097,16 +1079,11 @@
     <string name="blood_pressure">Blodtrykk</string>
     <string name="pref_title_ping_tone">Ping-tone</string>
     <string name="nothing_prefs_audiomode_title">Lydmodus</string>
-    <string name="check_all_applications">Merk alle applikasjoner</string>
-    <string name="pref_title_notification_use_as">Bruk applisten til å…</string>
-    <string name="pref_title_notification_use_as_deny">Nek varsler fra valgte apper</string>
     <string name="pref_message_privacy_mode_off">Vis alt innhold</string>
     <string name="pref_message_privacy_mode_complete">Skjul alt innhold</string>
     <string name="pref_applications_settings">Applikasjoner liste</string>
     <string name="pref_header_notification_application_settings">Per applikasjonsinnstillinger</string>
-    <string name="pref_title_notification_use_as_allow">Tillat varsler fra valgte apper</string>
     <string name="title_activity_notification_management">Varslingsinnstillinger</string>
-    <string name="uncheck_all_applications">Fjern merking av alle applikasjoner</string>
     <string name="watchface_setting_title_power_saving">Strømsparing</string>
     <string name="pref_header_equalizer">Lydliker</string>
     <string name="device_card_activity_card_title">Aktivitetsinfo på enhetskort</string>
@@ -1122,8 +1099,6 @@
     <string name="prefs_activity_in_device_card_sleep_title_summary">Vis søvnlengde</string>
     <string name="prefs_activity_in_device_card_distance_title_summary">Distanse beregnes fra skritt og skrittlengde (justerbar i Innstillinger - Om deg)</string>
     <string name="prefs_activity_in_device_card_steps_title_summary">Vis totale skritt</string>
-    <string name="toast_app_must_not_be_selected">Appen må ikke velges for å konfigureres</string>
-    <string name="toast_app_must_be_selected">Appen må velges for å konfigureres</string>
     <string name="watchface_widget_type_chance_rain">Sjanse for regn</string>
     <string name="prefs_sleep_time_label">Definer søvntimer</string>
     <string name="prefs_sleep_time">Søvntider</string>
@@ -1831,7 +1806,6 @@
     <string name="function_enabled">Aktivert</string>
     <string name="world_clock_code">Kode</string>
     <string name="title_activity_contact_details">Kontaktdetaljer</string>
-    <string name="alarm_smart_wakeup_interval">Smart vekkingsintervall:</string>
     <string name="alarm_smart_wakeup_interval_default">5 minutter</string>
     <string name="user_feedback_set_settings_ok">Innstillinger sendt til enhet.</string>
     <string name="prefs_heartrate_alert_experimental_description">Vibrer båndet når hjertefrekvensen er over en terskel, uten noen åpenbar fysisk aktivitet de siste 10 minuttene. Denne funksjonen er eksperimentell og ble ikke omfattende testet.</string>
@@ -1929,7 +1903,6 @@
     <string name="date_placeholders__date__time">%1$s, %2$s</string>
     <string name="date_placeholders__start_time__end_time">%1$s – %2$s</string>
     <string name="transition">Overgang</string>
-    <string name="charts_two_items_only">Du kan bare sammenligne to elementer om gangen.</string>
     <string name="charts_at_least_one_item">Det må være minst ett element valgt.</string>
     <string name="fwinstaller_file_not_compatible_to_device">Den valgte filen er ikke kompatibel med enheten</string>
     <string name="fwinstaller_no_compatible_device_found">Ingen kompatibel enhet funnet for å installere %1s</string>
@@ -1999,7 +1972,6 @@
     <string name="activity_prefs_height_inches">Høyde i tommer</string>
     <string name="activity_prefs_target_weight_kg">Målvekt i kg</string>
     <string name="pref_chart_sleep_lines_limit">Hvor mange søvnøktlinjer å vise før rulling</string>
-    <string name="weekstepschart_steps_a_week_or_month">Trinn per uke/måned</string>
     <string name="weeksleepchart_sleep_a_week_or_month">Søvn per uke/måned</string>
     <string name="authentication_failed_check_key">Autentisering mislyktes, vennligst sjekk autentiseringsnøkkel</string>
     <string name="authentication_failed_negotiation">Forhandling av autentiseringsnøkkel mislyktes</string>
@@ -2512,8 +2484,6 @@
     <string name="aqi_level_dangerous">farlig</string>
     <string name="pref_title_upper_button_long_press_action">Øvre knapp lang trykk handling</string>
     <string name="pref_title_lower_button_short_press_action">Nedre knapp kort trykk handling</string>
-    <string name="error_no_bluetooth_scan">Bluetooth-skanningstilgang må gis og aktiveres for at skanning skal fungere riktig</string>
-    <string name="error_no_bluetooth_connect">Bluetooth-tilkoblingsadgang må gis og aktiveres for at skanning skal fungere riktig</string>
     <string name="text_receiver_activity_title">Send tekst til enhet</string>
     <string name="permission_request">%1$s lar deg sende meldinger og annen data fra Android til enheten din. For å gjøre dette krever den tillatelse til å få tilgang til dataene, og uten det kan den ikke fungere riktig.\n\nDu vil nå bli presentert for noen Android-dialoger som ber om disse tillatelsene.\n\nVennligst trykk \"%2$s\" for å fortsette.</string>
     <string name="permission_notification_listener">%1$s trenger tilgang til varsler for å vise dem på klokken din når telefonens skjerm er av.\n\nVennligst trykk \"%2$s\" deretter \"%1$s\" og aktiver \"Tillat varselstilgang\", deretter trykk \"Tilbake\" for å returnere til %1$s.</string>
@@ -2884,9 +2854,6 @@
     <string name="moondrop_touch_trigger_long_press_3s">Langt trykk (3s)</string>
     <string name="soundcore_voice_prompts">Stemmevarsler</string>
     <string name="soundcore_button_brightness">Knapplysstyrke</string>
-    <string name="soundcore_button_brightness_low">Lav</string>
-    <string name="soundcore_button_brightness_medium">Middels</string>
-    <string name="soundcore_button_brightness_high">Høy</string>
     <string name="soundcore_ldac_mode_title">LDAC-modus</string>
     <string name="soundcore_ldac_mode_summary">Aktivering av LDAC vil redusere batteritiden og kan føre til ustabil tilkobling</string>
     <string name="soundcore_auto_power_off_title">Auto avstengning</string>
@@ -2910,15 +2877,6 @@
     <string name="soundcore_equalizer_direction_hanging">Hengende</string>
     <string name="soundcore_equalizer_reset_title">Tilbakestill til standard</string>
     <string name="soundcore_equalizer_reset_summary">Sett alle ekvivalentbånd tilbake til standardinnstillinger</string>
-    <string name="soundcore_equalizer_band1">Bånd 1</string>
-    <string name="soundcore_equalizer_band2">Bånd 2</string>
-    <string name="soundcore_equalizer_band3">Bånd 3</string>
-    <string name="soundcore_equalizer_band4">Bånd 4</string>
-    <string name="soundcore_equalizer_band5">Bånd 5</string>
-    <string name="soundcore_equalizer_band6">Bånd 6</string>
-    <string name="soundcore_equalizer_band7">Bånd 7</string>
-    <string name="soundcore_equalizer_band8">Bånd 8</string>
-    <string name="soundcore_equalizer_band9">Bånd 9</string>
     <string name="soundcore_equalizer_frequency">Frekvens</string>
     <string name="soundcore_equalizer_value">Verdi</string>
     <string name="miscale_weight_unit_title">Vekt-enhet</string>
@@ -3313,8 +3271,6 @@
     <string name="dashboard_settings">Dashboard-innstillinger</string>
     <string name="bottom_nav_dashboard">Dashboard</string>
     <string name="bottom_nav_devices">Enheter</string>
-    <string name="pref_dashboard_first_title">Vis dashboard først</string>
-    <string name="pref_dashboard_first_summary">Vis dashboardet når Gadgetbridge starter, i stedet for enhetsskjermen</string>
     <string name="pref_dashboard_cards_title">Vis widgets på kort</string>
     <string name="pref_dashboard_cards_summary">Tegn kort rundt widgets på dashboardet</string>
     <string name="pref_dashboard_widget_settings">Widget-innstillinger</string>
@@ -4175,11 +4131,7 @@
     <string name="pref_export_directory">Eksporter katalog</string>
     <string name="soundcore_equalizer_preset_podcast">Podcast</string>
     <string name="soundcore_equalizer_preset_dance">Dance</string>
-    <string name="soundcore_equalizer_band7_freq">6.4 kHz</string>
-    <string name="soundcore_equalizer_band1_freq">100 Hz</string>
     <string name="soundcore_3d_surround_title">3D Surround Sound</string>
-    <string name="soundcore_equalizer_band6_freq">3.2 kHz</string>
-    <string name="soundcore_equalizer_band8_freq">12.8 kHz</string>
     <string name="qhybrid_button_function_stopwatch">Stoppeklokke</string>
     <string name="service_setup_login_type_local">Lokal</string>
     <string name="service_setup_mfa_code">MFA-kode</string>

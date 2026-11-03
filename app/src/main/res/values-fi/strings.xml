@@ -165,16 +165,13 @@
     <string name="pref_title_audio_player">Ensisijainen äänisoitin</string>
     <string name="pref_summary_datetime_syctimeonconnect">Synkronoi aika Gadgetbridge-laitteisiin, kun muodostat yhteyden, kun aika tai aikavyöhyke muuttuu Android-laitteessa, ja ajoittain</string>
     <string name="pref_title_notifications_call">Puhelut</string>
-    <string name="uncheck_all_applications">Poista valinta kaikista sovelluksista</string>
     <string name="pref_header_notifications">Yleiset</string>
     <string name="pref_title_general_autoreconnect">Yhdistä uudelleen automaattisesti</string>
     <string name="pref_summary_minimize_priority_on">Tilapalkin kuvake ja lukitusnäytön ilmoitus ovat piilotettu</string>
     <string name="pref_title_notifications_repetitions">Toistot</string>
     <string name="pref_title_notifications_generic">Yleinen ilmoitustuki</string>
-    <string name="pref_title_notification_use_as">Käytä sovellusluetteloa…</string>
     <string name="pref_title_whenscreenon">…myös näytön ollessa päällä</string>
     <string name="pref_header_notification_application_settings">Sovelluskohtaiset</string>
-    <string name="pref_title_notification_use_as_deny">Estä ilmoitukset valituista sovelluksista</string>
     <string name="pref_title_ping_tone">Ping-äänimerkki</string>
     <string name="pref_title_notifications_sms">Tekstiviesti</string>
     <string name="pref_title_notifications_timeout">Vähimmäisaika ilmoitusten välillä</string>
@@ -200,9 +197,7 @@
     <string name="pref_summary_rtl">Ota tämä käyttöön, jos laitteesi ei voi näyttää oikealta vasemmalle kieliä</string>
     <string name="pref_rtl_max_line_length">Oikealta vasemmalle enimmäisrivin pituus</string>
     <string name="pref_title_rtl">Oikealta vasemmalle</string>
-    <string name="check_all_applications">Valitse kaikki sovellukset</string>
     <string name="pref_summary_notification_filter">Älä lähetä ilmoituksia laitteille, kun Älä häiritse -tila on päällä</string>
-    <string name="pref_title_notification_use_as_allow">Salli ilmoitukset valituista sovelluksista</string>
     <string name="pref_title_transliteration">Translitterointi</string>
     <string name="pref_summary_transliteration">Ota tämä käyttöön, jos laitteesi ei tue kielesi fonttia</string>
     <string name="fossil_hr_edit_action_delete">poista</string>
@@ -464,7 +459,6 @@
     <string name="gadgetbridge_running_generic">Gadgetbridge on käynnissä</string>
     <string name="supercars_lights_label">Valot</string>
     <string name="title_activity_controlcenter_banglejs_main">Bangle.js Gadgetbridge</string>
-    <string name="title_activity_charts">Aktiivisuus ja uni</string>
     <string name="info_no_devices_connected">Ei laitteita yhteydessä</string>
     <string name="zetime_title_settings">ZeTimen asetukset</string>
     <string name="world_clock_delete_confirm_title">Poista \'%1$s\'</string>

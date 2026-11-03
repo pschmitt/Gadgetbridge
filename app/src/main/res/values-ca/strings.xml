@@ -193,9 +193,7 @@
     <string name="discovery_stop_scanning">Atura l\'escaneig</string>
     <string name="discovery_start_scanning">Inicia la detecció</string>
     <string name="action_discover">Connecta un aparell nou</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="title_activity_android_pairing">Aparella l\'aparell</string>
-    <string name="android_pairing_hint">Utilitzeu el diàleg d\'aparellament Bluetooth de l\'Android per aparellar l\'aparell.</string>
     <string name="title_activity_mi_band_pairing">Aparelleu la vostra Mi Band</string>
     <string name="pairing">S\'està aparellant amb %s…</string>
     <string name="pairing_creating_bond_with">S\'està creant un vincle amb %1$s (%2$s)</string>
@@ -249,7 +247,6 @@
     <string name="stats_y_axis_label">Passes per minut</string>
     <string name="control_center_find_lost_device">Troba l\'aparell perdut</string>
     <string name="control_center_cancel_to_stop_vibration">Cancel·leu per aturar la vibració.</string>
-    <string name="title_activity_charts">Activitat i son</string>
     <string name="title_activity_set_alarm">Configura les alarmes</string>
     <string name="controlcenter_start_configure_alarms">Configura les alarmes</string>
     <string name="title_activity_alarm_details">Detalls d\'alarma</string>
@@ -586,17 +583,8 @@
     <string name="overstep">Passes de més: %1$s</string>
     <string name="no_data">No hi ha dades</string>
     <string name="live_activity_max_heart_rate">Ritme cardíac actual / màxim: %1$d / %2$d</string>
-    <string name="title_activity_notification_filter">Filtre de notificacions</string>
-    <string name="edittext_notification_filter_words_hint">Introduïu les paraules desitjades, cadascuna en una línia nova</string>
-    <string name="toast_notification_filter_saved_successfully">S\'ha desat el filtre de notificacions</string>
     <string name="filter_mode_none">No filtris</string>
-    <string name="filter_mode_whitelist">Mostra quan es contenen les paraules</string>
-    <string name="filter_mode_blacklist">Bloca quan es contenen les paraules</string>
-    <string name="filter_submode_at_least_one">Almenys una de les paraules</string>
-    <string name="filter_submode_all">Totes les paraules</string>
-    <string name="toast_notification_filter_words_empty_hint">Si us plau, introduïu com a mínim una paraula</string>
     <string name="filter_mode">Mode de filtratge</string>
-    <string name="mode_configuration">Configuració del mode</string>
     <string name="save_configuration">Desa la configuració</string>
     <string name="appwidget_not_connected">No està connectat, no s\'ha establert l\'alarma.</string>
     <string name="activity_type_exercise">Exercici</string>
@@ -723,10 +711,7 @@
 \n
 \nPROCEDIU SOTA LA VOSTRA PRÒPIA RESPONSABILITAT!</string>
     <string name="prefs_hr_alarm_activity">Alarma de freqüència cardíaca durant activitat esportiva</string>
-    <string name="pref_charts_range_on">El rang dels gràfics està configurat a un mes</string>
-    <string name="pref_charts_range_off">El rang dels gràfics està configurat a una setmana</string>
     <string name="activity_db_management_empty_DB">Buida la base de dades</string>
-    <string name="activity_db_management_exportimport_label">Exportar i importar</string>
     <string name="activity_db_management_empty_db_warning">Atenció! En prémer aquest botó esborrareu tota la base de dades i començareu de zero.</string>
     <string name="widget_set_alarm_after">Fixa una alarma al cap de:</string>
     <string name="activity_error_no_app_for_gpx">Per a veure la traça d\'activitat, instal·leu una app que pugui manejar fitxers GPX.</string>
@@ -750,7 +735,6 @@
     <string name="prefs_button_variable_actions">Configuració detallada de premuda de botó</string>
     <string name="prefs_button_long_press_action_selection_title">Acció de premuda llarga de botó</string>
     <string name="alarm_snooze">Posposa</string>
-    <string name="error_no_location_access">S\'ha de permetre i activar l\'accés a la localitztació per al correcte funcionament de l\'escaneig</string>
     <string name="pref_title_allow_high_mtu">Permet una alta MTU</string>
     <string name="pref_summary_sync_calendar">Activa les alertes de calendari, fins i tot quan estigui desconnectat</string>
     <string name="pref_title_sync_caldendar">Sincronitza els esdeveniments del calendari</string>
@@ -827,7 +811,6 @@
     <string name="error_background_service_reason">L\'inici del servei en segon pla ha fallat per una excepció - fes clic aquí per a més informació.\n\nError:</string>
     <string name="error_background_service_reason_truncated">L\'inici del servei en segon pla ha fallat perquè…</string>
     <string name="error_background_service">Ha fallat l\'inici del servei en segon pla</string>
-    <string name="permission_granting_mandatory">Tots aquests permisos són requerits i pot haver-hi inestabilitat si no s\'atorguen</string>
     <string name="about_additional_contributions">Moltes gràcies a tots els col·laboradors no mencionats per contribuir-hi codi, traduccions, suport, idees, motivació, informes d\'error, diners… ✊</string>
     <string name="about_additional_device_support">Support d\'aparell addicional</string>
     <string name="about_contributors">Col·laboradors</string>
@@ -1027,7 +1010,6 @@
     <string name="menuitem_goal">Objectiu d\'activitat</string>
     <string name="activity_type_strength_training">Entrenament de força</string>
     <string name="dbmanagementactivity_export_finished">Supressió finalitzada</string>
-    <string name="activity_DB_ShowContentButton">Mostra el contingut del directori d\'exportació/importació</string>
     <string name="activity_data_management_directory_content_title">Exporta/Importa el contingut del directori</string>
     <string name="dbmanagementactivity_export_data_title">Voleu exportar les dades\?</string>
     <string name="dbmanagementactivity_error_cleaning_export_directory">Hi ha hagut un error en esborrar fitxers del directori d\'exportació %1$s</string>
@@ -1171,9 +1153,6 @@
     <string name="prefs_fm_presets_presets">Preconfiguracions</string>
     <string name="device_card_activity_card_title">Informació d\'activitat a la targeta de l\'aparell</string>
     <string name="pref_header_notification_application_settings">Configuració per aplicació</string>
-    <string name="pref_title_notification_use_as">Useu la llista d\'aplicacions per a …</string>
-    <string name="pref_title_notification_use_as_deny">Rebutgeu les notificacions de les aplicacions triades</string>
-    <string name="pref_title_notification_use_as_allow">Permeteu les notificacions de les aplicacions triades</string>
     <string name="notification_channel_transfer_name">Transferència de dades</string>
     <string name="notification_channel_low_battery_name">Bateria baixa</string>
     <string name="reminder_every_day">Cada dia</string>
@@ -1191,11 +1170,7 @@
     <string name="menuitem_pomodoro">Seguiment Pomodoro</string>
     <string name="dbmanagementactivity_export_confirmation">Voleu exportar dades\? Les dades d’activitat exportades anteriorment (si n’hi ha) i les preferències se sobreescriuran.</string>
     <string name="prefs_fm_preset_instructions">Premeu una estona el botó per desar la preconfiguració</string>
-    <string name="check_all_applications">Activar totes les aplicacions</string>
-    <string name="uncheck_all_applications">Desactivar totes les aplicacions</string>
     <string name="averageStrokeDistance">Llargada mitjana d\'una braçada</string>
-    <string name="toast_app_must_not_be_selected">L\'aplicació no ha d\'estar seleccionar per a ser configurada</string>
-    <string name="toast_app_must_be_selected">L\'aplicació ha d\'estar seleccionar per a ser configurada</string>
     <string name="qhybrid_calibration_10_steps">10 passes</string>
     <string name="qhybrid_calibration_100_steps">100 passes</string>
     <string name="qhybrid_pref_summary_actions">Accions per a l\'aplicació Commute</string>

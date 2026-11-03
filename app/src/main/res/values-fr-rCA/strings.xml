@@ -105,7 +105,6 @@
     <string name="notif_battery_low_extended">%1$s pile faible : %2$s</string>
     <string name="notif_battery_low">%1$s pile faible</string>
     <string name="notif_battery_low_percent">%1$s pile restante : %2$s%%</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="appversion_by_creator">%1$s par %2$s</string>
     <string name="pref_header_auto_fetch">Récupération automatique</string>
     <string name="pref_title_relax_firmware_checks">Activez cette option si vous souhaitez flasher un microprogramme qui n\'est pas destiné à votre appareil (à vos propres risques)</string>
@@ -131,7 +130,6 @@
     <string name="pref_summary_sync_calendar">Permet les alertes de calendrier, même en cas de déconnexion</string>
     <string name="pref_summary_allow_high_mtu">Augmente la vitesse de transfert, mais peut ne pas fonctionner avec quelques appareils Android.</string>
     <string name="pref_title_allow_high_mtu">Autoriser une grande MTU</string>
-    <string name="error_no_location_access">L\'accès à la localisation doit être autorisé et activé pour permettre à la détection de fonctionner correctement</string>
     <string name="alarm_snooze">Reporter</string>
     <string name="prefs_button_long_press_action_selection_title">Action d\'appui long de bouton</string>
     <string name="prefs_button_variable_actions">Paramètres détaillés des appuis de bouton</string>
@@ -171,7 +169,6 @@
     <string name="widget_set_alarm_after">Définir l\'alarme après :</string>
     <string name="widget_listing_label">État et alarmes</string>
     <string name="appwidget_sleep_alarm_widget_label">Réveil</string>
-    <string name="activity_db_management_exportimport_label">Exporter et Importer</string>
     <string name="activity_db_management_empty_DB">Vider la base de données</string>
     <string name="activity_DB_empty_button">Vider la base de données</string>
     <string name="activity_DB_delete_legacy_button">Supprimer l\'ancienne base de données</string>
@@ -186,8 +183,6 @@
     <string name="menuitem_nfc">NFC</string>
     <string name="weeksleepchart_sleep_a_month">Sommeil par mois</string>
     <string name="weekstepschart_steps_a_month">Pas par mois</string>
-    <string name="pref_charts_range_off">Gamme des graphiques positionnée sur une semaine</string>
-    <string name="pref_charts_range_on">Gamme des graphiques positionnée sur un mois</string>
     <string name="pref_title_charts_range">Gamme des graphiques</string>
     <string name="pref_title_charts_average">Afficher les moyennes dans les graphiques</string>
     <string name="pref_header_charts">Paramètres graphiques</string>
@@ -489,17 +484,8 @@
     <string name="activity_type_exercise">Activité physique</string>
     <string name="appwidget_not_connected">Non connecté, l\'alarme n\'est pas définie.</string>
     <string name="save_configuration">Sauvegarder la configuration</string>
-    <string name="mode_configuration">Mode Configuration</string>
     <string name="filter_mode">Mode Filtre</string>
-    <string name="toast_notification_filter_words_empty_hint">Veuillez entrer au moins un mot</string>
-    <string name="filter_submode_all">Tous les mots</string>
-    <string name="filter_submode_at_least_one">Au moins un des mots</string>
-    <string name="filter_mode_blacklist">Bloquer lorsque contient les mots</string>
-    <string name="filter_mode_whitelist">Montrer lorsque contient les mots</string>
     <string name="filter_mode_none">Ne pas filtrer</string>
-    <string name="toast_notification_filter_saved_successfully">Filtre des notifications sauvegardé</string>
-    <string name="edittext_notification_filter_words_hint">Saisissez les mots désirés, chacun sur une ligne</string>
-    <string name="title_activity_notification_filter">Filtre de notifications</string>
     <string name="appwidget_setting_alarm">Une alarme a été enregistré pour %1$02d:%2$02d</string>
     <string name="debugactivity_really_factoryreset">Une réinitialisation effacera toutes les données de l\'appareil connecté (si supporté). Les appareils Xiaomi/Huami modifient également l\'adresse MAC Bluetooth, de sorte qu\'ils apparaissent comme de nouveaux appareils dans Gadgetbridge.</string>
     <string name="no_data">Pas de données</string>
@@ -556,7 +542,6 @@
     <string name="title_activity_alarm_details">Détails des alarmes</string>
     <string name="controlcenter_start_configure_alarms">Configurer les alarmes</string>
     <string name="title_activity_set_alarm">Configurer les alarmes</string>
-    <string name="title_activity_charts">Activité et Sommeil</string>
     <string name="control_center_cancel_to_stop_vibration">Annuler pour arrêter les vibrations.</string>
     <string name="control_center_find_lost_device">Trouver l\'appareil perdu</string>
     <string name="stats_y_axis_label">Pas par minute</string>
@@ -604,7 +589,6 @@
     <string name="pairing_creating_bond_with">Création d’un lien avec %1$s (%2$s)</string>
     <string name="pairing">Jumelage avec %s…</string>
     <string name="title_activity_mi_band_pairing">Appairer votre Mi Band</string>
-    <string name="android_pairing_hint">Utiliser l\'appairage Bluetooth d\'Android pour jumeler l\'appareil.</string>
     <string name="title_activity_android_pairing">Appairer l\'appareil</string>
     <string name="action_discover">Connecter un nouvel appareil</string>
     <string name="discovery_start_scanning">Démarrer le scan</string>

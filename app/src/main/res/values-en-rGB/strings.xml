@@ -12,7 +12,6 @@
     <string name="installhandler_firmware_name">%1$s: %2$s %3$s</string>
     <string name="notif_battery_low_extended">%1$s battery low: %2$s</string>
     <string name="notif_battery_low">%1$s battery low</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="appversion_by_creator">%1$s by %2$s</string>
     <string name="pref_qhybrid_title_widget_draw_circles">Draw widget circles</string>
     <string name="pref_header_auto_fetch">Auto fetch</string>
@@ -41,7 +40,6 @@
     <string name="pref_summary_sync_calendar">Enables calendar alerts, even when disconnected</string>
     <string name="pref_summary_allow_high_mtu">Increases transfer speed, but might not work on some Android devices.</string>
     <string name="pref_title_allow_high_mtu">Allow high MTU</string>
-    <string name="error_no_location_access">Location access must be granted and enabled for scanning to work properly</string>
     <string name="alarm_snooze">Snooze</string>
     <string name="prefs_button_long_press_action_selection_title">Long press button action</string>
     <string name="prefs_button_variable_actions">Detailed button press settings</string>
@@ -103,7 +101,6 @@
     <string name="widget_listing_label">Status and Alarms</string>
     <string name="appwidget_sleep_alarm_widget_label">Sleep Alarm</string>
     <string name="activity_db_management_empty_db_warning">Warning! By pushing this button you will wipe your database and start from scratch.</string>
-    <string name="activity_db_management_exportimport_label">Export and Import</string>
     <string name="activity_db_management_empty_DB">Empty Database</string>
     <string name="activity_DB_empty_button">Empty Database</string>
     <string name="activity_DB_delete_legacy_button">Delete old DB</string>
@@ -118,8 +115,6 @@
     <string name="menuitem_nfc">NFC</string>
     <string name="weeksleepchart_sleep_a_month">Sleep per month</string>
     <string name="weekstepschart_steps_a_month">Steps per month</string>
-    <string name="pref_charts_range_off">Charts range is set to a Week</string>
-    <string name="pref_charts_range_on">Charts range is set to a Month</string>
     <string name="pref_title_charts_range">Charts Range</string>
     <string name="pref_title_charts_average">Show averages in the charts</string>
     <string name="pref_header_charts">Charts Settings</string>
@@ -198,16 +193,8 @@
     <string name="activity_type_exercise">Exercise</string>
     <string name="appwidget_not_connected">Not connected, alarm not set.</string>
     <string name="save_configuration">Save Configuration</string>
-    <string name="mode_configuration">Mode Configuration</string>
     <string name="filter_mode">Filter Mode</string>
-    <string name="toast_notification_filter_words_empty_hint">Please enter at least one word</string>
-    <string name="filter_submode_all">All of the words</string>
-    <string name="filter_submode_at_least_one">At least one of the words</string>
-    <string name="filter_mode_blacklist">Block when words are contained</string>
-    <string name="filter_mode_whitelist">Show when words are contained</string>
     <string name="filter_mode_none">Do not filter</string>
-    <string name="toast_notification_filter_saved_successfully">Notification filter saved</string>
-    <string name="edittext_notification_filter_words_hint">Enter desired words, new line for each</string>
     <string name="preferences_rtl_settings">Right To Left Support</string>
     <string name="pref_summary_contextual_arabic">Enable this to support contextual Arabic</string>
     <string name="pref_title_contextual_arabic">Contextual Arabic</string>
@@ -487,7 +474,6 @@
     <string name="updatefirmwareoperation_write_failed">Firmware flashing failed</string>
     <string name="updatefirmwareoperation_update_complete_rebooting">Firmware installation complete, rebooting device…</string>
     <string name="updatefirmwareoperation_update_complete">Firmware installation complete</string>
-    <string name="title_activity_notification_filter">Notification Filter</string>
     <string name="appwidget_setting_alarm">Setting alarm for %1$02d:%2$02d</string>
     <string name="debugactivity_really_factoryreset">Doing a factory reset will delete all data from the connected device (if supported). Xiaomi/Huami devices also change Bluetooth MAC address, so they appear as a new devices to Gadgetbridge.</string>
     <string name="debugactivity_really_factoryreset_title">Really factory reset\?</string>
@@ -540,7 +526,6 @@
     <string name="title_activity_alarm_details">Alarm details</string>
     <string name="controlcenter_start_configure_alarms">Configure alarms</string>
     <string name="title_activity_set_alarm">Configure alarms</string>
-    <string name="title_activity_charts">Activity and Sleep</string>
     <string name="control_center_cancel_to_stop_vibration">Cancel to stop vibration.</string>
     <string name="control_center_find_lost_device">Find lost device</string>
     <string name="stats_y_axis_label">Steps per minute</string>
@@ -590,7 +575,6 @@
     <string name="pairing_creating_bond_with">Creating bond with %1$s (%2$s)</string>
     <string name="pairing">Pairing with %s…</string>
     <string name="title_activity_mi_band_pairing">Pair your Mi Band</string>
-    <string name="android_pairing_hint">Use the Android Bluetooth pairing dialog to pair the device.</string>
     <string name="title_activity_android_pairing">Pair device</string>
     <string name="action_discover">Connect new device</string>
     <string name="discovery_start_scanning">Start discovery</string>
@@ -836,7 +820,6 @@
     <string name="calendar_month">Month</string>
     <string name="pref_header_other">Other</string>
     <string name="pref_header_notification_application_settings">Per application settings</string>
-    <string name="pref_title_notification_use_as_deny">Deny notifications from selected apps</string>
     <string name="pref_message_privacy_mode_off">Display content</string>
     <string name="pref_applications_settings">Applications list</string>
     <string name="pref_title_huami_force_new_protocol">New Auth Protocol</string>
@@ -972,7 +955,6 @@
 \nPROCEED AT YOUR OWN RISK!</string>
     <string name="pref_header_system">System</string>
     <string name="pref_header_equalizer">Equalizer</string>
-    <string name="pref_title_notification_use_as">Use the Applications list to…</string>
     <string name="calendar_six_months">6 months</string>
     <string name="fw_upgrade_notice_amazfitneo">You are about to install the %s firmware on your Amazfit Neo.
 \n
@@ -988,7 +970,6 @@
 \n</string>
     <string name="chart_no_active_data">No activities detected.</string>
     <string name="calendar_day">Day</string>
-    <string name="pref_title_notification_use_as_allow">Allow notifications from selected apps</string>
     <string name="steps_unit">steps</string>
     <string name="meters_second">m/s</string>
     <string name="pref_title_connected_advertisement">Visible while connected</string>
@@ -1006,10 +987,8 @@
     <string name="activity_type_elliptical_trainer">Elliptical Trainer</string>
     <string name="activity_summary_detail">Sport Activity Detail</string>
     <string name="activity_summary_edit_name_title">Edit label</string>
-    <string name="toast_app_must_not_be_selected">App must not be selected to be configured</string>
     <string name="widget_settings_select_device_title">Select device</string>
     <string name="activity_type_strength_training">Strength Training</string>
-    <string name="toast_app_must_be_selected">App must be selected to be configured</string>
     <string name="companiondevice_pairing">CompanionDevice Pairing</string>
     <string name="averageLapPace">Average Lap Pace</string>
     <string name="laps">Laps</string>
@@ -1207,7 +1186,6 @@
     <string name="activity_prefs_step_length_cm">Step length in cm</string>
     <string name="activity_prefs_chart_min_steps_per_minute_for_run">Minimal steps per minute to detect run</string>
     <string name="activity_prefs_chart_max_idle_phase_length">Pause length to separate activities (minutes)</string>
-    <string name="activity_DB_ShowContentButton">Show Export/Import directory content</string>
     <string name="dbmanagementactivity_export_data_title">Export Data\?</string>
     <string name="dbmanagementactivity_export_confirmation">Really export data\? Previously exported activity data (if any) and preferences will be overwritten.</string>
     <string name="menuitem_findphone">Find Phone</string>
@@ -1272,7 +1250,6 @@
     <string name="error_background_service_reason">Starting the background service failed because of an exception - click here for more information.\n\nError:</string>
     <string name="error_background_service_reason_truncated">Starting the background service failed because…</string>
     <string name="error_background_service">Failed to start background service</string>
-    <string name="permission_granting_mandatory">All these permissions are required and instability might occur if not granted</string>
     <string name="about_links">Links</string>
     <string name="menuitem_worldclock">World Clock</string>
     <string name="menuitem_breathing">Breathing</string>
@@ -1286,8 +1263,6 @@
     <string name="prefs_left">Left</string>
     <string name="nothing_prefs_inear_summary">Play/pause the music depending if you wear the earbuds</string>
     <string name="title_activity_notification_management">Notification settings</string>
-    <string name="check_all_applications">Check all applications</string>
-    <string name="uncheck_all_applications">Uncheck all applications</string>
     <string name="fw_upgrade_notice_amazfit_trex">You are about to install the %s firmware on your Amazfit T-Rex.
 \n
 \nPlease make sure to install the .fw file, then the .res file, and finally the .gps file. Your watch will reboot after installing the .fw file.

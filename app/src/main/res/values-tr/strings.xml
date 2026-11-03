@@ -27,7 +27,6 @@
     <string name="activity_DB_test_export_message">Veri tabanı dışa aktarılıyor…</string>
     <string name="activity_db_management_empty_DB">Veri tabanını boşalt</string>
     <string name="activity_db_management_empty_db_warning">Dikkat! Bu düğmeye basarak veri tabanınızı silecek ve sıfırdan başlayacaksınız.</string>
-    <string name="activity_db_management_exportimport_label">Dışa ve İçe Aktar</string>
     <string name="activity_db_management_import_export_explanation">Dışa/içe aktarma işlemleri, aygıtınızdaki bir dizine giden aşağıdaki yolu kullanır. Bu dizine diğer Android uygulamaları ve bilgisayarınız tarafından erişilebilir. Gadgetbridge\'i kaldırırsanız, bu dizinin ve içerdiği tüm dosyaların silineceğini unutmayın. Veriler şunları içerir:
 \n Export_preference - genel ayarlar
 \n Export_preference_MAC - aygıta özel ayarlar
@@ -72,7 +71,6 @@
     <string name="alarm_tue_short">Sal</string>
     <string name="alarm_wed_short">Çar</string>
     <string name="always">Her zaman</string>
-    <string name="android_pairing_hint">Aygıtı eşleştirmek için Android Bluetooth eşleştirme iletişimini kullan.</string>
     <string name="app_configure">Yapılandır</string>
     <string name="app_install_info">Aşağıdaki uygulamayı kurmak üzeresiniz:
 \n
@@ -169,7 +167,6 @@
     <string name="device_fw">Ürün yazılımı sürümü: %1$s</string>
     <string name="device_hw">Donanım revizyonu: %1$s</string>
     <string name="device_not_connected">Bağlanmadı.</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="devicetype_unknown">Bilinmeyen Aygıt</string>
     <string name="discovery_attempting_to_pair">%1$s ile eşleşmeye çalışılıyor</string>
     <string name="discovery_bonding_failed_immediately">%1$s ile etkileşim anında başarısız oldu.</string>
@@ -187,17 +184,11 @@
     <string name="discovery_yes_pair">Eşleştir</string>
     <string name="distance">Mesafe</string>
     <string name="dutch">Felemenkçe</string>
-    <string name="edittext_notification_filter_words_hint">Her bir sözcüğü yeni bir satıra girin</string>
     <string name="english">İngilizce</string>
     <string name="error_creating_directory_for_logfiles">Günlük dosyaları için dizin oluşturulurken hata: %1$s</string>
-    <string name="error_no_location_access">Taramanın düzgün çalışması için konum erişimi verilmeli ve etkinleştirilmelidir</string>
     <string name="female">Kadın</string>
     <string name="filter_mode">Filtreleme Modu</string>
-    <string name="filter_mode_blacklist">Sözcükler bulunduğunda engelle</string>
     <string name="filter_mode_none">Filtreleme yapılmasın</string>
-    <string name="filter_mode_whitelist">Sözcükler bulunduğunda göster</string>
-    <string name="filter_submode_all">Sözcüklerin tümü</string>
-    <string name="filter_submode_at_least_one">Sözcüklerden en az biri</string>
     <string name="find_device_you_found_it">Buldunuz!</string>
     <string name="find_lost_device_you_found_it">Buldunuz!</string>
     <string name="find_my_phone_notification">Telefonumu bul</string>
@@ -392,7 +383,6 @@
     <string name="minutes_10">10 dakika</string>
     <string name="minutes_30">30 dakika</string>
     <string name="minutes_5">5 dakika</string>
-    <string name="mode_configuration">Mod Yapılandırması</string>
     <string name="n_a">YOK</string>
     <string name="never">Asla</string>
     <string name="no_data">Veri yok</string>
@@ -435,15 +425,12 @@
     <string name="pref_auto_fetch_summary">Getirme, ekran kilidi açıldığında gerçekleşir. Yalnızca bir kilit mekanizması ayarlanmışsa çalışır!</string>
     <string name="pref_blacklist_calendars">Kara Liste Takvimleri</string>
     <string name="pref_button_action_disabled">Engellenmiş</string>
-    <string name="pref_button_action_disabled_value">Bilinmeyen</string>
     <string name="pref_call_privacy_mode_complete">Ad ve numarayı gizle</string>
     <string name="pref_call_privacy_mode_name">Adı gizle ama numarayı göster</string>
     <string name="pref_call_privacy_mode_number">Numarayı gizle ama adı göster</string>
     <string name="pref_call_privacy_mode_off">Ad ve numarayı göster</string>
     <string name="pref_chart_heartrate_color_orange">Turuncu</string>
     <string name="pref_chart_heartrate_color_red">Kırmızı</string>
-    <string name="pref_charts_range_off">Haftalık ortalama çizelgesi</string>
-    <string name="pref_charts_range_on">Aylık ortalama çizelgesi</string>
     <string name="pref_default">Öntanımlı</string>
     <string name="pref_disable_new_ble_scanning">Yeni BLE (BlueTooth Düşük Enerji) taramasını devre dışı bırak</string>
     <string name="pref_display_add_device_fab">Yeni aygıt bağla düğmesi</string>
@@ -466,23 +453,14 @@
     <string name="pref_invalid_frequency_message">Lütfen 87.5 ve 108.0 arasında bir frekans girin</string>
     <string name="pref_invalid_frequency_title">Geçersiz frekans</string>
     <string name="pref_media_forward">Sonrakine Geç</string>
-    <string name="pref_media_forward_value">SONRAKİ</string>
     <string name="pref_media_next">Sonraki Medya</string>
-    <string name="pref_media_next_value">SONRAKİ</string>
     <string name="pref_media_pause">Medya Duraklatma</string>
-    <string name="pref_media_pause_value">DURAKLAT</string>
     <string name="pref_media_play">Medya Oynat</string>
-    <string name="pref_media_play_value">OYNAT</string>
     <string name="pref_media_playpause">Oynatmayı aç/kapat</string>
-    <string name="pref_media_playpause_value">AÇKAPAT</string>
     <string name="pref_media_previous">Önceki Medya</string>
-    <string name="pref_media_previous_value">ÖNCEKİ</string>
     <string name="pref_media_rewind">Geriye Atla</string>
-    <string name="pref_media_rewind_value">GERİSAR</string>
     <string name="pref_media_volumedown">Sesi Düşür</string>
-    <string name="pref_media_volumedown_value">SESDÜŞÜR</string>
     <string name="pref_media_volumeup">Sesi Yükselt</string>
-    <string name="pref_media_volumeup_value">SESYÜKSELT</string>
     <string name="pref_pebble_privacy_mode_complete">Yalnızca bildirim simgesini göster</string>
     <string name="pref_pebble_privacy_mode_content">Bildirim metnini ekran dışına kaydır</string>
     <string name="pref_pebble_privacy_mode_off">Normal bildirimler</string>
@@ -541,8 +519,6 @@
     <string name="pref_summary_use_custom_font">Aygıtınız, Emoji desteği için özel bir yazı tipi yazılımına sahipse bunu etkinleştirin</string>
     <string name="pref_theme_dark">Koyu</string>
     <string name="pref_theme_light">Açık</string>
-    <string name="pref_theme_value_dark">karanlık</string>
-    <string name="pref_theme_value_light">aydınlık</string>
     <string name="pref_title_allow_high_mtu">Yüksek MTU\'ya izin ver</string>
     <string name="pref_title_audio_player">Tercih Edilen Ses Oynatıcı</string>
     <string name="pref_title_authkey">Kimlik Doğrulama Anahtarı</string>
@@ -684,7 +660,6 @@
     <string name="title_activity_alarm_details">Alarm ayrıntıları</string>
     <string name="title_activity_android_pairing">Aygıt eşleştir</string>
     <string name="title_activity_appmanager">Uygulama Yöneticisi</string>
-    <string name="title_activity_charts">Etkinlik ve Uyku</string>
     <string name="title_activity_controlcenter_generic">Gadgetbridge</string>
     <string name="title_activity_db_management">Veri yönetimi</string>
     <string name="title_activity_debug">Hata Ayıklama</string>
@@ -692,7 +667,6 @@
     <string name="title_activity_discovery">Aygıt arama</string>
     <string name="title_activity_fw_app_insaller">Ürün yazılımı/uygulama kurucu</string>
     <string name="title_activity_mi_band_pairing">Mi Band\'ınızı eşleştirin</string>
-    <string name="title_activity_notification_filter">Bildirim Filtresi</string>
     <string name="title_activity_pebble_pairing">Pebble eşleştirme</string>
     <string name="title_activity_set_alarm">Alarmları yapılandır</string>
     <string name="title_activity_settings">Ayarlar</string>
@@ -702,8 +676,6 @@
     <string name="title_activity_watch9_pairing">Watch 9 eşleştirme</string>
     <string name="toast_aqurired_networklocation">konum alındı</string>
     <string name="toast_enable_networklocationprovider">Lütfen ağ konumunu etkinleştirin</string>
-    <string name="toast_notification_filter_saved_successfully">Bildirim filtresi kaydedildi</string>
-    <string name="toast_notification_filter_words_empty_hint">Lütfen en az bir sözcük girin</string>
     <string name="traditional_chinese">Çince (Geleneksel)</string>
     <string name="turkish">Türkçe</string>
     <string name="ukrainian">Ukraynaca</string>
@@ -861,7 +833,6 @@
     <string name="pref_title_weather_summary">LineageOS hava durumu sağlayıcısı için kullanılır, diğer Android sürümleri \"Breezy Weather\" gibi bir uygulama kullanmalıdır. Gadgetbridge web sitesinde daha fazla bilgi bulabilirsiniz.</string>
     <string name="menuitem_worldclock">Dünya Saati</string>
     <string name="error_version_check_extreme_caution">DİKKAT: Sürüm bilgileri denetlenirken hata oluştu! Devam etmemelisiniz! Görülen sürüm adı \"%s\"</string>
-    <string name="permission_granting_mandatory">Tüm bu izinler gereklidir ve izin verilmezse kararsızlık oluşabilir</string>
     <string name="error_background_service_reason_truncated">Arka plan hizmetini başlatma başarısız oldu, çünkü…</string>
     <string name="error_background_service_reason">Bir istisna nedeniyle arka plan hizmetini başlatma başarısız oldu - daha fazla bilgi için buraya tıklayın.\n\nHata:</string>
     <string name="error_background_service">Arka plan hizmeti başlatılamadı</string>
@@ -1073,7 +1044,6 @@
 \nNot: Bu dosyalar önceden kurulanlarla tamamen aynıysa .res ve .gps dosyalarını kurmanız gerekmez.
 \n
 \nİLERLEMENİZ DURUMUNDA RİSK SİZE AİTTİR!</string>
-    <string name="activity_DB_ShowContentButton">Dışa/İçe aktarma dizini içeriğini göster</string>
     <string name="activity_data_management_directory_content_title">Dizin içeriğini dışa/içe aktar</string>
     <string name="widget_settings_select_device_title">Aygıt seç</string>
     <string name="dbmanagementactivity_export_confirmation">Veriler gerçekten dışarı aktarılsın mı\? Önceden dışa aktarılan etkinlik verilerinizin (varsa) ve tercihlerinizin üzerine yazılacak.</string>
@@ -1238,18 +1208,11 @@
     <string name="nothing_prefs_inear_title">Kulak içi algılama</string>
     <string name="nothing_prefs_audiomode_title">Ses modu</string>
     <string name="pref_applications_settings">Uygulamalar listesi</string>
-    <string name="pref_title_notification_use_as">Uygulamalar listesini kullanarak…</string>
-    <string name="toast_app_must_not_be_selected">Yapılandırmak için uygulama seçili olmamalıdır</string>
     <string name="pref_header_notification_application_settings">Uygulama başına ayarlar</string>
     <string name="title_activity_notification_management">Bildirim ayarları</string>
-    <string name="check_all_applications">Tüm uygulamaları işaretle</string>
-    <string name="uncheck_all_applications">Tüm uygulamaların işaretini kaldır</string>
-    <string name="pref_title_notification_use_as_deny">Seçili uygulamalardan gelen bildirimleri reddet</string>
-    <string name="pref_title_notification_use_as_allow">Seçili uygulamalardan gelen bildirimlere izin ver</string>
     <string name="pref_title_message_privacy_mode">Mesaj gizlilik modu</string>
     <string name="pref_message_privacy_mode_off">Tüm içeriği görüntüle</string>
     <string name="pref_message_privacy_mode_complete">Tüm içeriği gizle</string>
-    <string name="toast_app_must_be_selected">Yapılandırmak için uygulama seçili olmalıdır</string>
     <string name="prefs_equalizer_preset">Dengeleyici Ön Ayarı</string>
     <string name="pref_title_equalizer_bass_boost">Bas güçlendirme</string>
     <string name="pref_title_equalizer_clear">Temiz</string>
@@ -2120,7 +2083,6 @@
     <string name="pref_show_changelog">Başlangıçta değişiklik günlüğünü göster</string>
     <string name="laneLength">Kulvar Uzunluğu</string>
     <string name="activity_detail_share_raw_details">Ham Ayrıntıları Paylaş</string>
-    <string name="error_no_bluetooth_connect">Taramanın düzgün çalışması için Bluetooth bağlantı erişimi verilmeli ve etkinleştirilmelidir</string>
     <string name="strokes">Toplam Kulaç</string>
     <string name="prefs_phone_silent_mode">Telefon Sessiz Modu</string>
     <string name="silent_mode_normal_vibrate">Normal / Titret</string>
@@ -2147,7 +2109,6 @@
     <string name="menuitem_zepp_coach">Zepp Coach</string>
     <string name="dev_tools">Geliştirici Araçları</string>
     <string name="menuitem_forecast">Tahmin</string>
-    <string name="error_no_bluetooth_scan">Taramanın düzgün çalışması için Bluetooth tarama erişimi verilmeli ve etkinleştirilmelidir</string>
     <string name="activity_detail_share_raw_summary">Ham Özeti Paylaş</string>
     <string name="prefs_workmode">İş Modu</string>
     <string name="pref_enable_call_accept">Çağrıları kabul etmeyi etkinleştir</string>
@@ -2238,7 +2199,6 @@
     <string name="pref_enable_call_reject">Çağrıları reddetmeyi etkinleştir</string>
     <string name="pref_spo_automatic_enable">Otomatik SpO2 ölçümünü etkinleştir</string>
     <string name="pref_force_options">Seçenekleri zorla</string>
-    <string name="alarm_smart_wakeup_interval">Akıllı uyandırma aralığı:</string>
     <string name="alarm_smart_wakeup_interval_default">5 dakika</string>
     <string name="silent_mode_normal_silent">Normal / Sessiz</string>
     <string name="prefs_password_4_digits_0_to_9_summary">Parola 4 haneli olmalı ve yalnızca rakamlar kullanılmalıdır</string>
@@ -2589,7 +2549,6 @@
 \n
 \nİLERLEMENİZ DURUMUNDA RİSK SİZE AİTTİR!</string>
     <string name="weeksleepchart_sleep_a_week_or_month">Haftalık/aylık uyku</string>
-    <string name="weekstepschart_steps_a_week_or_month">Haftalık/aylık adım</string>
     <string name="busy_task_fetch_sports_details_interrupted">Spor bilgilerinin getirilmesi yarıda kesildi</string>
     <string name="companion_pairing_request_title">Yardımcı aygıt</string>
     <string name="companion_pairing_request_description">Bu aygıt yardımcı olarak eşleştirilsin mi?
@@ -2643,8 +2602,6 @@
     <string name="error_showing_changelog">Değişiklik günlüğü gösterilirken hata oluştu</string>
     <string name="dashboard_settings">Gösterge tablosu ayarları</string>
     <string name="pref_dashboard_cards_summary">Gösterge tablosunda widget\'ların etrafına kartlar çiz</string>
-    <string name="pref_dashboard_first_title">Önce gösterge tablosunu göster</string>
-    <string name="pref_dashboard_first_summary">Gadgetbridge başladığında aygıtlar ekranı yerine gösterge tablosunu göster</string>
     <string name="pref_dashboard_widget_settings">Widget ayarları</string>
     <string name="pref_dashboard_widget_today_title">Etkinlik çizelgesi</string>
     <string name="pref_dashboard_all_devices_title">Tüm aygıtlar</string>
@@ -2833,9 +2790,6 @@
     <string name="hrv_status_balanced">Dengeli</string>
     <string name="hrv_status_unbalanced">Dengesiz</string>
     <string name="gps_glonass">GPS + GLONASS</string>
-    <string name="soundcore_equalizer_band7">Bant 7</string>
-    <string name="soundcore_button_brightness_medium">Orta</string>
-    <string name="soundcore_button_brightness_high">Yüksek</string>
     <string name="soundcore_ldac_mode_title">LDAC Modu</string>
     <string name="soundcore_ldac_mode_summary">LDAC\'nin etkinleştirilmesi pil ömrünü kısaltır ve bağlantı kararsızlığına yol açabilir</string>
     <string name="soundcore_equalizer_preset_xtra_bass">Fazladan Bas</string>
@@ -2844,19 +2798,11 @@
     <string name="soundcore_equalizer_custom_title">Özelleştir…</string>
     <string name="soundcore_equalizer_reset_summary">Tüm dengeleyici bantlarını öntanımlı ayarlara döndür</string>
     <string name="soundcore_equalizer_direction_hanging">Asılı</string>
-    <string name="soundcore_equalizer_band3">Bant 3</string>
-    <string name="soundcore_equalizer_band8">Bant 8</string>
-    <string name="soundcore_equalizer_band9">Bant 9</string>
-    <string name="soundcore_equalizer_band1">Bant 1</string>
-    <string name="soundcore_equalizer_band5">Bant 5</string>
-    <string name="soundcore_equalizer_band6">Bant 6</string>
-    <string name="soundcore_equalizer_band4">Bant 4</string>
     <string name="soundcore_equalizer_value">Değer</string>
     <string name="minutes_20">20 dakika</string>
     <string name="minutes_60">60 dakika</string>
     <string name="soundcore_voice_prompts">Sesli Uyarılar</string>
     <string name="soundcore_button_brightness">Düğme Parlaklığı</string>
-    <string name="soundcore_button_brightness_low">Düşük</string>
     <string name="soundcore_adaptive_direction_title">Uyarlanabilir Yön</string>
     <string name="soundcore_adaptive_direction_summary">Dengeleyici ön ayarını aygıt yönüne göre otomatik olarak ayarla</string>
     <string name="soundcore_equalizer_preset">Ön ayar</string>
@@ -2866,7 +2812,6 @@
     <string name="soundcore_equalizer_direction_standing">Ayakta</string>
     <string name="soundcore_equalizer_direction_lying">Uzanıyor</string>
     <string name="soundcore_equalizer_reset_title">Öntanımlı değere sıfırla</string>
-    <string name="soundcore_equalizer_band2">Bant 2</string>
     <string name="soundcore_equalizer_frequency">Frekans</string>
     <string name="body_energy_gained">Kazanılan</string>
     <string name="body_energy_lost">Kaybedilen</string>
@@ -3519,7 +3464,6 @@
     <string name="notif_export_location_not_set">Dışa aktarma konumu yapılandırılmadı</string>
     <string name="notif_export_zip_failed_title">Zip dosyası dışa aktarılmadı! Lütfen ayarlarınızı gözden geçirin.</string>
     <string name="unknown_error">Bilinmeyen hata</string>
-    <string name="charts_two_items_only">Aynı anda yalnızca iki ögeyi karşılaştırabilirsiniz.</string>
     <string name="charts_at_least_one_item">En az bir öge seçilmelidir.</string>
     <string name="fwinstaller_file_not_compatible_to_device">Seçilen dosya aygıtla uyumlu değil</string>
     <string name="fwinstaller_no_compatible_device_found">%1s kurmak için uyumlu aygıt bulunamadı</string>
@@ -3862,14 +3806,6 @@
     <string name="health_connect_initial_sync_all">Tümünü eşzamanla</string>
     <string name="health_connect_sync_already_running">Eşzamanlama işlemi zaten çalışıyor.</string>
     <string name="health_connect_sync_now_title">Şimdi eşzamanlansın mı?</string>
-    <string name="soundcore_equalizer_band1_freq">100 Hz</string>
-    <string name="soundcore_equalizer_band2_freq">200 Hz</string>
-    <string name="soundcore_equalizer_band3_freq">400 Hz</string>
-    <string name="soundcore_equalizer_band4_freq">800 Hz</string>
-    <string name="soundcore_equalizer_band5_freq">1.6 kHz</string>
-    <string name="soundcore_equalizer_band6_freq">3.2 kHz</string>
-    <string name="soundcore_equalizer_band7_freq">6.4 kHz</string>
-    <string name="soundcore_equalizer_band8_freq">12.8 kHz</string>
     <string name="all_manufacturers">Tüm üreticiler</string>
     <string name="device_manufacturer">Üretici</string>
     <string name="device_mac_address">MAC adresi</string>

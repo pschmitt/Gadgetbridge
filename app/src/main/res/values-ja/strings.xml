@@ -176,9 +176,7 @@
     <string name="discovery_stop_scanning">検出を停止</string>
     <string name="discovery_start_scanning">検出を開始</string>
     <string name="action_discover">新しいデバイスに接続</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="title_activity_android_pairing">デバイスのペアリング</string>
-    <string name="android_pairing_hint">Android の Bluetooth ペアリング ダイアログを使用してデバイスをペアリングします。</string>
     <string name="title_activity_mi_band_pairing">Mi Band をペアリング</string>
     <string name="pairing">%s とペアリング中…</string>
     <string name="pairing_creating_bond_with">%1$s (%2$s) と紐付けを作成中</string>
@@ -229,7 +227,6 @@
     <string name="stats_y_axis_label">歩数（分）</string>
     <string name="control_center_find_lost_device">なくしたデバイスを探す</string>
     <string name="control_center_cancel_to_stop_vibration">キャンセルで振動を停止します。</string>
-    <string name="title_activity_charts">アクティビティと睡眠</string>
     <string name="title_activity_set_alarm">アラームの設定</string>
     <string name="controlcenter_start_configure_alarms">アラームを設定</string>
     <string name="title_activity_alarm_details">アラームの詳細</string>
@@ -576,17 +573,8 @@
     <string name="pref_invalid_frequency_title">周波数が正しくありません</string>
     <string name="pref_invalid_frequency_message">87.5 から 108.0 の間で周波数を入力してください</string>
     <string name="language_and_region_prefs">言語と地域の設定</string>
-    <string name="title_activity_notification_filter">通知フィルター</string>
-    <string name="edittext_notification_filter_words_hint">希望の単語を、それぞれ新しい行に入力してください</string>
-    <string name="toast_notification_filter_saved_successfully">通知フィルターを保存しました</string>
     <string name="filter_mode_none">フィルターしない</string>
-    <string name="filter_mode_whitelist">単語が含まれているときに表示する</string>
-    <string name="filter_mode_blacklist">単語が含まれるときにブロックする</string>
-    <string name="filter_submode_at_least_one">いずれかの単語を含む</string>
-    <string name="filter_submode_all">すべての単語</string>
-    <string name="toast_notification_filter_words_empty_hint">少なくとも１つの単語を入力してください</string>
     <string name="filter_mode">フィルターモード</string>
-    <string name="mode_configuration">モード設定</string>
     <string name="save_configuration">設定を保存</string>
     <string name="appwidget_not_connected">接続されていないためアラームは設定されません。</string>
     <string name="fw_upgrade_notice_amazfitcor2">Amazfit Cor 2 に %s ファームウェアをインストールしようとしています。 \n \n.fw ファイルをインストールしてから、.res ファイルをインストールしてください。 .fw ファイルをインストールした後、バンドが再起動します。 \n \n注: .res ファイルが前回にインストールしたものと同じ場合、新たに.res ファイルをインストールする必要はありません。 \n \n自己責任の下で行ってください！ \n \n完全にはテストされていません。デバイス名が \"Amazfit Band 2\" の場合、おそらく BEATS_W ファームウェアをフラッシュする必要があります</string>
@@ -810,7 +798,6 @@
 \n自己責任の下で行ってください！</string>
     <string name="pref_pair_bluetooth_calls_help_summary">Bluetooth通話を着信するには、Android をウォッチの2番目のインスタンスとペアリングする必要があります。</string>
     <string name="pref_pair_bluetooth_calls_help_warning">注意：2番目のインスタンスを有効にせずに Bluetooth 通話を有効にすると、着信通知が上手く動作しない場合があります。</string>
-    <string name="pref_title_notification_use_as">アプリリストの使用方法…</string>
     <string name="appmanager_watchface_activate">有効化</string>
     <string name="appmanager_app_start">実行</string>
     <string name="appmanager_app_download">キャッシュにダウンロード</string>
@@ -865,8 +852,6 @@
     <string name="pref_summary_notifications_ignore_low_priority">優先度の低い通知をウォッチに送信しないようにします</string>
     <string name="pref_title_notification_cache_while_disconnected">接続が切断されている間の通知をキャッシュする</string>
     <string name="pref_header_notification_application_settings">アプリごとの設定</string>
-    <string name="pref_title_notification_use_as_deny">選択したアプリからの通知を拒否する</string>
-    <string name="pref_title_notification_use_as_allow">選択したアプリからの通知を許可する</string>
     <string name="pref_message_privacy_mode_complete">すべての内容を非表示</string>
     <string name="pref_message_privacy_mode_bodyonly">本文のみ非表示</string>
     <string name="pref_title_weather_summary">LineageOS の Weather provider に使用されますが、他の Android バージョンでは \"Breezy Weather\" のようなアプリを使用する必要があります。詳しくは Gadgetbridge のウェブサイトをご覧ください。</string>
@@ -977,7 +962,6 @@
     <string name="title_activity_controlcenter_banglejs_nightly">Bangle.js Gadgetbridge (Nightly)</string>
     <string name="prefs_activity_in_device_card_distance_title_summary">距離は歩数と歩幅から算出されています（設定 - ユーザー情報 で調整できます）</string>
     <string name="appmanager_app_share">共有</string>
-    <string name="check_all_applications">すべてのアプリを確認する</string>
     <string name="fw_upgrade_notice_amazfitbip_lite">Amazfit Bip Lite に %s のファームウェアをインストールしようとしています。
 \n
 \n.fw ファイル、その後 .res ファイル、最後に .gps ファイルをインストールしてください。ウォッチは、.fw ファイルをインストールした後に再起動します。
@@ -1333,7 +1317,6 @@
     <string name="seconds_12">12 秒</string>
     <string name="seconds_25">25 秒</string>
     <string name="dialog_hide">隠す</string>
-    <string name="alarm_smart_wakeup_interval">スマート ウェイクアップの間隔：</string>
     <string name="alarm_smart_wakeup_interval_default">5 分</string>
     <string name="prefs_phone_silent_mode">スマートフォンのサイレント モード</string>
     <string name="silent_mode_vibrate_silent">振動 / サイレント</string>
@@ -1430,7 +1413,6 @@
     <string name="activity_DB_ExportButton">データのエクスポート</string>
     <string name="activity_DB_test_export_button">今すぐ自動エクスポートを実行する</string>
     <string name="activity_db_management_autoexport_location">保存先を認識できませんでした。新しい Androidのパーミッション システムの問題であるかもしれません。自動エクスポートはおそらく機能していません。</string>
-    <string name="activity_db_management_exportimport_label">エクスポートとインポート</string>
     <string name="dbmanagementactivity_export_confirmation">データをエクスポートしてもよろしいですか？以前にエクスポートしたアクティビティデータは (もしあれば) すべて上書きされます。</string>
     <string name="activity_type_trampoline">トランポリン</string>
     <string name="activity_type_mountain_hike">登山</string>
@@ -1713,11 +1695,9 @@
     <string name="about_activity_title_main_nopebble">Gadgetbridge Nightly No Pebble について</string>
     <string name="gadgetbridge_running_main_nopebble">Gadgetbridge Nightly No Pebble は動作中です</string>
     <string name="appmanager_item_outdated">(古いバージョン)</string>
-    <string name="uncheck_all_applications">すべてのアプリを未確認にする</string>
     <string name="about_description_generic">メーカーが提供するクローズドソースの Android アプリの代替として開発された、クラウドレスでコピーレフトの自由なアプリ。</string>
     <string name="permission_request">%1$s を使うと、 Android からあなたのデバイスにメッセージやその他のデータを送ることができます。データへのアクセス許可がない場合、この機能は正しく動作しない可能性があります。 \n \n動作に必要なアクセス許可を要求するダイアログが表示されます。 \n \n\'%2$s\' をタップして進みます。</string>
     <string name="permission_location">%1$s は、画面がオフの状態でもウォッチとの接続を維持するためにバックグラウンドで位置情報にアクセスする権限が必要です。 \n \n\'%2$s\' をタップして同意します。</string>
-    <string name="permission_granting_mandatory">これらすべての許可がなければ、アプリが正しく動作しない可能性があります</string>
     <string name="gadgetbridge_running_banglejs_main">Bangle.js は動作中です</string>
     <string name="about_description_banglejs_nightly">Gadgetbridge プロジェクト上に構築された Bangle.js の Android コンパニオン アプリ。インターネット アクセスが追加されています。
 \n
@@ -2178,12 +2158,10 @@
     <string name="steps_streaks_streak_days">継続
 \n日数</string>
     <string name="bottom_nav_dashboard">ダッシュボード</string>
-    <string name="pref_dashboard_first_title">ダッシュボードを最初に表示する</string>
     <string name="pref_dashboard_widget_settings">ウィジェットの設定</string>
     <string name="pref_dashboard_widget_today_title">活動チャート</string>
     <string name="address">アドレス</string>
     <string name="steps_streaks_hint">中断することなく連続で目標の歩数を達成した日数</string>
-    <string name="pref_charts_range_on">チャートの範囲は「月」になっています</string>
     <string name="pai_plus_num">+%d</string>
     <string name="activity_list_summary_activities">アクティビティ</string>
     <string name="activity_prefs_goal_standing_time_minutes">1日の目標: 立っている時間 (分)</string>
@@ -2225,7 +2203,6 @@
     <string name="activity_prefs_goal_fat_burn_time_minutes">1日の目標: 脂肪燃焼時間 (分)</string>
     <string name="standing_time">立っている時間</string>
     <string name="weekstepschart_steps_a_month">1か月間の歩数</string>
-    <string name="pref_charts_range_off">チャートの範囲は「週」になっています</string>
     <string name="weeksleepchart_sleep_a_month">1か月間の睡眠</string>
     <string name="pref_title_chart_sleep_rolling_24_hour">睡眠の範囲</string>
     <string name="ftp_server_summary">ウォッチ上で FTP サーバーを制御します</string>
@@ -2240,7 +2217,6 @@
     <string name="wifi_hotspot_start_summary">ウォッチ上で Wi-Fi ホットスポットを開始します</string>
     <string name="contact_phone_number">電話番号</string>
     <string name="dashboard_settings">ダッシュボードの設定</string>
-    <string name="pref_dashboard_first_summary">Gadgetbridge 起動時にデバイスの一覧ではなく、ダッシュボードを表示します</string>
     <string name="bottom_nav_devices">デバイス</string>
     <string name="pref_dashboard_cards_title">ウィジェットをカードの上に表示する</string>
     <string name="pref_dashboard_cards_summary">ダッシュボード上のウィジェットの周りに枠を付けます</string>
@@ -2352,8 +2328,6 @@
     <string name="sports_activity_quick_filter_last_month">先月</string>
     <string name="sports_activity_quick_filter_select">期間</string>
     <string name="activity_filter_to_placeholder">今日</string>
-    <string name="toast_app_must_be_selected">設定するにはアプリを選択する必要があります</string>
-    <string name="toast_app_must_not_be_selected">設定するにはアプリを未選択にする必要があります</string>
     <string name="qhybrid_use_activity_hand_as_notification_counter">アクティビティの針を通知カウンターとして使う</string>
     <string name="pref_write_logfiles_not_available">ファイルロギングの初期化に失敗したため、ログファイルの記録は現在利用できません。アプリを再起動してログファイルの初期化をやり直してください。</string>
     <string name="status">状態</string>

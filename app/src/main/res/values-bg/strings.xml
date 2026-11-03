@@ -13,8 +13,6 @@
     <string name="pref_title_charts_average">Показвай средни стойности</string>
     <string name="activity_prefs_charts">Настройки на графика</string>
     <string name="pref_title_charts_range">Обхват на Графиката</string>
-    <string name="pref_charts_range_on">Обхвата е Месец</string>
-    <string name="pref_charts_range_off">Обхвата е Седмица</string>
     <string name="application_name_generic">Gadgetbridge</string>
     <string name="title_activity_controlcenter_generic">Gadgetbridge</string>
     <string name="action_settings">Настройки</string>
@@ -242,9 +240,7 @@
     <string name="discovery_stop_scanning">Спри търсенето</string>
     <string name="discovery_start_scanning">Стартирай търсене</string>
     <string name="action_discover">Свързване с ново устройство</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="title_activity_android_pairing">Сдвояване на устройството</string>
-    <string name="android_pairing_hint">Използване на Андроид Bluetooth диалога за сдвояване на устройството.</string>
     <string name="title_activity_mi_band_pairing">Сдвоете вашия Mi Band</string>
     <string name="pairing">Сдвояване с/със %s…</string>
     <string name="pairing_creating_bond_with">Създаване на връзка с/със %1$s (%2$s)</string>
@@ -389,7 +385,6 @@
     <string name="stats_y_axis_label">Крачки в минута</string>
     <string name="control_center_find_lost_device">Търсене на загубено устройство</string>
     <string name="control_center_cancel_to_stop_vibration">Отменете за спиране на вибрацията.</string>
-    <string name="title_activity_charts">Вашата активност</string>
     <string name="title_activity_set_alarm">Настройка на алармите</string>
     <string name="controlcenter_start_configure_alarms">Настройка на алармите</string>
     <string name="title_activity_alarm_details">Детайли на алармата</string>
@@ -490,7 +485,6 @@
     <string name="activity_DB_test_export_button">Стартирай авто експортиране</string>
     <string name="activity_db_management_empty_DB">ИзпразниБД</string>
     <string name="activity_db_management_empty_db_warning">Внимание! Ако натиснете този бутон БД ще се изтрие.</string>
-    <string name="activity_db_management_exportimport_label">Експорт и Импорт</string>
     <string name="activity_summaries">Активности</string>
     <string name="activity_type_activity">Активност</string>
     <string name="activity_type_biking">Колоездене</string>
@@ -556,10 +550,7 @@
     <string name="user_feedback_all_alarms_disabled">Всички аларми са изключени</string>
     <string name="unit_metric">Метрична</string>
     <string name="unit_imperial">Инчова</string>
-    <string name="toast_notification_filter_words_empty_hint">Въведете поне една дума</string>
-    <string name="toast_notification_filter_saved_successfully">Филтъра за известия е запазен</string>
     <string name="title_activity_vibration">Вибрация</string>
-    <string name="title_activity_notification_filter">Филтър за известия</string>
     <string name="title_activity_db_management">Управление на БД</string>
     <string name="select_all">Избери всички</string>
     <string name="share">Сподели</string>

@@ -236,10 +236,8 @@
     <string name="pref_title_call_privacy_mode">Panggil mode privasi</string>
     <string name="when_screen_off">Saat layar mati</string>
     <string name="always">Selalu</string>
-    <string name="check_all_applications">Centang semua aplikasi</string>
     <string name="pref_title_support_voip_calls">Aktifkan panggilan aplikasi VoIP</string>
     <string name="title_activity_notification_management">Pengaturan notifikasi</string>
-    <string name="uncheck_all_applications">Hapus centang semua aplikasi</string>
     <string name="pref_default">Bawaan</string>
     <string name="pref_title_notifications_call">Panggilan Telepon</string>
     <string name="pref_title_general_autoconnectonbluetooth">Sambungkan ke perangkat Gadgetbridge saat Bluetooth diaktifkan</string>
@@ -510,8 +508,6 @@
     <string name="dbmanagementactivity_delete_activity_data_title">Hapus Data Aktivitas\?</string>
     <string name="activity_DB_empty_button">Kosongkan Basis Data</string>
     <string name="watch9_time_minutes">Menit:</string>
-    <string name="edittext_notification_filter_words_hint">Masukkan kata yang diinginkan, baris baru untuk setiap kata</string>
-    <string name="toast_app_must_not_be_selected">Aplikasi harus tidak dipilih untuk diatur</string>
     <string name="watchface_setting_power_saving_display">Nonaktifkan pembaruan tampilan saat gelang mati</string>
     <string name="pref_title_touch_volume">Volume</string>
     <string name="error_background_service">Gagal memulai layanan latar belakang</string>
@@ -569,7 +565,6 @@
     <string name="qhybrid_changes_delay_prompt">Perubahan mungkin memerlukan beberapa detik…</string>
     <string name="prefs_button_triple_press_action_selection_title">Tindakan Peristiwa 3</string>
     <string name="error_setting_alias">Kesalahan menetapkan alias:</string>
-    <string name="activity_db_management_exportimport_label">Ekspor dan Impor</string>
     <string name="prefs_pressure_relief">Legakan tekanan dengan suara sekitar</string>
     <string name="appwidget_text">Zzz</string>
     <string name="descentSeconds">Turun</string>
@@ -692,7 +687,6 @@
     <string name="menuitem_wifi">Wi-Fi</string>
     <string name="menuitem_screen_always_lit">Layar Selalu Nyala</string>
     <string name="menuitem_volume">Volume</string>
-    <string name="toast_notification_filter_saved_successfully">Saringan notifikasi disimpan</string>
     <string name="language_and_region_prefs">Pengaturan bahasa dan wilayah</string>
     <string name="hr_widget_date">Tanggal</string>
     <string name="hr_widget_heart_rate">Detak jantung</string>
@@ -763,7 +757,6 @@
     <string name="pref_screen_notification_idle_alerts">Peringatan Menganggur</string>
     <string name="interval_five_minutes">setiap 5 menit</string>
     <string name="heartrate_bpm_40">40 bpm</string>
-    <string name="title_activity_charts">Aktivitas dan Tidur</string>
     <string name="title_activity_set_alarm">Atur alarm</string>
     <string name="pbwinstallhandler_incorrect_hw_revision">Revisi perangkat keras tidak cocok!</string>
     <string name="updatefirmwareoperation_updateproblem_do_not_reboot">Terjadi masalah dengan transfer perangkat tegar. JANGAN MULAI ULANG Mi Band Anda!</string>
@@ -788,18 +781,12 @@
     <string name="pref_title_contextual_arabic">Arab secara konteks</string>
     <string name="menuitem_email">Surel</string>
     <string name="prefs_fm_presets_presets">Prasetel</string>
-    <string name="toast_notification_filter_words_empty_hint">Masukkan setidaknya satu kata</string>
-    <string name="toast_app_must_be_selected">Aplikasi harus dipilih untuk diatur</string>
-    <string name="title_activity_notification_filter">Saringan Notifikasi</string>
-    <string name="filter_submode_all">Semua kata</string>
-    <string name="filter_mode_whitelist">Tampilkan ketika berisi kata</string>
     <string name="qhybrid_buttons_overwrite_error">Kesalahan menimpa tombol</string>
     <string name="qhybrid_time_shift">Pergeseran waktu</string>
     <string name="watch_not_connected">Jam tangan tidak terhubung</string>
     <string name="about_additional_device_support">Dukungan perangkat tambahan</string>
     <string name="pref_qhybrid_save_raw_activity_files">Simpan berkas aktivitas mentah</string>
     <string name="gpx_receiver_overwrite_some_files">Beberapa berkas sudah ada. Timpa\?</string>
-    <string name="error_no_location_access">Akses lokasi harus diberikan dan diaktifkan untuk pemindaian untuk bekerja dengan benar</string>
     <string name="error_retrieving_devices_database">Kesalahan mendapatkan perangkat dari basis data</string>
     <string name="sports_activity_confirm_delete_title">Hapus %d aktivitas</string>
     <string name="sports_activity_confirm_delete_description">Apakah Anda yakin ingin menghapus %d aktivitas\?</string>
@@ -858,7 +845,6 @@
     <string name="about_activity_title_main_nopebble">Tentang Gadgetbridge Nightly Tanpa Pebble</string>
     <string name="gadgetbridge_running_main_nopebble">Nightly GB TanpaPebble berjalan</string>
     <string name="pref_summary_minimize_priority_off">Ikon dalam bilah status dan notifikasi di layar kunci ditampilkan</string>
-    <string name="pref_title_notification_use_as_allow">Perbolehkan notifikasi dari aplikasi yang dipilih</string>
     <string name="pref_blacklist_calendars">Daftar Hitam Kalender</string>
     <string name="pref_title_canned_messages_dismisscall">Penolakan Panggilan</string>
     <string name="pref_title_enable_calendar_sync">Sinkron kalender</string>
@@ -873,7 +859,6 @@
     <string name="unknown_state">Keadaan tidak diketahui</string>
     <string name="tap_connected_device_for_activity">Ketuk perangkat terhubung untuk aktivitas</string>
     <string name="n_a">Tidak diketahui</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="busy_task_fetch_activity_data">Mendapatkan data aktivitas</string>
     <string name="vibration_profile_alarm_clock">Jam alarm</string>
     <string name="interval_one_minute">setiap menit</string>
@@ -898,7 +883,6 @@
     <string name="notification_gps_text">Mengirim lokasi GPS ke %1$d perangkat</string>
     <string name="pref_invalid_frequency_title">Frekuensi tidak absah</string>
     <string name="filter_mode_none">Jangan saring</string>
-    <string name="filter_mode_blacklist">Blokir ketika berisi kata</string>
     <string name="pref_summary_contextual_arabic">Aktifkan ini untuk mendukung Arab kontekstual</string>
     <string name="sports_activity_quick_filter_this_month">Bulan ini</string>
     <string name="step_streaks_achievements_sharing_title">Pencapaian Langkah</string>
@@ -918,7 +902,6 @@
 \nBeruntun</string>
     <string name="prefs_button_variable_actions">Pengaturan tekanan tombol rinci</string>
     <string name="pref_summary_notifications_pebblemsg">Dukungan untuk aplikasi yang mengirimkan notifikasi ke Pebble melalui PebbleKit.</string>
-    <string name="pref_title_notification_use_as">Gunakan daftar Aplikasi untuk…</string>
     <string name="pref_title_whenscreenon">…juga saat layar nyala</string>
     <string name="pref_title_vibration_strength">Kekuatan getaran</string>
     <string name="prefs_title_all_day_heart_rate">Pengukuran detak jantung seharian</string>
@@ -1029,7 +1012,6 @@
 \nGelang Anda akan dinyalakan ulang setelah memasang berkas .zip. 
 \n 
 \nLANJUTKAN DENGAN RISIKO ANDA SENDIRI!</string>
-    <string name="pref_title_notification_use_as_deny">Mengabaikan notifikasi dari aplikasi yang dipilih</string>
     <string name="pref_title_weather_summary">Digunakan untuk weather provider LineageOS, versi Android lainnya perlu menggunakan aplikasi seperti \"Breezy Weather\". Informasi lebih lanjut tersedia di situs web Gadgetbridge.</string>
     <string name="miband_firmware_suggest_whitelist">Jika Anda tetap ingin melanjutkan dan setelah itu semuanya masih berfungsi dengan baik, mohon beri tahu para pengembang Gadgetbridge untuk memasukkan versi firmware %s ke daftar whitelist.</string>
     <string name="open_fw_installer_info_text">Penginstal Firmware/Watchface/Aplikasi/File memungkinkan Anda mengunggah/menginstal file yang didukung (firmware, watchface, aplikasi, GPS, sumber daya, font…) ke perangkat. Lihat informasi lebih lanjut di situs web: [https://gadgetbridge.org/internals/features/installer/](https://gadgetbridge.org/internals/features/installer/)</string>
@@ -1259,7 +1241,6 @@
     <string name="extended_ascii">ASCII yang diperpanjang</string>
     <string name="activity_prefs_discovery_pairing">Opsi Penemuan dan Penyandingan</string>
     <string name="FetchActivityOperation_about_to_transfer_since">Akan mentransfer data sejak %1$s</string>
-    <string name="pref_charts_range_off">Jangka bagan ditetapkan ke Minggu</string>
     <string name="weekstepschart_steps_a_month">Langkah per bulan</string>
     <string name="activity_prefs_goal_fat_burn_time_minutes">Sasaran setiap hari: waktu bakar lemak dalam menit</string>
     <string name="title_activity_pebble_pairing">Penyandingan Pebble</string>
@@ -1321,7 +1302,6 @@
     <string name="preferences_fm_frequency">Frekuensi FM</string>
     <string name="preferences_rtl_settings">Dukungan Kanan Ke Kiri</string>
     <string name="filter_mode">Mode Saring</string>
-    <string name="mode_configuration">Konfigurasi Mode</string>
     <string name="activity_detail_show_gps_label">Tampilkan Trek GPS</string>
     <string name="activity_filter_name_contains">Label</string>
     <string name="prefs_events_forwarding_broadcast_title">Siarkan pesan</string>
@@ -1340,7 +1320,6 @@
     <string name="sony_speak_to_chat">Bicara untuk bercakap</string>
     <string name="sony_equalizer_preset_custom_2">Kustom 2</string>
     <string name="sony_button_mode_ambient_sound_control">Kendali Suara Sekitar</string>
-    <string name="filter_submode_at_least_one">Setidaknya salah satu kata</string>
     <string name="prefs_key_vibration">Getaran Tombol</string>
     <string name="pref_activity_recognize_walking">mengenal berjalan</string>
     <string name="activity_type_light_sleep">Tidur ringan</string>
@@ -1542,7 +1521,6 @@
 \n%1$s 
 \nVersi %2$s oleh %3$s
 \n</string>
-    <string name="android_pairing_hint">Gunakan dialog penyandingan Bluetooth Android untuk menyanding perangkat.</string>
     <string name="title_activity_mi_band_pairing">Sandingkan Mi Band Anda</string>
     <string name="pairing_creating_bond_with">Membuat hubungan dengan %1$s (%2$s)</string>
     <string name="pairing_unable_to_pair_with">Tidak dapat menyanding dengan %1$s (%2$s)</string>
@@ -1634,12 +1612,10 @@
     <string name="mi3_prefs_band_screen_unlock_summary">Usap ke atas untuk membuka kunci layar gelang</string>
     <string name="mi3_prefs_night_mode_summary">Kurangi kecerahan layar secara otomatis saat malam</string>
     <string name="activity_prefs_goal_standing_time_minutes">Sasaran setiap hari: waktu berdiri dalam menit</string>
-    <string name="pref_charts_range_on">Jangka bagan ditetapkan ke Bulan</string>
     <string name="dbmanagementactivvity_cannot_access_export_path">Tidak dapat mengakses jalur ekspor. Mohon hubungi pengembang.</string>
     <string name="dbmanagementactivity_database_successfully_deleted">Data dihapus.</string>
     <string name="dbmanagementactivity_db_deletion_failed">Penghapusan basis data gagal.</string>
     <string name="activity_web_view">Aktivitas Tampilan Web</string>
-    <string name="activity_DB_ShowContentButton">Tampilkan konten direktori ekspor/impor</string>
     <string name="dbmanagementactivity_delete_old_activitydb_confirmation">Benar-benar hapus basis data aktivitas lawas\? Data aktivitas yang belum diimpor akan hilang.</string>
     <string name="off">Mati</string>
     <string name="mi2_dnd_off">Mati</string>
@@ -1685,7 +1661,6 @@
     <string name="about_additional_contributions">Banyak terima kasih kepada semua kontributor yang belum didaftarkan di sini untuk kontribusi kode, terjemahan, dukungan, ide, motivasi, laporan kutu, uang… ✊</string>
     <string name="discover_unsupported_devices_description">Mengaktifkan opsi ini akan menampilkan semua perangkat Bluetooth yang ditemukan saat pemindaian. Ketuk singkat akan menyalin nama perangkat dan alamat mac ke clipboard. Tekan lama akan meluncurkan dialog \"Tambahkan perangkat uji\". Dapat menyebabkan potensi masalah aplikasi membeku.</string>
     <string name="discover_unsupported_devices">Temukan perangkat yang tidak didukung</string>
-    <string name="permission_granting_mandatory">Izin ini dibutuhkan dan ketidakstabilan dapat terjadi jika tidak diberikan</string>
     <string name="elevationGain">Kenaikan ketinggian</string>
     <string name="HeartRateZones">Zona Detak Jantung</string>
     <string name="hrZoneNa">Tidak diketahui</string>
@@ -2118,7 +2093,6 @@
     <string name="busy_task_fetch_hr_data">Mendapatkan data detak jantung</string>
     <string name="busy_task_fetch_pai_data">Mendapatkan data PAI</string>
     <string name="activity_prefs_goals">Sasaran</string>
-    <string name="error_no_bluetooth_connect">Akses koneksi Bluetooth harus diberikan dan diaktifkan agar pemindaian dapat bekerja dengan baik</string>
     <string name="permission_request">%1$s memungkinkan Anda mengirim pesan dan data lain dari Android ke perangkat Anda. Untuk melakukan ini, aplikasi memerlukan izin untuk mengakses data tersebut dan tanpa izin itu, aplikasi mungkin tidak berfungsi dengan baik.\n\nAnda sekarang akan melihat beberapa dialog Android yang meminta izin tersebut.\n\nSilakan ketuk \"%2$s\" untuk melanjutkan.</string>
     <string name="activity_type_windsurfing">Selancar angin</string>
     <string name="activity_type_football">Sepak bola</string>
@@ -2142,7 +2116,6 @@
     <string name="withings_bt_calibration_next">Lanjutkan</string>
     <string name="activity_type_surfing">Berselancar</string>
     <string name="activity_type_kitesurfing">Berselancar layang-layang</string>
-    <string name="error_no_bluetooth_scan">Akses pemindaian Bluetooth harus diberikan dan diaktifkan agar pemindaian dapat bekerja dengan baik</string>
     <string name="withings_calibration_text_hours">Silakan gunakan dial di bawah ini untuk menyelaraskan jarum penunjuk jam ke angka 12.</string>
     <string name="withings_calibration_text_minutes">Sekarang, gunakan dial untuk menyelaraskan jarum penunjuk menit ke angka 12.</string>
     <string name="pref_theme_dynamic">Warna dinamis</string>
@@ -2455,7 +2428,6 @@
     <string name="widget_layout_top_2_bot_2">2 atas, 2 bawah</string>
     <string name="widget_layout">Tata letak widget</string>
     <string name="widget_subtype">Subjenis Widget</string>
-    <string name="alarm_smart_wakeup_interval">Interval pembangunan pintar:</string>
     <string name="pref_summary_casio_alert_email">Peringatan (getaran/suara) untuk notifikasi surel</string>
     <string name="pref_summary_casio_alert_other">Peringatan (getar/bunyi) untuk notifikasi dalam kategori \"lainnya\"</string>
     <string name="pref_title_casio_alert_sms">Peringatan untuk notifikasi SMS</string>
@@ -2574,7 +2546,6 @@
 \nCatatan: Anda tidak harus memasang .res jika sama persis dengan yang sebelumnya dipasang.
 \n
 \nLANJUTKAN DENGAN RISIKO ANDA SENDIRI!</string>
-    <string name="weekstepschart_steps_a_week_or_month">Langkah per minggu/bulan</string>
     <string name="weeksleepchart_sleep_a_week_or_month">Tidur per minggu/bulan</string>
     <string name="busy_task_fetch_sports_details_interrupted">Pengambilan detail olahraga ditunda</string>
     <string name="companion_pairing_request_title">Perangkat pendamping</string>
@@ -2627,8 +2598,6 @@
     <string name="activity_type_worn">Dipakai</string>
     <string name="dashboard_settings">Pengaturan dasbor</string>
     <string name="bottom_nav_devices">Perangkat</string>
-    <string name="pref_dashboard_first_title">Tampilkan dasbor terlebih dahulu</string>
-    <string name="pref_dashboard_first_summary">Tampilkan dasbor ketika Gadgetbridge dibuka, daripada layar perangkat</string>
     <string name="pref_dashboard_cards_title">Tampilkan widget pada kartu</string>
     <string name="pref_dashboard_widget_today_title">Bagan aktivitas</string>
     <string name="pref_dashboard_widget_today_24h_title">Mode 24j</string>
@@ -3005,7 +2974,6 @@
     <string name="date_placeholders__date__time">%1$s, %2$s</string>
     <string name="date_placeholders__start_time__end_time">%1$s – %2$s</string>
     <string name="transition">Transisi</string>
-    <string name="charts_two_items_only">Anda hanya dapat membandingkan dua item sekaligus.</string>
     <string name="charts_at_least_one_item">Harus ada setidaknya satu item yang dipilih.</string>
     <string name="fwinstaller_file_not_compatible_to_device">File yang dipilih tidak kompatibel dengan perangkat</string>
     <string name="fwinstaller_no_compatible_device_found">Tidak ditemukan perangkat yang kompatibel untuk menginstal %1$s</string>
@@ -3750,9 +3718,6 @@
     <string name="soundbrenner_pref_subdivision_triplet">Triplet</string>
     <string name="soundcore_voice_prompts">Prompt suara</string>
     <string name="soundcore_button_brightness">Kecerahan tombol</string>
-    <string name="soundcore_button_brightness_low">Rendah</string>
-    <string name="soundcore_button_brightness_medium">Sedang</string>
-    <string name="soundcore_button_brightness_high">Tinggi</string>
     <string name="soundcore_ldac_mode_title">Mode LDAC</string>
     <string name="soundcore_ldac_mode_summary">Mengaktifkan LDAC akan mengurangi daya tahan baterai dan dapat menyebabkan koneksi tidak stabil</string>
     <string name="soundcore_auto_power_off_title">Mati otomatis</string>
@@ -3795,25 +3760,8 @@
     <string name="soundcore_equalizer_direction_hanging">Menggantung</string>
     <string name="soundcore_equalizer_reset_title">Setel ulang ke default</string>
     <string name="soundcore_equalizer_reset_summary">Kembalikan semua band equalizer ke pengaturan default</string>
-    <string name="soundcore_equalizer_band1">Band 1</string>
-    <string name="soundcore_equalizer_band2">Band 2</string>
-    <string name="soundcore_equalizer_band3">Band 3</string>
-    <string name="soundcore_equalizer_band4">Band 4</string>
-    <string name="soundcore_equalizer_band5">Band 5</string>
-    <string name="soundcore_equalizer_band6">Band 6</string>
-    <string name="soundcore_equalizer_band7">Band 7</string>
-    <string name="soundcore_equalizer_band8">Band 8</string>
-    <string name="soundcore_equalizer_band9">Band 9</string>
     <string name="soundcore_equalizer_frequency">Frekuensi</string>
     <string name="soundcore_equalizer_value">Nilai</string>
-    <string name="soundcore_equalizer_band1_freq">100 Hz</string>
-    <string name="soundcore_equalizer_band2_freq">200 Hz</string>
-    <string name="soundcore_equalizer_band3_freq">400 Hz</string>
-    <string name="soundcore_equalizer_band4_freq">800 Hz</string>
-    <string name="soundcore_equalizer_band5_freq">1.6 kHz</string>
-    <string name="soundcore_equalizer_band6_freq">3.2 kHz</string>
-    <string name="soundcore_equalizer_band7_freq">6.4 kHz</string>
-    <string name="soundcore_equalizer_band8_freq">12.8 kHz</string>
     <string name="miscale_weight_unit_title">Satuan berat</string>
     <string name="miscale_weight_unit_summary">Tetapkan satuan berat untuk pengukuran yang ditampilkan</string>
     <string name="miscale_weight_unit_metric">Metrik (kg)</string>
@@ -4584,7 +4532,6 @@
     <string name="service_not_logged_in">Belum login, integrasi dinonaktifkan</string>
     <string name="service_logged_in_refresh_token">Login ke %1$s\nToken refresh kedaluwarsa: %2$s</string>
     <string name="service_server_version">\nVersi server: %1$s</string>
-    <string name="endurain_logout_failed">Logout gagal</string>
     <string name="service_logged_out">Berhasil logout</string>
     <string name="prefs_online_fitness_trackers_title">Pelacak kebugaran online</string>
     <string name="prefs_online_fitness_trackers_summary">Konfigurasikan cara menjangkau dan menggunakan pelacak kebugaran online</string>
@@ -4601,16 +4548,12 @@
     <string name="unable_to_share_gpx_track_toast">Tidak dapat membagikan trek GPX: %1$s</string>
     <string name="endurain_successfully_uploaded_toast">Berhasil diunggah ke Endurain</string>
     <string name="endurain_error_while_uploading_toast">Kesalahan saat mengunggah ke Endurain</string>
-    <string name="endurain_unable_to_upload_gpx_file_toast">Tidak dapat mengunggah file aktivitas ke Endurain: %1$s</string>
-    <string name="endurain_setup_title">Pengaturan Endurain</string>
-    <string name="endurain_setup_server">Server Endurain</string>
     <string name="service_setup_login_type_local">Lokal</string>
     <string name="service_setup_login_type_sso">SSO</string>
     <string name="service_setup_mfa_code">Kode MFA</string>
     <string name="service_setup_next">Berikutnya</string>
     <string name="activity_detail_upload_to_endurain">Unggah ke Endurain</string>
     <string name="service_logged_in_to">Login ke %s</string>
-    <string name="wanderer_setup_api_token_error">Token API harus diawali dengan wanderer_key_</string>
     <string name="service_setup_missing_information">Silakan isi kedua bidang</string>
     <string name="wanderer_toast_successfully_uploaded">Berhasil diunggah ke Wanderer</string>
     <string name="wanderer_toast_upload_error">Kesalahan unggah Wanderer: %1$s</string>
@@ -4992,9 +4935,6 @@
     <string name="widgets_drag_to_reorder">Seret untuk menyusun ulang</string>
     <string name="widgets_more_options">Opsi lainnya</string>
     <string name="pref_widget_devices_mode_inherit">Ikuti dasbor</string>
-    <string name="pref_widget_columns_title">Lebar</string>
-    <string name="pref_widget_columns_one">1 kolom</string>
-    <string name="pref_widget_columns_two">2 kolom</string>
     <string name="pref_widget_title_title">Judul kustom</string>
     <string name="pref_widget_title_summary">Mengganti judul default widget. Biarkan kosong untuk menggunakan judul default.</string>
     <string name="unit_hours">j</string>

@@ -249,9 +249,7 @@
     <string name="discovery_stop_scanning">Peata skannimine</string>
     <string name="discovery_start_scanning">Alusta avastamist</string>
     <string name="action_discover">Ühenda uus seade</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="title_activity_android_pairing">Seadme sidumine</string>
-    <string name="android_pairing_hint">Kasuta seadme sidumiseks Androidi Bluetoothi sidumise dialoogi.</string>
     <string name="title_activity_mi_band_pairing">Seo oma Mi Band</string>
     <string name="pairing">Sidumine %s…</string>
     <string name="pairing_creating_bond_with">Sideme loomine - %1$s (%2$s)</string>
@@ -307,7 +305,6 @@
     <string name="stats_x_axis_label">Minuteid kokku</string>
     <string name="stats_y_axis_label">Samme minutis</string>
     <string name="control_center_find_lost_device">Leia kaotatud seade</string>
-    <string name="title_activity_charts">Aktiivsus ja uni</string>
     <string name="title_activity_set_alarm">Seadista äratused</string>
     <string name="controlcenter_start_configure_alarms">Seadista äratusi</string>
     <string name="title_activity_alarm_details">Äratuse info</string>
@@ -558,7 +555,6 @@
     <string name="pref_title_setup_bt_pairing">Lülita Bluetooth\'i paaritamine sisse</string>
     <string name="title_activity_pebble_pairing">Pebble paaritamine</string>
     <string name="ok">Sobib</string>
-    <string name="activity_db_management_exportimport_label">Eksport ja import</string>
     <string name="activity_db_management_empty_DB">Tühjenda andmebaas</string>
     <string name="mi2_prefs_inactivity_warnings_threshold">Inaktiivsuse maksimaalne kestvus (minutites)</string>
     <string name="mi2_prefs_inactivity_warnings_summary">Kell väriseb, kui sa oled tükk aega inaktiivne olnud</string>
@@ -574,10 +570,7 @@
     <string name="appwidget_setting_alarm">Sean äratuse %1$02d:%2$02d -ks</string>
     <string name="appwidget_text">Zzz</string>
     <string name="save_configuration">Salvesta seadistus</string>
-    <string name="mode_configuration">Režiimiseadistus</string>
     <string name="filter_mode">Filtreerimisrežiim</string>
-    <string name="toast_notification_filter_words_empty_hint">Sisesta vähemalt üks sõna</string>
-    <string name="title_activity_notification_filter">Teavituste filter</string>
     <string name="language_and_region_prefs">Keele ja regioonisätted</string>
     <string name="pref_invalid_frequency_title">Vigane sagedus</string>
     <string name="preferences_led_color">Valgusdioodi värv</string>
@@ -608,7 +601,6 @@
     <string name="choose_auto_export_location">Ekspordi asukoha valimine</string>
     <string name="updatefirmwareoperation_update_in_progress">Püsivara paigaldamine</string>
     <string name="hr_widget_last_notification">Viimane teavitus</string>
-    <string name="error_no_location_access">Juurdepääs asukohale peab olema lubatud ja asukoht sisse lülitatud skannimise korrektseks toimimiseks</string>
     <string name="prefs_button_long_press_action_selection_title">Pika nupuvajutuse toiming</string>
     <string name="prefs_button_variable_actions">Üksikasjalikud nupuvajutusseaded</string>
     <string name="prefs_button_triple_press_action_selection_title">3. sündmuse tegevus</string>
@@ -709,7 +701,6 @@
     <string name="companiondevice_pairing">CompanionDevice-tüüpi paaritamine</string>
     <string name="require_location_provider">Asukoht peab olema sisse lülitatud</string>
     <string name="error_version_check_extreme_caution">HOIATUS: Viga versiooniinfot kontrollides! Te ei tohiks jätkata! Nägin versiooninime \"%s\"</string>
-    <string name="permission_granting_mandatory">Kõik need ligipääsud on vajalikud ning rakendus võib valesti käituda, kui ligipääsu ei anna</string>
     <plurals name="widget_alarm_target_hours">
         <item quantity="one">%1$d:%2$02d tund</item>
         <item quantity="other">%1$d:%2$02d tundi</item>
@@ -795,7 +786,6 @@
     <string name="watchface_widget_type_heart_rate">Pulsisagedus</string>
     <string name="button_watchface_preview">Eelvaata kellast</string>
     <string name="pref_dashboard_widget_today_24h_title">24h režiim</string>
-    <string name="pref_dashboard_first_summary">Gadgetbridge\'i käivitumisel kuva seadmete akna asemel juhtpaneel</string>
     <string name="pref_dashboard_select_devices_title">Vali seadmed…</string>
     <string name="pref_dashboard_cards_title">Kuva kaartidel vidinad</string>
     <string name="pref_dashboard_devices_to_include">Kaasatavad seadmed</string>
@@ -811,7 +801,6 @@
     <string name="pref_dashboard_widgets_order_summary">Vali, millised vidinad lubatakse ja millises järjekorras neid juhtpaneelil kuvatakse</string>
     <string name="pref_dashboard_widget_goals_chart_title">Eesmärkide tabel</string>
     <string name="pref_dashboard_select_devices_summary">Ühenda valitud seadmete aktiivsuse andmed juhtpaneelil kuvatavaks kogusummaks</string>
-    <string name="pref_dashboard_first_title">Kuva esmalt juhtpaneel</string>
     <string name="pref_dashboard_cards_summary">Joonista juhtpaneelil olevate vidinate ümber kaardid</string>
     <string name="dashboard_settings">Juhtpaneeli seaded</string>
     <string name="pref_dashboard_widget_today_upside_down_summary">24-tunni režiimis kuva graafiku allosas kesköö ja ülaosas keskpäev</string>
@@ -861,7 +850,6 @@
     <string name="calendar_two_weeks">Kaks nädalat</string>
     <string name="battery_detail_activity_title">Aku teave</string>
     <string name="calendar_month">Kuu</string>
-    <string name="uncheck_all_applications">Eemalda valik kõigilt rakendustelt</string>
     <string name="prefs_activity_in_device_card_sleep_title_summary">Näita une kestust</string>
     <string name="prefs_activity_in_device_card_steps_title_summary">Kuva sammude kogusumma</string>
     <string name="calendar_week">Nädal</string>
@@ -871,7 +859,6 @@
     <string name="debugactivity_confirm_remove_device_preferences">Järgnevaga lähtestad selle seadme seadmekohased eelistused. Oled sa kindel?</string>
     <string name="appmanager_item_outdated">(aegunud)</string>
     <string name="title_activity_notification_management">Märguannete seaded</string>
-    <string name="check_all_applications">Märgi kõik rakendused</string>
     <string name="fw_upgrade_notice_miband7">Oled paigaldamas %s püsivara oma Xiaomi Smart Band 7 kellale.\n\nPärast .zip faili paigaldamist kell taaskäivitub.\n\nJÄTKA OMAL VASTUTUSEL!</string>
     <string name="fw_upgrade_notice_amazfit_gts3">Oled paigaldamas %s püsivara oma Amazfit GTS 3 kellale.\n\nPärast .zip faili paigaldamist kell taaskäivitub.\n\nJÄTKA OMAL VASTUTUSEL!</string>
     <string name="fw_upgrade_notice_amazfit_gts4_mini">Oled paigaldamas %s püsivara oma Amazfit GTS 4 Minile.\n\nPärast .zip faili paigaldamist kell taaskäivitub.\n\nJÄTKA OMAL VASTUTUSEL!</string>
@@ -1262,9 +1249,6 @@
     <string name="about_hash">Kompileeritud lähtekoodi sissekande %s alusel</string>
     <string name="soundcore_voice_prompts">Häälsisendid</string>
     <string name="soundcore_button_brightness">Nupu eredus</string>
-    <string name="soundcore_button_brightness_low">Madal</string>
-    <string name="soundcore_button_brightness_medium">Keskmine</string>
-    <string name="soundcore_button_brightness_high">Kõrge</string>
     <string name="soundcore_ldac_mode_title">LDAC-režiim</string>
     <string name="soundcore_ldac_mode_summary">LDAC-koodeki kasutamisel kasvab aku koormus ja ühendus võib muutuda ebastabiilseks</string>
     <string name="soundcore_auto_power_off_title">Automaatne väljalülitamine</string>
@@ -1302,25 +1286,8 @@
     <string name="soundcore_equalizer_reset_title">Lähtesta vaikimisi seadistusteks</string>
     <string name="soundcore_equalizer_preset_rnb">Rütmibluus</string>
     <string name="soundcore_equalizer_preset_lounge">Sohvabaari muusika</string>
-    <string name="soundcore_equalizer_band1">1. sagedusriba</string>
-    <string name="soundcore_equalizer_band2">2. sagedusriba</string>
-    <string name="soundcore_equalizer_band3">3. sagedusriba</string>
-    <string name="soundcore_equalizer_band4">4. sagedusriba</string>
-    <string name="soundcore_equalizer_band5">5. sagedusriba</string>
-    <string name="soundcore_equalizer_band6">6. sagedusriba</string>
-    <string name="soundcore_equalizer_band7">7. sagedusriba</string>
-    <string name="soundcore_equalizer_band8">8. sagedusriba</string>
-    <string name="soundcore_equalizer_band9">9. sagedusriba</string>
     <string name="soundcore_equalizer_frequency">Sagedus</string>
     <string name="soundcore_equalizer_value">Väärtus</string>
-    <string name="soundcore_equalizer_band1_freq">100 Hz</string>
-    <string name="soundcore_equalizer_band2_freq">200 Hz</string>
-    <string name="soundcore_equalizer_band3_freq">400 Hz</string>
-    <string name="soundcore_equalizer_band4_freq">800 Hz</string>
-    <string name="soundcore_equalizer_band5_freq">1.6 kHz</string>
-    <string name="soundcore_equalizer_band6_freq">3.2 kHz</string>
-    <string name="soundcore_equalizer_band7_freq">6.4 kHz</string>
-    <string name="soundcore_equalizer_band8_freq">12.8 kHz</string>
     <string name="soundcore_equalizer_reset_summary">Lähtesta kõikide sagedusribade väärtused vaikimisi väärtusteks</string>
     <string name="soundcore_enable_pairing_mode_summary">Lülita uue seadme ühendamiseks tuvastuse ja paardiumise režiim sisse</string>
     <string name="soundcore_battery_low_tone_title">Madala akutäituvuse helimärguanne</string>

@@ -149,9 +149,7 @@
     <string name="discovery_stop_scanning">Parar a busca</string>
     <string name="discovery_start_scanning">Comezar a busca</string>
     <string name="action_discover">Conectar novo dispositivo</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="title_activity_android_pairing">Emparellar dispositivo</string>
-    <string name="android_pairing_hint">Usar o menú de emparellamento Bluetooth de Android para vincular o dispositivo.</string>
     <string name="title_activity_mi_band_pairing">Emparella a túa MiBand</string>
     <string name="pairing">Emparellando con %s…</string>
     <string name="pairing_creating_bond_with">Creando vínculo con %1$s (%2$s)</string>
@@ -223,7 +221,6 @@
     <string name="stats_y_axis_label">Pasos por minuto</string>
     <string name="control_center_find_lost_device">Atopar dispositivo perdido</string>
     <string name="control_center_cancel_to_stop_vibration">Cancelar para deter a vibración.</string>
-    <string name="title_activity_charts">A túa actividade</string>
     <string name="title_activity_set_alarm">Configurar alarmas</string>
     <string name="controlcenter_start_configure_alarms">Configurar alarmas</string>
     <string name="title_activity_alarm_details">Detalles da alarma</string>
@@ -642,8 +639,6 @@
     <string name="title_activity_notification_management">Axustes das notificacións</string>
     <string name="blacklist_all_for_notifications">Ocultar todas as notificacións</string>
     <string name="whitelist_all_for_notifications">Permitir todas as notificacións</string>
-    <string name="check_all_applications">Marcar todas as aplicacións</string>
-    <string name="uncheck_all_applications">Desmarcar todas as aplicacións</string>
     <string name="title_activity_file_installer">Instalador de ficheiros</string>
     <string name="open_fw_installer_warning_title">Aviso</string>
     <string name="open_fw_installer_warning_text">Esta ferramenta ten o potencial de estragar o teu dispositivo. Con todo, isto nunca aconteceu en ningún dos dispositivos que o equipo de desenvolvemento utilizou, mais lembra que fas esta operación baixo a túa responsabilidade.</string>
@@ -881,7 +876,6 @@
     <string name="lack_of_step">Déficit de pasos: %1$s</string>
     <string name="stress_average">Promedio</string>
     <string name="weekstepschart_steps_a_month">Pasos por mes</string>
-    <string name="weekstepschart_steps_a_week_or_month">Pasos por semana/mes</string>
     <string name="activity_prefs_chart_min_steps_per_minute_for_run">Pasos por minuto mínimos para detectar unha carreira</string>
     <string name="activity_prefs_chart_min_steps_per_minute">Pasos por minuto mínimos para detectar unha actividade</string>
     <string name="charts_legend_stress_average">Promedio do estrés</string>
@@ -1000,8 +994,6 @@
     <string name="dashboard_settings">Axustes do panel</string>
     <string name="bottom_nav_dashboard">Panel</string>
     <string name="bottom_nav_devices">Dispositivos</string>
-    <string name="pref_dashboard_first_title">Iniciar co panel</string>
-    <string name="pref_dashboard_first_summary">Mostra o panel ao iniciar Gadgetbridge, no lugar da pantalla cos dispositivos</string>
     <string name="pref_dashboard_cards_title">Mostra os widgets en tarxetas</string>
     <string name="pref_dashboard_cards_summary">Debuxa un bordo arredor dos widgets no panel</string>
     <string name="pref_dashboard_widget_settings">Axustes do widget</string>

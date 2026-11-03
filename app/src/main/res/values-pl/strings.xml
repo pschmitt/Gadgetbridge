@@ -125,9 +125,7 @@
     <string name="discovery_stop_scanning">Przerwij wyszukiwanie</string>
     <string name="discovery_start_scanning">Rozpocznij wyszukiwanie</string>
     <string name="action_discover">Dodaj nowe urządzenie</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="title_activity_android_pairing">Sparuj urządzenie</string>
-    <string name="android_pairing_hint">Użyj parowania Bluetooth na Androidzie by sparować urządzenie.</string>
     <string name="title_activity_mi_band_pairing">Sparuj Mi Band</string>
     <string name="pairing">Parowanie z %s…</string>
     <string name="message_cannot_pair_no_mac">Nie przekazano adresu MAC, nie można go sparować.</string>
@@ -167,7 +165,6 @@
     <string name="pref_screen_notification_profile_generic_social">Sieć społecznościowa</string>
     <string name="control_center_find_lost_device">Odnajdź zagubione urządzenie</string>
     <string name="control_center_cancel_to_stop_vibration">Anuluj by przerwać wibracje.</string>
-    <string name="title_activity_charts">Aktywność i Sen</string>
     <string name="title_activity_set_alarm">Konfiguruj alarmy</string>
     <string name="controlcenter_start_configure_alarms">Konfiguruj alarmy</string>
     <string name="title_activity_alarm_details">Szczegóły alarmu</string>
@@ -540,7 +537,6 @@
     <string name="appwidget_setting_alarm">Ustawienie alarmu na %1$02d:%2$02d</string>
     <string name="error_creating_directory_for_logfiles">Błąd tworzenia folderu na pliki log: %1$s</string>
     <string name="DEVINFO_HR_VER">"Tętno: "</string>
-    <string name="filter_mode_whitelist">Pokazuj gdy zawiera słowa</string>
     <string name="pref_chart_heartrate_color_red">Czerwony</string>
     <string name="mi2_prefs_button_press_broadcast_default_value" translatable="false">nodomain.freeyourgadget.gadgetbridge.ButtonPressed</string>
     <string name="timeformat_24h">24-godzinny</string>
@@ -564,11 +560,7 @@
     <string name="title_activity_watch9_pairing">Parowanie Watch 9</string>
     <string name="title_activity_watch9_calibration">Kalibracja Lenovo Watch 9</string>
     <string name="ok">OK</string>
-    <string name="title_activity_notification_filter">Filtr powiadomień</string>
     <string name="filter_mode_none">Nie filtruj</string>
-    <string name="filter_submode_at_least_one">Przynajmniej jedno ze słów</string>
-    <string name="filter_submode_all">Wszystkie słowa</string>
-    <string name="toast_notification_filter_words_empty_hint">Wprowadź przynajmniej jedno słowo</string>
     <string name="save_configuration">Zapisz ustawienia</string>
     <string name="activity_type_exercise">Ćwiczenia</string>
     <string name="prefs_disconnect_notification">Powiadomienie o rozłączeniu</string>
@@ -634,8 +626,6 @@
     <string name="average">Średnia: %1$s</string>
     <string name="pref_header_charts">Ustawienia wykresów</string>
     <string name="pref_title_charts_range">Zakres wykresów</string>
-    <string name="pref_charts_range_on">Zakres wykresów jest ustawiony na miesiąc</string>
-    <string name="pref_charts_range_off">Zakres wykresów jest ustawiony na tydzień</string>
     <string name="weekstepschart_steps_a_month">Kroki w miesiącu</string>
     <string name="weeksleepchart_sleep_a_month">Sen w miesiącu</string>
     <string name="menuitem_nfc">NFC</string>
@@ -648,7 +638,6 @@
     <string name="activity_DB_delete_legacy_button">Usuń starą bazę danych</string>
     <string name="activity_DB_empty_button">Opróżnienie bazy danych</string>
     <string name="activity_db_management_empty_DB">Opróżnienie bazy danych</string>
-    <string name="activity_db_management_exportimport_label">Eksport i Import</string>
     <string name="activity_db_management_empty_db_warning">Ostrzeżenie! Naciskając ten przycisk wyczyścisz bazę danych i zaczniesz wszystko od nowa.</string>
     <string name="widget_5_minutes">5 minut</string>
     <string name="widget_10_minutes">10 minut</string>
@@ -708,11 +697,7 @@
     <string name="pref_title_contextual_arabic">Kontekstowy Arabski</string>
     <string name="pref_summary_contextual_arabic">Włącz tę opcję, aby obsługiwać kontekstowy język arabski</string>
     <string name="preferences_rtl_settings">Obsługa pisowni od prawej do lewej</string>
-    <string name="edittext_notification_filter_words_hint">Wprowadź żądane wyrazy, każdy w nowej linii</string>
-    <string name="toast_notification_filter_saved_successfully">Zapisano filtr powiadomień</string>
-    <string name="filter_mode_blacklist">Blokuj jeśli zawiera słowa</string>
     <string name="filter_mode">Tryb filtrowania</string>
-    <string name="mode_configuration">Ustawienia trybu</string>
     <string name="appwidget_not_connected">Nie połączono, alarm nieustawiony.</string>
     <string name="zetime_calories_type_active">Tylko aktywnie spalone kalorie</string>
     <string name="zetime_calories_type_all">Kalorie spalone aktywnie i nieaktywnie</string>
@@ -758,7 +743,6 @@
     <string name="zetime_activity_tracking_summary">Włączenie śledzenia aktywności policzy twoje kroki i inne.</string>
     <string name="qhybrid_time_shift">Przesunięcie w czasie</string>
     <string name="qhybrid_use_activity_hand_as_notification_counter">Użyj wskaźnika aktywności jako licznika powiadomień</string>
-    <string name="error_no_location_access">Dostęp do lokalizacji musi zostać przyznany i włączony, aby skanowanie działało poprawnie</string>
     <string name="pref_summary_allow_high_mtu">Zwiększa szybkość transferu, ale może nie działać na niektórych urządzeniach z Androidem.</string>
     <string name="pref_title_allow_high_mtu">Zezwól na wysoki MTU</string>
     <string name="pref_summary_sync_calendar">Włącza alerty kalendarza, nawet po rozłączeniu</string>
@@ -856,7 +840,6 @@
     <string name="ascentMeters">Pod górę</string>
     <string name="distanceMeters">Dystans</string>
     <string name="require_location_provider">Lokalizacja musi być włączona</string>
-    <string name="permission_granting_mandatory">Wszystkie te uprawnienia są wymagane, a ich brak może spowodować niestabilność</string>
     <string name="about_additional_device_support">Dodatkowe wsparcie dla urządzeń</string>
     <string name="menuitem_cycles">Śledzenie cyklu</string>
     <string name="menuitem_breathing">Oddychanie</string>
@@ -1056,7 +1039,6 @@
     <string name="discovery_entered_invalid_authkey">Wprowadzony klucz autoryzacji jest nieprawidłowy! Naciśnij i przytrzymaj, aby edytować.</string>
     <string name="prefs_events_forwarding_broadcast_title">Treść emisji (broadcast)</string>
     <string name="prefs_events_forwarding_summary">Używanie zdarzeń urządzenia do wyzwalania działań i emisji (broadcast) Androida</string>
-    <string name="activity_DB_ShowContentButton">Pokaż zawartość katalogu eksportu/importu</string>
     <string name="activity_data_management_directory_content_title">Eksportuj/Importuj zawartość katalogu</string>
     <string name="prefs_fake_ring_duration">Fałszywe ciągłe dzwonienie</string>
     <string name="prefs_operating_sounds">Dźwięki funkcjonowania</string>
@@ -1225,15 +1207,10 @@
     <string name="nothing_prefs_inear_title">Wykrywanie włożenia słuchawki do ucha</string>
     <string name="nothing_prefs_audiomode_title">Tryb audio</string>
     <string name="pref_header_notification_application_settings">Ustawienia dla poszczególnych aplikacji</string>
-    <string name="pref_title_notification_use_as_allow">Zezwól na powiadomienia z wybranych aplikacji</string>
     <string name="pref_applications_settings">Lista aplikacji</string>
-    <string name="uncheck_all_applications">Odznacz wszystkie aplikacje</string>
     <string name="title_activity_notification_management">Ustawienia powiadomień</string>
-    <string name="check_all_applications">Zaznacz wszystkie aplikacje</string>
-    <string name="pref_title_notification_use_as">Użyj listy aplikacji, aby…</string>
     <string name="pref_title_message_privacy_mode">Tryb prywatności wiadomości</string>
     <string name="pref_message_privacy_mode_off">Wyświetl całą zawartość</string>
-    <string name="pref_title_notification_use_as_deny">Odrzucaj powiadomienia z wybranych aplikacji</string>
     <string name="pref_message_privacy_mode_complete">Ukryj całą zawartość</string>
     <string name="prefs_equalizer_preset">Ustawienia wstępne korektora dźwięku</string>
     <string name="pref_title_equalizer_bass_boost">Podbicie basów</string>
@@ -1255,11 +1232,9 @@
     <string name="prefs_galaxy_touch_options">Opcje dotykowe</string>
     <string name="prefs_galaxy_buds_experimental">Eksperymentalne</string>
     <string name="pref_title_equalizer_clear">Czyste</string>
-    <string name="toast_app_must_be_selected">Aplikacja musi być wybrana, aby mogła być skonfigurowana</string>
     <string name="prefs_game_mode_summary">Tylko jeśli Twój telefon obsługuje tryb gry</string>
     <string name="prefs_touch_lock_summary">Wyłącz zdarzenia dotykowe</string>
     <string name="pref_title_equalizer_dynamic">Dynamiczny</string>
-    <string name="toast_app_must_not_be_selected">Aplikacja nie może być wybrana, aby mogła być skonfigurowana</string>
     <string name="left_earbud">Lewa słuchawka</string>
     <string name="battery_case">Etui ładujące</string>
     <string name="right_earbud">Prawa słuchawka</string>
@@ -2122,7 +2097,6 @@
     <string name="menuitem_total_workout">Totalny trening</string>
     <string name="fossil_hr_confirmation_skipped">Pomijanie potwierdzenia na urządzeniu</string>
     <string name="find_my_phone_found_it">ZNALAZŁEM</string>
-    <string name="error_no_bluetooth_scan">Aby skanowanie działało prawidłowo, należy przyznać i włączyć dostęp do skanowania Bluetooth</string>
     <string name="activity_type_snowboarding">Snowboard</string>
     <string name="busy_task_fetch_stress_data">Pobieranie danych o obciążeniu</string>
     <string name="pref_app_logs_summary">Włącz dzienniki aplikacji zegarka</string>
@@ -2275,7 +2249,6 @@
     <string name="prefs_wena3_item_rich_design">Użyj bogatego projektu</string>
     <string name="english_ca">Angielski (Kanada)</string>
     <string name="prefs_wena3_day_start_hour_item">Dzień zaczyna się o</string>
-    <string name="error_no_bluetooth_connect">Aby skanowanie działało prawidłowo, należy przyznać i włączyć dostęp do połączenia Bluetooth</string>
     <string name="prefs_shortcut_cards_summary">Karty skrótów widoczne po przesunięciu palcem w prawo na tarczy zegarka. To ustawienie nie ma wpływu na automatycznie generowane karty, gdy aplikacja jest uruchomiona.</string>
     <string name="zepp_os_watchface_rush">Pośpiech</string>
     <string name="info_menu_structure_set">Struktura menu JSON ustawiona w GB</string>
@@ -2534,7 +2507,6 @@
     <string name="alarm_smart_wakeup_interval_default">5 minut</string>
     <string name="activity_type_cross_country_running">Bieg przełajowy</string>
     <string name="activity_type_belly_dance">Taniec brzucha</string>
-    <string name="alarm_smart_wakeup_interval">Inteligentny interwał budzenia:</string>
     <string name="activity_type_long_jump">Skok w dal</string>
     <string name="activity_type_high_jump">Skok wzwyż</string>
     <string name="minutes_20">20 minut</string>
@@ -2572,7 +2544,6 @@
     <string name="activity_type_esports">Esport</string>
     <string name="activity_type_finswimming">Pływanie w płetwach</string>
     <string name="activity_type_flowriding">Sztuczna fala</string>
-    <string name="weekstepschart_steps_a_week_or_month">Kroki w tygodniu/miesiącu</string>
     <string name="fw_upgrade_notice_amazfitbip3">Właśnie zamierzasz zainstalować oprogramowanie układowe %s na swoim Amazfit Bip 3.
 \n
 \nProszę upewnić się, że zainstalowany został plik .fw, a następnie plik .res. Po zainstalowaniu pliku .fw Twój zegarek zostanie ponownie uruchomiony.
@@ -2779,7 +2750,6 @@
     <string name="auto_reconnect_ble_scan_title">Połącz się ponownie poprzez skan BLE</string>
     <string name="scan_not_scanning">Nie skanuję</string>
     <string name="pref_dashboard_widget_today_24h_title">Tryb 24 godzinny</string>
-    <string name="pref_dashboard_first_summary">Pokazuj pulpit po uruchomieniu Gadgetbridge, zamiast ekranu urządzeń</string>
     <string name="pref_dashboard_widget_double_size_summary">Pozwól widżetowi zająć dwie kolumny na pulpicie</string>
     <string name="pref_dashboard_widget_today_24h_summary">Pokazuj aktywność w pojedynczym 24h okręgu zamiast podwójnego 12h okręgu</string>
     <string name="pref_auto_reply_calls_delay_title">Automatyczne opóźnienie odpowiedzi</string>
@@ -2811,7 +2781,6 @@
     <string name="pref_auto_reply_calls_delay_summary">Liczba sekund po ilu połączenie jest automatycznie odbierane</string>
     <string name="pref_speak_notifications_focus_exclusive_summary_on">Dźwięk z innych aplikacji zostanie zatrzymany podczas czytania powiadomienia</string>
     <string name="pref_summary_bottom_navigation_bar_on">Przełączaj się pomiędzy ekranami głównymi za pomocą paska nawigacyjnego lub przesuwania w poziomie</string>
-    <string name="pref_dashboard_first_title">Pokazuj pulpit na początku</string>
     <string name="pref_sleepasandroid_device_title">Urządzenie dostawca</string>
     <string name="pref_sleepasandroid_features_summary">Wsparcie różni się dla poszczególnych urządzeń</string>
     <string name="pref_dashboard_widget_today_hr_interval_title">Interwał tętna</string>
@@ -2997,13 +2966,6 @@
     <string name="prefs_light_duration_longer">Dłuższe podświetlanie</string>
     <string name="vo2max_cycling">Kolarski pułap tlenowy (VO₂ Max)</string>
     <string name="soundcore_equalizer_reset_summary">Przywraca wszystkie pasma korektora do ustawień domyślnych</string>
-    <string name="soundcore_equalizer_band1">Pasmo 1</string>
-    <string name="soundcore_equalizer_band2">Pasmo 2</string>
-    <string name="soundcore_equalizer_band3">Pasmo 3</string>
-    <string name="soundcore_equalizer_band4">Pasmo 4</string>
-    <string name="soundcore_equalizer_band6">Pasmo 6</string>
-    <string name="soundcore_equalizer_band7">Pasmo 7</string>
-    <string name="soundcore_equalizer_band8">Pasmo 8</string>
     <string name="pref_title_garmin_default_reply_suffix">Używaj predefiniowanego przyrostka odpowiedzi</string>
     <string name="toggle_debug_mode">Włącz tryb debugowania</string>
     <string name="activity_type_track_and_field">Lekkoatletyka</string>
@@ -3011,7 +2973,6 @@
     <string name="thirty_days_timeline">Oś czasowa z 30 dni</string>
     <string name="moondrop_touch_action_play_pause">Odtwarzaj/Wstrzymaj</string>
     <string name="moondrop_touch_trigger_long_press_1s">Długie przyciśnięcie (1s)</string>
-    <string name="soundcore_equalizer_band5">Pasmo 5</string>
     <string name="auto_reconnect_ble_scan_summary">Czekaj na skan urządzenia zamiast prób połączenia się na ślepo</string>
     <string name="pref_garmin_agps_help">Poniższa lista zawiera wszystkie adresy URL, o które zegarek prosi podczas aktualizacji danych AGPS. Możesz wybrać plik z pamięci telefonu, który zostanie wysłany do zegarka, gdy zażąda on aktualizacji.\n\nWystarczy skonfigurować jeden z tych plików.</string>
     <string name="activity_type_dynamic_cycle">Kolarstwo dynamiczne</string>
@@ -3023,8 +2984,6 @@
     <string name="soundcore_equalizer_direction">Pozycja urządzenia</string>
     <string name="soundcore_equalizer_direction_hanging">Wisi</string>
     <string name="notification_channel_scan_service_name">Usługa skanowania</string>
-    <string name="soundcore_equalizer_band9">Pasmo 9</string>
-    <string name="soundcore_button_brightness_high">Wysoka</string>
     <string name="pref_sleepasandroid_slot_title">Miejsca na alarm</string>
     <string name="pref_sleepasandroid_slot_summary">Którego miejsca użyć podczas ustawiania alarmu</string>
     <string name="alarm_slot_reset">Miejsce na alarm zostało ustawione jako domyślne</string>
@@ -3056,8 +3015,6 @@
     <string name="moondrop_touch_trigger_long_press_3s">Długie przyciśnięcie (3s)</string>
     <string name="soundcore_voice_prompts">Polecenia głosowe</string>
     <string name="soundcore_button_brightness">Jasność przycisku</string>
-    <string name="soundcore_button_brightness_low">Niska</string>
-    <string name="soundcore_button_brightness_medium">Średnia</string>
     <string name="soundcore_ldac_mode_title">Tryb LDAC</string>
     <string name="soundcore_ldac_mode_summary">Włączenie LDAC zwiększy zużycie baterii i może spowodować niestabilność połączenia</string>
     <string name="soundcore_adaptive_direction_title">Adaptacyjny kierunek</string>
@@ -3974,7 +3931,6 @@
     <string name="pref_refresh_on_swipe_title">Odśwież przy przeciągnięciu</string>
     <string name="unit_celsius">℃</string>
     <string name="unit_fahrenheit">℉</string>
-    <string name="charts_two_items_only">Możesz porównywać tylko dwa elementy jednocześnie.</string>
     <string name="charts_at_least_one_item">Musisz wybrać co najmniej jeden element.</string>
     <string name="workout_cadence">Kadencja</string>
     <string name="workout_charts">Wykresy ćwiczeń</string>
@@ -4501,7 +4457,6 @@
     <string name="service_not_logged_in">Nie zalogowano, integracja jest wyłączona</string>
     <string name="service_logged_in_refresh_token">Zalogowano do %1$s\nWażność tokena odświeżania wygasa: %2$s</string>
     <string name="service_server_version">\nWersja serwera: %1$s</string>
-    <string name="endurain_logout_failed">Wylogowanie nie powiodło się</string>
     <string name="service_logged_out">Wylogowano pomyślnie</string>
     <string name="prefs_online_fitness_trackers_title">Monitory aktywności online</string>
     <string name="prefs_online_fitness_trackers_summary">Skonfiguruj sposób uzyskiwania dostępu do monitorów aktywności online i korzystania z nich</string>
@@ -4518,16 +4473,12 @@
     <string name="unable_to_share_gpx_track_toast">Nie można udostępnić śladu GPX: %1$s</string>
     <string name="endurain_successfully_uploaded_toast">Pomyślnie przesłano do Endurain</string>
     <string name="endurain_error_while_uploading_toast">Błąd podczas przesyłania do Endurain</string>
-    <string name="endurain_unable_to_upload_gpx_file_toast">Nie można przesłać pliku aktywności do Endurain: %1$s</string>
-    <string name="endurain_setup_title">Konfiguracja Endurain</string>
-    <string name="endurain_setup_server">Serwer Endurain</string>
     <string name="service_setup_login_type_local">Lokalny</string>
     <string name="service_setup_login_type_sso">Jednorazowe logowanie</string>
     <string name="service_setup_mfa_code">Kod MFA</string>
     <string name="service_setup_next">Dalej</string>
     <string name="activity_detail_upload_to_endurain">Prześlij do Endurain</string>
     <string name="service_logged_in_to">Zalogowano do %s</string>
-    <string name="wanderer_setup_api_token_error">Token API powinien zaczynać się od wanderer_key_</string>
     <string name="service_setup_missing_information">Proszę wypełnić oba pola</string>
     <string name="wanderer_toast_successfully_uploaded">Pomyślnie przesłano do Wanderer</string>
     <string name="wanderer_toast_upload_error">Błąd przesyłania do Wanderer: %1$s</string>
@@ -4563,14 +4514,6 @@
     <string name="soundcore_equalizer_preset_small_speakers">Małe głośniki</string>
     <string name="soundcore_equalizer_preset_spoken_word">Słowo mówione</string>
     <string name="soundcore_equalizer_preset_treble_reducer">Reduktor wysokich tonów</string>
-    <string name="soundcore_equalizer_band1_freq">100 Hz</string>
-    <string name="soundcore_equalizer_band2_freq">200 Hz</string>
-    <string name="soundcore_equalizer_band3_freq">400 Hz</string>
-    <string name="soundcore_equalizer_band4_freq">800 Hz</string>
-    <string name="soundcore_equalizer_band5_freq">1.6 kHz</string>
-    <string name="soundcore_equalizer_band6_freq">3.2 kHz</string>
-    <string name="soundcore_equalizer_band7_freq">6.4 kHz</string>
-    <string name="soundcore_equalizer_band8_freq">12.8 kHz</string>
     <string name="tap_and_hold">Dotknij i przytrzymaj</string>
     <string name="double_tap_and_hold">Dotknij podwójnie i przytrzymaj</string>
     <string name="encryption">Szyfrowanie</string>
@@ -4967,9 +4910,6 @@
     <string name="widgets_drag_to_reorder">Przeciągnij, aby zmienić kolejność</string>
     <string name="widgets_more_options">Więcej opcji</string>
     <string name="pref_widget_devices_mode_inherit">Dziedziczenie z pulpitu nawigacyjnego</string>
-    <string name="pref_widget_columns_title">Szerokość</string>
-    <string name="pref_widget_columns_one">1 kolumna</string>
-    <string name="pref_widget_columns_two">2 kolumny</string>
     <string name="pref_widget_title_title">Tytuł niestandardowy</string>
     <string name="pref_widget_title_summary">Zastępuje domyślny tytuł widżetu. Pozostaw puste, aby użyć domyślnego tytułu.</string>
     <string name="body_mass_index">BMI</string>

@@ -25,8 +25,6 @@
     <string name="appmananger_app_reinstall">أعد التثبيت</string>
     <string name="app_move_to_top">انقل إلى الأعلى</string>
     <string name="title_activity_notification_management">إعدادات التنبيه</string>
-    <string name="uncheck_all_applications">إلغاء تحديد جميع التطبيقات</string>
-    <string name="check_all_applications">تحديد جميع التطبيقات</string>
     <string name="fw_upgrade_notice">توشك على تثبيت %s.</string>
     <string name="pref_header_general">الاعدادات العامة</string>
     <string name="pref_default">افتراضي</string>
@@ -83,7 +81,6 @@
     <string name="pref_title_call_privacy_mode">وضع خصوصية الاتصال</string>
     <string name="pref_title_pebble_settings">إعدادات Pebble</string>
     <string name="prefs_title_all_day_heart_rate">قياس معدل نبضات القلب طوال اليوم</string>
-    <string name="pref_title_notification_use_as">استخدم قائمة التطبيقات ل…</string>
     <string name="pref_title_rtl">من اليمين إلى اليسار</string>
     <string name="pref_summary_rtl">قم بتمكين هذا إذا كان جهازك لا يمكنه عرض اللغات من اليمين إلى اليسار</string>
     <string name="pref_theme_system">نظام</string>
@@ -433,7 +430,6 @@
     <string name="open_fw_installer_connect_minimum_one_device">الرجاء توصيل جهاز واحد على الأقل الذي تريد إرسال الملف إليه.</string>
     <string name="pref_summary_minimize_priority_off">يتم عرض الرمز الموجود في شريط الحالة والإشعار في شاشة القفل</string>
     <string name="pref_title_notification_cache_while_disconnected">التخزين المؤقت خارج النطاق</string>
-    <string name="pref_title_notification_use_as_allow">السماح بالإشعارات من التطبيقات المحددة</string>
     <string name="pref_title_transliteration">الترجمة الحرفية</string>
     <string name="pref_summary_screen_on_on_notifications">قم بتشغيل شاشة السوار عند وصول إشعار</string>
     <string name="pref_summary_enable_calendar_sync">إرسال التقويم الأحداث إلى الجدول الزمني</string>
@@ -497,7 +493,6 @@
     <string name="ok">نعم</string>
     <string name="activity_type_swimming">السباحه</string>
     <string name="share">مشاركة</string>
-    <string name="error_no_location_access">يجب منح الوصول إلى الموقع وتمكينه للمسح ليعمل بشكل صحيح</string>
     <string name="error_background_service_reason">فشل بدء تشغيل خدمة الخلفية بسبب استثناء - انقر هنا لمزيد من المعلومات.\n\nخطأ:</string>
     <string name="pref_summary_pebble_enable_applogs">سيؤدي إلى تسجيل السجلات من تطبيقات الساعة بواسطة Gadgetbridge (يتطلب إعادة الاتصال)</string>
     <string name="test">الاختبار</string>
@@ -566,7 +561,6 @@
     <string name="swedish">السويدية</string>
     <string name="dbmanagementactivity_overwrite">الكتابة فوق</string>
     <string name="watch9_time_minutes">دقائق:</string>
-    <string name="toast_app_must_not_be_selected">يجب عدم تحديد التطبيق ليتم تكوينه</string>
     <string name="contact_delete_confirm_description">هل أنت متأكد من أنك تريد حذف \"%1$s\"؟</string>
     <string name="alarm_wed_short">الار</string>
     <string name="alarm_thu_short">الخ</string>
@@ -627,7 +621,6 @@
     <string name="hr_appname_workout">تمرين</string>
     <string name="hr_appname_stopwatch">ساعة التوقيف</string>
     <string name="about_core_team_title">الفريق الأساسي (بترتيب مساهمة الكود الأول)</string>
-    <string name="permission_granting_mandatory">كل هذه الأذونات مطلوبة وقد يحدث عدم استقرار إذا لم يتم منحها</string>
     <string name="permission_display_over_other_apps">يحتاج %1$s إلى إذن للعرض فوق التطبيقات الأخرى للسماح لساعات Bangle.js ببدء الأنشطة عبر النوايا عندما يكون %1$s في الخلفية. \n \nيمكن استخدام هذا لبدء تشغيل تطبيق الموسيقى وتشغيل أغنية وأشياء أخرى كثيرة. \n \nيُرجى النقر على \"%2$s\" ثم \"%1$s\" وتمكين \"السماح بالعرض فوق التطبيقات الأخرى\" ، ثم النقر على \"رجوع\" للعودة إلى %1$s. \n \nلإيقاف طلب %1$s للحصول على أذونات ، انتقل إلى \"الإعدادات\" وقم بإلغاء تحديد \"التحقق من حالة الإذن\". \n \nتأكد من منح %1$s الأذونات اللازمة للعمل كما تتوقع.</string>
     <string name="discover_unsupported_devices_description">سيؤدي تمكين هذا الخيار إلى عرض جميع أجهزة البلوتوث المكتشفة عند المسح. سيؤدي النقر باختصار إلى نسخ اسم الجهاز وعنوان mac إلى الحافظة. الضغط لفترة طويلة سيؤدي إلى تشغيل مربع الحوار \"إضافة جهاز اختبار\". يمكن أن يتسبب في حدوث مشكلات محتملة في تجميد التطبيق.</string>
     <string name="fossil_hr_warning_firmware_too_new">تم تعطيل بعض الوظائف لأن البرنامج الثابت للساعة جديد جدًا</string>
@@ -645,14 +638,12 @@
     <string name="kind_font">الخط</string>
     <string name="prefs_fm_preset_instructions">اضغط لفترة طويلة على الزر لتخزين الإعداد المسبق</string>
     <string name="prefs_autoheartrate_summary">قياسات دورية لمعدل نبضات القلب أثناء النهار وأيضًا أثناء النوم</string>
-    <string name="android_pairing_hint">استخدم مربع حوار Android Bluetooth الاقتران لإقران الجهاز.</string>
     <string name="miband_prefs_vibration">اهتزاز</string>
     <string name="prefs_activity_monitoring_description">قم بزيادة تردد اكتشاف معدل نبضات القلب تلقائيا عندما يكتشف السوار ممارسة الرياضة البدنية ، لزيادة دقة التقاط معدل ضربات القلب.</string>
     <string name="prefs_password_6_digits_0_to_9_summary">يجب أن تتكون كلمة المرور من 6 أرقام ، باستخدام أرقام فقط</string>
     <string name="mi2_prefs_heart_rate_monitoring_alerts_summary">تكوين مراقبة معدل نبضات القلب وعتبات التنبيه</string>
     <string name="arabic">العربية</string>
     <string name="vietnamese">الفيتنامية</string>
-    <string name="toast_app_must_be_selected">يجب تحديد التطبيق ليتم تكوينه</string>
     <string name="zetime_title_heart_rate_alarm_summary">الساعة ستحذرك عندما يتجاوز معدل قلبك الحدود.</string>
     <string name="zetime_signaling_none">صامت</string>
     <string name="female">أنثى</string>
@@ -668,7 +659,6 @@
     <string name="mi2_enable_text_notifications_summary"><![CDATA[يتطلب تثبيت إصدار البرنامج 1.0.1.28 أو أحدث وملف Mili_pro.ft*.]]></string>
     <string name="warning">تحذير!</string>
     <string name="pref_chart_heartrate_color_red">أحمر</string>
-    <string name="pref_charts_range_on">تم تعيين نطاق الرسوم البيانية إلى شهر</string>
     <string name="notification_channel_high_priority_name">أولوية عالية</string>
     <string name="sonyswr12_settings_low_vibration_summary">تفعيل شدة اهتزاز منخفضة على سوار المعصم</string>
     <string name="autoconnect_from_device_summary">قم بتأسيس اتصال عندما يبدأ الاتصال بواسطة الجهاز ، مثل سماعات الرأس</string>
@@ -712,7 +702,6 @@
     <string name="pref_title_notification_prefer_long_text">تفضيل نص طويل للإشعار</string>
     <string name="pref_summary_notification_cache_while_disconnected">إرسال إشعارات فائتة عند إعادة اتصال الجهاز بعد خروجه عن النطاق</string>
     <string name="pref_header_notification_application_settings">إعدادات لكل تطبيق</string>
-    <string name="pref_title_notification_use_as_deny">رفض الإشعارات من التطبيقات المحددة</string>
     <string name="pref_summary_banglejs_text_bitmap">إذا تعذر عرض كلمة بخط الساعة، فقم بتحويلها إلى صورة نقطية في Gadgetbridge واعرض الصورة النقطية على الساعة</string>
     <string name="pref_title_weather_summary">تستخدم إصدارات Android الأخرى ، المستخدمة لمزود خدمة الطقس LineageOS ، تطبيقًا مثل \"إشعار الطقس\". اعثر على مزيد من المعلومات في Gadgetbridge wiki.</string>
     <string name="pref_blacklist_calendars">تقويمات القائمة السوداء</string>
@@ -746,7 +735,6 @@
     <string name="pref_summary_pebble_health_store_raw">يخزن البيانات \"كما هي\" ، مما يزيد من استخدام قاعدة البيانات للسماح بتفسيرها لاحقًا.</string>
     <string name="activity_type_biking">ركوب الدراجة</string>
     <string name="activity_summary_yesterday">أمس</string>
-    <string name="edittext_notification_filter_words_hint">أدخل الكلمات المطلوبة ، سطر جديد لكل منها</string>
     <string name="sports_activity_confirm_delete_description">هل أنت متأكد أنك تريد حذف أنشطة %d؟</string>
     <string name="qhybrid_pref_summary_external_intents">يسمح لتطبيقات Android الأخرى بتحميل / الكتابة فوق الملفات</string>
     <string name="prefs_game_mode_summary">فقط إذا كان هاتفك يدعم وضع اللعبة</string>
@@ -823,7 +811,6 @@
     <string name="stats_x_axis_label">إجمالي الدقائق</string>
     <string name="prefs_password_4_digits_1_to_4_summary">يجب أن تتكون كلمة المرور من 4 أرقام ، باستخدام الأرقام من 1 إلى 4</string>
     <string name="pref_chart_sleep_lines_limit">كم عدد خطوط جلسة النوم التي يجب إظهارها قبل التمرير</string>
-    <string name="pref_charts_range_off">تم تعيين نطاق الرسوم البيانية على أسبوع</string>
     <string name="dbmanagementactivity_delete_old_activitydb_confirmation">هل ترغب حقًا في حذف قاعدة بيانات النشاط القديمة؟ ستفقد بيانات النشاط التي لم يتم استيرادها.</string>
     <string name="menuitem_temperature">درجة الحرارة</string>
     <string name="menuitem_barometer">البارومتر</string>
@@ -940,7 +927,6 @@
     <string name="dbmanagementactivity_db_deletion_failed">فشل حذف قاعدة البيانات.</string>
     <string name="qhybrid_second_timezone_offset_relative_to_utc">إزاحة المنطقة الزمنية الثانية بالنسبة إلى التوقيت العالمي المنسق (UTC)</string>
     <string name="pref_summary_contextual_arabic">تمكين هذا لدعم السياق في اللغة العربية</string>
-    <string name="filter_mode_whitelist">أظهر عندما يتم احتواء الكلمات</string>
     <string name="error_background_service_reason_truncated">فشل بدء خدمة الخلفية بسبب …</string>
     <string name="fossil_hr_unavailable_unauthed">غير متاح في وضع عدم المصادقة</string>
     <string name="prefs_noise_control_with_one_earbud">التحكم في الضوضاء مع سماعة أذن واحدة</string>
@@ -1005,7 +991,6 @@
     <string name="tap_a_device_to_connect">انقر فوق جهاز للاتصال</string>
     <string name="pairing_in_progress">الربط قيد التقدم: %1$s (%2$s)</string>
     <string name="chart_get_active_and_synchronize">قم ببعض النشاط وقم بمزامنة الجهاز.</string>
-    <string name="filter_submode_at_least_one">واحدة على الأقل من الكلمات</string>
     <string name="ftp_server_summary">التحكم في خادم FTP على الساعة</string>
     <string name="ftp_server_start_summary">بدء تشغيل خادم FTP على الساعة</string>
     <string name="ftp_server_stop_summary">أوقف خادم FTP على الساعة</string>
@@ -1035,8 +1020,6 @@
     <string name="pref_title_pebble_health_store_raw">تخزين السجل الخام في قاعدة البيانات</string>
     <string name="action_db_management">إدارة البيانات</string>
     <string name="notification_gps_text">إرسال موقع GPS إلى أجهزة %1$d</string>
-    <string name="toast_notification_filter_words_empty_hint">الرجاء إدخال كلمة واحدة على الأقل</string>
-    <string name="filter_mode_blacklist">حظر عند احتواء الكلمات</string>
     <string name="qhybrid_use_activity_hand_as_notification_counter">استخدام يد النشاط كعداد إعلام</string>
     <string name="pref_summary_developer_settings">الإعدادات والوظائف المستخدمة من قبل المطورين</string>
     <string name="qhybrid_pref_summary_actions">إجراءات لتطبيق التنقل</string>
@@ -1211,7 +1194,6 @@
     <string name="minutes_5">5 دقائق</string>
     <string name="user_feedback_all_alarms_disabled">تم تعطيل جميع التبيهات</string>
     <string name="activity_DB_ExportButton">تصدير البيانات</string>
-    <string name="activity_db_management_exportimport_label">التصدير والاستيراد</string>
     <string name="dismiss">رفض</string>
     <string name="sensitive">حساس</string>
     <string name="activity_type_indoor_walking">المشي في الأماكن المغلقة</string>
@@ -1287,7 +1269,6 @@
     <string name="activity_type_boxing">الملاكمة</string>
     <string name="activity_type_zumba">زومبا</string>
     <string name="activity_type_indoor_ice_skating">التزلج على الجليد في الأماكن المغلقة</string>
-    <string name="filter_submode_all">كل الكلمات</string>
     <string name="pref_title_upper_button_function_long">الزر العلوي طويل</string>
     <string name="pref_title_upper_button_function_short">الزر العلوي القصير</string>
     <string name="averageLapPace">متوسط سرعة اللفة</string>
@@ -1362,7 +1343,6 @@
     <string name="zepp_os_watchface_simplicity_data">بيانات البساطة</string>
     <string name="title_activity_watch9_pairing">Watch 9 اقتران</string>
     <string name="prefs_fm_presets_presets">الإعدادات المسبقة</string>
-    <string name="title_activity_notification_filter">مرشح الإشعارات</string>
     <string name="swim_style">أسلوب السباحة</string>
     <string name="strokes_unit">str</string>
     <string name="seconds">ثانية</string>
@@ -1384,7 +1364,6 @@
     <string name="supercars_lights_blinking_label">وامض</string>
     <string name="status">الحالة</string>
     <string name="stop">توقف</string>
-    <string name="activity_DB_ShowContentButton">إظهار محتوى دليل التصدير/الاستيراد</string>
     <string name="pref_screen_notification_profile_alarm_clock">ساعة المنبه</string>
     <string name="find_device_you_found_it">لقد وجدته!</string>
     <string name="miband2_prefs_timeformat">Mi2: تنسيق الوقت</string>
@@ -1623,7 +1602,6 @@
     <string name="preferences_led_color">لون LED</string>
     <string name="preferences_fm_frequency">تردد FM</string>
     <string name="appwidget_setting_alarm">ضبط المنبه لـ %1$02d: %2$02d</string>
-    <string name="mode_configuration">تكوين الوضع</string>
     <string name="widget_listing_label">الحالة والمنبهات</string>
     <string name="currentWorkoutLoad">تحميل التمرين</string>
     <string name="maxCadence">اقصى إيقاع</string>
@@ -1648,7 +1626,6 @@
     <string name="controlcenter_add_new_folder">إضافة مجلد جديد</string>
     <string name="controlcenter_unset_folder">مجلد غير محدد</string>
     <string name="pref_screen_notification_profile_low_power">تحذير انخفاض الطاقة</string>
-    <string name="title_activity_charts">النشاط والنوم</string>
     <string name="reminder_once">مرة</string>
     <string name="average">المتوسط: %1$s</string>
     <string name="simplified_chinese">الصينية المبسطة</string>
@@ -1781,7 +1758,6 @@
     <string name="test_notification">إشعار الاختبار</string>
     <string name="discovery_stop_scanning">إيقاف الفحص</string>
     <string name="discovery_start_scanning">ابدأ الاكتشاف</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="title_activity_android_pairing">إقران الجهاز</string>
     <string name="title_activity_mi_band_pairing">قم بإقران Mi Band الخاص بك</string>
     <string name="candidate_item_device_image">صورة الجهاز</string>
@@ -1818,7 +1794,6 @@
     <string name="menuitem_vo2_max">VO₂ Max</string>
     <string name="menuitem_total_workout">إجمالي التمرين</string>
     <string name="pref_invalid_frequency_title">تردد غير صالح</string>
-    <string name="toast_notification_filter_saved_successfully">تم حفظ عامل تصفية الإشعارات</string>
     <string name="filter_mode">وضع التصفية</string>
     <string name="widget_set_alarm_after">ضبط المنبه بعد:</string>
     <string name="pref_title_middle_button_function_long">الزر الأوسط طويل</string>
@@ -2113,9 +2088,7 @@
     <string name="busy_task_fetch_stress_data">جلب بيانات الإجهاد</string>
     <string name="busy_task_fetch_pai_data">جلب بيانات PAI</string>
     <string name="busy_task_fetch_spo2_data">جلب بيانات SpO2</string>
-    <string name="error_no_bluetooth_connect">يجب منح الوصول إلى اتصال Bluetooth وتمكينه للفحص ليعمل بشكل صحيح</string>
     <string name="activity_prefs_goals">الاهداف</string>
-    <string name="error_no_bluetooth_scan">يجب منح الوصول إلى الفحص عبر Bluetooth وتمكينه حتى يعمل الفحص بشكل صحيح</string>
     <string name="permission_request">يسمح لك %1$s بإرسال الرسائل والبيانات الأخرى من Android إلى جهازك. للقيام بذلك ، يتطلب الأمر إذنا للوصول إلى تلك البيانات وبدونها ، قد لا تعمل بشكل صحيح. \n \nستظهر لك الآن بعض مربعات حوار Android التي تطلب هذه الأذونات. \n \nالرجاء النقر على \"%2$s\" للمتابعة.</string>
     <string name="activity_type_surfing">ركوب الأمواج</string>
     <string name="activity_type_windsurfing">طائرة شراعية</string>
@@ -2554,7 +2527,6 @@
     <string name="pref_test_features_title">المميزات</string>
     <string name="pref_test_features_summary">الميزات الممكنة لهذا الجهاز الاختباري</string>
     <string name="alarm_smart_wakeup_interval_default">5 دقائق</string>
-    <string name="alarm_smart_wakeup_interval">الفاصل الزمني للاستيقاظ الذكي:</string>
     <string name="auto_reconnect_ble_scan_summary">انتظر فحص الجهاز بدلاً من محاولات الاتصال العمياء</string>
     <string name="scan_scanning_single_device">فحص جهاز واحد</string>
     <string name="notification_channel_scan_service_name">خدمة الفحص</string>
@@ -2578,7 +2550,6 @@
 \nملاحظة: ليس عليك تثبيت ‎.res إذا كان هو نفسه الذي تم تثبيته مسبقًا.
 \n
 \nالمضي قدما على مسؤوليتك الخاصة!</string>
-    <string name="weekstepschart_steps_a_week_or_month">الخطوات في الأسبوع/الشهر</string>
     <string name="weeksleepchart_sleep_a_week_or_month">النوم في الأسبوع/الشهر</string>
     <string name="busy_task_fetch_sports_details_interrupted">تمت مقاطعة جلب التفاصيل الرياضية</string>
     <string name="unbind_before_pair_title">مرتبط بالفعل</string>
@@ -2633,8 +2604,6 @@
     <string name="activity_type_worn">تم لبسها</string>
     <string name="bottom_nav_devices">الأجهزة</string>
     <string name="bottom_nav_dashboard">اللوحة</string>
-    <string name="pref_dashboard_first_title">اظهر اللوحة أولا</string>
-    <string name="pref_dashboard_first_summary">إظهار لوحة المعلومات عند بدء تشغيل Gadgetbridge، بدلاً من شاشة الأجهزة</string>
     <string name="pref_dashboard_cards_title">عرض الأدوات على البطاقات</string>
     <string name="pref_dashboard_cards_summary">ارسم بطاقات حول الأدوات على لوحة المعلومات</string>
     <string name="pref_dashboard_widget_settings">إعدادات الويدجيت</string>
@@ -2831,20 +2800,12 @@
     <string name="body_energy_lost">مفقود</string>
     <string name="soundcore_voice_prompts">المطالبات الصوتية</string>
     <string name="soundcore_button_brightness">سطوع الزر</string>
-    <string name="soundcore_button_brightness_medium">متوسط</string>
-    <string name="soundcore_button_brightness_low">منخفض</string>
-    <string name="soundcore_button_brightness_high">عال</string>
     <string name="soundcore_equalizer_preset_xtra_bass">عال الجهير</string>
     <string name="soundcore_equalizer_preset_signature">soundcore Signature</string>
     <string name="soundcore_equalizer_preset_voice">الصوت</string>
     <string name="soundcore_equalizer_custom_summary">تكوين إعدادات المعادل البارامترية</string>
     <string name="soundcore_equalizer_direction_lying">مستلقي</string>
     <string name="soundcore_equalizer_reset_summary">تعيين جميع نطاقات المعادل مرة أخرى إلى الإعدادات الافتراضية</string>
-    <string name="soundcore_equalizer_band2">الفرقة 2</string>
-    <string name="soundcore_equalizer_band4">الفرقة 4</string>
-    <string name="soundcore_equalizer_band5">الفرقة 5</string>
-    <string name="soundcore_equalizer_band6">الفرقة 6</string>
-    <string name="soundcore_equalizer_band3">الفرقة 3</string>
     <string name="soundcore_equalizer_value">القيمة</string>
     <string name="soundcore_equalizer_preset_balanced">متوازن</string>
     <string name="soundcore_equalizer_custom_title">تخصيص…</string>
@@ -2861,10 +2822,6 @@
     <string name="soundcore_equalizer_direction_standing">في وضعية الوقوف</string>
     <string name="soundcore_equalizer_direction_hanging">معلق</string>
     <string name="soundcore_equalizer_reset_title">إعادة تعيين للإفتراضي</string>
-    <string name="soundcore_equalizer_band1">الفرقة 1</string>
-    <string name="soundcore_equalizer_band7">الفرقة 7</string>
-    <string name="soundcore_equalizer_band8">الفرقة 8</string>
-    <string name="soundcore_equalizer_band9">الفرقة 9</string>
     <string name="soundcore_equalizer_frequency">التردد</string>
     <string name="transition">الانتقال</string>
     <string name="activity_type_navigate">الملاحة</string>

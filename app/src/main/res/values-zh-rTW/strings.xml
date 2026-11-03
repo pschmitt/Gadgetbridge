@@ -87,7 +87,6 @@
     <string name="action_discover">連接新裝置</string>
     <string name="preferences_category_device_specific_settings">裝置額外設定</string>
     <string name="sleep_activity_date_range">從 %1$s 到 %2$s</string>
-    <string name="title_activity_charts">活動與睡眠</string>
     <string name="sleepchart_your_sleep">睡眠</string>
     <string name="weeksleepchart_sleep_a_week">每週睡眠</string>
     <string name="weeksleepchart_today_sleep_description">今日睡眠，目標：%1$s</string>
@@ -253,8 +252,6 @@
     <string name="pref_title_charts_average">在圖表中顯示平均值</string>
     <string name="activity_prefs_charts">圖表設定</string>
     <string name="pref_title_charts_range">圖表範圍</string>
-    <string name="pref_charts_range_on">圖表範圍設定為一個月</string>
-    <string name="pref_charts_range_off">圖表範圍設定為一週</string>
     <string name="pref_chart_heartrate_color_red">紅色</string>
     <string name="pref_chart_heartrate_color_orange">橘色</string>
     <string name="pref_title_chart_heartrate_color">心率顏色</string>
@@ -319,7 +316,6 @@
 \n您可以在那裏找到已匯出的檔案（或放入要匯入的檔案）：</string>
     <string name="activity_DB_ExportButton">匯出資料</string>
     <string name="activity_DB_import_button">匯入資料</string>
-    <string name="activity_db_management_exportimport_label">匯出和匯入</string>
     <string name="pref_title_setup_bt_pairing">啟用藍芽配對</string>
     <string name="pref_summary_setup_bt_pairing">如果您在連接時遇到問題，請停用此選項</string>
     <string name="unit_metric">公制</string>
@@ -415,17 +411,8 @@
     <string name="devicetype_unknown">未知的裝置</string>
     <string name="menuitem_alarm">鬧鐘</string>
     <string name="menuitem_alipay">支付寶</string>
-    <string name="title_activity_notification_filter">通知過濾</string>
-    <string name="edittext_notification_filter_words_hint">輸入要進行比對的字，使用換行作為分隔</string>
-    <string name="toast_notification_filter_saved_successfully">通知過濾已儲存</string>
     <string name="filter_mode_none">不過濾</string>
-    <string name="filter_mode_whitelist">在包含這些字時顯示</string>
-    <string name="filter_mode_blacklist">在包含這些字時隱藏</string>
-    <string name="filter_submode_at_least_one">部份符合</string>
-    <string name="filter_submode_all">完全符合</string>
-    <string name="toast_notification_filter_words_empty_hint">請至少輸入一個字</string>
     <string name="filter_mode">過濾模式</string>
-    <string name="mode_configuration">模式設定</string>
     <string name="add_widget">新增小工具</string>
     <string name="alarm_snooze">貪睡</string>
     <string name="pref_title_allow_high_mtu">允許較高的 MTU 值</string>
@@ -441,7 +428,6 @@
     <string name="find_my_phone_notification">尋找我的手機</string>
     <string name="hr_widget_nothing">沒有</string>
     <string name="hr_widget_calories">卡路里</string>
-    <string name="error_no_location_access">位置存取權限必須被授予並啟用才能進行掃描</string>
     <string name="save_configuration">儲存設定</string>
     <string name="preferences_fm_frequency">FM 頻率</string>
     <string name="preferences_led_color">LED 顏色</string>
@@ -566,7 +552,6 @@
     <string name="about_version">版本 %s</string>
     <string name="widget_settings_select_device_title">選擇裝置</string>
     <string name="dbmanagementactivity_export_finished">刪除完成</string>
-    <string name="activity_DB_ShowContentButton">顯示在匯出/匯入資料夾的內容</string>
     <string name="activity_data_management_directory_content_title">匯出/匯入資料夾的內容</string>
     <string name="dbmanagementactivity_overwrite">覆寫</string>
     <string name="activity_prefs_step_length_cm">步伐長度（公分）</string>
@@ -599,9 +584,6 @@
     <string name="find_lost_device_message">尋找 %1$s？</string>
     <string name="controlcenter_power_off_confirm_title">關機</string>
     <string name="controlcenter_power_off_confirm_description">您確定要關閉裝置電源嗎？</string>
-    <string name="check_all_applications">勾選所有應用程式</string>
-    <string name="uncheck_all_applications">取消勾選所有應用程式</string>
-    <string name="pref_title_notification_use_as_deny">拒絕來自所選應用程式的通知</string>
     <string name="pref_header_other">其他</string>
     <string name="pref_header_system">系統</string>
     <string name="pref_title_message_privacy_mode">訊息隱私模式</string>
@@ -611,9 +593,7 @@
     <string name="mi2_prefs_do_not_disturb_lift_wrist">在請勿打擾期間啟用抬腕顯示</string>
     <string name="prefs_activity_in_device_card_title_summary">在裝置卡上顯示目前步數、距離或睡眠</string>
     <string name="title_activity_notification_management">通知設定</string>
-    <string name="pref_title_notification_use_as">使用應用程式清單來…</string>
     <string name="pref_applications_settings">應用程式清單</string>
-    <string name="pref_title_notification_use_as_allow">允許來自所選應用程式的通知</string>
     <string name="pref_header_notification_application_settings">個別應用程式設定</string>
     <string name="discovery_trying_to_connect_to">正在嘗試連線到： %1$s</string>
     <string name="activity_prefs_discovery_pairing">探索和配對選項</string>
@@ -687,7 +667,6 @@
     <string name="menuitem_headphone">耳機</string>
     <string name="menuitem_buzzer_intensity">蜂鳴器強度</string>
     <string name="zepp_os_watchface_red_fantasy">紅色幻想</string>
-    <string name="toast_app_must_be_selected">必須選擇應用程式才能進行配置</string>
     <string name="appwidget_sleep_alarm_widget_label">睡眠鬧鐘</string>
     <string name="qhybrid_buttons_overwrite_success">按鈕被覆蓋</string>
     <string name="qhybrid_buttons_overwrite_error">覆寫按鈕時出錯</string>
@@ -765,12 +744,10 @@
     <string name="pref_adaptive_noise_cancelling_title">自適應主動噪音控制</string>
     <string name="pref_adaptive_noise_cancelling_summary">根據環境音量自動調整 ANC 的強度</string>
     <string name="sony_button_mode_right">按鈕模式（右）</string>
-    <string name="soundcore_button_brightness_high">高</string>
     <string name="soundcore_ldac_mode_title">LDAC 模式</string>
     <string name="soundcore_ldac_mode_summary">啟用 LDAC 將減少電池壽命並可能導致連接不穩定</string>
     <string name="soundcore_adaptive_direction_title">自適應方向</string>
     <string name="soundcore_equalizer_preset_signature">soundcore 署名</string>
-    <string name="soundcore_equalizer_band1">第一組</string>
     <string name="pref_media_previous">上一曲</string>
     <string name="pref_media_volumeup">音量增加</string>
     <string name="pref_media_forward">跳過</string>
@@ -821,7 +798,6 @@
     <string name="reminder_delete_confirm_description">您確定要刪除這個提醒嗎？</string>
     <string name="pref_screen_vibration_profile">振動輪廓</string>
     <string name="title_activity_watch9_pairing">觀看9對</string>
-    <string name="error_no_bluetooth_connect">必須授予並啟用藍牙連接訪問，以便掃描正常運作</string>
     <string name="wifi_hotspot_summary">控制手錶上的 Wi-Fi 熱點</string>
     <string name="prefs_wena3_home_icon_name_wena_pay">Wena 支付</string>
     <string name="pref_vitality_score_7_day_summary">當您的活力分數在過去7天內達到30、60或100時，獲取通知</string>
@@ -1125,7 +1101,6 @@
     <string name="reminder_every_week">每週</string>
     <string name="reminder_no_free_slots_description">該設備沒有可用的提醒插槽（總插槽：%1$s）</string>
     <string name="world_clock_code">代碼</string>
-    <string name="alarm_smart_wakeup_interval">智慧喚醒間隔：</string>
     <string name="user_feedback_set_settings_ok">設定已發送至設備。</string>
     <string name="chart_no_active_data">未偵測到任何活動。</string>
     <string name="user_feedback_miband_activity_data_transfer">即將從 %2$s 開始傳輸 %1$s 的數據</string>
@@ -1219,7 +1194,6 @@
     <string name="czesh">捷克語</string>
     <string name="danish">丹麥語</string>
     <string name="activity_prefs_goals">目標</string>
-    <string name="weekstepschart_steps_a_week_or_month">每週/每月步數</string>
     <string name="weeksleepchart_sleep_a_week_or_month">每週/每月睡眠</string>
     <string name="activity_prefs_chart_min_steps_per_minute">每分鐘最少步數以檢測活動</string>
     <string name="charts_legend_heartrate_average">心率平均</string>
@@ -1433,7 +1407,6 @@
     <string name="zepp_os_watchface_free_combination">自由組合</string>
     <string name="note">注意</string>
     <string name="prefs_fm_preset_instructions">長按按鈕以存儲預設</string>
-    <string name="toast_app_must_not_be_selected">應用程式不得被選擇進行配置</string>
     <string name="hr_widget_active_minutes">活躍分鐘</string>
     <string name="hr_appname_commute">通勤</string>
     <string name="pref_title_upper_button_long_press_action">上方按鈕長按操作</string>
@@ -1678,17 +1651,12 @@
     <string name="moondrop_touch_action_anc_mode">切換主動噪音取消模式</string>
     <string name="moondrop_touch_trigger_long_press_1s">長按 (1秒)</string>
     <string name="soundcore_button_brightness">按鈕亮度</string>
-    <string name="soundcore_button_brightness_medium">中等</string>
     <string name="soundcore_equalizer_preset_xtra_bass">超重低音</string>
     <string name="soundcore_equalizer_preset_balanced">平衡的</string>
     <string name="soundcore_equalizer_custom_title">自訂…</string>
     <string name="soundcore_equalizer_custom_summary">配置參數均衡器設置</string>
     <string name="soundcore_equalizer_direction_lying">撒謊</string>
     <string name="soundcore_equalizer_direction_hanging">懸掛</string>
-    <string name="soundcore_equalizer_band2">第二組</string>
-    <string name="soundcore_equalizer_band3">第三級</string>
-    <string name="soundcore_equalizer_band5">第五級</string>
-    <string name="soundcore_equalizer_band9">第九級</string>
     <string name="soundcore_equalizer_frequency">頻率</string>
     <string name="soundcore_equalizer_value">價值</string>
     <string name="miscale_weight_unit_title">重量單位</string>
@@ -2072,7 +2040,6 @@
     <string name="body_energy_gained">獲得</string>
     <string name="body_energy_lost">迷失</string>
     <string name="body_energy_legend_level">身體能量水平</string>
-    <string name="soundcore_button_brightness_low">低</string>
     <string name="soundcore_equalizer_direction">設備方向</string>
     <string name="soundcore_equalizer_reset_title">重置為預設</string>
     <string name="menuitem_readiness">準備狀態</string>
@@ -2198,7 +2165,6 @@
 \n%1$s
 \n版本 %2$s 由 %3$s 提供
 \n</string>
-    <string name="android_pairing_hint">使用 Android 藍牙配對對話框來配對設備。</string>
     <string name="world_clock_delete_confirm_title">刪除 「%1$s」</string>
     <string name="contact_delete_confirm_description">您確定要刪除「%1$s」嗎？</string>
     <string name="contact_no_free_slots_description">該設備沒有可用的聯絡人插槽（總插槽數：%1$s）</string>
@@ -2216,7 +2182,6 @@
     <string name="activity_type_orienteering">定向越野</string>
     <string name="eversionAngleAvg">平均外翻角</string>
     <string name="strokes_minute">strokes/分鐘</string>
-    <string name="soundcore_equalizer_band7">七級</string>
     <string name="pref_title_mb_intents">直接廣播媒體按鈕意圖</string>
     <string name="prefs_notifications_and_calls_continious_ring">電話鈴聲期間的通知</string>
     <string name="zetime_signaling_vibrate_once">震動一次</string>
@@ -2441,7 +2406,6 @@
     <string name="hr_appname_workout">運動</string>
     <string name="hr_appname_stopwatch">計時器</string>
     <string name="pref_title_middle_button_function_short">中間按鈕短</string>
-    <string name="error_no_bluetooth_scan">必須授予並啟用藍牙掃描訪問權限，才能使掃描正常運作</string>
     <string name="pref_qhybrid_title_widget_draw_circles">繪製小工具圓圈</string>
     <string name="device_experimental">實驗的</string>
     <string name="error_background_service_reason">啟動背景服務失敗，因為發生了異常。按此處以取得更多詳情。\n\n錯誤：</string>
@@ -2519,9 +2483,6 @@
     <string name="sony_quick_access_double_tap">快速訪問（雙擊）</string>
     <string name="moondrop_touch_trigger_long_press_3s">長按 (3秒)</string>
     <string name="soundcore_equalizer_preset_voice">聲音</string>
-    <string name="soundcore_equalizer_band4">第四級</string>
-    <string name="soundcore_equalizer_band6">第六級</string>
-    <string name="soundcore_equalizer_band8">第八級</string>
     <string name="miscale_weight_unit_summary">設置顯示測量的重量單位</string>
     <string name="pref_media_volumedown">音量減少</string>
     <string name="pref_device_action_phone_gps_location_listener_stop">GPS 位置監聽器停止</string>
@@ -2559,8 +2520,6 @@
     <string name="unbind_before_pair_title">已經綁定</string>
     <string name="companion_pairing_request_title">伴隨設備</string>
     <string name="bottom_nav_devices">設備</string>
-    <string name="pref_dashboard_first_title">首先顯示儀表板</string>
-    <string name="pref_dashboard_first_summary">當 Gadgetbridge 啟動時顯示儀表板，而不是設備螢幕</string>
     <string name="pref_dashboard_widget_settings">小工具設定</string>
     <string name="pref_dashboard_select_devices_title">選擇設備…</string>
     <string name="pref_speak_notifications_focus_exclusive_summary_off">在通知被朗讀時，其他應用程式的播放音量將會降低</string>
@@ -2723,7 +2682,6 @@
     <string name="quick_alarm">快速警報</string>
     <string name="quick_alarm_description">小工具的警報</string>
     <string name="qhybrid_time_shift">時間轉移</string>
-    <string name="permission_granting_mandatory">所有這些權限都是必需的，如果不授予可能會發生不穩定</string>
     <string name="require_location_provider">必須啟用位置</string>
     <string name="error_location_enabled_mandatory">必須開啟位置才能掃描設備</string>
     <string name="descentMeters">下坡</string>
@@ -2976,7 +2934,6 @@
     <string name="workout_set_repetitions">%1d x</string>
     <string name="sony_equalizer_band_1000">1k</string>
     <string name="prefs_game_mode_summary">當您的手機支援遊戲模式時</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="charts_show_balance_sleep_title">顯示睡眠平衡</string>
     <string name="pai_plus_num">+%d</string>
     <string name="view_file">查看</string>
@@ -3100,7 +3057,6 @@
     <string name="highest">最高</string>
     <string name="sleep_score">睡眠分數</string>
     <string name="sleep_score_value">分數: %1d</string>
-    <string name="charts_two_items_only">一次只能比較兩個項目。</string>
     <string name="charts_at_least_one_item">至少要選擇一項。</string>
     <string name="fwinstaller_file_not_compatible_to_device">所選檔案與設備不相容</string>
     <string name="fwinstaller_no_compatible_device_found">未找到可相容的設備進行安裝 %1s</string>

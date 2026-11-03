@@ -57,7 +57,6 @@
     <string name="discovery_stop_scanning">Dừng quét</string>
     <string name="discovery_start_scanning">Bắt đầu khám phá</string>
     <string name="action_discover">Kết nối thiết bị mới</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="title_activity_android_pairing">Ghép đôi thiết bị</string>
     <string name="title_activity_mi_band_pairing">Ghép đôi Mi Band</string>
     <string name="pairing">Đang ghép đôi với %s…</string>
@@ -85,7 +84,6 @@
     <string name="pref_screen_notification_profile_incoming_call">Thông báo cuộc gọi đến</string>
     <string name="control_center_find_lost_device">Tìm thiết bị thất lạc</string>
     <string name="control_center_cancel_to_stop_vibration">Huỷ để ngừng rung.</string>
-    <string name="title_activity_charts">Hoạt động và Ngủ</string>
     <string name="title_activity_set_alarm">Thiết lập báo thức</string>
     <string name="controlcenter_start_configure_alarms">Cấu hình báo thức</string>
     <string name="title_activity_alarm_details">Chi tiết báo thức</string>
@@ -365,7 +363,6 @@
 \nBẠN TỰ CHỊU RỦI RO KHI TIẾP TỤC!</string>
     <string name="whitelist_all_for_notifications">Cho tất cả vào danh sách trắng đối với các thông báo</string>
     <string name="blacklist_all_for_notifications">Cho tất cả vào danh sách đen đối với các thông báo</string>
-    <string name="pref_title_notification_use_as_deny">Từ chối thông báo từ các ứng dụng đã chọn</string>
     <string name="title_activity_notification_management">Cài đặt thông báo</string>
     <string name="pref_title_message_privacy_mode">Chế độ bảo mật tin nhắn</string>
     <string name="pref_title_pebble_enable_bgjs">Bật nền JS</string>
@@ -375,8 +372,6 @@
     <string name="prefs_notifications_and_calls_shake_reject">Lắc cổ tay để bỏ qua/từ chối cuộc gọi</string>
     <string name="pref_header_device_spec_settings">Cài đặt thiết bị</string>
     <string name="pref_theme_black_background">Sử dụng nền đen trong chủ đề Tối</string>
-    <string name="pref_title_notification_use_as_allow">Cho phép thông báo từ các ứng dụng đã chọn</string>
-    <string name="pref_title_notification_use_as">Sử dụng danh sách ứng dụng để…</string>
     <string name="pref_message_privacy_mode_off">Hiện thị nội dung</string>
     <string name="pref_message_privacy_mode_complete">Ẩn nội dung</string>
     <string name="pref_applications_settings">Danh sách ứng dụng</string>
