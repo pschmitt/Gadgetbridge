@@ -68,9 +68,16 @@ public abstract class TestBase {
         assertNotNull(daoSession);
     }
 
+    /**
+     * Releases the write lock taken in {@link #setUp()}. This does not close the database, which
+     * {@link GBApplication#onTerminate()} does when Robolectric tears down the application.
+     */
     @After
-    public void tearDown() throws Exception {
-        GBDatabaseManager.closeDatabase();
+    public void releaseDbHandler() throws Exception {
+        if (dbHandler != null) {
+            dbHandler.close();
+            dbHandler = null;
+        }
     }
 
     protected GBDevice createDummyGDevice(String macAddress) {

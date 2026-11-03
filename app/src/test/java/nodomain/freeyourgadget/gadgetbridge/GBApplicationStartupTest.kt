@@ -84,6 +84,14 @@ class GBApplicationStartupTest : TestBase() {
     }
 
     @Test
+    fun databaseIsTheOneManagedByTheCurrentApplication() {
+        // TestBase.setUp() opened the database through the static accessors
+        app.databaseManager.acquireReadOnly().use { assertSame(daoSession, it.daoSession) }
+        GBApplication.acquireDbReadOnly().use { assertSame(daoSession, it.daoSession) }
+        GBDatabaseManager.acquireReadOnly().use { assertSame(daoSession, it.daoSession) }
+    }
+
+    @Test
     fun onTerminateLeavesNoPreferenceListenersBehind() {
         val prefs = app.defaultSharedPreferences
         // The theme listener and the launcher widget triggers

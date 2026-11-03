@@ -115,6 +115,9 @@ open class GBApplication : Application() {
     @Inject
     lateinit var deviceServiceInstance: DeviceService
 
+    @Inject
+    lateinit var databaseManager: DatabaseManager
+
     private val themePreferenceListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         if ("pref_key_theme" == key) {
             updateApplicationNightMode()
@@ -201,7 +204,7 @@ open class GBApplication : Application() {
         if (!environmentSetup) {
             // setup db after the environment is set up, but don't do it in test mode
             // in test mode, it's done individually, see TestBase
-            GBDatabaseManager.setupDatabase(this)
+            databaseManager.setupDatabase(this)
         }
 
         migratePrefsIfNeeded()
@@ -320,6 +323,7 @@ open class GBApplication : Application() {
         defaultSharedPreferences.unregisterOnSharedPreferenceChangeListener(themePreferenceListener)
         launcherWidgetUpdateTriggers.unregister()
         deviceManagerInstance.shutdown()
+        databaseManager.closeDatabase()
         exceptionHandler?.unregister()
         exceptionHandler = null
         super.onTerminate()
@@ -429,7 +433,7 @@ open class GBApplication : Application() {
             val quitIntent = Intent(ACTION_QUIT)
             LocalBroadcastManager.getInstance(appContext).sendBroadcast(quitIntent)
             app().deviceServiceInstance.quit()
-            GBDatabaseManager.closeDatabase()
+            app().databaseManager.closeDatabase()
             exitProcess(0)
         }
 
@@ -441,7 +445,7 @@ open class GBApplication : Application() {
             LocalBroadcastManager.getInstance(appContext).sendBroadcast(quitIntent)
             app().deviceServiceInstance.quit()
 
-            GBDatabaseManager.closeDatabase()
+            app().databaseManager.closeDatabase()
 
             val startActivity = Intent(appContext, ControlCenterv2::class.java)
             val pendingIntent = PendingIntent.getActivity(
@@ -500,21 +504,23 @@ open class GBApplication : Application() {
         }
 
         /**
-         * @see GBDatabaseManager.acquireWrite
+         * @see DatabaseManager.acquireWrite
+         * @deprecated Use Hilt DI to inject [DatabaseManager] instead.
          */
         @JvmStatic
         @Throws(GBException::class)
         fun acquireDB(): DBHandler {
-            return GBDatabaseManager.acquireWrite()
+            return app().databaseManager.acquireWrite()
         }
 
         /**
-         * @see GBDatabaseManager.acquireReadOnly
+         * @see DatabaseManager.acquireReadOnly
+         * @deprecated Use Hilt DI to inject [DatabaseManager] instead.
          */
         @JvmStatic
         @Throws(GBException::class)
         fun acquireDbReadOnly(): DBHandler {
-            return GBDatabaseManager.acquireReadOnly()
+            return app().databaseManager.acquireReadOnly()
         }
 
         @JvmStatic
