@@ -2,6 +2,7 @@ package nodomain.freeyourgadget.gadgetbridge
 
 import android.content.Intent
 import androidx.lifecycle.LifecycleRegistry
+import androidx.core.content.edit
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
@@ -36,6 +37,24 @@ class GBApplicationStartupTest : TestBase() {
     }
 
     @Test
+    fun prefsAreTheOnesInjectedIntoTheCurrentApplication() {
+        assertSame(app.gbPrefs, GBApplication.getPrefs())
+        assertSame(app.defaultSharedPreferences, GBApplication.getPrefs().preferences)
+    }
+
+    @Test
+    fun onTerminateLeavesNoPreferenceListenersBehind() {
+        val prefs = app.defaultSharedPreferences
+        // The theme listener and the launcher widget triggers
+        assertEquals(2, prefsListenerCount(prefs))
+
+        app.onTerminate()
+        assertEquals(0, prefsListenerCount(prefs))
+        // Changing the theme after termination must not crash or reach the old application
+        prefs.edit(commit = true) { putString("pref_key_theme", "dark") }
+    }
+
+    @Test
     fun onCreateAgainAndOnTerminateRestoreTheExceptionHandler() {
         assertEquals(1, processLifecycleObserverCount())
         assertTrue(Thread.getDefaultUncaughtExceptionHandler() is GBExceptionHandler)
@@ -61,6 +80,12 @@ class GBApplicationStartupTest : TestBase() {
         app.onTerminate()
         sendDeviceChanged("Renamed again")
         assertEquals("Renamed", device.name)
+    }
+
+    private fun prefsListenerCount(prefs: android.content.SharedPreferences): Int {
+        val field = prefs.javaClass.getDeclaredField("mListeners")
+        field.isAccessible = true
+        return (field.get(prefs) as Map<*, *>).size
     }
 
     private fun sendDeviceChanged(name: String) {

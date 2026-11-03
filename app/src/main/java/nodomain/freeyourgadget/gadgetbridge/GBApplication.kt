@@ -39,7 +39,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
-import android.preference.PreferenceManager
 import android.provider.ContactsContract.PhoneLookup
 import android.util.TypedValue
 import android.view.WindowManager
@@ -100,6 +99,21 @@ open class GBApplication : Application() {
 
     @Inject
     lateinit var launcherWidgetUpdateTriggers: LauncherWidgetUpdateTriggers
+
+    /**
+     * The app's default shared preferences, which back [gbPrefs].
+     */
+    @Inject
+    lateinit var defaultSharedPreferences: SharedPreferences
+
+    @Inject
+    lateinit var gbPrefs: GBPrefs
+
+    private val themePreferenceListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if ("pref_key_theme" == key) {
+            updateApplicationNightMode()
+        }
+    }
 
     private val lifecycleObserver = AppLifecycleObserver()
 
@@ -168,9 +182,6 @@ open class GBApplication : Application() {
         super.onCreate()
         ProcessLifecycleOwner.get().lifecycle.addObserver(lifecycleObserver)
 
-        sharedPrefsInstance = PreferenceManager.getDefaultSharedPreferences(appContext)
-        prefsInstance = GBPrefs(sharedPrefsInstance)
-
         val environmentSetup = GBEnvironment.isEnvironmentSetup()
 
         // We need to set up the environment before initializing logging, so that the logging
@@ -181,8 +192,8 @@ open class GBApplication : Application() {
         }
 
         Logging.getInstance().initialize(
-            prefsInstance.getBoolean("log_to_file", false),
-            prefsInstance.getBoolean("log_level_trace", false),
+            gbPrefs.getBoolean("log_to_file", false),
+            gbPrefs.getBoolean("log_level_trace", false),
         )
 
         if (!environmentSetup) {
@@ -193,17 +204,17 @@ open class GBApplication : Application() {
 
         migratePrefsIfNeeded()
         updateApplicationNightMode()
-        sharedPrefsInstance.registerOnSharedPreferenceChangeListener(themePreferenceListener)
+        defaultSharedPreferences.registerOnSharedPreferenceChangeListener(themePreferenceListener)
 
-        setupExceptionHandler(prefsInstance.getBoolean("crash_notification", isDebug()))
+        setupExceptionHandler(gbPrefs.getBoolean("crash_notification", isDebug()))
 
         registerActivityLifecycleCallbacks(GBActivityLifecycleCallbacks())
 
-        Weather.initializeCache(WeatherCacheManager(cacheDir, prefsInstance.getBoolean("cache_weather", true)))
+        Weather.initializeCache(WeatherCacheManager(cacheDir, gbPrefs.getBoolean("cache_weather", true)))
 
         // Prefs and the database are ready at this point.
         deviceManagerInstance.initialize()
-        val languageCode = prefsInstance.getString("language", "default") ?: "default"
+        val languageCode = gbPrefs.getString("language", "default") ?: "default"
         setLanguage(languageCode)
 
         deviceServiceInstance = createDeviceService()
@@ -228,7 +239,7 @@ open class GBApplication : Application() {
 
         CompanionDeviceUtil.StartObservingAll(baseContext)
 
-        if (prefsInstance.getBoolean(GBPrefs.HEALTH_CONNECT_ENABLED, false)) {
+        if (gbPrefs.getBoolean(GBPrefs.HEALTH_CONNECT_ENABLED, false)) {
             HealthConnectPermissionManager.checkAndRectifyPermissions(this)
         }
 
@@ -244,7 +255,7 @@ open class GBApplication : Application() {
     }
 
     private fun startNotificationCollectorMonitorService() {
-        if (!prefsInstance.getBoolean("prefs_key_enable_deprecated_notificationcollectormonitor", false)) {
+        if (!gbPrefs.getBoolean("prefs_key_enable_deprecated_notificationcollectormonitor", false)) {
             return
         }
         LOG.info("Starting the deprecated NotificationCollectorMonitorService foreground service.")
@@ -307,6 +318,7 @@ open class GBApplication : Application() {
      */
     override fun onTerminate() {
         ProcessLifecycleOwner.get().lifecycle.removeObserver(lifecycleObserver)
+        defaultSharedPreferences.unregisterOnSharedPreferenceChangeListener(themePreferenceListener)
         launcherWidgetUpdateTriggers.unregister()
         deviceManagerInstance.shutdown()
         exceptionHandler?.unregister()
@@ -321,7 +333,7 @@ open class GBApplication : Application() {
 
     @VisibleForTesting
     protected open fun migratePrefsIfNeeded() {
-        GBPrefsMigrator.migratePrefsIfNeeded(sharedPrefsInstance)
+        GBPrefsMigrator.migratePrefsIfNeeded(defaultSharedPreferences)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -398,17 +410,9 @@ open class GBApplication : Application() {
         private var context: GBApplication? = null
         private var appInstance: GBApplication? = null
         private lateinit var deviceServiceInstance: DeviceService
-        private lateinit var sharedPrefsInstance: SharedPreferences
-        private lateinit var prefsInstance: GBPrefs
         private lateinit var notificationManager: NotificationManager
         private lateinit var language: Locale
         private val idSenderLookup = LimitedQueue<Int, String>(16)
-
-        private val themePreferenceListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            if ("pref_key_theme" == key) {
-                updateApplicationNightMode()
-            }
-        }
 
         const val ACTION_QUIT = "nodomain.freeyourgadget.gadgetbridge.gbapplication.action.quit"
         const val ACTION_LANGUAGE_CHANGE = "nodomain.freeyourgadget.gadgetbridge.gbapplication.action.language_change"
@@ -457,7 +461,7 @@ open class GBApplication : Application() {
 
         @JvmStatic
         fun minimizeNotification(): Boolean {
-            return prefsInstance.getBoolean("minimize_priority", false)
+            return getPrefs().getBoolean("minimize_priority", false)
         }
 
         @JvmStatic
@@ -678,7 +682,7 @@ open class GBApplication : Application() {
 
         @JvmStatic
         fun isDarkThemeEnabled(): Boolean {
-            val selectedTheme = prefsInstance.getString(
+            val selectedTheme = getPrefs().getString(
                 "pref_key_theme",
                 appContext.getString(R.string.pref_theme_value_system),
             )
@@ -701,7 +705,7 @@ open class GBApplication : Application() {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                 return
             }
-            val selectedTheme = prefsInstance.getString(
+            val selectedTheme = getPrefs().getString(
                 "pref_key_theme",
                 appContext.getString(R.string.pref_theme_value_system),
             )
@@ -715,12 +719,12 @@ open class GBApplication : Application() {
 
         @JvmStatic
         fun isAmoledBlackEnabled(): Boolean {
-            return prefsInstance.getBoolean("pref_key_theme_amoled_black", false)
+            return getPrefs().getBoolean("pref_key_theme_amoled_black", false)
         }
 
         @JvmStatic
         fun areDynamicColorsEnabled(): Boolean {
-            val selectedTheme = prefsInstance.getString(
+            val selectedTheme = getPrefs().getString(
                 "pref_key_theme",
                 appContext.getString(R.string.pref_theme_value_system),
             )
@@ -735,7 +739,7 @@ open class GBApplication : Application() {
         @JvmStatic
         @StyleRes
         fun getAccentColorOverlay(dark: Boolean): Int {
-            val accent = prefsInstance.getString(PREF_ACCENT_COLOR, PREF_ACCENT_COLOR_DEFAULT)
+            val accent = getPrefs().getString(PREF_ACCENT_COLOR, PREF_ACCENT_COLOR_DEFAULT)
             return when (accent) {
                 "coral" -> if (dark) R.style.ThemeOverlay_App_Accent_Coral_Dark else R.style.ThemeOverlay_App_Accent_Coral_Light
                 "orange" -> if (dark) R.style.ThemeOverlay_App_Accent_Orange_Dark else R.style.ThemeOverlay_App_Accent_Orange_Light
@@ -756,7 +760,7 @@ open class GBApplication : Application() {
 
         @JvmStatic
         fun areContrastingSurfacesEnabled(dark: Boolean): Boolean {
-            return prefsInstance.getBoolean(PREF_CONTRASTING_SURFACES, dark)
+            return getPrefs().getBoolean(PREF_CONTRASTING_SURFACES, dark)
         }
 
         @JvmStatic
@@ -826,9 +830,12 @@ open class GBApplication : Application() {
             return hasDirectInternetAccess() || InternetHelperSingleton.ensureInternetHelperBound()
         }
 
+        /**
+         * @deprecated Use Hilt DI to inject [GBPrefs] instead.
+         */
         @JvmStatic
         fun getPrefs(): GBPrefs {
-            return prefsInstance
+            return app().gbPrefs
         }
 
         @JvmStatic

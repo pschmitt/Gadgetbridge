@@ -12,6 +12,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
+import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
@@ -24,6 +25,7 @@ import javax.inject.Singleton
 @Singleton
 open class LauncherWidgetUpdateTriggers @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val prefs: GBPrefs,
 ) {
     private var registered = false
 
@@ -68,7 +70,7 @@ open class LauncherWidgetUpdateTriggers @Inject constructor(
         filter.addAction(GBApplication.ACTION_NEW_DATA)
         filter.addAction(GBApplication.ACTION_LANGUAGE_CHANGE)
         LocalBroadcastManager.getInstance(context).registerReceiver(receiver, filter)
-        GBApplication.getPrefs().preferences.registerOnSharedPreferenceChangeListener(prefsListener)
+        prefs.preferences.registerOnSharedPreferenceChangeListener(prefsListener)
         nightMode = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         context.registerComponentCallbacks(configurationCallbacks)
     }
@@ -81,7 +83,7 @@ open class LauncherWidgetUpdateTriggers @Inject constructor(
         if (!registered) return
         registered = false
         LocalBroadcastManager.getInstance(context).unregisterReceiver(receiver)
-        GBApplication.getPrefs().preferences.unregisterOnSharedPreferenceChangeListener(prefsListener)
+        prefs.preferences.unregisterOnSharedPreferenceChangeListener(prefsListener)
         context.unregisterComponentCallbacks(configurationCallbacks)
     }
 

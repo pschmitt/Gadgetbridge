@@ -10,7 +10,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class LauncherWidgetUpdateTriggersTest : TestBase() {
-    private class CountingTriggers(context: Context) : LauncherWidgetUpdateTriggers(context) {
+    private class CountingTriggers(context: Context) :
+        LauncherWidgetUpdateTriggers(context, GBApplication.getPrefs()) {
         var count = 0
         override fun requestUpdate(delaySeconds: Long) {
             count++

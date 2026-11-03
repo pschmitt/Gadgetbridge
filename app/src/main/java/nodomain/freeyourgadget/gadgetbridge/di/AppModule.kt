@@ -1,12 +1,15 @@
 package nodomain.freeyourgadget.gadgetbridge.di
 
 import android.content.Context
+import android.content.SharedPreferences
+import android.preference.PreferenceManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceManager
+import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs
 import javax.inject.Singleton
 
 /**
@@ -19,4 +22,17 @@ object AppModule {
     @Singleton
     fun provideDeviceManager(@ApplicationContext context: Context): DeviceManager =
         DeviceManager(context)
+
+    /**
+     * The app's default [SharedPreferences], which back [GBPrefs].
+     */
+    @Provides
+    @Singleton
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences =
+        PreferenceManager.getDefaultSharedPreferences(context)
+
+    @Provides
+    @Singleton
+    fun provideGBPrefs(sharedPreferences: SharedPreferences): GBPrefs =
+        GBPrefs(sharedPreferences)
 }
