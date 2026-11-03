@@ -33,6 +33,27 @@ class WeatherRepositoryTest : TestBase() {
     }
 
     @Test
+    fun aCacheLoadThatFinishesAfterAnUpdateIsDiscarded() {
+        val loadStartedAt = repository.currentVersion()
+        val fresh = WeatherSpec.createTestWeather()
+        repository.setWeatherSpec(listOf(fresh))
+
+        repository.onCacheLoaded(loadStartedAt, listOf(WeatherSpec.createTestWeather()))
+
+        assertEquals(listOf(fresh), repository.getWeatherSpecs())
+    }
+
+    @Test
+    fun aCacheLoadWithNoUpdateInBetweenIsApplied() {
+        val loadStartedAt = repository.currentVersion()
+        val cached = WeatherSpec.createTestWeather()
+
+        repository.onCacheLoaded(loadStartedAt, listOf(cached))
+
+        assertEquals(listOf(cached), repository.getWeatherSpecs())
+    }
+
+    @Test
     fun snapshotsAreNotAffectedByTheSourceCollectionOrCallers() {
         val source = mutableListOf(WeatherSpec.createTestWeather())
         repository.setWeatherSpec(source)
