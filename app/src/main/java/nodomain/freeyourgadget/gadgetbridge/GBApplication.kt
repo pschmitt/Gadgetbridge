@@ -130,6 +130,8 @@ open class GBApplication : Application() {
 
     private val lifecycleObserver = AppLifecycleObserver()
 
+    private val activityLifecycleCallbacks = GBActivityLifecycleCallbacks()
+
     private var exceptionHandler: GBExceptionHandler? = null
 
     private var bluetoothStateChangeReceiver: BluetoothStateChangeReceiver? = null
@@ -217,7 +219,9 @@ open class GBApplication : Application() {
 
         setupExceptionHandler(gbPrefs.getBoolean("crash_notification", isDebug()))
 
-        registerActivityLifecycleCallbacks(GBActivityLifecycleCallbacks())
+        // Unregister first, so that calling onCreate() again does not register the callbacks twice
+        unregisterActivityLifecycleCallbacks(activityLifecycleCallbacks)
+        registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
 
         weatherRepository.initialize()
 
@@ -232,14 +236,15 @@ open class GBApplication : Application() {
             NotificationAppRepository.loadInBackground()
         }
 
-        if (isRunningOreoOrLater()) {
-            bluetoothStateChangeReceiver = BluetoothStateChangeReceiver()
+        if (isRunningOreoOrLater() && bluetoothStateChangeReceiver == null) {
+            val receiver = BluetoothStateChangeReceiver()
             val bif = IntentFilter()
             bif.addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
             if (isRunningPieOrLater()) {
                 bif.addAction(BluetoothStateChangeReceiver.ANDROID_BLUETOOTH_DEVICE_ACTION_BATTERY_LEVEL_CHANGED)
             }
-            registerReceiver(bluetoothStateChangeReceiver, bif)
+            registerReceiver(receiver, bif)
+            bluetoothStateChangeReceiver = receiver
         }
         startNotificationCollectorMonitorService()
 
@@ -330,6 +335,9 @@ open class GBApplication : Application() {
         databaseManager.closeDatabase()
         exceptionHandler?.unregister()
         exceptionHandler = null
+        unregisterActivityLifecycleCallbacks(activityLifecycleCallbacks)
+        bluetoothStateChangeReceiver?.let { unregisterReceiver(it) }
+        bluetoothStateChangeReceiver = null
         super.onTerminate()
     }
 

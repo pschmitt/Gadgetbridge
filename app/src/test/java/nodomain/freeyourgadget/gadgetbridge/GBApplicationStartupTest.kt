@@ -144,6 +144,17 @@ class GBApplicationStartupTest : TestBase() {
     }
 
     @Test
+    fun onCreateAgainDoesNotRegisterTheActivityCallbacksTwice() {
+        assertEquals(1, gbActivityCallbackCount())
+
+        app.onCreate()
+        assertEquals(1, gbActivityCallbackCount())
+
+        app.onTerminate()
+        assertEquals(0, gbActivityCallbackCount())
+    }
+
+    @Test
     fun onCreateAgainAndOnTerminateRestoreTheExceptionHandler() {
         assertEquals(1, processLifecycleObserverCount())
         assertTrue(Thread.getDefaultUncaughtExceptionHandler() is GBExceptionHandler)
@@ -169,6 +180,12 @@ class GBApplicationStartupTest : TestBase() {
         app.onTerminate()
         sendDeviceChanged("Renamed again")
         assertEquals("Renamed", device.name)
+    }
+
+    private fun gbActivityCallbackCount(): Int {
+        val field = android.app.Application::class.java.getDeclaredField("mActivityLifecycleCallbacks")
+        field.isAccessible = true
+        return (field.get(app) as List<*>).count { it?.javaClass?.simpleName == "GBActivityLifecycleCallbacks" }
     }
 
     private fun prefsListenerCount(prefs: android.content.SharedPreferences): Int {
