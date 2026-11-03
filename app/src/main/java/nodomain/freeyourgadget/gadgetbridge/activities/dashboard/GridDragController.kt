@@ -7,6 +7,7 @@ import androidx.core.widget.NestedScrollView
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.widgets.GridRect
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetGrid
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
@@ -75,15 +76,31 @@ class GridDragController(
         fingerY = y
         autoScroll(y)
 
-        val width = binder.widthOf(instanceId)
-        val maxColumn = (binder.columns - width).coerceAtLeast(0)
-        val column = ((x - grabX - grid.paddingLeft) / columnWidth).roundToInt().coerceIn(0, maxColumn)
-
-        val others = binder.ids().filter { it != instanceId }
-        val stacked = WidgetGrid.stack(binder.columns, others.map(::rectOf))
         val left = x - grabX - grid.paddingLeft
         val top = y - grabY - grid.paddingTop
-        val right = left + width * columnWidth
+        val maxColumn = (binder.columns - binder.widthOf(instanceId)).coerceAtLeast(0)
+        val column = (left / columnWidth).roundToInt().coerceIn(0, maxColumn)
+        if (!isInOwnPosition(instanceId, column, top)) {
+            rearrange(instanceId, column, left, top)
+        }
+        followFinger.onLayoutChange(child, 0, 0, 0, 0, 0, 0, 0, 0)
+        grid.invalidate()
+    }
+
+    /**
+     * Whether [column] is the column of the position of [instanceId],
+     * and [top] is less than half of its height from that position.
+     */
+    private fun isInOwnPosition(instanceId: String, column: Int, top: Float): Boolean {
+        val ids = binder.ids()
+        val position = WidgetGrid.stack(binder.columns, ids.map(::rectOf))[ids.indexOf(instanceId)]
+        return column == position.x && abs(top - spacing - position.y) < position.height / 2f
+    }
+
+    private fun rearrange(instanceId: String, column: Int, left: Float, top: Float) {
+        val others = binder.ids().filter { it != instanceId }
+        val stacked = WidgetGrid.stack(binder.columns, others.map(::rectOf))
+        val right = left + binder.widthOf(instanceId) * columnWidth
         val bottom = top + binder.heightPxOf(instanceId) + spacing * 2
         val covered = stacked.map { rect ->
             val rectLeft = rect.x * columnWidth
@@ -105,8 +122,6 @@ class GridDragController(
         if (under >= 0) {
             binder.placeAtFirstFree(others[under])
         }
-        followFinger.onLayoutChange(child, 0, 0, 0, 0, 0, 0, 0, 0)
-        grid.invalidate()
     }
 
     /**
