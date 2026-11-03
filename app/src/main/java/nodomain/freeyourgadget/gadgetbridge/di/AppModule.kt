@@ -31,12 +31,13 @@ object AppModule {
      */
     @Provides
     @Singleton
+    @DefaultPrefs
     fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(context)
 
     @Provides
     @Singleton
-    fun provideGBPrefs(sharedPreferences: SharedPreferences): GBPrefs =
+    fun provideGBPrefs(@DefaultPrefs sharedPreferences: SharedPreferences): GBPrefs =
         GBPrefs(sharedPreferences)
 
     @Provides

@@ -52,6 +52,7 @@ import nodomain.freeyourgadget.gadgetbridge.database.DBHandler
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper
 import nodomain.freeyourgadget.gadgetbridge.database.PeriodicDbExporter
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceManager
+import nodomain.freeyourgadget.gadgetbridge.di.DefaultPrefs
 import nodomain.freeyourgadget.gadgetbridge.externalevents.BluetoothStateChangeReceiver
 import nodomain.freeyourgadget.gadgetbridge.externalevents.notifications.apps.NotificationAppRepository
 import nodomain.freeyourgadget.gadgetbridge.externalevents.opentracks.OpenTracksContentObserver
@@ -100,6 +101,7 @@ open class GBApplication : Application() {
      * The app's default shared preferences, which back [gbPrefs].
      */
     @Inject
+    @DefaultPrefs
     lateinit var defaultSharedPreferences: SharedPreferences
 
     @Inject
