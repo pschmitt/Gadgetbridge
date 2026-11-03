@@ -134,7 +134,7 @@ class DayTimelineView @JvmOverloads constructor(
         private const val MARKER_BOTTOM_GAP_DP = 3f
 
         private val THICK_ORDER = listOf(
-            setOf(Kind.LIGHT_SLEEP, Kind.DEEP_SLEEP, Kind.REM_SLEEP),
+            setOf(Kind.LIGHT_SLEEP, Kind.DEEP_SLEEP, Kind.REM_SLEEP, Kind.AWAKE_SLEEP),
             setOf(Kind.ACTIVITY),
             setOf(Kind.EXERCISE),
         )
