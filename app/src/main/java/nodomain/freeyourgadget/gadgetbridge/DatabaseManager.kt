@@ -11,6 +11,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -50,6 +51,7 @@ class DatabaseManager @Inject constructor(
      * will be invalidated at some point.
      *
      * @return the DBHandler
+     * @throws GBException if the lock could not be acquired, or the database is not open
      */
     @Throws(GBException::class)
     fun acquireWrite(): DBHandler {
@@ -57,7 +59,7 @@ class DatabaseManager @Inject constructor(
             LOG.trace("Trying to acquire write lock")
             if (dbLock.writeLock().tryLock(30, TimeUnit.SECONDS)) {
                 LOG.trace("Acquired write lock")
-                return LockHandler(dbLock.writeLock(), gbDatabase.daoMaster, gbDatabase.session)
+                return createHandler(dbLock.writeLock())
             }
         } catch (e: InterruptedException) {
             LOG.error("Interrupted while waiting for write DB lock", e)
@@ -71,12 +73,26 @@ class DatabaseManager @Inject constructor(
             LOG.trace("Trying to acquire read lock")
             if (dbLock.readLock().tryLock(30, TimeUnit.SECONDS)) {
                 LOG.trace("Acquired read lock")
-                return LockHandler(dbLock.readLock(), gbDatabase.daoMaster, gbDatabase.session)
+                return createHandler(dbLock.readLock())
             }
         } catch (e: InterruptedException) {
             LOG.error("Interrupted while waiting for read DB lock", e)
         }
         throw GBException("Failed to acquire database read lock")
+    }
+
+    /**
+     * Wraps the held [lock] in a handler, or releases it and throws if the database is closed, for
+     * example by [closeDatabase] while the caller was waiting for the lock.
+     */
+    @Throws(GBException::class)
+    private fun createHandler(lock: Lock): DBHandler {
+        val session = gbDatabase.session
+        if (session == null) {
+            lock.unlock()
+            throw GBException("Database is not open")
+        }
+        return LockHandler(lock, gbDatabase.daoMaster, session)
     }
 
     /**

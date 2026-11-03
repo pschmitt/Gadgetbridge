@@ -17,6 +17,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.robolectric.RuntimeEnvironment
@@ -104,6 +105,20 @@ class GBApplicationStartupTest : TestBase() {
             assertNotNull(it.daoSession)
             assertNotSame(daoSession, it.daoSession)
         }
+    }
+
+    @Test
+    fun acquiringAClosedDatabaseThrowsAndReleasesTheLock() {
+        val manager = app.databaseManager
+        manager.closeDatabase()
+
+        assertThrows(GBException::class.java) { manager.acquireWrite() }
+        assertThrows(GBException::class.java) { manager.acquireReadOnly() }
+
+        // Neither failed acquire kept its lock, so the database can be set up and used again
+        manager.setupDatabase()
+        manager.acquireWrite().use { assertNotNull(it.daoSession) }
+        manager.acquireReadOnly().use { assertNotNull(it.daoSession) }
     }
 
     @Test
