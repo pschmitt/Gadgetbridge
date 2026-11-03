@@ -178,14 +178,12 @@ public class DataManagementActivity extends AbstractGBActivity {
             List<Device> activeDevices = DBHelper.getActiveDevices(lockHandler.getDaoSession());
             for (Device dbDevice : activeDevices) {
                 SharedPreferences deviceSharedPrefs = GBApplication.getDeviceSpecificSharedPrefs(dbDevice.getIdentifier());
-                if (sharedPrefs != null) {
-                    File myPath = FileUtils.getExternalFilesDir();
-                    File myFile = new File(myPath, "Export_preference_" + FileUtils.makeValidFileName(dbDevice.getIdentifier()));
-                    try {
-                        ImportExportSharedPreferences.exportToFile(deviceSharedPrefs, myFile);
-                    } catch (Exception ignore) {
-                        // some devices no not have device specific preferences
-                    }
+                File myPath = FileUtils.getExternalFilesDir();
+                File myFile = new File(myPath, "Export_preference_" + FileUtils.makeValidFileName(dbDevice.getIdentifier()));
+                try {
+                    ImportExportSharedPreferences.exportToFile(deviceSharedPrefs, myFile);
+                } catch (Exception ignore) {
+                    // some devices no not have device specific preferences
                 }
             }
         } catch (Exception e) {
@@ -208,22 +206,20 @@ public class DataManagementActivity extends AbstractGBActivity {
             List<Device> activeDevices = DBHelper.getActiveDevices(lockHandler.getDaoSession());
             for (Device dbDevice : activeDevices) {
                 SharedPreferences deviceSharedPrefs = GBApplication.getDeviceSpecificSharedPrefs(dbDevice.getIdentifier());
-                if (sharedPrefs != null) {
-                    File myPath = FileUtils.getExternalFilesDir();
-                    File myFile = new File(myPath, "Export_preference_" + FileUtils.makeValidFileName(dbDevice.getIdentifier()));
+                File myPath = FileUtils.getExternalFilesDir();
+                File myFile = new File(myPath, "Export_preference_" + FileUtils.makeValidFileName(dbDevice.getIdentifier()));
 
-                    if (!myFile.exists()) { //first try to use file in new format de_ad_be_af, if it doesn't exist use old format de:at:be:af
-                        myFile = new File(myPath, "Export_preference_" + dbDevice.getIdentifier());
-                        LOG.info("Trying to import with older filename");
-                    }else{
-                        LOG.info("Trying to import with new filename");
-                    }
+                if (!myFile.exists()) { //first try to use file in new format de_ad_be_af, if it doesn't exist use old format de:at:be:af
+                    myFile = new File(myPath, "Export_preference_" + dbDevice.getIdentifier());
+                    LOG.info("Trying to import with older filename");
+                }else{
+                    LOG.info("Trying to import with new filename");
+                }
 
-                    try {
-                        ImportExportSharedPreferences.importFromFile(deviceSharedPrefs, myFile);
-                    } catch (Exception ignore) {
-                        // some devices no not have device specific preferences
-                    }
+                try {
+                    ImportExportSharedPreferences.importFromFile(deviceSharedPrefs, myFile);
+                } catch (Exception ignore) {
+                    // some devices no not have device specific preferences
                 }
             }
         } catch (Exception e) {

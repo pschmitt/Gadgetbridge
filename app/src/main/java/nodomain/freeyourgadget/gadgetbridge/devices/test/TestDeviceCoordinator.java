@@ -954,11 +954,12 @@ public class TestDeviceCoordinator extends AbstractDeviceCoordinator {
         // HACK: Avoid the refactor of adding a device as a parameter on all functions
         // This means that it's only possible to have a single test device
 
-        if (GBApplication.app() == null || GBApplication.app().getDeviceManager() == null) {
+        final GBApplication app = GBApplication.appOrNull();
+        if (app == null) {
             return null;
         }
 
-        final List<GBDevice> devices = GBApplication.app().getDeviceManager().getDevices();
+        final List<GBDevice> devices = app.getDeviceManager().getDevices();
         for (GBDevice device : devices) {
             if (DeviceType.TEST == device.getType()) {
                 return device;

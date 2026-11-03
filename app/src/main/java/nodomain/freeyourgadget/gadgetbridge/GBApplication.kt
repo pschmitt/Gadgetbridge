@@ -84,6 +84,7 @@ import nodomain.freeyourgadget.gadgetbridge.widgets.launcher.LauncherWidgetUpdat
 import org.slf4j.LoggerFactory
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.system.exitProcess
 
 /**
  * Main Application class that initializes and provides access to certain things like
@@ -137,11 +138,6 @@ open class GBApplication : Application() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vm.detectContentUriWithoutPermission()
                 vm.detectUntaggedSockets()
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                // androidx.appcompat causes:
-                // NonSdkApiUsedViolation: Landroid/view/ViewGroup;->makeOptionalFitsSystemWindows()V
-                // vm.detectNonSdkApiUsage();
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 vm.detectImplicitDirectBoot()
@@ -218,7 +214,7 @@ open class GBApplication : Application() {
             NotificationAppRepository.loadInBackground()
         }
 
-        notificationManager = appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager = appContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         if (isRunningOreoOrLater()) {
             bluetoothStateChangeReceiver = BluetoothStateChangeReceiver()
             val bif = IntentFilter()
@@ -298,7 +294,7 @@ open class GBApplication : Application() {
     }
 
     /**
-     * Returns true if at least a single device is busy, e.g synchronizing activity data
+     * Returns true if at least a single device is busy, e.g. synchronizing activity data
      * or something similar.
      * Note: busy is not the same as connected or initialized!
      */
@@ -360,9 +356,9 @@ open class GBApplication : Application() {
         }
     }
 
-    private class GBActivityLifecycleCallbacks : Application.ActivityLifecycleCallbacks {
+    private class GBActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
         override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-            val preventScreenshots = GBApplication.getPrefs().getBoolean(GBPrefs.BLOCK_SCREENSHOTS, false)
+            val preventScreenshots = getPrefs().getBoolean(GBPrefs.BLOCK_SCREENSHOTS, false)
             if (preventScreenshots) {
                 LOG.debug("set FLAG_SECURE for {}", activity.localClassName)
                 activity.window.setFlags(
@@ -433,7 +429,7 @@ open class GBApplication : Application() {
             LocalBroadcastManager.getInstance(appContext).sendBroadcast(quitIntent)
             deviceServiceInstance.quit()
             GBDatabaseManager.closeDatabase()
-            System.exit(0)
+            exitProcess(0)
         }
 
         @JvmStatic
@@ -453,7 +449,7 @@ open class GBApplication : Application() {
                 startActivity,
                 PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
-            val alarmManager = appContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val alarmManager = appContext.getSystemService(ALARM_SERVICE) as AlarmManager
             alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + 1500, pendingIntent)
 
             Runtime.getRuntime().exit(0)
@@ -553,7 +549,7 @@ open class GBApplication : Application() {
             return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
         }
 
-        private fun isPrioritySender(prioritySenders: Int, number: String): Boolean {
+        private fun isPrioritySender(prioritySenders: Int, number: String?): Boolean {
             if (prioritySenders == NotificationManager.Policy.PRIORITY_SENDERS_ANY) {
                 return true
             } else if (ContextCompat.checkSelfPermission(
@@ -563,6 +559,9 @@ open class GBApplication : Application() {
             ) {
                 LOG.warn("Contacts permission not granted, unable to check if {} is a priority sender", number)
                 return true
+            } else if (number.isNullOrEmpty()) {
+                // Unknown/hidden number cannot match a contact or a starred contact
+                return false
             } else {
                 val uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number))
                 val projection = arrayOf(PhoneLookup._ID, PhoneLookup.STARRED)
@@ -575,16 +574,12 @@ open class GBApplication : Application() {
                         starred = it.getInt(it.getColumnIndexOrThrow(PhoneLookup.STARRED))
                     }
                 }
-                return if (prioritySenders == NotificationManager.Policy.PRIORITY_SENDERS_CONTACTS && exists) {
-                    true
-                } else {
-                    prioritySenders == NotificationManager.Policy.PRIORITY_SENDERS_STARRED && starred == 1
-                }
+                return prioritySenders == NotificationManager.Policy.PRIORITY_SENDERS_CONTACTS && exists || prioritySenders == NotificationManager.Policy.PRIORITY_SENDERS_STARRED && starred == 1
             }
         }
 
         @JvmStatic
-        fun isPriorityNumber(priorityType: Int, number: String): Boolean {
+        fun isPriorityNumber(priorityType: Int, number: String?): Boolean {
             val notificationPolicy = notificationManager.notificationPolicy
             if (priorityType == NotificationManager.Policy.PRIORITY_CATEGORY_MESSAGES) {
                 if ((notificationPolicy.priorityCategories and NotificationManager.Policy.PRIORITY_CATEGORY_MESSAGES) == NotificationManager.Policy.PRIORITY_CATEGORY_MESSAGES) {
@@ -612,7 +607,7 @@ open class GBApplication : Application() {
             require(!deviceIdentifier.isNullOrEmpty()) { "Invalid device identifier" }
             return appContext.getSharedPreferences(
                 "devicesettings_" + deviceIdentifier.toString().uppercase(Locale.ROOT),
-                Context.MODE_PRIVATE,
+                MODE_PRIVATE,
             )
         }
 
@@ -628,7 +623,7 @@ open class GBApplication : Application() {
             }
             appContext.getSharedPreferences(
                 "devicesettings_" + deviceIdentifier.toString().uppercase(Locale.ROOT),
-                Context.MODE_PRIVATE,
+                MODE_PRIVATE,
             ).edit { clear() }
         }
 
@@ -694,18 +689,18 @@ open class GBApplication : Application() {
             )
             val resources = appContext.resources
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
                 (selectedTheme == appContext.getString(R.string.pref_theme_value_system) ||
                     selectedTheme == appContext.getString(R.string.pref_theme_value_dynamic))
             ) {
-                return (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+                (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
             } else {
-                return selectedTheme == appContext.getString(R.string.pref_theme_value_dark)
+                selectedTheme == appContext.getString(R.string.pref_theme_value_dark)
             }
         }
 
         /**
-         * Ensures the splash screen follows the theme preference, if manually set to light or derk.
+         * Ensures the splash screen follows the theme preference, if manually set to light or dark.
          */
         private fun updateApplicationNightMode() {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
@@ -844,6 +839,14 @@ open class GBApplication : Application() {
         @JvmStatic
         fun app(): GBApplication {
             return checkNotNull(appInstance) { "GBApplication is not initialized" }
+        }
+
+        /**
+         * Returns the application instance if [onCreate] has run, or null otherwise (e.g. in plain unit tests).
+         */
+        @JvmStatic
+        fun appOrNull(): GBApplication? {
+            return appInstance
         }
 
         @JvmStatic
