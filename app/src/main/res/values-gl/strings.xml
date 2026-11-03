@@ -30,8 +30,8 @@
     <string name="appmanager_app_openinstore">Buscar na appstore de Pebble</string>
     <string name="appmanager_health_activate">Activar</string>
     <string name="appmanager_health_deactivate">Desactivar</string>
-    <string name="appmanager_hrm_activate">Activar Monitor de Ritmo Cardíaco</string>
-    <string name="appmanager_hrm_deactivate">Desactivar Monitor de Ritmo Cardíaco</string>
+    <string name="appmanager_hrm_activate">Activar monitor do pulso</string>
+    <string name="appmanager_hrm_deactivate">Desactivar monitor do pulso</string>
     <string name="appmanager_weather_activate">Activar app de clima do sistema</string>
     <string name="appmanager_weather_deactivate">Desactivar app de clima do sistema</string>
     <string name="app_configure">Configurar</string>
@@ -276,7 +276,7 @@
     <string name="calories">Calorías</string>
     <string name="distance">Distancia</string>
     <string name="clock">Reloxo</string>
-    <string name="heart_rate">Ritmo cardíaco</string>
+    <string name="heart_rate">Pulso cardíaco</string>
     <string name="battery">Batería</string>
     <string name="liveactivity_live_activity">Actividade en tempo real</string>
     <string name="weeksteps_today_steps_description">Pasos hoxe, obxectivo: %1$s</string>
@@ -284,7 +284,7 @@
     <string name="pref_summary_dont_ack_transfers">Se os datos de actividade non foran confirmados no dispositivo, non serán borrados del. Útil se GB se utiliza en simultáneo con outras aplicacións.</string>
     <string name="pref_summary_keep_data_on_device">Manterá os datos de actividade no dispositivo incluso despois da sincronización. É útil se utilizas GB xunto a outras apps. Isto pode causar que o reloxo quede sen espazo e/ou deixe de sincronizarse correctamente.</string>
     <string name="pref_title_low_latency_fw_update">Usar modo de baixa latencia para gravación do firmawar</string>
-    <string name="pref_summary_low_latency_fw_update">Isto pode axudar en dispositivos nos que fallen as actualizacións de firmware</string>
+    <string name="pref_summary_low_latency_fw_update">Isto pode axudar en dispositivos nos que fallen as actualizacións do firmware.</string>
     <string name="live_activity_steps_history">Historial de pasos</string>
     <string name="live_activity_current_steps_per_minute">Pasos/min actuais</string>
     <string name="live_activity_total_steps">Pasos totais</string>
@@ -300,7 +300,7 @@
     <string name="miband_fwinstaller_incompatible_version">Firmware incompatíbel</string>
     <string name="fwinstaller_firmware_not_compatible_to_device">Este firmware non é compatíbel co dispositivo</string>
     <string name="miband_prefs_reserve_alarm_calendar">Alarmas reservadas para próximos eventos</string>
-    <string name="miband_prefs_hr_sleep_detection">Usar sensor de ritmo cardíaco para mellorar a detección de sono</string>
+    <string name="miband_prefs_hr_sleep_detection">Usar sensor do pulso cardíaco para mellorar a detección de sono</string>
     <string name="miband2_prefs_dateformat">Formato de data</string>
     <string name="dateformat_time">Hora</string>
     <string name="dateformat_date_time"><![CDATA[Hora e data]]></string>
@@ -347,14 +347,12 @@
     <string name="DEVINFO_HR_VER">"Versión HW: "</string>
     <string name="updatefirmwareoperation_update_in_progress">Gravando o firmware</string>
     <string name="updatefirmwareoperation_firmware_not_sent">Firmware non enviado</string>
-    <string name="charts_legend_heartrate">Ritmo cardíaco</string>
-    <string name="live_activity_heart_rate">Ritmo cardíaco</string>
+    <string name="charts_legend_heartrate">Pulso cardíaco</string>
+    <string name="live_activity_heart_rate">Pulso cardíaco</string>
     <string name="pref_title_pebble_health_store_raw">Almacenar rexistro en bruto na base de datos</string>
     <string name="action_db_management">Xestión dos datos</string>
     <string name="title_activity_db_management">Xestión dos datos</string>
-    <string name="activity_db_management_import_export_explanation">A base de datos usa a seguinte ubicación no seu dispositivo.
-\nEsta ubicación é accesíbel para outras aplicacións Android e para o seu ordenador.
-\nAtopará as súas bases de datos exportadas (ou a que quere importar) aquí:</string>
+    <string name="activity_db_management_import_export_explanation">As operacións de exportación/importación usan a seguinte ruta (ver abaixo) no teu dispositivo. Este directorio é accesible para outras aplicacións Android na túa computadora. Ten en conta que este directorio e todos os seus ficheiros serán eliminados se desinstalas Gadgetbridge. Datos que inclúe:\n Export_preference - axustes globais\n Export_preference_MAC - axustes específicos do dispositivo\n Gadgetbridge - dispositivos e base de datos de actividades\n Gadgetbridge_date - base de datos exportada nunha data\n *.gpx - gravacións GPS\n *.log - ficheiros do rexistro\nÉ de agardar que os teus ficheiros de exportación (ou ficheiros que queiras importar) estean en:</string>
     <string name="dbmanagementactivvity_cannot_access_export_path">Non se pode acceder á ruta para exportar . Por favor, contacta cos desenvolvedores.</string>
     <string name="dbmanagementactivity_exported_to">Exportado a: %1$s</string>
     <string name="dbmanagementactivity_error_exporting_db">Erro ao exportar a base de datos: %1$s</string>
@@ -416,7 +414,7 @@
     <string name="pref_summary_pebble_always_ack_pebblekit">Isto fará que as mensaxes enviadas para apps de terceiros sexan recoñecidas sempre e inmediatamente</string>
     <string name="miband_prefs_device_time_offset_hours">Compensación da hora do dispositivo en horas (para detectar o sono de traballadores a turnos)</string>
     <string name="mi2_prefs_button_press_broadcast_summary">Difundir a mensaxe enviada co evento. O parámetro \"button_id\" engádese automaticamente en cada mensaxe.</string>
-    <string name="pref_summary_pebble_health_store_raw">Se marcado, os datos son almacenados no seu formato orixinal ficando disponíbeis para posterior interpretación. Nota: A base de datos será máis grande!</string>
+    <string name="pref_summary_pebble_health_store_raw">Almacena os datos «tal como son», aumentando o uso da base de datos para permitir unha interpretación posterior.</string>
     <string name="pebble_pairing_hint">Aparecerá un cadro de diálogo no dispositivo Android para emparellarse. Se non fose así, busca na caixa de notificacións e acepta a solicitude emparellamento. Acéptaa tamén despois no Pebble.</string>
     <string name="discovery_pair_question">Selecciona Emparellar para emparellar os teus dispositivos. Se isto falla, proba de novo sen emparellar.</string>
     <string name="controlcenter_connect">Conectar…</string>
@@ -738,7 +736,7 @@
     <string name="pref_theme_dynamic">Cores dinámicas</string>
     <string name="map_theme_osmarender">Osmarender</string>
     <string name="map_theme_motorider">Motorider</string>
-    <string name="map_theme_biker">Biker</string>
+    <string name="map_theme_biker">Ciclista</string>
     <string name="map_theme_indigo">Indigo</string>
     <string name="pref_theme_black_background">Usar fondo negro no Decorado Escuro</string>
     <string name="pref_title_block_screenshot">Bloquear capturas de pantalla</string>
@@ -1043,7 +1041,7 @@
     <string name="ftp_file_browser_upload">Subir</string>
     <string name="ftp_file_browser_download">Descargar</string>
     <string name="ftp_file_browser_download_complete">Descarga completa</string>
-    <string name="wifi_ftp_error_closed">"Fechouse a  conexión Wi-Fi co dispositivo"</string>
+    <string name="wifi_ftp_error_closed">Fechouse a conexión Wi-Fi co dispositivo</string>
     <string name="wifi_ftp_notification_title">Conexión Wi-Fi con %1$s</string>
     <string name="wifi_ftp_state_stopped">Sen conexión</string>
     <string name="wifi_ftp_state_starting_hotspot">Iniciando o punto de acceso Wi-Fi no dispositivo…</string>
@@ -1293,7 +1291,7 @@
     <string name="nothing_prefs_audiomode_title">Modo de audio</string>
     <string name="nothing_prefs_ultra_bass_title">Ultra Bass</string>
     <string name="nothing_prefs_ultra_bass_summary">Fortalece as frecuencias baixas para ter maior resposta nos baixos</string>
-    <string name="nothing_prefs_ultra_bass_level_title">Ultra Bass Level</string>
+    <string name="nothing_prefs_ultra_bass_level_title">Nivel Ultra Bass</string>
     <string name="nothing_equalizer_rock">Rock</string>
     <string name="nothing_equalizer_electronic">Electronica</string>
     <string name="nothing_equalizer_pop">Pop</string>
@@ -1325,7 +1323,7 @@
     <string name="prefs_active_noise_cancelling">Supresión activa do ruído</string>
     <string name="prefs_active_noise_cancelling_transparency">Transparencia</string>
     <string name="map_theme_custom">Persoal…</string>
-    <string name="map_theme_custom_file_title">Ficheiro do decorado persoal...</string>
+    <string name="map_theme_custom_file_title">Ficheiro do decorado persoal</string>
     <string name="activity_prefs_charts">Axustes para gráficos</string>
     <string name="activity_prefs_discovery_pairing">Descubrimento e Emparellamento</string>
     <string name="add_test_device">Engadir dispositivo en probas</string>
@@ -1343,7 +1341,7 @@
     <string name="pref_deprecated_media_control_summary">Envia ordes para o control do multimedia como eventos de teclas e non co controlador de medios.</string>
     <string name="pref_garmin_fake_oauth_warning">Non actives isto se pretendes usar a app oficial ou conectar o reloxo a internet. Ao activar este axuste poderías ter que restablecer o dispositivo aos valores de fábrica e volver a autenticarte.</string>
     <string name="maps">Mapas</string>
-    <string name="maps_settings">"Axustes dos  mapas"</string>
+    <string name="maps_settings">Axustes dos mapas</string>
     <string name="maps_download_title">Descargar mapas</string>
     <string name="maps_download_summary">Preme aquí para descargar ficheiros de mapas. Deberían gardarse no cartafol indicado no axuste de arriba.</string>
     <string name="maps_track_color_title">Cor da ruta</string>
@@ -1351,7 +1349,7 @@
     <string name="maps_folder_empty">Non se atoparon ficheiros no cartafol seleccionado</string>
     <string name="maps_file_invalid">Mapa non válido: %1$s</string>
     <string name="prefs_key_enable_deprecated_notificationcollectormonitor_title">Activar o servizo antigo de Monitor para Recolector de Notificacións</string>
-    <string name="prefs_key_enable_deprecated_notificationcollectormonitor_summary">Forza o uso dun segundo servizo en primeiro plano para manter o monitor de notificacións activo, activa esta opción se Gadgetbridge deixa de recibir notificacións.| Ten en conta que podería crear unha segunda notificación persistente no sistema.\nReinicia a aplicación despois de activar.</string>
+    <string name="prefs_key_enable_deprecated_notificationcollectormonitor_summary">Forza o uso dun segundo servizo en primeiro plano para manter o monitor de notificacións activo, activa esta opción se Gadgetbridge deixa de recibir notificacións.\nTen en conta que podería crear unha segunda notificación persistente no sistema.\nReinicia a aplicación despois de cambiar o axuste.</string>
     <string name="generic_metric_chart_label_with_unit">%1$s (%2$s)</string>
     <string name="miscale_weight_unit_metric">Métrico (kg)</string>
     <string name="miscale_weight_unit_imperial">Imperial (lbs)</string>
@@ -1509,11 +1507,11 @@
     <string name="file_already_exists">Xa existe o ficheiro</string>
     <string name="huawei_app_install_failed">O reloxo rexeitou instalar a app</string>
     <string name="huawei_app_uninstall_failed">O reloxo non puido eliminar a app</string>
-    <string name="smart_ring_measurement_error_unknown">Erro descoñecido da medida %s recibido desde o anel</string>
+    <string name="smart_ring_measurement_error_unknown">Erro descoñecido da medida %d recibido desde o anel</string>
     <string name="activity_db_management_backup_restore_label">Copia e restablecemento</string>
     <string name="activity_db_management_export_to_zip">Exportar zip</string>
     <string name="activity_db_management_import_from_zip">Importar zip</string>
-    <string name="activity_db_management_backup_restore_explanation">"As operacións de importación/exportación permítenche migrar ou facer copia de todos os axustes de Gadgetbridge, dispositivos  e datos desde/cara un ficheiro zip.\n\nAo importar un ficheiro vas eliminar todos os datos existentes, dispositivos e preferencias, substituíndoas coas que conteña a copia de apoio."</string>
+    <string name="activity_db_management_backup_restore_explanation">As operacións de importación/exportación permítenche migrar ou facer copia de todos os axustes de Gadgetbridge, dispositivos e datos a un ficheiro zip.\n\nAo importar un ficheiro vas eliminar todos os datos existentes, dispositivos e preferencias, substituíndoas coas que conteña a copia de apoio.</string>
     <string name="backup_restore_exporting">Exportando a zip…</string>
     <string name="backup_restore_exporting_preferences">Exportando preferencias…</string>
     <string name="backup_restore_exporting_database">Exportando a base de datos…</string>
@@ -1552,7 +1550,7 @@
     <string name="pref_music_management_title">Xestión da música</string>
     <string name="pref_music_management_summary">Xestionar a música no teléfono</string>
     <string name="music_delete_confirm_description">Tes certeza de querer eliminar \"%1$s\"?</string>
-    <string name="music_delete_multiple_confirm_description">Tes certeza de querer eliminar \"%1$s\" cancións?</string>
+    <string name="music_delete_multiple_confirm_description">Tes certeza de querer eliminar \"%1$d\" cancións?</string>
     <string name="music_add_to_playlist">Engadir a lista</string>
     <string name="music_delete_from_playlist">Retirar da lista</string>
     <string name="music_delete">Eliminar canción</string>
@@ -1647,7 +1645,7 @@
     <string name="filter_charts">Filtrar gráficos</string>
     <string name="recovery_heart_rate">Pulso de recuperación</string>
     <string name="huawei_send_gps_and_time_title">Enviar GPS e hora ao dispositivo</string>
-    <string name="huawei_send_gps_and_time_summary">Enviar GPS e Hora ao dispositivo para a climatoloxía e optimización da búsqueda de estrelas. Hai que establecer a localización nos axustes.</string>
+    <string name="huawei_send_gps_and_time_summary">Enviar GPS e Hora ao dispositivo para a climatoloxía e optimización da búsqueda de estrelas. Hai que establecer a localización nos axustes</string>
     <string name="garmin_mlr_protocol">Protocolo fiable Multi-Link</string>
     <string name="garmin_prg_transfer_mlr_title">Instalar ficheiros PRG usando MLR</string>
     <string name="garmin_prg_transfer_mlr_summary">Transferencia máis rápida, mais pode ser inestable.</string>
@@ -1889,4 +1887,50 @@
         <item quantity="other">%1$s brazadas</item>
     </plurals>
     <string name="workout_swim_stroke_choice">Opción</string>
+    <string name="activity_prefs_target_weight_kg">Obxectivo de peso en kg</string>
+    <string name="activity_prefs_calories_burnt">Obxectivo diario: calorías queimadas</string>
+    <string name="activity_prefs_goal_standing_hours">Obxectivo diario: horas de pé</string>
+    <string name="activity_prefs_goal_standing_time_minutes">Obxectivo diario: tempo de pé en minutos</string>
+    <string name="activity_prefs_goal_fat_burn_time_minutes">Obxectivo diario: tempo queimando graxas en minutos</string>
+    <string name="activity_prefs_goal_hydration_ml">Obxectivo diario: auga bebida en mililitros</string>
+    <string name="target">Obxectivo</string>
+    <string name="withings_calibration_text_activity_target">Finalmente aliñar a agulla de actividade ao 100%. Ten en conta que esta agulla só se move no sentido horario.</string>
+    <string name="widget_value_target">" / %s"</string>
+    <string name="pref_calendar_target_app_title">App correspondente no reloxo para eventos de calendario</string>
+    <string name="workout_target_css_offset">Desprazamento CSS</string>
+    <string name="vendor_data_import_select_target">Selecciona o dispositivo no que queres importar os datos.</string>
+    <string name="pref_casio_display_screens_steps_today">Pasos (hoxe)</string>
+    <string name="zetime_activity_tracking_summary">Activar o seguimento de actividades, vai contar os pasos e o resto.</string>
+    <plurals name="activity_list_steps_count">
+        <item quantity="one">%d paso</item>
+        <item quantity="other">%d pasos</item>
+    </plurals>
+    <string name="help">Axuda</string>
+    <string name="cannot_open_help_url">Non se puido abrir o URL</string>
+    <string name="auth_settings">Axustes de autenticación</string>
+    <string name="feature_exploresync_title">Protocolo ExploreSync</string>
+    <string name="hr_settings_zones_remove_all">Restablecer todo</string>
+    <string name="hr_settings_zones_remove_all_description">Tes certeza de querer eliminar as zonas de pulso cardíaco e os límites para todas as posturas e restablecer os valores predeterminados?</string>
+    <string name="pref_huawei_health_features_config_title">Configuración das opcións de saúde</string>
+    <string name="pref_huawei_health_features_config_summary">Configura as opcións extendidas para saúde.</string>
+    <string name="pref_huawei_features_config_info_title">Activar opcións de saúde adicionais</string>
+    <string name="pref_huawei_features_config_info_summary">Ao activar o axuste inferior vas engadir opcións de saúde adicionais no dispositivo. Por exempo as emocións e ECG.\nNota: estas funcións depende da dispoñibilidade no dispositivo.</string>
+    <string name="pref_huawei_features_config_warning_title">Enviar código do país e configuración de opcións ao dispositivo.</string>
+    <string name="pref_huawei_features_config_warning_summary">Aviso: ao activar estes axustes tanto en Gadgetbridge como na app do fabricante ao mesmo tempo podería causar problemas coa app do fabricante ou non aplicarse en absoluto nas funcións do dispositivo. Establecer un código de país incorrecto pode afectar a outros axustes no dispositivo, como a configuración da frecuencia a utilizar en función da rexión etc. Actívao baixo a túa responsabilidade.\nRequire volver a conectar o dispositivo.</string>
+    <string name="pref_huawei_send_country_code_title">Enviar código do país</string>
+    <string name="pref_huawei_send_country_code_summary">Enviar código do país ao dispositivo.\n Atención: o código de país debe estar establecido</string>
+    <string name="pref_huawei_country_code_title">Código do país</string>
+    <string name="pref_huawei_force_features_settings_title">Forzar que mostre os axustes con restrición por país</string>
+    <string name="pref_huawei_force_features_settings_summary">Forza que se mostren os axustes específicos para un país en Gadgetbridge.\n Aviso: Gadgetbridge vai mostrar os axustes indicados polo dispositivo como compatibles. Ten en conta que algúns axustes poden estar limitados pola app do fabricante e poderían non funcionar ou funcionar incorrectamente.</string>
+    <string name="gallery_download_queued">Na cola</string>
+    <string name="gallery_downloaded">Descargado</string>
+    <plurals name="gallery_download_added">
+        <item quantity="one">%d ficheiro engadido ás descargas</item>
+        <item quantity="other">%d ficheiros engadidos ás descargas</item>
+    </plurals>
+    <plurals name="gallery_download_already_downloaded">
+        <item quantity="one">%d ficheiro xa descargado</item>
+        <item quantity="other">%d ficheiros xa descargados</item>
+    </plurals>
+    <string name="prefs_title_battery_allow_bypass_mode">Permitir obviar o modo de batería</string>
 </resources>
