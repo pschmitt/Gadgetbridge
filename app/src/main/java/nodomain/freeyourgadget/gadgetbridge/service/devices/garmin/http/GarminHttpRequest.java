@@ -9,7 +9,6 @@ import com.google.gson.JsonPrimitive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -153,9 +152,9 @@ public class GarminHttpRequest {
             final JsonElement value = e.getValue();
             final String text = value instanceof JsonPrimitive primitive ? primitive.getAsString()
                     : value.isJsonNull() ? "" : value.toString();
-            sb.append(URLEncoder.encode(e.getKey(), StandardCharsets.UTF_8))
+            sb.append(Uri.encode(e.getKey()))
                     .append('=')
-                    .append(URLEncoder.encode(text, StandardCharsets.UTF_8));
+                    .append(Uri.encode(text));
         }
         return sb.toString();
     }
