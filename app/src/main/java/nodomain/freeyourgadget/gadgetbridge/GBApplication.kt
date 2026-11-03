@@ -46,7 +46,6 @@ import androidx.annotation.StyleRes
 import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -79,6 +78,7 @@ import nodomain.freeyourgadget.gadgetbridge.util.PermissionsUtils
 import nodomain.freeyourgadget.gadgetbridge.util.backup.PeriodicZipExporter
 import nodomain.freeyourgadget.gadgetbridge.util.healthconnect.HealthConnectPermissionManager
 import nodomain.freeyourgadget.gadgetbridge.util.preferences.DevicePrefs
+import nodomain.freeyourgadget.gadgetbridge.util.preferences.ScopedPrefsProvider
 import nodomain.freeyourgadget.gadgetbridge.widgets.launcher.LauncherWidgetUpdateTriggers
 import org.slf4j.LoggerFactory
 import java.util.Locale
@@ -108,6 +108,9 @@ open class GBApplication : Application() {
 
     @Inject
     lateinit var gbPrefs: GBPrefs
+
+    @Inject
+    lateinit var scopedPrefs: ScopedPrefsProvider
 
     private val themePreferenceListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         if ("pref_key_theme" == key) {
@@ -601,51 +604,46 @@ open class GBApplication : Application() {
             }
         }
 
+        /**
+         * @deprecated Use Hilt DI to inject [ScopedPrefsProvider] instead.
+         */
         @JvmStatic
         fun getDeviceSpecificSharedPrefs(deviceIdentifier: CharSequence?): SharedPreferences {
-            require(!deviceIdentifier.isNullOrEmpty()) { "Invalid device identifier" }
-            return appContext.getSharedPreferences(
-                "devicesettings_" + deviceIdentifier.toString().uppercase(Locale.ROOT),
-                MODE_PRIVATE,
-            )
+            return app().scopedPrefs.getDeviceSpecificSharedPrefs(deviceIdentifier)
         }
 
+        /**
+         * @deprecated Use Hilt DI to inject [ScopedPrefsProvider] instead.
+         */
         @JvmStatic
         fun getDevicePrefs(gbDevice: GBDevice): DevicePrefs {
-            return DevicePrefs(getDeviceSpecificSharedPrefs(gbDevice.address), gbDevice)
+            return app().scopedPrefs.getDevicePrefs(gbDevice)
         }
 
+        /**
+         * @deprecated Use Hilt DI to inject [ScopedPrefsProvider] instead.
+         */
         @JvmStatic
         fun deleteDeviceSpecificSharedPrefs(deviceIdentifier: CharSequence?) {
-            if (deviceIdentifier.isNullOrEmpty()) {
-                return
-            }
-            appContext.getSharedPreferences(
-                "devicesettings_" + deviceIdentifier.toString().uppercase(Locale.ROOT),
-                MODE_PRIVATE,
-            ).edit { clear() }
+            app().scopedPrefs.deleteDeviceSpecificSharedPrefs(deviceIdentifier)
         }
 
         /**
          * The per-instance settings file for a dashboard widget instance, keyed by its instance id.
+         *
+         * @deprecated Use Hilt DI to inject [ScopedPrefsProvider] instead.
          */
         @JvmStatic
         fun getWidgetSharedPrefs(instanceId: CharSequence?): SharedPreferences? {
-            if (instanceId.isNullOrEmpty()) {
-                return null
-            }
-            return appContext.getSharedPreferences("widgetsettings_$instanceId", MODE_PRIVATE)
+            return app().scopedPrefs.getWidgetSharedPrefs(instanceId)
         }
 
+        /**
+         * @deprecated Use Hilt DI to inject [ScopedPrefsProvider] instead.
+         */
         @JvmStatic
         fun deleteWidgetSharedPrefs(instanceId: CharSequence?) {
-            if (instanceId.isNullOrEmpty()) {
-                return
-            }
-            appContext.getSharedPreferences("widgetsettings_$instanceId", MODE_PRIVATE)
-                .edit {
-                    clear()
-                }
+            app().scopedPrefs.deleteWidgetSharedPrefs(instanceId)
         }
 
         @JvmStatic

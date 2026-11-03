@@ -10,6 +10,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.DeviceType
 import nodomain.freeyourgadget.gadgetbridge.test.TestBase
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -40,6 +41,20 @@ class GBApplicationStartupTest : TestBase() {
     fun prefsAreTheOnesInjectedIntoTheCurrentApplication() {
         assertSame(app.gbPrefs, GBApplication.getPrefs())
         assertSame(app.defaultSharedPreferences, GBApplication.getPrefs().preferences)
+    }
+
+    @Test
+    fun scopedPrefsGoThroughTheProviderInjectedIntoTheCurrentApplication() {
+        assertSame(
+            app.scopedPrefs.getDeviceSpecificSharedPrefs(MAC),
+            GBApplication.getDeviceSpecificSharedPrefs(MAC.lowercase()),
+        )
+        assertSame(app.scopedPrefs.getWidgetSharedPrefs("42"), GBApplication.getWidgetSharedPrefs("42"))
+        assertNull(GBApplication.getWidgetSharedPrefs(""))
+
+        GBApplication.getDeviceSpecificSharedPrefs(MAC).edit(commit = true) { putBoolean("key", true) }
+        GBApplication.deleteDeviceSpecificSharedPrefs(MAC)
+        assertFalse(app.scopedPrefs.getDeviceSpecificSharedPrefs(MAC).contains("key"))
     }
 
     @Test
