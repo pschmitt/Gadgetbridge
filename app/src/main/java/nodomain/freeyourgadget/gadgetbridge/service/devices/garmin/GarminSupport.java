@@ -1571,7 +1571,7 @@ public class GarminSupport extends AbstractBTLESingleDeviceSupport implements IC
             dataRecords.add(alarmBuilder.build());
 
             deviceSettingsTimes.add(alarm.getHour() * 60 + alarm.getMinute());
-            deviceSettingsMode.add(AlarmMode.Custom.num);
+            deviceSettingsMode.add(AlarmMode.CUSTOM.num);
             deviceSettingsEnabled.add(alarm.getEnabled() ? 1 : 0);
             deviceSettingsRepeat.add(repetitionCode);
 
