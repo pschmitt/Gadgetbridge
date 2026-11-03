@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.graphics.PointF
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
-import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.GaugeDrawer
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
@@ -133,7 +132,7 @@ object HrvWidget : MetricWidget<HrvWidget.Data?>() {
                 xMax = (it.size - 1).toFloat(),
                 yMin = (bounds.minOrNull() ?: 0f) * SCALE_BELOW,
                 yMax = (bounds.maxOrNull() ?: 100f) * SCALE_ABOVE,
-                color = GBApplication.getTextColor(context),
+                color = ContextCompat.getColor(context, R.color.hrv_status_weekly_avg_color),
                 bands = if (baseline) {
                     listOf(Band(data.baselineBalancedLower.toFloat(), data.baselineBalancedUpper.toFloat(), ColorUtils.setAlphaComponent(balanced, BAND_ALPHA)))
                 } else {
