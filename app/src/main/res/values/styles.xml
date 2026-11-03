@@ -102,7 +102,7 @@
         <item name="android:windowBackground">@color/window_background_light</item>
         <item name="android:colorBackground">@color/window_background_light</item>
         <item name="android:statusBarColor">?attr/toolbar_bg</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightStatusBar">true</item>
         <!-- colorSurface, not ?android:attr/windowBackground: dialogs redefine windowBackground as
              a drawable, and windows read this as a color, which crashed when opening one -->
         <item name="android:navigationBarColor">?attr/colorSurface</item>
@@ -215,7 +215,7 @@
         <item name="android:windowBackground">@color/window_background_dark</item>
         <item name="android:colorBackground">@color/window_background_dark</item>
         <item name="android:statusBarColor">?attr/toolbar_bg</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
     </style>
@@ -242,7 +242,7 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeCloseButtonStyle">@style/GadgetbridgeTheme.ActionModeCloseButton</item>
         <item name="android:statusBarColor">?attr/toolbar_bg</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:colorControlHighlight">?attr/colorPrimary</item>
         <item name="drawer_header_color">?attr/toolbar_bg</item>
         <item name="drawer_title_color">?attr/textColorPrimary</item>
@@ -314,7 +314,7 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeCloseButtonStyle">@style/GadgetbridgeTheme.ActionModeCloseButton</item>
         <item name="android:statusBarColor">?attr/toolbar_bg</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:colorControlHighlight">?attr/colorPrimary</item>
         <item name="drawer_header_color">?attr/toolbar_bg</item>
         <item name="drawer_title_color">?attr/textColorPrimary</item>

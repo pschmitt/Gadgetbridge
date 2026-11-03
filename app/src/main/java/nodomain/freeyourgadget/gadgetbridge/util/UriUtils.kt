@@ -2,7 +2,6 @@ package nodomain.freeyourgadget.gadgetbridge.util
 
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.provider.DocumentsContract
 import androidx.core.net.toUri
 import nodomain.freeyourgadget.gadgetbridge.R
@@ -29,7 +28,7 @@ object UriUtils {
         val uri = uriString.toUri()
 
         // Handle tree URIs (from ACTION_OPEN_DOCUMENT_TREE)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && DocumentsContract.isTreeUri(uri)) {
+        if (DocumentsContract.isTreeUri(uri)) {
             try {
                 val treeDocId = DocumentsContract.getTreeDocumentId(uri)
                 if ("com.android.externalstorage.documents" == uri.authority) {

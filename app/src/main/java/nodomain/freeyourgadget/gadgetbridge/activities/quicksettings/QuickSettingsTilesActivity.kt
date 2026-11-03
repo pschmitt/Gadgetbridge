@@ -18,10 +18,8 @@ package nodomain.freeyourgadget.gadgetbridge.activities.quicksettings
 
 import android.content.ComponentName
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.service.quicksettings.TileService
-import androidx.annotation.RequiresApi
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
@@ -38,7 +36,6 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
  * the extra (e.g. from the main settings), it shows a list of all [NUM_TILES] slots so the user
  * can configure any of them.
  */
-@RequiresApi(Build.VERSION_CODES.N)
 class QuickSettingsTilesActivity : AbstractGBActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -152,12 +152,7 @@ class PebbleJsService : Service() {
             webviews.remove(device.address)?.destroy()
             if (webviews.isEmpty()) {
                 LOG.info("Last webview stopped, stopping Pebble JS Service...")
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    stopForeground(STOP_FOREGROUND_REMOVE)
-                } else {
-                    @Suppress("DEPRECATION")
-                    stopForeground(true)
-                }
+                stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
             }
         }

@@ -24,7 +24,6 @@ import android.os.Build
 import android.os.Bundle
 import android.service.quicksettings.TileService
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.preference.ListPreference
 import androidx.preference.MultiSelectListPreference
 import androidx.preference.Preference
@@ -62,7 +61,6 @@ import nodomain.freeyourgadget.gadgetbridge.util.kotlin.getParcelableCompat
  * All preferences are non-persistent; changes are committed to [DeviceTilePrefs] manually via
  * change/click listeners.
  */
-@RequiresApi(Build.VERSION_CODES.N)
 class QuickSettingsPreferencesActivity : AbstractSettingsActivityV2() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

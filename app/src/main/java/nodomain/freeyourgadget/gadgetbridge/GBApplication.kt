@@ -515,11 +515,6 @@ open class GBApplication : Application() {
         }
 
         @JvmStatic
-        fun isRunningNougatOrLater(): Boolean {
-            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-        }
-
-        @JvmStatic
         fun isRunningOreoOrLater(): Boolean {
             return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
         }

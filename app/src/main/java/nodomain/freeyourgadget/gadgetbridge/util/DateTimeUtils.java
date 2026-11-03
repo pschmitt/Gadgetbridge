@@ -77,11 +77,7 @@ public class DateTimeUtils {
     }
 
     public static String formatIso8601(Date date) {
-        if (GBApplication.isRunningNougatOrLater()) {
-            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US).format(date);
-        }
-        ISO_8601_FORMAT.setTimeZone(TimeZone.getDefault());
-        return ISO_8601_FORMAT.format(date);
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US).format(date);
     }
 
     @Nullable
@@ -90,13 +86,9 @@ public class DateTimeUtils {
     }
 
     public static String formatIso8601UTC(Date date) {
-        if (GBApplication.isRunningNougatOrLater()) {
-            final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US);
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-            return sdf.format(date);
-        }
-        ISO_8601_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return ISO_8601_FORMAT.format(date);
+        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return sdf.format(date);
     }
 
     public static String formatDate(Date date) {
