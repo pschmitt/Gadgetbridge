@@ -5377,7 +5377,6 @@
     <string name="device_card_add_item">添加项目</string>
     <string name="device_card_items_reset_confirmation">重置设备卡片项目的顺序并恢复已删除项目？</string>
     <string name="when_connected">连接时</string>
-    <string name="sleep_total_value">总睡眠时长：%s</string>
     <string name="workout_ascent">升序</string>
     <string name="workout_descent">降序</string>
     <string name="avg_speed">平均速度</string>

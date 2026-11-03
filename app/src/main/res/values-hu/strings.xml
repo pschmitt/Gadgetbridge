@@ -4593,7 +4593,6 @@
     <string name="minutes_40">40 perc</string>
     <string name="minutes_360">360 perc</string>
     <string name="minutes_480">480 perc</string>
-    <string name="sleep_total_value">Összes alvás: %s</string>
     <string name="sleep_stages">Alvási ciklusok</string>
     <string name="ak102_pref_audio_auto_connect_title">Hívás hang auto-kapcsolódása</string>
     <string name="ak102_pref_audio_auto_connect_summary">Újracsatlakozás esetén az eszköz Bluetooth headsetként csatlakozik. Az órán levő hívások, kapcsolatok és a híváslista számára szükséges ez a kapcsolat.</string>

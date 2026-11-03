@@ -3272,7 +3272,6 @@
     <string name="minutes_480">480 分鐘</string>
     <string name="pref_title_third_party_app_device_alarms">允許第三方應用程式設定鬧鐘</string>
     <string name="pref_summary_third_party_app_device_alarms">允許其他已安裝的第三方應用程式透過 Intent 設定裝置鬧鐘。</string>
-    <string name="sleep_total_value">總睡眠：%s</string>
     <string name="sleep_stages">睡眠階段</string>
     <string name="stats_empty_value">-</string>
     <string name="date_placeholders__date__time">%1$s，%2$s</string>

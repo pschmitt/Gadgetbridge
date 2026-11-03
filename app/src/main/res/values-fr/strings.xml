@@ -4813,7 +4813,6 @@
     <string name="map_theme_custom_file_summary">Archive zip contenant le thème et ses icônes, utilisé quand le thème ci-dessus est réglé sur Personnalisé</string>
     <string name="when_connected">En connexion</string>
     <string name="alarm_smart_wakeup_interval_minutes">Délai de réveil intelligent (minutes)</string>
-    <string name="sleep_total_value">Sommeil total : %s</string>
     <string name="pref_title_do_not_archive_activity_data">Ne pas archiver les données d\'activité</string>
     <string name="pref_summary_do_not_archive_activity_data">Ne pas marquer les activités comme synchronisées sur l\'appareil. Utile si Gadgetbridge est utilisé en même temps que d\'autres applis. Ceci peut entraîner la saturation de la mémoire de la montre et/ou des problèmes de synchronisation.</string>
     <string name="watchface_install_resolution_matches">La définition de ce cadran correspond à celle de cet appareil. Ce cadran est peut-être compatible, mais Gadgetbridge ne peut pas le confirmer. Un cadran destiné à un autre appareil pourrait bloquer votre appareil.</string>

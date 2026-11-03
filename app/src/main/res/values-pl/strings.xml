@@ -5339,7 +5339,6 @@
     <string name="blood_pressure_all_users">Wszyscy użytkownicy</string>
     <string name="blood_pressure_user_index">Użytkownik %d</string>
     <string name="blood_pressure_unknown_user">Nieznany użytkownik</string>
-    <string name="sleep_total_value">Całkowity czas snu: %s</string>
     <string name="sleep_stages">Fazy snu</string>
     <string name="watchface_install_resolution_matches">Rozdzielczość tarczy zegarka jest zgodna z tym urządzeniem. Tarcza zegarka może być kompatybilna, ale serwis Gadgetbridge nie może tego potwierdzić. Zastosowanie tarczy przeznaczonej dla innego urządzenia może spowodować uszkodzenie Twojego urządzenia.</string>
     <string name="watchface_install_aspect_ratio_matches">Podgląd tarczy zegarka jest dostosowany do ekranu tego urządzenia. Tarcza zegarka może być kompatybilna, ale serwis Gadgetbridge nie może tego potwierdzić. Zastosowanie tarczy przeznaczonej dla innego urządzenia może spowodować uszkodzenie Twojego urządzenia.</string>

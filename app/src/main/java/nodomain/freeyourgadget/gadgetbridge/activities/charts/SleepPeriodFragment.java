@@ -357,7 +357,7 @@ public class SleepPeriodFragment extends SleepFragment<SleepPeriodFragment.MyCha
             for (int stage = 0; stage < sleepStages; stage++) {
                 total += data.stageMinutes[stage][i];
             }
-            return total > 0 ? getString(R.string.sleep_total_value, getHM((long) total)) : emptyValue;
+            return total > 0 ? getHM((long) total) : emptyValue;
         });
         for (int stage = 0; stage < labels.length; stage++) {
             final int index = stage;
