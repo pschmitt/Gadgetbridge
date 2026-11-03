@@ -283,7 +283,7 @@ public final class BtLEQueue implements Thread.UncaughtExceptionHandler {
         LOG.error("exception in thread {} (threadId={})", t.getName(), t.getId(), e);
 
         // TODO implement actual exception handling for mDispatchThread and mReceiverThread
-        new GBExceptionHandler(null, true).uncaughtException(t, e);
+        new GBExceptionHandler(true).uncaughtException(t, e);
     }
 
     @NonNull

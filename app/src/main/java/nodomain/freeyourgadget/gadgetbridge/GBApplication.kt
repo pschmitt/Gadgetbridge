@@ -80,7 +80,7 @@ import nodomain.freeyourgadget.gadgetbridge.util.PermissionsUtils
 import nodomain.freeyourgadget.gadgetbridge.util.backup.PeriodicZipExporter
 import nodomain.freeyourgadget.gadgetbridge.util.healthconnect.HealthConnectPermissionManager
 import nodomain.freeyourgadget.gadgetbridge.util.preferences.DevicePrefs
-import nodomain.freeyourgadget.gadgetbridge.widgets.launcher.LauncherWidgets
+import nodomain.freeyourgadget.gadgetbridge.widgets.launcher.LauncherWidgetUpdateTriggers
 import org.slf4j.LoggerFactory
 import java.util.Locale
 import javax.inject.Inject
@@ -96,6 +96,13 @@ import javax.inject.Inject
 open class GBApplication : Application() {
     @Inject
     lateinit var deviceManagerInstance: DeviceManager
+
+    @Inject
+    lateinit var launcherWidgetUpdateTriggers: LauncherWidgetUpdateTriggers
+
+    private val lifecycleObserver = AppLifecycleObserver()
+
+    private var exceptionHandler: GBExceptionHandler? = null
 
     private var bluetoothStateChangeReceiver: BluetoothStateChangeReceiver? = null
 
@@ -155,16 +162,15 @@ open class GBApplication : Application() {
         return GBDeviceService(this)
     }
 
+    /**
+     * Every step must be safe to repeat: Robolectric creates a new application instance and calls
+     * onCreate() for each test, while static and process-wide state survives across tests in the same JVM.
+     * Registrations with process-wide singletons are undone in [onTerminate].
+     */
     override fun onCreate() {
-        if (appInstance != null) {
-            super.onCreate()
-            // guard against multiple invocations (robolectric)
-            return
-        }
-
         appInstance = this
         super.onCreate()
-        ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver())
+        ProcessLifecycleOwner.get().lifecycle.addObserver(lifecycleObserver)
 
         sharedPrefsInstance = PreferenceManager.getDefaultSharedPreferences(appContext)
         prefsInstance = GBPrefs(sharedPrefsInstance)
@@ -233,7 +239,7 @@ open class GBApplication : Application() {
         // Ensure the InternetHelper is bound, so that it works on first usage
         InternetHelperSingleton.ensureInternetHelperBound()
 
-        LauncherWidgets.registerUpdateTriggers(appContext)
+        launcherWidgetUpdateTriggers.register()
 
         // Let every external service schedule its own upkeep, such as renewing a token
         if (!GBEnvironment.env().isTest) {
@@ -298,9 +304,23 @@ open class GBApplication : Application() {
      */
     private fun hasBusyDevice(): Boolean = deviceManagerInstance.devices.any { it.isBusy }
 
+    /**
+     * Only called on emulators and by Robolectric when it tears down a test's application, never on
+     * real devices. Undoes the registrations with process-wide singletons made in [onCreate], so that
+     * the next test's application starts clean. Do not put cleanup here that must run on devices.
+     */
+    override fun onTerminate() {
+        ProcessLifecycleOwner.get().lifecycle.removeObserver(lifecycleObserver)
+        launcherWidgetUpdateTriggers.unregister()
+        deviceManagerInstance.shutdown()
+        exceptionHandler?.unregister()
+        exceptionHandler = null
+        super.onTerminate()
+    }
+
     private fun setupExceptionHandler(notifyOnCrash: Boolean) {
-        val handler = GBExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), notifyOnCrash)
-        Thread.setDefaultUncaughtExceptionHandler(handler)
+        exceptionHandler?.unregister()
+        exceptionHandler = GBExceptionHandler(notifyOnCrash).also { it.register() }
     }
 
     @VisibleForTesting

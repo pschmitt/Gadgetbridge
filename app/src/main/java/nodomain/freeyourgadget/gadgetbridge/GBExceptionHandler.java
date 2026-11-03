@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import org.slf4j.Logger;
@@ -39,16 +40,49 @@ import nodomain.freeyourgadget.gadgetbridge.util.GB;
 
 /**
  * Catches otherwise uncaught exceptions, logs them and terminates the app.
+ * <p>
+ * Use {@link #register()} to install it as the default uncaught exception handler, and {@link #unregister()}
+ * to restore the handler it replaced.
  */
-@SuppressWarnings("ClassCanBeRecord")
 public class GBExceptionHandler implements Thread.UncaughtExceptionHandler {
     private static final Logger LOG = LoggerFactory.getLogger(GBExceptionHandler.class);
-    private final Thread.UncaughtExceptionHandler mDelegate;
     private final boolean mNotifyOnCrash;
 
-    public GBExceptionHandler(Thread.UncaughtExceptionHandler delegate, final boolean notifyOnCrash) {
-        mDelegate = delegate;
+    /**
+     * The default handler that {@link #register()} replaced, which this one forwards to. Null when not registered.
+     */
+    @Nullable
+    private volatile Thread.UncaughtExceptionHandler mPreviousDefaultUncaughtExceptionHandler;
+
+    public GBExceptionHandler(final boolean notifyOnCrash) {
         mNotifyOnCrash = notifyOnCrash;
+    }
+
+    /**
+     * Makes this the default uncaught exception handler, forwarding to the previous one. Does nothing if this
+     * already is the default handler. Must not be called again while another handler is installed on top of
+     * this one, as that handler would become this one's previous handler and form a cycle.
+     */
+    public synchronized void register() {
+        final Thread.UncaughtExceptionHandler current = Thread.getDefaultUncaughtExceptionHandler();
+        if (current == this) {
+            return;
+        }
+        mPreviousDefaultUncaughtExceptionHandler = current;
+        Thread.setDefaultUncaughtExceptionHandler(this);
+    }
+
+    /**
+     * Restores the previous default handler if this is the default handler. Otherwise it does nothing: either
+     * this was never registered, or another handler was installed on top of it and still forwards through this
+     * one, so {@link #mPreviousDefaultUncaughtExceptionHandler} must stay intact.
+     */
+    public synchronized void unregister() {
+        if (Thread.getDefaultUncaughtExceptionHandler() != this) {
+            return;
+        }
+        Thread.setDefaultUncaughtExceptionHandler(mPreviousDefaultUncaughtExceptionHandler);
+        mPreviousDefaultUncaughtExceptionHandler = null;
     }
 
     /// Log and notify the unhandled exception
@@ -87,9 +121,10 @@ public class GBExceptionHandler implements Thread.UncaughtExceptionHandler {
             }
         }
 
-        if (mDelegate != null) {
+        final Thread.UncaughtExceptionHandler previous = mPreviousDefaultUncaughtExceptionHandler;
+        if (previous != null) {
             try {
-                mDelegate.uncaughtException(thread, ex);
+                previous.uncaughtException(thread, ex);
             } catch (Throwable ignored) {
             }
         } else {

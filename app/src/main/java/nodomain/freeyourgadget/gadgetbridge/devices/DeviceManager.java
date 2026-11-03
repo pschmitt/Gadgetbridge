@@ -148,7 +148,7 @@ public class DeviceManager {
     /**
      * Starts managing devices: registers the broadcast receivers and loads the devices from the
      * database. Must be called after the application has finished its initialization (prefs and
-     * database), and only once.
+     * database). Does nothing if already initialized.
      */
     @MainThread
     public void initialize() {
@@ -158,6 +158,22 @@ public class DeviceManager {
         initialized = true;
         registerReceivers();
         refreshPairedDevices();
+    }
+
+    /**
+     * Stops managing devices: unregisters the broadcast receivers registered by {@link #initialize()}.
+     * Does nothing if not initialized. {@link #initialize()} may be called again afterwards.
+     */
+    @MainThread
+    public void shutdown() {
+        if (!initialized) {
+            return;
+        }
+        initialized = false;
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(mReceiver);
+        context.unregisterReceiver(mReceiver);
+        handler.removeCallbacks(deviceChangedRunnable);
+        deviceChangedPending = false;
     }
 
     private void registerReceivers() {
