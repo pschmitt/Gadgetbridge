@@ -77,10 +77,7 @@ public class GBDeviceService implements DeviceService {
     protected final Context mContext;
     private final GBDevice mDevice;
     private final Class<? extends Service> mServiceClass;
-    private final Executor mainExecutor = ContextCompat.getMainExecutor(GBApplication.getContext());
-
-    private final ConflatingDispatcher<NavigationInfoSpec> navigationDispatcher =
-            new ConflatingDispatcher<>(mainExecutor, this::forwardNavigationInfo);
+    private final ConflatingDispatcher<NavigationInfoSpec> navigationDispatcher;
     private static final Logger LOG = LoggerFactory.getLogger(GBDeviceService.class);
 
     public GBDeviceService(@NonNull Context context) {
@@ -91,6 +88,8 @@ public class GBDeviceService implements DeviceService {
         mContext = context;
         mDevice = device;
         mServiceClass = DeviceCommunicationService.class;
+        final Executor mainExecutor = ContextCompat.getMainExecutor(context);
+        navigationDispatcher = new ConflatingDispatcher<>(mainExecutor, this::forwardNavigationInfo);
     }
 
     @Override
