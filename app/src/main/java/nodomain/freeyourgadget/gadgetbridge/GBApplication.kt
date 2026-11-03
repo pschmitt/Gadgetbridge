@@ -385,7 +385,7 @@ open class GBApplication : Application() {
 
     private class GBActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
         override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-            val preventScreenshots = getPrefs().getBoolean(GBPrefs.BLOCK_SCREENSHOTS, false)
+            val preventScreenshots = app().gbPrefs.getBoolean(GBPrefs.BLOCK_SCREENSHOTS, false)
             if (preventScreenshots) {
                 LOG.debug("set FLAG_SECURE for {}", activity.localClassName)
                 activity.window.setFlags(
@@ -474,7 +474,7 @@ open class GBApplication : Application() {
 
         @JvmStatic
         fun minimizeNotification(): Boolean {
-            return getPrefs().getBoolean("minimize_priority", false)
+            return app().gbPrefs.getBoolean("minimize_priority", false)
         }
 
         @JvmStatic
@@ -496,8 +496,8 @@ open class GBApplication : Application() {
          * an Android Service and this facade provides access to its functionality.
          *
          * @return the facade for talking to the service/devices.
-         * @deprecated Use Hilt DI to inject [DeviceService] instead.
          */
+        @Deprecated("Use Hilt DI to inject DeviceService instead.")
         @JvmStatic
         fun deviceService(): DeviceService {
             return app().deviceServiceInstance
@@ -508,8 +508,8 @@ open class GBApplication : Application() {
          * an Android Service and this facade provides access to its functionality.
          *
          * @return the facade for talking to the service/device.
-         * @deprecated Use Hilt DI to inject [DeviceService] and call [DeviceService.forDevice] instead.
          */
+        @Deprecated("Use Hilt DI to inject DeviceService and call DeviceService.forDevice() instead.")
         @JvmStatic
         fun deviceService(device: GBDevice?): DeviceService {
             return app().deviceServiceInstance.forDevice(device)
@@ -517,8 +517,8 @@ open class GBApplication : Application() {
 
         /**
          * @see DatabaseManager.acquireWrite
-         * @deprecated Use Hilt DI to inject [DatabaseManager] instead.
          */
+        @Deprecated("Use Hilt DI to inject DatabaseManager instead.")
         @JvmStatic
         @Throws(GBException::class)
         fun acquireDB(): DBHandler {
@@ -527,8 +527,8 @@ open class GBApplication : Application() {
 
         /**
          * @see DatabaseManager.acquireReadOnly
-         * @deprecated Use Hilt DI to inject [DatabaseManager] instead.
          */
+        @Deprecated("Use Hilt DI to inject DatabaseManager instead.")
         @JvmStatic
         @Throws(GBException::class)
         fun acquireDbReadOnly(): DBHandler {
@@ -565,41 +565,31 @@ open class GBApplication : Application() {
             return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
         }
 
-        /**
-         * @deprecated Use Hilt DI to inject [DoNotDisturbPolicy] instead.
-         */
+        @Deprecated("Use Hilt DI to inject DoNotDisturbPolicy instead.")
         @JvmStatic
         fun isPriorityNumber(priorityType: Int, number: String?): Boolean {
             return app().doNotDisturbPolicy.isPriorityNumber(priorityType, number)
         }
 
-        /**
-         * @deprecated Use Hilt DI to inject [DoNotDisturbPolicy] instead.
-         */
+        @Deprecated("Use Hilt DI to inject DoNotDisturbPolicy instead.")
         @JvmStatic
         fun getGrantedInterruptionFilter(): Int {
             return app().doNotDisturbPolicy.getGrantedInterruptionFilter()
         }
 
-        /**
-         * @deprecated Use Hilt DI to inject [ScopedPrefsProvider] instead.
-         */
+        @Deprecated("Use Hilt DI to inject ScopedPrefsProvider instead.")
         @JvmStatic
         fun getDeviceSpecificSharedPrefs(deviceIdentifier: CharSequence?): SharedPreferences {
             return app().scopedPrefs.getDeviceSpecificSharedPrefs(deviceIdentifier)
         }
 
-        /**
-         * @deprecated Use Hilt DI to inject [ScopedPrefsProvider] instead.
-         */
+        @Deprecated("Use Hilt DI to inject ScopedPrefsProvider instead.")
         @JvmStatic
         fun getDevicePrefs(gbDevice: GBDevice): DevicePrefs {
             return app().scopedPrefs.getDevicePrefs(gbDevice)
         }
 
-        /**
-         * @deprecated Use Hilt DI to inject [ScopedPrefsProvider] instead.
-         */
+        @Deprecated("Use Hilt DI to inject ScopedPrefsProvider instead.")
         @JvmStatic
         fun deleteDeviceSpecificSharedPrefs(deviceIdentifier: CharSequence?) {
             app().scopedPrefs.deleteDeviceSpecificSharedPrefs(deviceIdentifier)
@@ -607,17 +597,14 @@ open class GBApplication : Application() {
 
         /**
          * The per-instance settings file for a dashboard widget instance, keyed by its instance id.
-         *
-         * @deprecated Use Hilt DI to inject [ScopedPrefsProvider] instead.
          */
+        @Deprecated("Use Hilt DI to inject ScopedPrefsProvider instead.")
         @JvmStatic
         fun getWidgetSharedPrefs(instanceId: CharSequence?): SharedPreferences? {
             return app().scopedPrefs.getWidgetSharedPrefs(instanceId)
         }
 
-        /**
-         * @deprecated Use Hilt DI to inject [ScopedPrefsProvider] instead.
-         */
+        @Deprecated("Use Hilt DI to inject ScopedPrefsProvider instead.")
         @JvmStatic
         fun deleteWidgetSharedPrefs(instanceId: CharSequence?) {
             app().scopedPrefs.deleteWidgetSharedPrefs(instanceId)
@@ -657,7 +644,7 @@ open class GBApplication : Application() {
 
         @JvmStatic
         fun isDarkThemeEnabled(): Boolean {
-            val selectedTheme = getPrefs().getString(
+            val selectedTheme = app().gbPrefs.getString(
                 "pref_key_theme",
                 appContext.getString(R.string.pref_theme_value_system),
             )
@@ -680,7 +667,7 @@ open class GBApplication : Application() {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                 return
             }
-            val selectedTheme = getPrefs().getString(
+            val selectedTheme = app().gbPrefs.getString(
                 "pref_key_theme",
                 appContext.getString(R.string.pref_theme_value_system),
             )
@@ -694,12 +681,12 @@ open class GBApplication : Application() {
 
         @JvmStatic
         fun isAmoledBlackEnabled(): Boolean {
-            return getPrefs().getBoolean("pref_key_theme_amoled_black", false)
+            return app().gbPrefs.getBoolean("pref_key_theme_amoled_black", false)
         }
 
         @JvmStatic
         fun areDynamicColorsEnabled(): Boolean {
-            val selectedTheme = getPrefs().getString(
+            val selectedTheme = app().gbPrefs.getString(
                 "pref_key_theme",
                 appContext.getString(R.string.pref_theme_value_system),
             )
@@ -714,7 +701,7 @@ open class GBApplication : Application() {
         @JvmStatic
         @StyleRes
         fun getAccentColorOverlay(dark: Boolean): Int {
-            val accent = getPrefs().getString(PREF_ACCENT_COLOR, PREF_ACCENT_COLOR_DEFAULT)
+            val accent = app().gbPrefs.getString(PREF_ACCENT_COLOR, PREF_ACCENT_COLOR_DEFAULT)
             return when (accent) {
                 "coral" -> if (dark) R.style.ThemeOverlay_App_Accent_Coral_Dark else R.style.ThemeOverlay_App_Accent_Coral_Light
                 "orange" -> if (dark) R.style.ThemeOverlay_App_Accent_Orange_Dark else R.style.ThemeOverlay_App_Accent_Orange_Light
@@ -735,7 +722,7 @@ open class GBApplication : Application() {
 
         @JvmStatic
         fun areContrastingSurfacesEnabled(dark: Boolean): Boolean {
-            return getPrefs().getBoolean(PREF_CONTRASTING_SURFACES, dark)
+            return app().gbPrefs.getBoolean(PREF_CONTRASTING_SURFACES, dark)
         }
 
         @JvmStatic
@@ -805,9 +792,7 @@ open class GBApplication : Application() {
             return hasDirectInternetAccess() || InternetHelperSingleton.ensureInternetHelperBound()
         }
 
-        /**
-         * @deprecated Use Hilt DI to inject [GBPrefs] instead.
-         */
+        @Deprecated("Use Hilt DI to inject GBPrefs instead.")
         @JvmStatic
         fun getPrefs(): GBPrefs {
             return app().gbPrefs
