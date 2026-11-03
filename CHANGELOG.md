@@ -2,7 +2,7 @@
 
 <!-- For contributors: do not modify this file - the project maintainers will update it as needed -->
 
-#### Next version (WIP)
+#### 2026.11.0
 
 * Initial support for Anker Soundcore Motion+, R50i NC, V20i
 * Initial support for Bettdow FB051 (MoYoung / Da Fit)
@@ -25,6 +25,7 @@
 * Experimental support for Anker Soundcore Space One
 * Experimental support for Concept2 PM5
 * Experimental support for Coros Pace 3
+* Experimental support for Garmin Quatix 7 / 7X
 * Experimental support for Segway Ninebot F2 Pro KickScooter
 * Experimental support for 15 Anker Soundcore devices
 * Refresh design for alarms list and details
