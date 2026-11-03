@@ -8,6 +8,8 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceType
+import nodomain.freeyourgadget.gadgetbridge.model.WeatherSpec
+import nodomain.freeyourgadget.gadgetbridge.model.weather.Weather
 import nodomain.freeyourgadget.gadgetbridge.test.TestBase
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -89,6 +91,16 @@ class GBApplicationStartupTest : TestBase() {
         app.databaseManager.acquireReadOnly().use { assertSame(daoSession, it.daoSession) }
         GBApplication.acquireDbReadOnly().use { assertSame(daoSession, it.daoSession) }
         GBDatabaseManager.acquireReadOnly().use { assertSame(daoSession, it.daoSession) }
+    }
+
+    @Test
+    fun weatherIsTheOneHeldByTheCurrentApplication() {
+        val spec = WeatherSpec.createTestWeather()
+        Weather.setWeatherSpec(listOf(spec))
+
+        assertSame(spec, app.weatherRepository.getWeatherSpec())
+        assertSame(spec, Weather.getWeatherSpec())
+        assertEquals(listOf(spec), Weather.getWeatherSpecs())
     }
 
     @Test

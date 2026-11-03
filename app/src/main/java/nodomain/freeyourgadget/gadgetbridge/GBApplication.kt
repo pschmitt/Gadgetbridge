@@ -58,8 +58,7 @@ import nodomain.freeyourgadget.gadgetbridge.externalevents.opentracks.OpenTracks
 import nodomain.freeyourgadget.gadgetbridge.externalservices.ExternalServiceRegistry
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceService
-import nodomain.freeyourgadget.gadgetbridge.model.weather.Weather
-import nodomain.freeyourgadget.gadgetbridge.model.weather.WeatherCacheManager
+import nodomain.freeyourgadget.gadgetbridge.model.weather.WeatherRepository
 import nodomain.freeyourgadget.gadgetbridge.prefs.GBPrefsMigrator
 import nodomain.freeyourgadget.gadgetbridge.service.NotificationCollectorMonitorService
 import nodomain.freeyourgadget.gadgetbridge.util.AndroidUtils
@@ -117,6 +116,9 @@ open class GBApplication : Application() {
 
     @Inject
     lateinit var databaseManager: DatabaseManager
+
+    @Inject
+    lateinit var weatherRepository: WeatherRepository
 
     private val themePreferenceListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         if ("pref_key_theme" == key) {
@@ -215,7 +217,7 @@ open class GBApplication : Application() {
 
         registerActivityLifecycleCallbacks(GBActivityLifecycleCallbacks())
 
-        Weather.initializeCache(WeatherCacheManager(cacheDir, gbPrefs.getBoolean("cache_weather", true)))
+        weatherRepository.initialize()
 
         // Prefs and the database are ready at this point.
         deviceManagerInstance.initialize()
