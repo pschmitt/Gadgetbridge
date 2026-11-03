@@ -1333,7 +1333,8 @@
                 <!-- Where a service's login sends the browser back; the host names the service -->
                 <data
                     android:scheme="${appAuthRedirectScheme}"
-                    android:pathPrefix="/oauth/callback" />
+                    android:pathPrefix="/oauth/callback"
+                    tools:ignore="AppLinkUrlError" />
             </intent-filter>
         </activity>
 

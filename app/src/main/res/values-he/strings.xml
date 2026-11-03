@@ -808,12 +808,12 @@
     <string name="bip_prefs_shortcuts">קיצורי דרך</string>
     <string name="hr_widget_last_notification">התראה אחרונה</string>
     <string name="controlcenter_set_alias">הגדרת כינוי</string>
-    <string name="fw_upgrade_notice_amazfit_trex">פעולה זו תתקין את הקושחה %s ב־Amazfit T-Rex שלך. 
-\n 
-\nנא לוודא את התקנת קובץ ה־‎.fw בהתחלה, לאחר מכן את קובץ ה־‎.res ולבסוף קובץ ה־‎.gps השעון שלך יופעל מחדש לאחר התקנת קובץ ה־fw. 
-\n 
-\nלתשומת לבך: אין צורך בהתקנת קובצי ה־‎.res וה־‎.gps אם הם כבר זהים לאלו שהתקנת בעבר. 
-\n 
+    <string name="fw_upgrade_notice_amazfit_trex">פעולה זו תתקין את הקושחה %s ב־Amazfit T-Rex שלך.
+\n
+\nנא לוודא את התקנת קובץ ה־‎.fw בהתחלה, לאחר מכן את קובץ ה־‎.res ולבסוף קובץ ה־‎.gps השעון שלך יופעל מחדש לאחר התקנת קובץ ה־fw.
+\n
+\nלתשומת לבך: אין צורך בהתקנת קובצי ה־‎.res וה־‎.gps אם הם כבר זהים לאלו שהתקנת בעבר.
+\n
 \nהמשך התהליך הוא על אחריותך!</string>
     <string name="about_additional_contributions">תודתנו נתונה לכל התורמים שתרמו קוד, תרגומים, תמיכה, רעיונות, מוטיבציה, דיווחי תקלות, כסף… ✊</string>
     <string name="about_additional_device_support">תמיכה במכשירים נוספים</string>
@@ -2941,7 +2941,7 @@
     <string name="datestep_letter_month">ח׳</string>
     <string name="datestep_letter_week">שב׳</string>
     <string name="datestep_letter_day">י׳</string>
-    <plurals name="workout_exercise_picker_filter_count">
+    <plurals name="workout_exercise_picker_filter_count" tools:ignore="MissingQuantity">
         <item quantity="one">אימון אחד</item>
         <item quantity="two">שני אימונים</item>
         <item quantity="other">%d אימונים</item>
@@ -2997,17 +2997,17 @@
     <string name="workout_equipment_snorkel">שנורקל</string>
     <string name="workout_effort_ascending">עולה</string>
     <string name="workout_effort_descending">יורד</string>
-    <plurals name="workout_value_repetitions">
+    <plurals name="workout_value_repetitions" tools:ignore="MissingQuantity">
         <item quantity="one">חזרה אחת</item>
         <item quantity="two">שתי חזרות</item>
         <item quantity="other">%1$s חזרות</item>
     </plurals>
-    <plurals name="workout_value_laps">
+    <plurals name="workout_value_laps" tools:ignore="MissingQuantity">
         <item quantity="one">הקפה אחת</item>
         <item quantity="two">שתי הקפות</item>
         <item quantity="other">%1$s הקפות</item>
     </plurals>
-    <plurals name="workout_value_strokes">
+    <plurals name="workout_value_strokes" tools:ignore="MissingQuantity">
         <item quantity="one">חתירה אחת</item>
         <item quantity="two">שתי חתירות</item>
         <item quantity="other">%1$s חתירות</item>
@@ -3043,7 +3043,7 @@
     <string name="workout_sync_status_failed">הסנכרון נכשל</string>
     <string name="workout_template_sync">שליחה למכשיר</string>
     <string name="workout_sync_status_out_of_date">לא עדכני</string>
-    <plurals name="workout_template_step_count">
+    <plurals name="workout_template_step_count" tools:ignore="MissingQuantity">
         <item quantity="one">צעד אחד</item>
         <item quantity="two">שני צעדים</item>
         <item quantity="other">%d צעדים</item>
