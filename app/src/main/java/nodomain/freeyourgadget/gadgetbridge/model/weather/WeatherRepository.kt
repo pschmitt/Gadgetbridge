@@ -4,7 +4,7 @@ import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import nodomain.freeyourgadget.gadgetbridge.model.WeatherSpec
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.Collections
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,7 +17,12 @@ class WeatherRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val prefs: GBPrefs,
 ) {
-    private val weatherSpecs = CopyOnWriteArrayList<WeatherSpec>()
+    /**
+     * An unmodifiable snapshot, replaced as a whole on every update, so that readers on other
+     * threads never see a partially updated list.
+     */
+    @Volatile
+    private var weatherSpecs: List<WeatherSpec> = emptyList()
 
     @Volatile
     private var cacheManager: WeatherCacheManager? = null
@@ -33,20 +38,20 @@ class WeatherRepository @Inject constructor(
         this.cacheManager = cacheManager
 
         cacheManager.load { loadedSpecs ->
-            weatherSpecs.clear()
-            weatherSpecs.addAll(loadedSpecs)
+            weatherSpecs = snapshot(loadedSpecs)
         }
     }
 
     fun setWeatherSpec(newSpecs: Collection<WeatherSpec>) {
-        weatherSpecs.apply {
-            clear()
-            addAll(newSpecs)
-        }
-        cacheManager?.save(weatherSpecs)
+        val specs = snapshot(newSpecs)
+        weatherSpecs = specs
+        cacheManager?.save(specs)
     }
 
     fun getWeatherSpec(): WeatherSpec? = weatherSpecs.firstOrNull()
 
     fun getWeatherSpecs(): List<WeatherSpec> = weatherSpecs
+
+    private fun snapshot(specs: Collection<WeatherSpec>): List<WeatherSpec> =
+        Collections.unmodifiableList(ArrayList(specs))
 }
