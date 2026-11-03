@@ -95,6 +95,11 @@
   <init>();
 }
 
+# Hilt / Dagger
+# Keep rules come with hilt-android (proguard.txt) and dagger (META-INF/com.android.tools/r8),
+# covering entry points and @LazyClassKey/@HiltViewModel maps. Do not add broad
+# dagger/hilt -keep rules here; only add targeted rules if a minified build proves they are needed.
+
 # jsoup 1.22.1 introduces support for re2j, but falls back to java Regex if not available
 # Since we only use jsoup to clean the html, we do not need the extra dependency
 -dontwarn com.google.re2j.Pattern
