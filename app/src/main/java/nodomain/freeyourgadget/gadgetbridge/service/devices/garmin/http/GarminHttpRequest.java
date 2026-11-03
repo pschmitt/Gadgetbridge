@@ -152,11 +152,15 @@ public class GarminHttpRequest {
             final JsonElement value = e.getValue();
             final String text = value instanceof JsonPrimitive primitive ? primitive.getAsString()
                     : value.isJsonNull() ? "" : value.toString();
-            sb.append(Uri.encode(e.getKey()))
+            sb.append(formEncode(e.getKey()))
                     .append('=')
-                    .append(Uri.encode(text));
+                    .append(formEncode(text));
         }
         return sb.toString();
+    }
+
+    private static String formEncode(final String text) {
+        return Uri.encode(text).replace("%20", "+");
     }
 
     public String getMethod() {
