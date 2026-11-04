@@ -74,6 +74,15 @@ public class AppsManagementActivity extends AbstractGBActivity {
     /// used by showSaveFileDialog for file data
     private byte[] fileSaveData;
 
+    private final OnBackPressedCallback webViewBackCallback = new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
+            if (webView != null) {
+                webView.goBack();
+            }
+        }
+    };
+
     // Request code for creating a PDF document.
     private static final int CHOOSE_FILE = 0;
     private static final int CREATE_FILE = 1;
@@ -101,19 +110,7 @@ public class AppsManagementActivity extends AbstractGBActivity {
         // only leave the activity once there is no WebView history left.
         // Without this the system back finishes the activity immediately,
         // closing the whole app instead of the WebView's current view.
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (webView != null && webView.canGoBack()) {
-                    webView.goBack();
-                    return;
-                }
-                // Nothing to go back to in the WebView - use the default
-                // behaviour (finish the activity).
-                setEnabled(false);
-                getOnBackPressedDispatcher().onBackPressed();
-            }
-        });
+        getOnBackPressedDispatcher().addCallback(this, webViewBackCallback);
     }
 
     @Override
@@ -288,6 +285,12 @@ public class AppsManagementActivity extends AbstractGBActivity {
             @Override
             public void onPageFinished(WebView view, String weburl){
                 //webView.loadUrl("javascript:showToast('WebView in Espruino')");
+            }
+
+            @Override
+            public void doUpdateVisitedHistory(final WebView view, final String url, final boolean isReload) {
+                super.doUpdateVisitedHistory(view, url, isReload);
+                webViewBackCallback.setEnabled(view.canGoBack());
             }
 
             @Override

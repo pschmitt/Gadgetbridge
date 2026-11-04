@@ -60,6 +60,12 @@ class PebbleAppStoreActivity : AbstractGBActivity()  {
     private lateinit var appStoreDomain: String
     private lateinit var url: String
 
+    private val webViewBackCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            webView?.goBack()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_banglejs_apps_management)
@@ -81,19 +87,7 @@ class PebbleAppStoreActivity : AbstractGBActivity()  {
         // only leave the activity once there is no WebView history left.
         // Without this the system back finishes the activity immediately,
         // closing the whole app instead of the WebView's current view.
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (webView?.canGoBack() == true) {
-                    webView?.goBack()
-                    return
-                }
-
-                // Nothing to go back to in the WebView—use the default
-                // behavior (finish the activity).
-                isEnabled = false
-                onBackPressedDispatcher.onBackPressed()
-            }
-        })
+        onBackPressedDispatcher.addCallback(this, webViewBackCallback)
     }
 
     override fun onResume() {
@@ -264,6 +258,11 @@ class PebbleAppStoreActivity : AbstractGBActivity()  {
                 }
 
                 return super.shouldOverrideUrlLoading(wv, request)
+            }
+
+            override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
+                super.doUpdateVisitedHistory(view, url, isReload)
+                webViewBackCallback.isEnabled = view.canGoBack()
             }
 
             override fun onReceivedError(

@@ -55,6 +55,13 @@ public class BackupRestoreProgressActivity extends AbstractGBActivity {
     private Thread mThread;
     private AbstractZipBackupJob mZipBackupJob;
 
+    private final OnBackPressedCallback confirmExitCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            confirmExit();
+        }
+    };
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +113,7 @@ public class BackupRestoreProgressActivity extends AbstractGBActivity {
             public void onSuccess(final @Nullable String warnings) {
                 mHandler.post(() -> {
                     jobFinished = true;
+                    confirmExitCallback.setEnabled(false);
                     backupRestoreHint.setVisibility(View.GONE);
                     backupRestoreProgressBar.setProgress(100);
                     backupRestoreProgressPercentage.setText(getString(R.string.battery_percentage_str, "100"));
@@ -148,6 +156,7 @@ public class BackupRestoreProgressActivity extends AbstractGBActivity {
             public void onFailure(@Nullable final String errorMessage) {
                 mHandler.post(() -> {
                     jobFinished = true;
+                    confirmExitCallback.setEnabled(false);
 
                     switch (action) {
                         case "import":
@@ -211,12 +220,7 @@ public class BackupRestoreProgressActivity extends AbstractGBActivity {
         mThread = new Thread(mZipBackupJob, "gb-backup-restore");
         mThread.start();
 
-        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                confirmExit();
-            }
-        });
+        getOnBackPressedDispatcher().addCallback(confirmExitCallback);
     }
 
     @Override

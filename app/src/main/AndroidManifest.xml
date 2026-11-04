@@ -169,6 +169,7 @@
     <application
         android:name=".GBApplication"
         android:allowBackup="false"
+        android:enableOnBackInvokedCallback="true"
         android:supportsRtl="true"
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
@@ -176,7 +177,8 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:requestLegacyExternalStorage="true"
-        android:theme="@style/GadgetbridgeTheme">
+        android:theme="@style/GadgetbridgeTheme"
+        tools:targetApi="33">
         <activity
             android:name=".activities.ControlCenterv2"
             android:configChanges="keyboard|keyboardHidden|navigation"

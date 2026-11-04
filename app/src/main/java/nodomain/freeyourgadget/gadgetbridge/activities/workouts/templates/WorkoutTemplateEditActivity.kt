@@ -95,7 +95,6 @@ class WorkoutTemplateEditActivity : AbstractGBActivity() {
     private lateinit var header: WorkoutTemplateEditHeaderBinding
     private var nameEditor: TextValueEditor? = null
     private var noteEditor: TextValueEditor? = null
-    private var templateReady = false
     private var actionBarShowsTemplateName = false
 
     /**
@@ -182,8 +181,13 @@ class WorkoutTemplateEditActivity : AbstractGBActivity() {
         binding.workoutTemplateAddLeg.setOnClickListener { addLeg() }
         binding.workoutTemplateSave.setOnClickListener { trySave() }
 
-        onBackPressedDispatcher.addCallback(this) { confirmAndFinish() }
+        val confirmExitCallback = onBackPressedDispatcher.addCallback(this, enabled = false) {
+            confirmAndFinish()
+        }
 
+        lifecycleScope.launch {
+            viewModel.hasUnsavedChanges.collect { confirmExitCallback.isEnabled = it }
+        }
         lifecycleScope.launch {
             viewModel.rows.collect { rows -> adapter.submit(rows, viewModel.validate(spec)) }
         }
@@ -258,6 +262,7 @@ class WorkoutTemplateEditActivity : AbstractGBActivity() {
                 spec.nameMaxLength
             ) {
                 viewModel.template.name = nameEditor?.value.orEmpty()
+                viewModel.refreshUnsavedChanges()
                 refreshNameError()
             }
             nameEditor = name
@@ -281,6 +286,7 @@ class WorkoutTemplateEditActivity : AbstractGBActivity() {
                 spec.noteMaxLength
             ) {
                 viewModel.template.note = noteEditor?.value?.ifBlank { null }
+                viewModel.refreshUnsavedChanges()
             }
             noteEditor = note
             header.workoutTemplateHeaderContainer.addView(note.view)
@@ -288,7 +294,6 @@ class WorkoutTemplateEditActivity : AbstractGBActivity() {
         }
 
         if (!restored) viewModel.markBaseline()
-        templateReady = true
     }
 
     /**
@@ -342,7 +347,7 @@ class WorkoutTemplateEditActivity : AbstractGBActivity() {
      * Asks for confirmation before leaving with unsaved changes.
      */
     private fun confirmAndFinish() {
-        if (!templateReady || !viewModel.hasUnsavedChanges()) {
+        if (!viewModel.hasUnsavedChanges.value) {
             finish()
             return
         }
@@ -376,6 +381,7 @@ class WorkoutTemplateEditActivity : AbstractGBActivity() {
                 onChanged = { picked ->
                     viewModel.template.poolLengthUnit = picked
                     if (picked != WorkoutPoolLengthUnit.CUSTOM) viewModel.template.poolLength = null
+                    viewModel.refreshUnsavedChanges()
                     bindPoolLengthCustomField(poolLengthCustomContainer, poolLengthCustomSpec)
                 },
             )
@@ -390,6 +396,7 @@ class WorkoutTemplateEditActivity : AbstractGBActivity() {
             transitionsBox.setOnCheckedChangeListener { _, checked ->
                 hideKeyboard(transitionsBox)
                 viewModel.template.transitions = checked
+                viewModel.refreshUnsavedChanges()
             }
         }
     }
@@ -410,7 +417,10 @@ class WorkoutTemplateEditActivity : AbstractGBActivity() {
             spec,
             getString(R.string.workout_template_pool_length_custom_hint),
             viewModel.template.poolLength?.toLong()
-        )
+        ) {
+            viewModel.template.poolLength = poolLengthCustomEditor?.value?.toInt()
+            viewModel.refreshUnsavedChanges()
+        }
         poolLengthCustomEditor = editor
         container.addView(editor.view)
     }
@@ -520,6 +530,7 @@ class WorkoutTemplateEditActivity : AbstractGBActivity() {
         if (viewModel.template.poolLengthUnit == WorkoutPoolLengthUnit.CUSTOM) {
             viewModel.template.poolLength = poolLengthCustomEditor?.value?.toInt()
         }
+        viewModel.refreshUnsavedChanges()
 
         val issues = viewModel.validate(spec)
         val nameIssue = refreshNameError(issues)
