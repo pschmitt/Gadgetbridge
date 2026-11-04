@@ -18,10 +18,7 @@ import javax.inject.Singleton
 import kotlin.concurrent.withLock
 
 /**
- * Owns the Gadgetbridge database and the lock that guards every access to it.
- *
- * Inject this class with Hilt. The static functions in the companion object are kept so that
- * existing callers keep working, and forward to the instance of the current application.
+ * Owns the Gadgetbridge database and the lock that guards every access to it. Inject it with Hilt.
  */
 @Singleton
 class GBDatabaseManager @Inject constructor(
@@ -161,79 +158,7 @@ class GBDatabaseManager @Inject constructor(
         }
     }
 
-    /**
-     * Static access to the [GBDatabaseManager] of the current application.
-     *
-     * Every function calls the instance explicitly: an unqualified call here would resolve to the
-     * companion function itself. Functions with the same JVM signature as an instance method cannot
-     * be [JvmStatic], so Java callers must use the instance for those.
-     */
-    companion object {
+    private companion object {
         private val LOG = LoggerFactory.getLogger(GBDatabaseManager::class.java)
-
-        private fun manager(): GBDatabaseManager = GBApplication.app().databaseManager
-
-        @Deprecated("Use Hilt DI to inject GBDatabaseManager instead.")
-        fun closeDatabase() {
-            manager().closeDatabase()
-        }
-
-        /**
-         * @param context ignored, the database always uses the application context
-         */
-        @Deprecated("Use Hilt DI to inject GBDatabaseManager instead.")
-        @JvmStatic
-        @Suppress("UNUSED_PARAMETER")
-        fun setupDatabase(context: Context) {
-            manager().setupDatabase()
-        }
-
-        @Deprecated("Use Hilt DI to inject GBDatabaseManager instead.")
-        @Throws(GBException::class)
-        fun acquireWrite(): DBHandler = manager().acquireWrite()
-
-        @Deprecated("Use Hilt DI to inject GBDatabaseManager instead.")
-        @Throws(GBException::class)
-        fun acquireReadOnly(): DBHandler = manager().acquireReadOnly()
-
-        /**
-         * @param context ignored, the database always uses the application context
-         */
-        @Deprecated("Use Hilt DI to inject GBDatabaseManager instead.")
-        @JvmStatic
-        @Suppress("UNUSED_PARAMETER")
-        fun deleteActivityDatabase(context: Context): Boolean = manager().deleteActivityDatabase()
-
-        @Deprecated("Use Hilt DI to inject GBDatabaseManager instead.")
-        @Throws(IOException::class)
-        fun exportDB(destFile: File) {
-            manager().exportDB(destFile)
-        }
-
-        @Deprecated("Use Hilt DI to inject GBDatabaseManager instead.")
-        @Throws(IOException::class)
-        fun exportDB(dest: OutputStream) {
-            manager().exportDB(dest)
-        }
-
-        /**
-         * @param context ignored, the database always uses the application context
-         */
-        @Deprecated("Use Hilt DI to inject GBDatabaseManager instead.")
-        @JvmStatic
-        @Suppress("UNUSED_PARAMETER")
-        fun deleteOldActivityDatabase(context: Context): Boolean = manager().deleteOldActivityDatabase()
-
-        @Deprecated("Use Hilt DI to inject GBDatabaseManager instead.")
-        @Throws(IllegalStateException::class, IOException::class)
-        fun importDB(fromFile: File) {
-            manager().importDB(fromFile)
-        }
-
-        @Deprecated("Use Hilt DI to inject GBDatabaseManager instead.")
-        @Throws(IllegalStateException::class, IOException::class)
-        fun importDB(inputStream: InputStream) {
-            manager().importDB(inputStream)
-        }
     }
 }

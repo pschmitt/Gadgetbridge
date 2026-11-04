@@ -90,10 +90,9 @@ class GBApplicationStartupTest : TestBase() {
 
     @Test
     fun databaseIsTheOneManagedByTheCurrentApplication() {
-        // TestBase.setUp() opened the database through the static accessors
+        // TestBase.setUp() opened the database through GBApplication.acquireDB()
         app.databaseManager.acquireReadOnly().use { assertSame(daoSession, it.daoSession) }
         GBApplication.acquireDbReadOnly().use { assertSame(daoSession, it.daoSession) }
-        GBDatabaseManager.acquireReadOnly().use { assertSame(daoSession, it.daoSession) }
     }
 
     @Test

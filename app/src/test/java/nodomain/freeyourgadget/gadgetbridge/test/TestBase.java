@@ -15,7 +15,6 @@ import java.util.Objects;
 
 import ch.qos.logback.classic.util.ContextInitializer;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
-import nodomain.freeyourgadget.gadgetbridge.GBDatabaseManager;
 import nodomain.freeyourgadget.gadgetbridge.GBEnvironment;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
@@ -62,7 +61,7 @@ public abstract class TestBase {
         app = (GBApplication) RuntimeEnvironment.application;
         assertNotNull(app);
         assertNotNull(getContext());
-        GBDatabaseManager.setupDatabase(app);
+        app.getDatabaseManager().setupDatabase();
         dbHandler = GBApplication.acquireDB();
         daoSession = dbHandler.getDaoSession();
         assertNotNull(daoSession);

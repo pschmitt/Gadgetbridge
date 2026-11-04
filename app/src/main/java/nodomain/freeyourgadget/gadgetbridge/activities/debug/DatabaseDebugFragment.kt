@@ -6,7 +6,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
-import nodomain.freeyourgadget.gadgetbridge.GBDatabaseManager
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper
 import nodomain.freeyourgadget.gadgetbridge.util.GB
@@ -43,8 +42,8 @@ class DatabaseDebugFragment : AbstractDebugFragment() {
 
                 val cursor = db.database.rawQuery(
                     """
-                        SELECT name 
-                        FROM sqlite_master 
+                        SELECT name
+                        FROM sqlite_master
                         WHERE type='table'
                           AND name NOT LIKE 'android_%'
                           AND name NOT LIKE 'sqlite_%'
@@ -86,7 +85,7 @@ class DatabaseDebugFragment : AbstractDebugFragment() {
             .setTitle(R.string.dbmanagementactivity_delete_activity_data_title)
             .setMessage(R.string.dbmanagementactivity_really_delete_entire_db)
             .setPositiveButton(R.string.delete) { _, _ ->
-                if (GBDatabaseManager.deleteActivityDatabase(requireContext())) {
+                if (GBApplication.app().databaseManager.deleteActivityDatabase()) {
                     GB.toast(
                         requireContext(),
                         getString(R.string.dbmanagementactivity_database_successfully_deleted),
@@ -115,7 +114,7 @@ class DatabaseDebugFragment : AbstractDebugFragment() {
             .setIcon(R.drawable.ic_warning)
             .setMessage(R.string.dbmanagementactivity_delete_old_activitydb_confirmation)
             .setPositiveButton(R.string.delete) { _, _ ->
-                if (GBDatabaseManager.deleteOldActivityDatabase(requireContext())) {
+                if (GBApplication.app().databaseManager.deleteOldActivityDatabase()) {
                     GB.toast(
                         requireContext(),
                         getString(R.string.dbmanagementactivity_old_activity_db_successfully_deleted),
