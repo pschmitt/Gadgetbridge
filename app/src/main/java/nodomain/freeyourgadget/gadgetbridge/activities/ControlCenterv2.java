@@ -38,6 +38,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -84,6 +85,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.DeviceManager;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceService;
+import nodomain.freeyourgadget.gadgetbridge.model.HeartRateSample;
 import nodomain.freeyourgadget.gadgetbridge.model.RecordedDataTypes;
 import nodomain.freeyourgadget.gadgetbridge.util.AndroidUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.BarShade;
@@ -175,42 +177,45 @@ public class ControlCenterv2 extends AppCompatActivity
         }
     };
     private boolean pesterWithPermissions = true;
-    private final Map<GBDevice, ActivitySample> currentHRSample = new HashMap<>();
-    private final Map<GBDevice, Long> currentHRSampleReceivedAt = new HashMap<>();
+    private final Map<GBDevice, Integer> currentHeartRate = new HashMap<>();
+    private final Map<GBDevice, Long> currentHeartRateReceivedAt = new HashMap<>();
 
-    public ActivitySample getCurrentHRSample(final GBDevice device) {
-        final ActivitySample sample = currentHRSample.get(device);
+    @Nullable
+    public Integer getCurrentHeartRate(final GBDevice device) {
+        final Integer heartRate = currentHeartRate.get(device);
 
         if (!device.getDeviceCoordinator().supportsLiveOnlyHeartRateDisplay(device)) {
-            return sample;
+            return heartRate;
         }
 
-        final Long receivedAt = currentHRSampleReceivedAt.get(device);
+        final Long receivedAt = currentHeartRateReceivedAt.get(device);
 
-        if (sample == null || receivedAt == null) {
+        if (heartRate == null || receivedAt == null) {
             return null;
         }
 
         if (SystemClock.elapsedRealtime() - receivedAt > REALTIME_HR_SAMPLE_TTL_MS) {
-            currentHRSample.remove(device);
-            currentHRSampleReceivedAt.remove(device);
+            currentHeartRate.remove(device);
+            currentHeartRateReceivedAt.remove(device);
             return null;
         }
 
-        return sample;
+        return heartRate;
     }
 
-    private void setCurrentHRSample(final GBDevice device, ActivitySample sample) {
-        if (HeartRateUtils.getInstance().isValidHeartRateValue(sample.getHeartRate())) {
-            currentHRSample.put(device, sample);
-            currentHRSampleReceivedAt.put(device, SystemClock.elapsedRealtime());
+    private void setCurrentHeartRate(final GBDevice device, final int heartRate) {
+        if (HeartRateUtils.getInstance().isValidHeartRateValue(heartRate)) {
+            currentHeartRate.put(device, heartRate);
+            currentHeartRateReceivedAt.put(device, SystemClock.elapsedRealtime());
         }
     }
 
-    private void handleRealtimeSample(final GBDevice device, Serializable extra) {
-        if (extra instanceof ActivitySample) {
-            ActivitySample sample = (ActivitySample) extra;
-            setCurrentHRSample(device, sample);
+    private void handleRealtimeSample(final GBDevice device, final Serializable extra) {
+        // Depending on the device, a realtime sample can be an ActivitySample or a HeartRateSample
+        if (extra instanceof HeartRateSample) {
+            setCurrentHeartRate(device, ((HeartRateSample) extra).getHeartRate());
+        } else if (extra instanceof ActivitySample) {
+            setCurrentHeartRate(device, ((ActivitySample) extra).getHeartRate());
         }
     }
 

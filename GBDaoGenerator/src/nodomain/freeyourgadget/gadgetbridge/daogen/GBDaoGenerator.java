@@ -2851,6 +2851,7 @@ public class GBDaoGenerator {
 
     private static Entity addGenericHeartRateSample(Schema schema, Entity user, Entity device) {
         Entity heartRateSample = addEntity(schema, "GenericHeartRateSample");
+        heartRateSample.implementsSerializable();
         addCommonTimeSampleProperties("AbstractHeartRateSample", heartRateSample, user, device);
         heartRateSample.addIntProperty(SAMPLE_HEART_RATE).codeBeforeGetter(OVERRIDE).notNull();
         return heartRateSample;

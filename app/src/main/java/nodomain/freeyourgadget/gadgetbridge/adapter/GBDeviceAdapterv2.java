@@ -109,7 +109,6 @@ import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.Device;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceFolder;
-import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser;
 import nodomain.freeyourgadget.gadgetbridge.model.DailyTotals;
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
@@ -372,9 +371,9 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         //dynamically from the coordinator's declared card items, see DeviceCardItemBinder
         String hrSampleText = null;
         if (parent.getContext() instanceof ControlCenterv2) {
-            ActivitySample sample = ((ControlCenterv2) parent.getContext()).getCurrentHRSample(device);
-            if (sample != null) {
-                hrSampleText = String.valueOf(sample.getHeartRate());
+            Integer heartRate = ((ControlCenterv2) parent.getContext()).getCurrentHeartRate(device);
+            if (heartRate != null) {
+                hrSampleText = String.valueOf(heartRate);
             }
         }
         DeviceCardItemBinder.bind(

@@ -44,6 +44,16 @@ abstract class CoospoHeartRateCoordinator: AbstractBLEDeviceCoordinator() {
         return true
     }
 
+    override fun supportsRealtimeData(device: GBDevice): Boolean {
+        // Heart rate is always streamed by these devices, so expose the live views
+        return true
+    }
+
+    override fun supportsLiveOnlyHeartRateDisplay(device: GBDevice): Boolean {
+        // The value is only meaningful while we are receiving it, there is nothing to display otherwise
+        return true
+    }
+
     override fun supportsCharts(device: GBDevice): Boolean {
         return true
     }
