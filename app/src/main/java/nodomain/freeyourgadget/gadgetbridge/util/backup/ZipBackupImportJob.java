@@ -41,7 +41,6 @@ import java.util.zip.ZipFile;
 
 import nodomain.freeyourgadget.gadgetbridge.BuildConfig;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
-import nodomain.freeyourgadget.gadgetbridge.GBDatabaseManager;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
@@ -181,7 +180,7 @@ public class ZipBackupImportJob extends AbstractZipBackupJob {
             LOG.debug("Importing database");
             updateProgress(75, R.string.backup_restore_importing_database);
             try (InputStream databaseInputStream = zipFile.getInputStream(zipFile.getEntry(DATABASE_FILENAME))) {
-                GBDatabaseManager.importDB(databaseInputStream);
+                GBApplication.app().getDatabaseManager().importDB(databaseInputStream);
             }
 
             if (isAborted()) return;

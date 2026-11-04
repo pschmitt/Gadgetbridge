@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Locale;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
-import nodomain.freeyourgadget.gadgetbridge.GBDatabaseManager;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.files.FileManagerActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.vendorimport.VendorDataImportDeviceActivity;
@@ -251,7 +250,7 @@ public class DataManagementActivity extends AbstractGBActivity {
                             }
                         }
 
-                        GBDatabaseManager.exportDB(destFile);
+                        GBApplication.app().getDatabaseManager().exportDB(destFile);
                         GB.toast(DataManagementActivity.this, getString(R.string.dbmanagementactivity_exported_to, destFile.getAbsolutePath()), Toast.LENGTH_LONG, GB.INFO);
                     } catch (Exception ex) {
                         GB.toast(DataManagementActivity.this, getString(R.string.dbmanagementactivity_error_exporting_db, ex.getLocalizedMessage()), Toast.LENGTH_LONG, GB.ERROR, ex);
@@ -272,7 +271,7 @@ public class DataManagementActivity extends AbstractGBActivity {
                     try {
                         final File dir = FileUtils.getExternalFilesDir();
                         final File sourceFile = new File(dir, "Gadgetbridge");
-                        GBDatabaseManager.importDB(sourceFile);
+                        GBApplication.app().getDatabaseManager().importDB(sourceFile);
                         GB.toast(DataManagementActivity.this, getString(R.string.dbmanagementactivity_import_successful), Toast.LENGTH_LONG, GB.INFO);
                     } catch (Exception ex) {
                         GB.toast(DataManagementActivity.this, getString(R.string.dbmanagementactivity_error_importing_db, ex.getLocalizedMessage()), Toast.LENGTH_LONG, GB.ERROR, ex);

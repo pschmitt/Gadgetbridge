@@ -117,7 +117,7 @@ open class GBApplication : Application() {
     lateinit var deviceServiceInstance: DeviceService
 
     @Inject
-    lateinit var databaseManager: DatabaseManager
+    lateinit var databaseManager: GBDatabaseManager
 
     @Inject
     lateinit var weatherRepository: WeatherRepository
@@ -516,9 +516,9 @@ open class GBApplication : Application() {
         }
 
         /**
-         * @see DatabaseManager.acquireWrite
+         * @see GBDatabaseManager.acquireWrite
          */
-        @Deprecated("Use Hilt DI to inject DatabaseManager instead.")
+        @Deprecated("Use Hilt DI to inject GBDatabaseManager instead.")
         @JvmStatic
         @Throws(GBException::class)
         fun acquireDB(): DBHandler {
@@ -526,9 +526,9 @@ open class GBApplication : Application() {
         }
 
         /**
-         * @see DatabaseManager.acquireReadOnly
+         * @see GBDatabaseManager.acquireReadOnly
          */
-        @Deprecated("Use Hilt DI to inject DatabaseManager instead.")
+        @Deprecated("Use Hilt DI to inject GBDatabaseManager instead.")
         @JvmStatic
         @Throws(GBException::class)
         fun acquireDbReadOnly(): DBHandler {

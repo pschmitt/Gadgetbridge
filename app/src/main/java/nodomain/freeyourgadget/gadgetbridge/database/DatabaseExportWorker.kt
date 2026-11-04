@@ -13,6 +13,7 @@ import nodomain.freeyourgadget.gadgetbridge.util.GB
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.IOException
 
 class DatabaseExportWorker(
     private val mContext: Context,
@@ -39,7 +40,9 @@ class DatabaseExportWorker(
         }
 
         try {
-            mContext.contentResolver.openOutputStream(dst.toUri()).use { out ->
+            val outputStream = mContext.contentResolver.openOutputStream(dst.toUri())
+                ?: throw IOException("Unable to open $dst for writing")
+            outputStream.use { out ->
                 GBDatabaseManager.exportDB(out)
             }
 
