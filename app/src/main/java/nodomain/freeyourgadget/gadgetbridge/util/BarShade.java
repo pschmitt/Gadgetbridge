@@ -9,6 +9,7 @@ import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.widget.AbsListView;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 import androidx.annotation.AttrRes;
 import androidx.annotation.Nullable;
@@ -236,7 +237,8 @@ public final class BarShade {
 
         @Nullable
         private static View findScrolling(final View view) {
-            if (view.getVisibility() != View.VISIBLE) {
+            // With large font sizes, a text view might report that it can scroll when its text is taller than the view
+            if (view.getVisibility() != View.VISIBLE || view instanceof TextView) {
                 return null;
             }
             if (view instanceof ViewPager2) {

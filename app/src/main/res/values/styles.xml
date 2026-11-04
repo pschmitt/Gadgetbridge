@@ -580,8 +580,8 @@
         <item name="tabMinWidth">0dp</item>
         <item name="tabPaddingStart">14dp</item>
         <item name="tabPaddingEnd">14dp</item>
-        <item name="tabPaddingTop">6dp</item>
-        <item name="tabPaddingBottom">6dp</item>
+        <item name="tabPaddingTop">0dp</item>
+        <item name="tabPaddingBottom">0dp</item>
         <item name="android:paddingStart">10dp</item>
         <item name="android:paddingEnd">10dp</item>
         <item name="android:paddingTop">0dp</item>
@@ -601,8 +601,8 @@
         <item name="tabTextColor">@color/subtab_text_pill</item>
         <item name="tabSelectedTextColor">?attr/subtab_active</item>
         <item name="tabTextAppearance">@style/TextAppearance.App.TabSmall</item>
-        <item name="tabPaddingTop">4dp</item>
-        <item name="tabPaddingBottom">4dp</item>
+        <item name="tabPaddingTop">0dp</item>
+        <item name="tabPaddingBottom">0dp</item>
         <item name="android:paddingStart">0dp</item>
         <item name="android:paddingEnd">0dp</item>
         <item name="android:paddingTop">0dp</item>
