@@ -168,6 +168,10 @@ public class ActivityPoint {
         return stepLength;
     }
 
+    public void setStepLength(int stepLength) {
+        this.stepLength = stepLength;
+    }
+
     public int getCadence() {
         return cadence;
     }
