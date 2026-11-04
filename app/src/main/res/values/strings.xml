@@ -4776,6 +4776,7 @@
     <string name="loyalty_cards_sync_summary">Tap to sync the cards to the watch</string>
     <string name="loyalty_cards_sync_watch_request_title">Sync automatically</string>
     <string name="loyalty_cards_sync_watch_request_summary">Allow the watch to sync the latest cards automatically</string>
+    <string name="loyalty_cards_sync_on_change_summary">Automatically sync card changes to the watch</string>
     <string name="loyalty_cards_sync_options">Sync Options</string>
     <string name="loyalty_cards_sync">Sync</string>
     <string name="loyalty_cards_catima">Catima</string>

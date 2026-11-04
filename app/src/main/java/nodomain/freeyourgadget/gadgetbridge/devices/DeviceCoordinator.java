@@ -1297,6 +1297,8 @@ public interface DeviceCoordinator {
 
     Set<BarcodeFormat> getSupportedBarcodeFormats(@NonNull final GBDevice device);
 
+    boolean supportsLoyaltyCards(@NonNull final GBDevice device);
+
     /**
      * Whether the device can request a sync of loyalty cards.
      */

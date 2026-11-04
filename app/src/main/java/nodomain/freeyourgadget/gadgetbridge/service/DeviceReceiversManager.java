@@ -49,6 +49,7 @@ import java.util.Stack;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
+import nodomain.freeyourgadget.gadgetbridge.capabilities.loyaltycards.CatimaContentObserver;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.AlarmClockReceiver;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.BluetoothPairingRequestReceiver;
@@ -95,6 +96,7 @@ class DeviceReceiversManager {
         MUSIC_INFO,
         NAVIGATION,
         SLEEP_AS_ANDROID,
+        LOYALTY_CARDS,
     }
 
     static class FeatureSet {
@@ -126,6 +128,9 @@ class DeviceReceiversManager {
             if (operand.supportsSleepAsAndroid(device)) {
                 features.add(Feature.SLEEP_AS_ANDROID);
             }
+            if (operand.supportsLoyaltyCards(device)) {
+                features.add(Feature.LOYALTY_CARDS);
+            }
         }
     }
 
@@ -153,6 +158,7 @@ class DeviceReceiversManager {
     private LineageOsWeatherReceiver mLineageOsWeatherReceiver = null;
     private TinyWeatherForecastGermanyReceiver mTinyWeatherForecastGermanyReceiver = null;
     private OmniJawsObserver mOmniJawsObserver = null;
+    private CatimaContentObserver mCatimaContentObserver = null;
 
     private final Stack<BroadcastReceiver> globalReceivers = new Stack<>();
     private GBLocationService locationService = null;
@@ -356,6 +362,11 @@ class DeviceReceiversManager {
                 }
             }
 
+            if (features.supports(Feature.LOYALTY_CARDS) && mCatimaContentObserver == null) {
+                mCatimaContentObserver = new CatimaContentObserver(service);
+                mCatimaContentObserver.register();
+            }
+
             if (features.supports(Feature.DATA_FETCHING) && mGBAutoFetchReceiver == null) {
                 mGBAutoFetchReceiver = new GBAutoFetchReceiver();
                 ContextCompat.registerReceiver(service, mGBAutoFetchReceiver, new IntentFilter("android.intent.action.USER_PRESENT"), ContextCompat.RECEIVER_EXPORTED);
@@ -422,6 +433,10 @@ class DeviceReceiversManager {
                 mOsmandAidlHelper = null;
             }
             disableCoMapsReceivers();
+            if (mCatimaContentObserver != null) {
+                mCatimaContentObserver.unregister();
+                mCatimaContentObserver = null;
+            }
             if (mGBAutoFetchReceiver != null) {
                 service.unregisterReceiver(mGBAutoFetchReceiver);
                 mGBAutoFetchReceiver = null;
@@ -443,6 +458,12 @@ class DeviceReceiversManager {
         return serviceRunning
                 && prefs.getBoolean(GBPrefs.SLEEP_AS_ANDROID_ENABLED, false)
                 && !prefs.getString(GBPrefs.SLEEP_AS_ANDROID_DEVICE, "").isEmpty();
+    }
+
+    void refreshCatimaContentObserver() {
+        if (mCatimaContentObserver != null) {
+            mCatimaContentObserver.register();
+        }
     }
 
     private void updateSleepAsAndroidReceiver() {

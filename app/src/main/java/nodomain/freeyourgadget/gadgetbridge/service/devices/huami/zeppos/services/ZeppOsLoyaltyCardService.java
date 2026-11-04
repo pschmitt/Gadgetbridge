@@ -59,6 +59,7 @@ public class ZeppOsLoyaltyCardService extends AbstractZeppOsService {
 
     private final List<BarcodeFormat> supportedFormats = new ArrayList<>();
     private final List<Integer> supportedColors = new ArrayList<>();
+    private List<LoyaltyCard> pendingCards;
 
     public static final String PREF_VERSION = "zepp_os_loyalty_cards_version";
     public static final String PREF_FORMATS = "zepp_os_loyalty_cards_formats";
@@ -126,6 +127,13 @@ public class ZeppOsLoyaltyCardService extends AbstractZeppOsService {
 
                 getSupport().evaluateGBDeviceEvent(updatePreferences);
 
+                final List<LoyaltyCard> cardsToSend = pendingCards;
+                pendingCards = null;
+                if (cardsToSend != null && !supportedFormats.isEmpty()) {
+                    LOG.debug("Sending pending loyalty cards");
+                    setCards(cardsToSend);
+                }
+
                 return;
             case CMD_SET_ACK:
                 LOG.info("Loyalty cards set ACK, status = {}", payload[1]);
@@ -154,6 +162,12 @@ public class ZeppOsLoyaltyCardService extends AbstractZeppOsService {
     }
 
     public void setCards(final List<LoyaltyCard> cards) {
+        if (supportedFormats.isEmpty()) {
+            LOG.warn("Supported card formats are not yet known - delaying sending cards");
+            pendingCards = cards;
+            return;
+        }
+
         LOG.info("Setting {} loyalty cards", cards.size());
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();

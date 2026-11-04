@@ -17,13 +17,17 @@
 package nodomain.freeyourgadget.gadgetbridge.capabilities.loyaltycards;
 
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_CATIMA_PACKAGE;
+import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_LAST_SYNC_HASH;
+import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_PENDING_SYNC_HASH;
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_SYNC_ARCHIVED;
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_SYNC_GROUPS;
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_SYNC_GROUPS_ONLY;
+import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_SYNC_ON_CHANGE;
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_SYNC_STARRED;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -36,23 +40,56 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.util.AndroidUtils;
+import nodomain.freeyourgadget.gadgetbridge.util.CheckSums;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
 
 public class CatimaManager {
     private static final Logger LOG = LoggerFactory.getLogger(CatimaManager.class);
 
     public static final String ACTION_LOYALTY_CARDS_SYNCED = "nodomain.freeyourgadget.gadgetbridge.loyaltycards.action.synced";
+    public static final String ACTION_LOYALTY_CARDS_REFRESH_OBSERVER = "nodomain.freeyourgadget.gadgetbridge.loyaltycards.action.refresh_observer";
     public static final String EXTRA_SUCCESS = "success";
+
+    private static final ExecutorService AUTO_SYNC_EXECUTOR = Executors.newSingleThreadExecutor();
 
     private final Context context;
 
     public CatimaManager(final Context context) {
         this.context = context;
+    }
+
+    /**
+     * Syncs the loyalty cards to the device on a background thread, if automatic sync is enabled
+     * and the cards changed since the last successful sync.
+     */
+    public void autoSync(final GBDevice gbDevice) {
+        if (!gbDevice.getDeviceCoordinator().supportsLoyaltyCards(gbDevice)) {
+            return;
+        }
+        final Prefs prefs = new Prefs(GBApplication.getDeviceSpecificSharedPrefs(gbDevice.getAddress()));
+        if (!prefs.getBoolean(LOYALTY_CARDS_SYNC_ON_CHANGE, false)) {
+            return;
+        }
+        AUTO_SYNC_EXECUTOR.execute(() -> {
+            final ArrayList<LoyaltyCard> cardsToSync = getCardsToSync(gbDevice);
+            if (cardsToSync == null) {
+                return;
+            }
+            final String hash = hash(cardsToSync);
+            if (hash.equals(prefs.getString(LOYALTY_CARDS_LAST_SYNC_HASH, ""))) {
+                LOG.debug("Loyalty cards did not change since the last sync");
+                return;
+            }
+            send(gbDevice, cardsToSync, hash);
+        });
     }
 
     /**
@@ -66,7 +103,7 @@ public class CatimaManager {
             return -1;
         }
 
-        GBApplication.deviceService(gbDevice).onSetLoyaltyCards(cardsToSync);
+        send(gbDevice, cardsToSync, hash(cardsToSync));
 
         return cardsToSync.size();
     }
@@ -76,8 +113,8 @@ public class CatimaManager {
      */
     @Nullable
     public ArrayList<LoyaltyCard> getCardsToSync(final GBDevice gbDevice) {
-        final List<CharSequence> installedCatimaPackages = findInstalledCatimaPackages();
-        if (installedCatimaPackages.isEmpty()) {
+        final String catimaPackage = getCatimaPackage(gbDevice);
+        if (catimaPackage == null) {
             LOG.warn("Catima is not installed");
             return null;
         }
@@ -89,7 +126,6 @@ public class CatimaManager {
         final boolean syncArchived = prefs.getBoolean(LOYALTY_CARDS_SYNC_ARCHIVED, false);
         final boolean syncStarred = prefs.getBoolean(LOYALTY_CARDS_SYNC_STARRED, false);
 
-        final String catimaPackage = prefs.getString(LOYALTY_CARDS_CATIMA_PACKAGE, installedCatimaPackages.get(0).toString());
         final CatimaContentProvider catima = new CatimaContentProvider(context, catimaPackage);
 
         LOG.debug("Syncing loyalty cards from {}", catimaPackage);
@@ -103,10 +139,16 @@ public class CatimaManager {
         final boolean starredSupported = catimaPackage.contains("catima");
 
         final List<LoyaltyCard> cards = catima.getCards();
-        final Map<String, List<Integer>> groupCards = catima.getGroupCards();
+        if (cards == null) {
+            return null;
+        }
 
         final Set<Integer> cardsInGroupsToSync = new HashSet<>();
         if (syncGroupsOnly) {
+            final Map<String, List<Integer>> groupCards = catima.getGroupCards();
+            if (groupCards == null) {
+                return null;
+            }
             for (final Map.Entry<String, List<Integer>> groupCardsEntry : groupCards.entrySet()) {
                 if (syncGroups.contains(groupCardsEntry.getKey())) {
                     cardsInGroupsToSync.addAll(groupCardsEntry.getValue());
@@ -141,12 +183,65 @@ public class CatimaManager {
         return cardsToSync;
     }
 
+    private void send(final GBDevice gbDevice, final ArrayList<LoyaltyCard> cards, final String hash) {
+        LOG.debug("Storing pending loyalty cards sync hash {}", hash);
+        GBApplication.getDeviceSpecificSharedPrefs(gbDevice.getAddress()).edit()
+            .remove(LOYALTY_CARDS_LAST_SYNC_HASH)
+            .putString(LOYALTY_CARDS_PENDING_SYNC_HASH, hash)
+            .apply();
+
+        GBApplication.deviceService(gbDevice).onSetLoyaltyCards(cards);
+    }
+
     public static void notifySynced(final Context context, final GBDevice device, final boolean success) {
         LOG.debug("Loyalty cards sync to {} finished, success = {}", device.getAddress(), success);
+
+        final SharedPreferences prefs = GBApplication.getDeviceSpecificSharedPrefs(device.getAddress());
+        final String pendingHash = prefs.getString(LOYALTY_CARDS_PENDING_SYNC_HASH, null);
+        final SharedPreferences.Editor editor = prefs.edit().remove(LOYALTY_CARDS_PENDING_SYNC_HASH);
+        if (!success) {
+            editor.remove(LOYALTY_CARDS_LAST_SYNC_HASH);
+        } else if (pendingHash != null) {
+            LOG.debug("Storing loyalty cards sync hash {}", pendingHash);
+            editor.putString(LOYALTY_CARDS_LAST_SYNC_HASH, pendingHash);
+        }
+        editor.apply();
+
         final Intent intent = new Intent(ACTION_LOYALTY_CARDS_SYNCED);
         intent.putExtra(GBDevice.EXTRA_DEVICE, device);
         intent.putExtra(EXTRA_SUCCESS, success);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    }
+
+    @Nullable
+    public String getCatimaPackage(final GBDevice gbDevice) {
+        final List<CharSequence> installedCatimaPackages = findInstalledCatimaPackages();
+        if (installedCatimaPackages.isEmpty()) {
+            return null;
+        }
+
+        final Prefs prefs = new Prefs(GBApplication.getDeviceSpecificSharedPrefs(gbDevice.getAddress()));
+        return prefs.getString(LOYALTY_CARDS_CATIMA_PACKAGE, installedCatimaPackages.get(0).toString());
+    }
+
+    private static String hash(final List<LoyaltyCard> cards) {
+        final StringBuilder sb = new StringBuilder();
+        for (final LoyaltyCard card : cards) {
+            sb.append(card.getId()).append('\0')
+                .append(card.getName()).append('\0')
+                .append(card.getNote()).append('\0')
+                .append(card.getExpiry() != null ? card.getExpiry().getTime() : null).append('\0')
+                .append(card.getBalance()).append('\0')
+                .append(card.getBalanceType()).append('\0')
+                .append(card.getCardId()).append('\0')
+                .append(card.getBarcodeId()).append('\0')
+                .append(card.getBarcodeFormat()).append('\0')
+                .append(card.getBarcodeEncodingName()).append('\0')
+                .append(card.getColor()).append('\0')
+                .append(card.isStarred()).append('\0')
+                .append(card.isArchived()).append('\n');
+        }
+        return Objects.requireNonNull(CheckSums.md5(sb.toString()));
     }
 
     public List<CharSequence> findInstalledCatimaPackages() {

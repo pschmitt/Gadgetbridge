@@ -125,6 +125,10 @@ public class LoyaltyCard implements Serializable, Comparable<LoyaltyCard> {
         return Charset.forName(barcodeEncoding);
     }
 
+    public String getBarcodeEncodingName() {
+        return barcodeEncoding;
+    }
+
     @Nullable
     public Integer getColor() {
         return color;

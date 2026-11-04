@@ -77,6 +77,7 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.GBException;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.HeartRateUtils;
+import nodomain.freeyourgadget.gadgetbridge.capabilities.loyaltycards.CatimaManager;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.BluetoothConnectReceiver;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
@@ -280,9 +281,12 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
                     sendDeviceConnectedBroadcast(device.getAddress());
                     sendCachedNotifications(device);
                     sendPendingSleepAsAndroidAction(device);
+                    new CatimaManager(DeviceCommunicationService.this).autoSync(device);
                 } else if (subject == GBDevice.DeviceUpdateSubject.DEVICE_STATE && (device.getState() == GBDevice.State.SCANNED)) {
                     sendDeviceAPIBroadcast(device.getAddress(), API_LEGACY_ACTION_DEVICE_SCANNED);
                 }
+            } else if (CatimaManager.ACTION_LOYALTY_CARDS_REFRESH_OBSERVER.equals(action)) {
+                deviceReceiversManager.refreshCatimaContentObserver();
             } else if (BLEScanService.EVENT_DEVICE_FOUND.equals(action)) {
                 String deviceAddress = intent.getStringExtra(BLEScanService.EXTRA_DEVICE_ADDRESS);
 
@@ -369,6 +373,7 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
         IntentFilter localFilter = new IntentFilter();
         localFilter.addAction(GBDevice.ACTION_DEVICE_CHANGED);
         localFilter.addAction(BLEScanService.EVENT_DEVICE_FOUND);
+        localFilter.addAction(CatimaManager.ACTION_LOYALTY_CARDS_REFRESH_OBSERVER);
         //noinspection deprecation
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, localFilter);
     }
