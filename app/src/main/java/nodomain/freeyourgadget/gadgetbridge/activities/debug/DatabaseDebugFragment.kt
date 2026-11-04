@@ -5,14 +5,21 @@ import android.widget.Toast
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
+import nodomain.freeyourgadget.gadgetbridge.GBDatabaseManager
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper
 import nodomain.freeyourgadget.gadgetbridge.util.GB
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class DatabaseDebugFragment : AbstractDebugFragment() {
+    @Inject
+    lateinit var databaseManager: GBDatabaseManager
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.debug_preferences_database, rootKey)
 
@@ -37,7 +44,7 @@ class DatabaseDebugFragment : AbstractDebugFragment() {
         val tableNames = mutableListOf<String>()
 
         try {
-            GBApplication.acquireDB().use { db ->
+            databaseManager.acquireWrite().use { db ->
                 findPreference<Preference>(PREF_DEBUG_DATABASE_VERSION)?.summary = db.database.version.toString()
 
                 val cursor = db.database.rawQuery(
@@ -85,7 +92,7 @@ class DatabaseDebugFragment : AbstractDebugFragment() {
             .setTitle(R.string.dbmanagementactivity_delete_activity_data_title)
             .setMessage(R.string.dbmanagementactivity_really_delete_entire_db)
             .setPositiveButton(R.string.delete) { _, _ ->
-                if (GBApplication.app().databaseManager.deleteActivityDatabase()) {
+                if (databaseManager.deleteActivityDatabase()) {
                     GB.toast(
                         requireContext(),
                         getString(R.string.dbmanagementactivity_database_successfully_deleted),
@@ -114,7 +121,7 @@ class DatabaseDebugFragment : AbstractDebugFragment() {
             .setIcon(R.drawable.ic_warning)
             .setMessage(R.string.dbmanagementactivity_delete_old_activitydb_confirmation)
             .setPositiveButton(R.string.delete) { _, _ ->
-                if (GBApplication.app().databaseManager.deleteOldActivityDatabase()) {
+                if (databaseManager.deleteOldActivityDatabase()) {
                     GB.toast(
                         requireContext(),
                         getString(R.string.dbmanagementactivity_old_activity_db_successfully_deleted),
@@ -139,7 +146,7 @@ class DatabaseDebugFragment : AbstractDebugFragment() {
     // TODO ability to run raw SQL from the UI
     private fun runSql() {
         try {
-            GBApplication.acquireDB().use { db ->
+            databaseManager.acquireWrite().use { db ->
                 db.database.execSQL("DROP TABLE IF EXISTS TABLE_NAME_TO_DROP_HERE")
             }
         } catch (e: Exception) {

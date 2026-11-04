@@ -7,9 +7,11 @@ import androidx.fragment.app.FragmentManager
 import androidx.preference.PreferenceFragmentCompat
 import com.bytehamster.lib.preferencesearch.SearchPreferenceFragment
 import com.bytehamster.lib.preferencesearch.SearchPreferenceResult
+import dagger.hilt.android.AndroidEntryPoint
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractSettingsActivityV2
 
+@AndroidEntryPoint
 class DebugActivityV2 : AbstractSettingsActivityV2(), PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
     override fun newFragment(): PreferenceFragmentCompat? {
         return MainDebugFragment()
