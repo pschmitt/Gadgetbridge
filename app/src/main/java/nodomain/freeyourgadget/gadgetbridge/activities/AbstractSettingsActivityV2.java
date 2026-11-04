@@ -86,10 +86,7 @@ public abstract class AbstractSettingsActivityV2 extends AbstractGBActivity impl
                 Objects.requireNonNull(pref.getFragment())
         );
         fragment.setArguments(pref.getExtras());
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.settings_container, fragment)
-                .addToBackStack(null)
-                .commit();
+        goToScreen(fragment, null, null);
         return true;
     }
 
@@ -106,13 +103,29 @@ public abstract class AbstractSettingsActivityV2 extends AbstractGBActivity impl
         args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, preferenceScreen.getKey());
         fragment.setArguments(args);
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.settings_container, fragment, preferenceScreen.getKey())
-                .addToBackStack(preferenceScreen.getKey())
-                .commit();
+        goToScreen(fragment, preferenceScreen.getKey(), preferenceScreen.getKey());
 
         return true;
+    }
+
+    /**
+     * Replaces the current screen with {@code fragment}, and adds the change to the back stack.
+     */
+    public void goToScreen(@NonNull final Fragment fragment,
+                           @Nullable final String tag,
+                           @Nullable final String backStackName) {
+        getSupportFragmentManager()
+            .beginTransaction()
+            .setReorderingAllowed(true)
+            .setCustomAnimations(
+                R.animator.settings_screen_enter,
+                R.animator.settings_screen_exit,
+                R.animator.settings_screen_enter,
+                R.animator.settings_screen_exit
+            )
+            .replace(R.id.settings_container, fragment, tag)
+            .addToBackStack(backStackName)
+            .commit();
     }
 
     @Override
@@ -172,10 +185,7 @@ public abstract class AbstractSettingsActivityV2 extends AbstractGBActivity impl
             args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, screenKey);
             newFragmentForScreen.setArguments(args);
 
-            fragmentManager.beginTransaction()
-                    .replace(R.id.settings_container, newFragmentForScreen)
-                    .addToBackStack("search_goto_" + screenKey)
-                    .commit();
+            goToScreen(newFragmentForScreen, null, "search_goto_" + screenKey);
             result.highlight(newFragmentForScreen);
         } else {
             final Preference preference = currentPreferenceFragment.findPreference(result.getKey());

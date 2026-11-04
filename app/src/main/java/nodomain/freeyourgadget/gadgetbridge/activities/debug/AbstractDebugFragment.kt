@@ -13,6 +13,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractPreferenceFragment
+import nodomain.freeyourgadget.gadgetbridge.activities.AbstractSettingsActivityV2
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.util.DeviceIconUtils
 import nodomain.freeyourgadget.gadgetbridge.util.GB
@@ -160,10 +161,7 @@ abstract class AbstractDebugFragment : AbstractPreferenceFragment() {
     }
 
     protected fun goTo(fragment: AbstractDebugFragment) {
-        requireActivity().supportFragmentManager.beginTransaction()
-            .replace(R.id.settings_container, fragment)
-            .addToBackStack(null)
-            .commit()
+        (requireActivity() as AbstractSettingsActivityV2).goToScreen(fragment, null, null)
     }
 
     companion object {

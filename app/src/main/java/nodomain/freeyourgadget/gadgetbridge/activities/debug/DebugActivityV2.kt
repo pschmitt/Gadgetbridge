@@ -26,10 +26,7 @@ class DebugActivityV2 : AbstractSettingsActivityV2(), PreferenceFragmentCompat.O
         supportFragmentManager.popBackStack(SearchPreferenceFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE)
 
         val fragment = screen.newFragment()
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.settings_container, fragment)
-            .addToBackStack(null)
-            .commit()
+        goToScreen(fragment, null, null)
         result.highlight(fragment)
     }
 
