@@ -119,6 +119,11 @@ public class BluetoothNameTest extends TestBase {
             put("MOMENTUM M2 IEBT", DeviceType.SENNHEISER_MOMENTUM_IN_EAR_WIRELESS);
             put("MOMENTUM M2 AEBT", null); // the over-ear MOMENTUM Wireless, not tested
             put("Polar H10 96C0B12D", DeviceType.POLARH10);
+            put("808S 0007734", DeviceType.COOSPO_H808S);
+            put("H808S-1A2B3C", DeviceType.COOSPO_H808S);
+            put("H808S", DeviceType.COOSPO_H808S);
+            put("h808s-4d5e6f", DeviceType.COOSPO_H808S);
+            put("COOSPO H808S-1A2B3C", DeviceType.COOSPO_H808S);
             put("Forerunner 165 Music", DeviceType.GARMIN_FORERUNNER_165_MUSIC);
             put("Forerunner 170", DeviceType.GARMIN_FORERUNNER_170); // #6276
             put("Forerunner 170 Music", DeviceType.GARMIN_FORERUNNER_170_MUSIC);

@@ -52,6 +52,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.cmfwatchpro.CmfWatchPro2Coor
 import nodomain.freeyourgadget.gadgetbridge.devices.cmfwatchpro.CmfWatchPro3Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.cmfwatchpro.CmfWatchProCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.coospo.CoospoH6Coordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.coospo.CoospoH808SCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.coospo.CoospoH9ZCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.coospo.CoospoHW807Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.coospo.CoospoHW9Coordinator;
@@ -1326,6 +1327,7 @@ public enum DeviceType {
     COOSPO_HW9(CoospoHW9Coordinator::new),
     COOSPO_HW807(CoospoHW807Coordinator::new),
     COOSPO_H9Z(CoospoH9ZCoordinator::new),
+    COOSPO_H808S(CoospoH808SCoordinator::new),
     KEEPHEALTH_C60(C60DeviceCoordinator::new),
     GENERIC_WEIGHT_SCALE(GenericWeightScaleCoordinator::new),
     SOLARFLOW(SolarFlowDeviceCoordinator::new),
