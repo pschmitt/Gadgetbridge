@@ -131,15 +131,19 @@ class GBDatabaseManager @Inject constructor(
     }
 
     /**
+     * @return true if the legacy (pre 0.12) Activity database exists
+     */
+    fun hasOldActivityDatabase(): Boolean = DBHelper(context).existsDB("ActivityDatabase")
+
+    /**
      * Deletes the legacy (pre 0.12) Activity database
      *
      * @return true on successful deletion
      */
     fun deleteOldActivityDatabase(): Boolean {
         LOG.trace("Deleting old activity database")
-        val dbHelper = DBHelper(context)
         var result = true
-        if (dbHelper.existsDB("ActivityDatabase")) {
+        if (hasOldActivityDatabase()) {
             result = context.deleteDatabase("ActivityDatabase")
         }
         return result
