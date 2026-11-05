@@ -34,12 +34,19 @@ sourceSets {
     }
 }
 
-tasks.register<JavaExec>("genSources") {
+abstract class JavaExecDao : JavaExec() {
+    @get:OutputDirectory
+    abstract val generatedSourceDirectory: DirectoryProperty
+}
+
+tasks.register<JavaExecDao>("genSources") {
+    generatedSourceDirectory.set(project.project(":app").layout.buildDirectory.dir("generated/sources/gbdao"))
     inputs.dir("src")
     inputs.dir("src-template")
-    outputs.dir(project.rootProject.file("app/build/generated/sources/gbdao"))
+    outputs.dir(generatedSourceDirectory)
 
     mainClass = application.mainClass
+    args(generatedSourceDirectory.get().asFile.absolutePath)
     classpath = sourceSets.main.get().runtimeClasspath
     workingDir = file("../")
     if (gradle.startParameter.logLevel <= LogLevel.INFO) {
