@@ -19,6 +19,7 @@ package nodomain.freeyourgadget.gadgetbridge.externalservices
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import nodomain.freeyourgadget.gadgetbridge.BuildConfig
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity
 import nodomain.freeyourgadget.gadgetbridge.activities.externalservices.OnlineFitnessTrackersPreferencesActivity
@@ -65,5 +66,13 @@ class ExternalServiceOAuthCallbackActivity : AbstractGBActivity() {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(ExternalServiceOAuthCallbackActivity::class.java)
+
+        /**
+         * The link a [service]'s login sends the browser back to. Its scheme is the installed
+         * package name with "_" written as "-" (see `oauthRedirectScheme` in app/build.gradle),
+         * and a self-hosted server has to allow that scheme.
+         */
+        fun redirectUri(service: ExternalService): String =
+            "${BuildConfig.OAUTH_REDIRECT_SCHEME}://${service.id}/oauth/callback"
     }
 }

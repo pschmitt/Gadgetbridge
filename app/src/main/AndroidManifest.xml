@@ -1337,9 +1337,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <!-- Where a service's login sends the browser back; the host names the service -->
+                <!-- Where a service's login sends the browser back; the host names the service.
+                     Must accept ExternalServiceOAuthCallbackActivity.redirectUri. -->
                 <data
-                    android:scheme="${appAuthRedirectScheme}"
+                    android:scheme="${oauthRedirectScheme}"
                     android:pathPrefix="/oauth/callback"
                     tools:ignore="AppLinkUrlError" />
             </intent-filter>

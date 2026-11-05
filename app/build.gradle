@@ -1,3 +1,4 @@
+import com.android.build.api.variant.BuildConfigField
 import com.android.build.api.variant.ResValue
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -97,10 +98,6 @@ android {
         buildConfigField("String", "GIT_HASH_SHORT", "\"${getGitHashShort()}\"")
         buildConfigField("String", "GIT_DIRTY_STATUS", "\"${getGitDirtyFlag()}\"")
         buildConfigField("boolean", "INTERNET_ACCESS", "false")
-
-        manifestPlaceholders = [
-            appAuthRedirectScheme: "${applicationId}"
-        ]
     }
 
     final def nightlyStoreFile = providers.systemProperty("nightly_store_file")
@@ -220,6 +217,17 @@ androidComponents {
         variant.resValues.put(
             variant.makeResValueKey("string", "applicationId"),
             variant.applicationId.map { new ResValue(it, null) }
+        )
+
+        // Scheme of the link an online service's login returns to. A URI scheme only allows
+        // letters, digits, "+", "-" and "." (RFC 3986), so the underscore of nightly_nopebble
+        // becomes "-"; browsers read a link with an underscore in its scheme as a relative path.
+        def oauthRedirectScheme = variant.applicationId.map { it.replace('_', '-') }
+        variant.manifestPlaceholders.put("oauthRedirectScheme", oauthRedirectScheme)
+        variant.unitTest?.manifestPlaceholders?.put("oauthRedirectScheme", oauthRedirectScheme)
+        variant.buildConfigFields.put(
+            "OAUTH_REDIRECT_SCHEME",
+            oauthRedirectScheme.map { new BuildConfigField("String", "\"${it}\"", null) }
         )
 
         if (variant.buildType == "nightly" || variant.buildType == "nopebble") {

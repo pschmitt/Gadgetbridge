@@ -21,8 +21,8 @@ import android.content.Context
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
-import nodomain.freeyourgadget.gadgetbridge.BuildConfig
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
+import nodomain.freeyourgadget.gadgetbridge.externalservices.ExternalServiceOAuthCallbackActivity
 import nodomain.freeyourgadget.gadgetbridge.externalservices.PkceHelper
 import nodomain.freeyourgadget.gadgetbridge.util.InternetUtils
 import org.slf4j.LoggerFactory
@@ -140,7 +140,7 @@ class EndurainSetupViewModel(application: Application) : AndroidViewModel(applic
             .buildUpon()
             .appendQueryParameter("code_challenge", codeChallenge)
             .appendQueryParameter("code_challenge_method", "S256")
-            .appendQueryParameter("redirect", BuildConfig.APPLICATION_ID + "://endurain/oauth/callback")
+            .appendQueryParameter("redirect", ExternalServiceOAuthCallbackActivity.redirectUri(EndurainService))
             .build()
             .toString()
     }
