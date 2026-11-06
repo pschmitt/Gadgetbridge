@@ -1,7 +1,6 @@
 plugins {
     application
     java
-
 }
 
 java {
@@ -27,16 +26,22 @@ abstract class JavaExecFit : JavaExec() {
 tasks.register<JavaExecFit>("genFit") {
     description = "Generate FitMessage source files from JSON"
 
-    generatedSourceDirectory.set(project.project(":app").layout.buildDirectory.dir("generated/sources/fit"))
-    var manualDir = project.project(":app").file("src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/garmin/fit/")
-    inputs.dir(project.file("src"))
+    val appProject = project(":app")
+    val fitProfileJson = file("src/main/resources/fit_profile.json")
+    val manualDir = appProject.file("src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/garmin/fit/")
+
+    generatedSourceDirectory.set(appProject.layout.buildDirectory.dir("generated/sources/fit"))
+
+    inputs.file(fitProfileJson)
     inputs.dir(manualDir)
     outputs.dir(generatedSourceDirectory)
 
     mainClass = application.mainClass
-    args(project.file("src/main/resources/fit_profile.json").absolutePath)
-    args(generatedSourceDirectory.get().file("nodomain/freeyourgadget/gadgetbridge/service/devices/garmin/fit/").asFile.absolutePath)
-    args(project.project(":app").file("src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/garmin/fit/").absolutePath)
+    args(
+        fitProfileJson.absolutePath,
+        generatedSourceDirectory.dir("nodomain/freeyourgadget/gadgetbridge/service/devices/garmin/fit/").get().asFile.absolutePath,
+        manualDir.absolutePath
+    )
     classpath = sourceSets.main.get().runtimeClasspath
     if (gradle.startParameter.logLevel <= LogLevel.INFO) {
         jvmArgs("-Dverbose=true")
@@ -45,8 +50,10 @@ tasks.register<JavaExecFit>("genFit") {
 
 tasks.register<JavaExec>("formatFitProfileJson") {
     description = "Reformat the JSON specification"
-    var outputFile = project.file("src/main/resources/fit_profile.json")
-    inputs.dir(project.file("src"))
+
+    val outputFile = file("src/main/resources/fit_profile.json")
+
+    inputs.file(outputFile)
     outputs.file(outputFile)
 
     mainClass = "nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.codegen.FormatFitProfileJson"
