@@ -1,0 +1,61 @@
+tasks.register("buildGitChangelog") {
+    final def changelogFile = layout.buildDirectory.file("generated/res/changelog/xml/changelog_git.xml").get().asFile
+
+    def gitFile = rootProject.file(".git")
+    def gitHead = null
+
+    if (gitFile.directory) {
+        gitHead = new File(gitFile, "HEAD")
+    } else if (gitFile.file) {
+        def gitDir = gitFile.text.trim().replaceFirst(/^gitdir:\s*/, "")
+        gitHead = new File(gitDir).with {
+            isAbsolute() ? new File(it, "HEAD") : new File(gitFile.parentFile, it.path + "/HEAD")
+        }
+    }
+
+    inputs.file(gitHead)
+    outputs.file(changelogFile)
+
+    doLast {
+        def allCommits
+        try {
+            allCommits = providers.exec {
+                commandLine("git", "log", "--pretty=format:%H %s")
+            }.standardOutput.asText.get()
+        } catch (ignored) {
+            logger.warn("Skipping git changelog: git is not available")
+            changelogFile.parentFile.mkdirs()
+            changelogFile.write(groovy.xml.XmlUtil.serialize(new Node(null, "changelog")))
+            return
+        }
+
+        def commitVersionCode = project.hasProperty("getVersionCode") ? getVersionCode() : null
+        def includedCommits = 0
+        def includedTranslations = 0
+        final def changelogNode = new Node(null, "changelog")
+
+        allCommits.trim().eachLine { final line ->
+            if (includedCommits > 100) {
+                return true
+            }
+
+            final def (fullCommitHash, commitMessage) = line.split(" ", 2)
+            final def commitHash = fullCommitHash.take(10)
+            if (commitMessage.contains("Translated using Weblate")) {
+                if (includedTranslations == 0) {
+                    final def releaseNode = new Node(changelogNode, "release", [version: commitHash, versioncode: commitVersionCode--])
+                    def _ = new Node(releaseNode, "change", [:], "Sync translations from Weblate")
+                }
+                includedTranslations++
+                return true
+            }
+
+            final def releaseNode = new Node(changelogNode, "release", [version: commitHash, versioncode: commitVersionCode--])
+            def _ = new Node(releaseNode, "change", [:], commitMessage)
+            includedCommits++
+        }
+
+        changelogFile.parentFile.mkdirs()
+        changelogFile.write(groovy.xml.XmlUtil.serialize(changelogNode))
+    }
+}
