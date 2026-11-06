@@ -6,7 +6,7 @@ plugins {
 java {
     toolchain {
         // Setting sourceCompatibility and targetCompatibility isn't required as this module ships
-        // no complied code.
+        // no compiled code.
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
@@ -40,9 +40,13 @@ abstract class JavaExecDao : JavaExec() {
 }
 
 tasks.register<JavaExecDao>("genSources") {
-    generatedSourceDirectory.set(project.project(":app").layout.buildDirectory.dir("generated/sources/gbdao"))
-    inputs.dir("src")
-    inputs.dir("src-template")
+    description = "Generate DAO entity and session source files"
+
+    val appProject = project(":app")
+    generatedSourceDirectory.set(appProject.layout.buildDirectory.dir("generated/sources/gbdao"))
+
+    inputs.dir(file("src"))
+    inputs.dir(file("src-template"))
     outputs.dir(generatedSourceDirectory)
 
     mainClass = application.mainClass
