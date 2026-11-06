@@ -18,7 +18,7 @@ import javax.inject.Singleton
 import kotlin.concurrent.withLock
 
 /**
- * Owns the Gadgetbridge database and the lock that guards every access to it. Inject it with Hilt.
+ * Owns the Gadgetbridge database and the lock that guards every access to it.
  */
 @Singleton
 class GBDatabaseManager @Inject constructor(
