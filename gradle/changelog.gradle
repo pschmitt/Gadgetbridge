@@ -18,6 +18,10 @@ tasks.register("buildGitChangelog") {
     }
     outputs.file(changelogFile)
 
+    // Capture configuration-cache-safe references before doLast
+    final def providersFactory = providers
+    final def versionCodeValue = project.hasProperty("getVersionCode") ? project.getVersionCode() : null
+
     doLast {
         final def outputFile = changelogFile.get().asFile
         outputFile.parentFile.mkdirs()
@@ -25,11 +29,11 @@ tasks.register("buildGitChangelog") {
         final def changelogNode = new Node(null, "changelog")
 
         try {
-            def allCommits = providers.exec {
+            def allCommits = providersFactory.exec {
                 commandLine("git", "log", "-n", "300", "--pretty=format:%H %s")
             }.standardOutput.asText.get()
 
-            def commitVersionCode = project.hasProperty("getVersionCode") ? getVersionCode() : null
+            def commitVersionCode = versionCodeValue
             def includedCommits = 0
             def includedTranslations = 0
 
