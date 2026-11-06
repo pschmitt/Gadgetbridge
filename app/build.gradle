@@ -385,8 +385,8 @@ tasks.named("preBuild").configure {
     dependsOn(tasks.named("buildGitChangelog"))
 }
 
-tasks.register("cleanGenerated", Delete) {
-    delete(fileTree("src/main/java/nodomain/freeyourgadget/gadgetbridge/entities") {
+tasks.register("cleanGenerated", Delete) { task ->
+    task.delete(fileTree("src/main/java/nodomain/freeyourgadget/gadgetbridge/entities") {
         include("**/*.java")
         exclude("**/Abstract*.java")
         exclude("**/GenericActivitySample.java")
