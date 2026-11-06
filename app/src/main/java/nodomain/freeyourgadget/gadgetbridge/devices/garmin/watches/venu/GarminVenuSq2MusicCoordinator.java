@@ -35,4 +35,9 @@ public class GarminVenuSq2MusicCoordinator extends GarminWatchCoordinator {
     public boolean supportsRacePrediction(@NonNull final GBDevice device) {
         return false;
     }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }

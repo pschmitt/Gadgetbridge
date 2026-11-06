@@ -54,4 +54,9 @@ public class GarminForerunner735XTCoordinator extends GarminWatchCoordinator {
     public boolean supportsRespiratoryRate(@NonNull final GBDevice device) {
         return false;
     }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }

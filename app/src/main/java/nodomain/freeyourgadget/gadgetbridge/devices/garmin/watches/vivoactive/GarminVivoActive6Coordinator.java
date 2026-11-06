@@ -29,4 +29,9 @@ public class GarminVivoActive6Coordinator extends GarminWatchCoordinator {
         // #5948
         return true;
     }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }

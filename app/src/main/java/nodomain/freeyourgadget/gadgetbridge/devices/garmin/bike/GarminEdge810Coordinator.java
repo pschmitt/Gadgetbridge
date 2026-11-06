@@ -34,4 +34,9 @@ public class GarminEdge810Coordinator extends GarminBikeComputerCoordinator {
     public boolean supportsVO2Max(@NonNull final GBDevice device) {
         return false;
     }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }

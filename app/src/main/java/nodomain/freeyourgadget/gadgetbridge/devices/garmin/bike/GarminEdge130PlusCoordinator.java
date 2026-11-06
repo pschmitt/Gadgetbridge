@@ -27,4 +27,9 @@ public class GarminEdge130PlusCoordinator extends GarminBikeComputerCoordinator 
     public boolean supportsTrainingLoad(@NonNull final GBDevice device) {
         return false;
     }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }

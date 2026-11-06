@@ -37,5 +37,4 @@ public class GarminGpsmap66iCoordinator extends GarminGpsmap66sCoordinator {
     public int getDeviceNameResource() {
         return R.string.devicetype_garmin_gpsmap_66i;
     }
-
 }

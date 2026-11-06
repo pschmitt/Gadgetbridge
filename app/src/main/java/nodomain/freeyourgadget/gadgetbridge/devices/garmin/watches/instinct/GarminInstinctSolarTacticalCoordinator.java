@@ -48,4 +48,9 @@ public class GarminInstinctSolarTacticalCoordinator extends GarminWatchCoordinat
     public boolean supportsSolarCharging(@NonNull final GBDevice device) {
         return true;
     }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }

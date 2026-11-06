@@ -16,9 +16,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.garmin.gps;
 
+import androidx.annotation.NonNull;
+
 import java.util.regex.Pattern;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 
 public class GarminGpsmap66srCoordinator extends GarminGpsmap66sCoordinator {
     @Override
@@ -38,4 +41,9 @@ public class GarminGpsmap66srCoordinator extends GarminGpsmap66sCoordinator {
         return R.string.devicetype_garmin_gpsmap_66sr;
     }
 
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }

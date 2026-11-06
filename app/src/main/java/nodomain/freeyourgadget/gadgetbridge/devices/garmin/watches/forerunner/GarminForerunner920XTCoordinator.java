@@ -16,9 +16,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.forerunner;
 
+import androidx.annotation.NonNull;
+
 import java.util.regex.Pattern;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 
 public class GarminForerunner920XTCoordinator extends GarminForerunner920Coordinator {
     @Override
@@ -36,5 +39,10 @@ public class GarminForerunner920XTCoordinator extends GarminForerunner920Coordin
     @Override
     public int getDeviceNameResource() {
         return R.string.devicetype_garmin_forerunner_920xt;
+    }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
     }
 }

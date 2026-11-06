@@ -81,4 +81,9 @@ public class GarminForerunner920Coordinator extends GarminWatchCoordinator {
     public boolean supportsRespiratoryRate(@NonNull final GBDevice device) {
         return false;
     }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }

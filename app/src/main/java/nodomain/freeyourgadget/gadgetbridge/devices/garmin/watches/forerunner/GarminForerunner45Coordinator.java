@@ -54,4 +54,9 @@ public class GarminForerunner45Coordinator extends GarminWatchCoordinator {
     public boolean supportsVO2MultiSport(@NonNull final GBDevice device) {
         return false;
     }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }

@@ -65,4 +65,9 @@ public class GarminForerunner30Coordinator extends GarminWatchCoordinator {
     public boolean supportsWeather(@NonNull final GBDevice device) {
         return false;
     }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }

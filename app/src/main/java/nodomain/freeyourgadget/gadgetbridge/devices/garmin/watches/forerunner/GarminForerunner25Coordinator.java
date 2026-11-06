@@ -77,4 +77,9 @@ public class GarminForerunner25Coordinator extends GarminWatchCoordinator {
     public boolean supportsPai(@NonNull final GBDevice device) {
         return false;
     }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }

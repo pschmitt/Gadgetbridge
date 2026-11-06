@@ -45,4 +45,9 @@ public class GarminVivoActive3TCoordinator extends GarminVivoActive3Coordinator 
     public boolean supportsRacePrediction(@NonNull final GBDevice device) {
         return false;
     }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }
