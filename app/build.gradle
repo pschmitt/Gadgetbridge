@@ -94,7 +94,6 @@ android {
         // Note: always bump BOTH versionCode and versionName!
         versionName = "2026.11.0"
         versionCode = 256
-        vectorDrawables.useSupportLibrary = true
         buildConfigField("String", "GIT_HASH_SHORT", "\"${getGitHashShort()}\"")
         buildConfigField("String", "GIT_DIRTY_STATUS", "\"${getGitDirtyFlag()}\"")
         buildConfigField("boolean", "INTERNET_ACCESS", "false")
