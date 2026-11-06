@@ -217,32 +217,22 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
 
+        def nightlySigning = (System.getProperty("nightly_store_file") != null)
+                ? signingConfigs.getByName("nightly")
+                : signingConfigs.getByName("debug")
+
         create("nightly") {
+            initWith(getByName("release"))
             applicationIdSuffix = ".nightly"
             versionNameSuffix = "-${getGitHashShort()}"
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            minifyEnabled = true
-            debuggable = false
-
-            if (System.getProperty("nightly_store_file") != null) {
-                signingConfig = signingConfigs.getByName("nightly")
-            } else {
-                signingConfig = signingConfigs.getByName("debug")
-            }
+            signingConfig = nightlySigning
         }
 
         create("nopebble") {
+            initWith(getByName("release"))
             applicationIdSuffix = ".nightly_nopebble"
             versionNameSuffix = "-${getGitHashShort()}"
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            minifyEnabled = true
-            debuggable = false
-
-            if (System.getProperty("nightly_store_file") != null) {
-                signingConfig = signingConfigs.getByName("nightly")
-            } else {
-                signingConfig = signingConfigs.getByName("debug")
-            }
+            signingConfig = nightlySigning
         }
     }
 
