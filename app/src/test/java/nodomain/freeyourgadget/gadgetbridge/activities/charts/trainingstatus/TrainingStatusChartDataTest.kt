@@ -44,6 +44,14 @@ class TrainingStatusChartDataTest {
     }
 
     @Test
+    fun spans_joinEqualDays_includingDaysWithoutAStatus() {
+        assertEquals(
+            listOf(StatusSpan(null, 2), StatusSpan(7, 2), StatusSpan(null, 1), StatusSpan(5, 1)),
+            TrainingStatusChartData.spans(arrayOf(null, null, 7, 7, null, 5)),
+        )
+    }
+
+    @Test
     fun dailyStatuses_takeTheLastSampleOfEachDay_andLeaveEmptyDaysNull() {
         val statuses = TrainingStatusChartData.dailyStatuses(
             longArrayOf(90, 95, 97, 97, 101), intArrayOf(4, 5, 7, 8, 1), lastDay = 100, count = 7,

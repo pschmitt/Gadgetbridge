@@ -18,6 +18,11 @@ data class StatusRun(val status: Int, val startDay: Long, val endDay: Long)
  */
 data class StatusShare(val status: Int, val days: Long, val percent: Int)
 
+/**
+ * Consecutive [days] with the same [status], null for days without one.
+ */
+data class StatusSpan(val status: Int?, val days: Int)
+
 object TrainingStatusChartData {
     private const val SPAN_Y = 0.5
 
@@ -61,6 +66,22 @@ object TrainingStatusChartData {
             if (index in 0 until count) result[index] = statuses[i]
         }
         return result
+    }
+
+    /**
+     * Joins consecutive equal [days] into spans, including the days without a status.
+     */
+    fun spans(days: Array<Int?>): List<StatusSpan> {
+        val spans = mutableListOf<StatusSpan>()
+        for (status in days) {
+            val last = spans.lastOrNull()
+            if (last != null && last.status == status) {
+                spans[spans.lastIndex] = last.copy(days = last.days + 1)
+            } else {
+                spans += StatusSpan(status, 1)
+            }
+        }
+        return spans
     }
 
     private fun lastPerDay(days: LongArray, statuses: IntArray): Map<Long, Int> {

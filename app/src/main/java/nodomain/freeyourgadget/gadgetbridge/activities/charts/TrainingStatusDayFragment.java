@@ -40,7 +40,6 @@ import com.github.mikephil.charting.charts.Chart;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,21 +47,11 @@ import java.util.Locale;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.trainingstatus.StatusRun;
-import nodomain.freeyourgadget.gadgetbridge.activities.charts.trainingstatus.TrainingStatusChartData;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileData;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileGridUtilKt;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
-import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
-import nodomain.freeyourgadget.gadgetbridge.devices.GenericMetricSampleProvider;
-import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider;
-import nodomain.freeyourgadget.gadgetbridge.entities.GenericTrainingLoadAcuteSample;
-import nodomain.freeyourgadget.gadgetbridge.entities.GenericTrainingLoadChronicSample;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
-import nodomain.freeyourgadget.gadgetbridge.model.HrvSummarySample;
-import nodomain.freeyourgadget.gadgetbridge.model.MetricSample;
 import nodomain.freeyourgadget.gadgetbridge.model.TrainingStatus;
-import nodomain.freeyourgadget.gadgetbridge.model.Vo2MaxSample;
 
 public class TrainingStatusDayFragment extends AbstractChartFragment<TrainingStatusDayFragment.TrainingStatusDayData> {
     private static final int WEEK_DAYS = 7;
@@ -110,75 +99,14 @@ public class TrainingStatusDayFragment extends AbstractChartFragment<TrainingSta
     @Override
     protected TrainingStatusDayData refreshInBackground(final ChartsHost chartsHost, final DBHandler db, final GBDevice device) {
         final long day = TrainingStatusPeriodFragment.toEpochDay(getTSEnd() * 1000L);
-        final long today = LocalDate.now().toEpochDay();
-        final long weekStart = day - WEEK_DAYS + 1;
-        final long startMillis = LocalDate.ofEpochDay(day).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        final long endMillis = LocalDate.ofEpochDay(day + 1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-
-        final List<? extends MetricSample> samples = TrainingStatusPeriodFragment.loadSamples(db, device, weekStart, Math.max(day, today));
-        final long[] sampleDays = TrainingStatusPeriodFragment.sampleDays(samples);
-        final int[] sampleStatuses = TrainingStatusPeriodFragment.sampleStatuses(samples);
-        final Integer[] week = TrainingStatusChartData.dailyStatuses(sampleDays, sampleStatuses, day, WEEK_DAYS);
-        StatusRun run = null;
-        if (week[WEEK_DAYS - 1] != null) {
-            for (final StatusRun candidate : TrainingStatusPeriodFragment.loadRuns(db, device, sampleDays, sampleStatuses, weekStart, Math.max(day, today))) {
-                if (candidate.getStartDay() <= day && day <= candidate.getEndDay()) {
-                    run = candidate;
-                }
-            }
-        }
-
-        final DeviceCoordinator coordinator = device.getDeviceCoordinator();
-
-        Integer acuteLoad = null;
-        Integer chronicLoad = null;
-        if (GBApplication.getPrefs().experimentalMetrics() && GenericMetricSampleProvider.supportsMetrics(device, MetricSample.Metric.GENERIC_TRAINING_LOAD_ACUTE)) {
-            final MetricSample acute = last(GenericMetricSampleProvider.getMetricSamples(db, device, MetricSample.Metric.GENERIC_TRAINING_LOAD_ACUTE, startMillis, endMillis - 1));
-            final MetricSample chronic = last(GenericMetricSampleProvider.getMetricSamples(db, device, MetricSample.Metric.GENERIC_TRAINING_LOAD_CHRONIC, startMillis, endMillis - 1));
-            acuteLoad = acute != null ? (int) Math.round(acute.getMetricScore()) : null;
-            chronicLoad = chronic != null ? (int) Math.round(chronic.getMetricScore()) : null;
-        } else {
-            final TimeSampleProvider<? extends GenericTrainingLoadAcuteSample> acuteProvider = coordinator.getTrainingAcuteLoadSampleProvider(device, db.getDaoSession());
-            final TimeSampleProvider<? extends GenericTrainingLoadChronicSample> chronicProvider = coordinator.getTrainingChronicLoadSampleProvider(device, db.getDaoSession());
-            final GenericTrainingLoadAcuteSample acute = acuteProvider != null ? last(acuteProvider.getAllSamples(startMillis, endMillis - 1)) : null;
-            final GenericTrainingLoadChronicSample chronic = chronicProvider != null ? last(chronicProvider.getAllSamples(startMillis, endMillis - 1)) : null;
-            acuteLoad = acute != null ? acute.getValue() : null;
-            chronicLoad = chronic != null ? chronic.getValue() : null;
-        }
-
-        Float vo2Max = null;
-        if (coordinator.supportsVO2Max(device)) {
-            final Vo2MaxSample sample = coordinator.getVo2MaxSampleProvider(device, db.getDaoSession()).getLatestSample(endMillis);
-            if (sample != null && sample.getValue() > 0) {
-                vo2Max = sample.getValue();
-            }
-        }
-
-        HrvSummarySample.Status hrvStatus = HrvSummarySample.Status.NONE;
-        Integer hrvWeeklyAverage = null;
-        final TimeSampleProvider<? extends HrvSummarySample> hrvProvider = coordinator.getHrvSummarySampleProvider(device, db.getDaoSession());
-        if (hrvProvider != null) {
-            final HrvSummarySample hrv = last(hrvProvider.getAllSamples(startMillis, endMillis - 1));
-            if (hrv != null) {
-                if (hrv.getStatus() != null) {
-                    hrvStatus = hrv.getStatus();
-                }
-                hrvWeeklyAverage = hrv.getWeeklyAverage();
-            }
-        }
-
-        return new TrainingStatusDayData(run, week, day, today, acuteLoad, chronicLoad, vo2Max, hrvStatus, hrvWeeklyAverage);
-    }
-
-    @Nullable
-    private static <T> T last(final List<T> samples) {
-        return samples.isEmpty() ? null : samples.get(samples.size() - 1);
+        return new TrainingStatusDayData(TrainingStatusReport.load(db, device, day, WEEK_DAYS));
     }
 
     @Override
     protected void updateChartsnUIThread(final TrainingStatusDayData data) {
+        final TrainingStatusReport report = data.report;
         dateView.setText(new SimpleDateFormat("E, MMM dd", Locale.getDefault()).format(getEndDate()));
-        final Integer selected = data.week[WEEK_DAYS - 1];
+        final Integer selected = report.getStatus();
         final int textColor = selected != null
                 ? TrainingStatus.color(requireContext(), selected)
                 : GBApplication.getSecondaryTextColor(requireContext());
@@ -187,8 +115,8 @@ public class TrainingStatusDayFragment extends AbstractChartFragment<TrainingSta
         iconView.setImageTintList(ColorStateList.valueOf(textColor));
         statusView.setText(label);
         statusView.setTextColor(textColor);
-        if (data.run != null) {
-            final String range = TrainingStatusPeriodFragment.rangeText(requireContext(), data.run, data.today);
+        final String range = report.rangeText(requireContext());
+        if (range != null) {
             rangeView.setText(range);
             rangeView.setVisibility(View.VISIBLE);
             statusRow.setContentDescription(label + ", " + range);
@@ -196,13 +124,13 @@ public class TrainingStatusDayFragment extends AbstractChartFragment<TrainingSta
             rangeView.setVisibility(View.GONE);
             statusRow.setContentDescription(label);
         }
-        updateWeek(data.week, data.day);
+        updateWeek(report.getDays(), report.getDay());
 
         final List<StatTileData> stats = new ArrayList<>();
-        stats.add(TrainingStatTiles.acuteLoad(requireContext(), getString(R.string.training_status_load), data.acuteLoad, data.chronicLoad));
-        stats.add(TrainingStatTiles.hrv(requireContext(), data.hrvStatus, data.hrvWeeklyAverage));
+        stats.add(TrainingStatTiles.acuteLoad(requireContext(), getString(R.string.training_status_load), report.getAcuteLoad(), report.getChronicLoad()));
+        stats.add(TrainingStatTiles.hrv(requireContext(), report.getHrvStatus(), report.getHrvWeeklyAverage()));
         stats.add(new StatTileData(
-                data.vo2Max != null ? String.format(Locale.getDefault(), "%.1f", data.vo2Max) : getString(R.string.stats_empty_value),
+                report.getVo2Max() != null ? String.format(Locale.getDefault(), "%.1f", report.getVo2Max()) : getString(R.string.stats_empty_value),
                 getString(R.string.menuitem_vo2_max)
         ));
 
@@ -274,34 +202,10 @@ public class TrainingStatusDayFragment extends AbstractChartFragment<TrainingSta
     }
 
     protected static class TrainingStatusDayData extends ChartsData {
-        @Nullable
-        final StatusRun run;
-        final Integer[] week;
-        final long day;
-        final long today;
-        @Nullable
-        final Integer acuteLoad;
-        @Nullable
-        final Integer chronicLoad;
-        @Nullable
-        final Float vo2Max;
-        final HrvSummarySample.Status hrvStatus;
-        @Nullable
-        final Integer hrvWeeklyAverage;
+        final TrainingStatusReport report;
 
-        TrainingStatusDayData(@Nullable final StatusRun run, final Integer[] week, final long day, final long today,
-                              @Nullable final Integer acuteLoad, @Nullable final Integer chronicLoad,
-                              @Nullable final Float vo2Max,
-                              final HrvSummarySample.Status hrvStatus, @Nullable final Integer hrvWeeklyAverage) {
-            this.run = run;
-            this.week = week;
-            this.day = day;
-            this.today = today;
-            this.acuteLoad = acuteLoad;
-            this.chronicLoad = chronicLoad;
-            this.vo2Max = vo2Max;
-            this.hrvStatus = hrvStatus;
-            this.hrvWeeklyAverage = hrvWeeklyAverage;
+        TrainingStatusDayData(final TrainingStatusReport report) {
+            this.report = report;
         }
     }
 }

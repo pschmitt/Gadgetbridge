@@ -224,25 +224,6 @@
         android:layout_marginTop="4dp"
         android:orientation="horizontal" />
 
-    <LinearLayout
-        android:id="@+id/tile_stats"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="8dp"
-            android:background="?attr/gauge_track" />
-
-        <LinearLayout
-            android:id="@+id/tile_stats_row"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="8dp" />
-
-    </LinearLayout>
+    <include layout="@layout/dashboard_widget_stats_row" />
 
 </LinearLayout>

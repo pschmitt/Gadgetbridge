@@ -187,8 +187,7 @@ object LargeTileRenderer : TileRenderer {
         }
         renderChart(view.findViewById(R.id.tile_large_chart), large, height)
         renderAxis(view.findViewById(R.id.tile_axis), model.axis, large != null, isPerBar(model.axis, large))
-        view.findViewById<View>(R.id.tile_stats).visibility = if (model.stats.isEmpty()) View.GONE else View.VISIBLE
-        renderStats(view.findViewById(R.id.tile_stats_row), model.stats, mini = false)
+        renderStatsRow(view, model.stats)
     }
 
     /**
@@ -436,6 +435,11 @@ private fun renderLegend(container: LinearLayout, rows: List<LegendRow>, columns
             item.findViewById<TextView>(R.id.legend_value).text = row.value
         }
     }
+}
+
+internal fun renderStatsRow(view: View, stats: List<Stat>) {
+    view.findViewById<View>(R.id.tile_stats).visibility = if (stats.isEmpty()) View.GONE else View.VISIBLE
+    renderStats(view.findViewById(R.id.tile_stats_row), stats, mini = false)
 }
 
 /**

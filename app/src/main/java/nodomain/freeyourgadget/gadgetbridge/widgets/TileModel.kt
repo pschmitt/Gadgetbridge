@@ -67,6 +67,11 @@ sealed interface MiniChart {
 
     class Composition(val colors: IntArray, val values: FloatArray) : MiniChart
 
+    /**
+     * Consecutive [weights] in [colors], without gaps, filling the view. Only the outer ends are rounded.
+     */
+    class Timeline(val colors: IntArray, val weights: FloatArray) : MiniChart
+
     class ZoneBar(val colors: IntArray, val segments: FloatArray, val marker: Float) : MiniChart
 
     /**

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:importantForAccessibility="no"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <include layout="@layout/dashboard_widget_header" />
+
+    <LinearLayout
+        android:id="@+id/training_status_summary"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/training_status_icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginBottom="4dp"
+            android:importantForAccessibility="no" />
+
+        <TextView
+            android:id="@+id/training_status_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:importantForAccessibility="no"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/training_status_range"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:importantForAccessibility="no"
+            android:maxLines="1"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <nodomain.freeyourgadget.gadgetbridge.activities.dashboard.MiniChartView
+        android:id="@+id/training_status_bar"
+        android:layout_width="match_parent"
+        android:layout_height="6dp"
+        android:importantForAccessibility="no" />
+
+    <LinearLayout
+        android:id="@+id/training_status_axis"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal" />
+
+</LinearLayout>

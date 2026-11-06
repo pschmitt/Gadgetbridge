@@ -23,6 +23,7 @@ import nodomain.freeyourgadget.gadgetbridge.widgets.impl.StressWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.TodayWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.TrainingLoadWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.TrainingReadinessWidget
+import nodomain.freeyourgadget.gadgetbridge.widgets.impl.TrainingStatusWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.Vo2MaxWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.BmiWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.BasalMetabolicRateWidget
@@ -64,6 +65,7 @@ object WidgetRegistry {
         TodayWidget,
         TrainingLoadWidget,
         TrainingReadinessWidget,
+        TrainingStatusWidget,
         Vo2MaxWidget,
         WeightWidget,
     )
