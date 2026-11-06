@@ -12,9 +12,16 @@ plugins {
 }
 
 tasks.withType(Test).configureEach {
-    systemProperty("MiFirmwareDir", System.getProperty("MiFirmwareDir", null))
+    final def miFirmwareDir = providers.systemProperty("MiFirmwareDir")
+    if (miFirmwareDir.isPresent()) {
+        systemProperty("MiFirmwareDir", miFirmwareDir.get())
+    }
+
     systemProperty("logback.configurationFile", System.getProperty("user.dir", null) + "/app/src/main/assets/logback.xml")
-    systemProperty("GB_LOGFILES_DIR", Files.createTempDirectory("gblog").toString())
+
+    doFirst {
+        systemProperty("GB_LOGFILES_DIR", Files.createTempDirectory("gblog").toString())
+    }
 }
 
 Integer getVersionCode() {
@@ -97,13 +104,18 @@ android {
         ]
     }
 
+    final def nightlyStoreFile = providers.systemProperty("nightly_store_file")
+    final def nightlyStorePassword = providers.systemProperty("nightly_store_password")
+    final def nightlyKeyAlias = providers.systemProperty("nightly_key_alias")
+    final def nightlyKeyPassword = providers.systemProperty("nightly_key_password")
+
     signingConfigs {
         create("nightly") {
-            if (System.getProperty("nightly_store_file") != null) {
-                storeFile = file(System.getProperty("nightly_store_file"))
-                storePassword = System.getProperty("nightly_store_password")
-                keyAlias = System.getProperty("nightly_key_alias")
-                keyPassword = System.getProperty("nightly_key_password")
+            if (nightlyStoreFile.isPresent()) {
+                storeFile = file(nightlyStoreFile.get())
+                storePassword = nightlyStorePassword.orNull
+                keyAlias = nightlyKeyAlias.orNull
+                keyPassword = nightlyKeyPassword.orNull
             }
         }
     }
@@ -158,9 +170,9 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
 
-        def nightlySigning = (System.getProperty("nightly_store_file") != null)
-                ? signingConfigs.getByName("nightly")
-                : signingConfigs.getByName("debug")
+        final def nightlySigning = nightlyStoreFile.isPresent()
+            ? signingConfigs.getByName("nightly")
+            : signingConfigs.getByName("debug")
 
         create("nightly") {
             initWith(getByName("release"))
@@ -179,13 +191,13 @@ android {
 
     lint {
         abortOnError = true
-        lintConfig = file("${rootDir}/app/src/main/lint.xml")
+        lintConfig = layout.projectDirectory.file("src/main/lint.xml").asFile
         // If true, generate an HTML report (with issue explanations, sourcecode, etc)
         htmlReport = true
         // Optional path to report (default will be lint-results.html in the builddir)
         htmlOutput = layout.buildDirectory.file("reports/lint/lint.html").get().asFile
         // Ignore checks present in the snapshot
-        baseline = file("lint-baseline.xml")
+        baseline = layout.projectDirectory.file("lint-baseline.xml").asFile
     }
 
     testOptions {
@@ -194,6 +206,7 @@ android {
             includeAndroidResources = true
         }
     }
+
     buildFeatures {
         aidl = true
         buildConfig = true
@@ -320,18 +333,20 @@ dependencies {
 }
 
 tasks.named("preBuild").configure {
-    dependsOn(":GBDaoGenerator:genSources")
-    dependsOn(":FitCodeGenerator:genFit")
-    dependsOn(":KaitaiAuxGenerator:genKaitaiAux")
+    dependsOn(project(":GBDaoGenerator").tasks.named("genSources"))
+    dependsOn(project(":FitCodeGenerator").tasks.named("genFit"))
+    dependsOn(project(":KaitaiAuxGenerator").tasks.named("genKaitaiAux"))
     dependsOn(tasks.named("buildGitChangelog"))
 }
 
 tasks.register("cleanGenerated", Delete) { task ->
-    task.delete(fileTree("src/main/java/nodomain/freeyourgadget/gadgetbridge/entities") {
-        include("**/*.java")
-        exclude("**/Abstract*.java")
-        exclude("**/GenericActivitySample.java")
-    })
+    task.delete {
+        layout.projectDirectory.dir("src/main/java/nodomain/freeyourgadget/gadgetbridge/entities").asFileTree.matching {
+            include("**/*.java")
+            exclude("**/Abstract*.java")
+            exclude("**/GenericActivitySample.java")
+        }
+    }
 }
 
 tasks.named("clean").configure {
