@@ -160,6 +160,13 @@ class DatabaseDebugViewModelTest {
         assertEquals(1, viewModel.uiState.value.version)
     }
 
+    @Test
+    fun onTableSelectedEmitsANavigationEvent() = runTest {
+        viewModel.onTableSelected("a")
+
+        assertEquals(DatabaseDebugEvent.NavigateToTable("a"), viewModel.events.first())
+    }
+
     private fun overview(hasOldActivityDatabase: Boolean) =
         DatabaseOverview(version = 1, tables = emptyList(), hasOldActivityDatabase = hasOldActivityDatabase)
 }

@@ -57,11 +57,7 @@ class DatabaseDebugFragment : AbstractDebugFragment() {
         removeDynamicPrefs(tablesHeader)
         for (tableName in state.tables) {
             addDynamicPref(tablesHeader, tableName) {
-                goTo(
-                    DatabaseTableDebugFragment().apply {
-                        arguments = Bundle().apply { putString("tableName", tableName) }
-                    }
-                )
+                viewModel.onTableSelected(tableName)
             }
         }
     }
@@ -100,6 +96,14 @@ class DatabaseDebugFragment : AbstractDebugFragment() {
                     ),
                     Toast.LENGTH_SHORT,
                     GB.INFO
+                )
+            }
+
+            is DatabaseDebugEvent.NavigateToTable -> {
+                goTo(
+                    DatabaseTableDebugFragment().apply {
+                        arguments = Bundle().apply { putString("tableName", event.tableName) }
+                    }
                 )
             }
         }

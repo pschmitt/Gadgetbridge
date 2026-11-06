@@ -25,6 +25,7 @@ data class DatabaseDebugUiState(
 sealed interface DatabaseDebugEvent {
     data class DatabaseDeleted(val success: Boolean) : DatabaseDebugEvent
     data class OldDatabaseDeleted(val success: Boolean) : DatabaseDebugEvent
+    data class NavigateToTable(val tableName: String) : DatabaseDebugEvent
 }
 
 @HiltViewModel
@@ -50,6 +51,12 @@ class DatabaseDebugViewModel @Inject constructor(
                     showDeleteOldDatabase = overview.hasOldActivityDatabase,
                 )
             }
+        }
+    }
+
+    fun onTableSelected(tableName: String) {
+        viewModelScope.launch {
+            _events.send(DatabaseDebugEvent.NavigateToTable(tableName))
         }
     }
 
