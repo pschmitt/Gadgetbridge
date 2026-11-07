@@ -32,6 +32,7 @@ import nodomain.freeyourgadget.gadgetbridge.widgets.TimedValue
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetHistory
+import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetVariant
 import org.slf4j.LoggerFactory
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -47,6 +48,8 @@ object AscentWidget : MetricWidget<AscentWidget.Data>() {
     override val label = R.string.activityTotalAscent
     override val icon = R.drawable.ic_north_east
     override val chartTab = "genericmetrics"
+
+    override fun chartMode(variant: WidgetVariant): String = MetricSample.Metric.DAILY_TOTAL_ASCENT.name
 
     override fun isSupportedBy(device: GBDevice): Boolean =
         GenericMetricSampleProvider.supportsMetrics(device, MetricSample.Metric.DAILY_TOTAL_ASCENT)

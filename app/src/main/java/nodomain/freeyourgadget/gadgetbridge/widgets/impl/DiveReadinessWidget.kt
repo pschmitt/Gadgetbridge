@@ -31,6 +31,7 @@ import nodomain.freeyourgadget.gadgetbridge.widgets.TimedValue
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetHistory
+import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetVariant
 import org.slf4j.LoggerFactory
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -46,6 +47,8 @@ object DiveReadinessWidget : MetricWidget<DiveReadinessWidget.Data>() {
     override val label = R.string.metric_garmin_dive_readiness
     override val icon = R.drawable.ic_activity_diving
     override val chartTab = "genericmetrics"
+
+    override fun chartMode(variant: WidgetVariant): String = MetricSample.Metric.GARMIN_DIVE_READINESS.name
 
     override fun isSupportedBy(device: GBDevice): Boolean =
         GenericMetricSampleProvider.supportsMetrics(device, MetricSample.Metric.GARMIN_DIVE_READINESS)

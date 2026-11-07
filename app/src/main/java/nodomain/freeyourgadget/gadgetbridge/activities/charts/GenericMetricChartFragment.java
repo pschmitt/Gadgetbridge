@@ -40,6 +40,8 @@ import java.util.Set;
 
 import com.google.android.material.color.MaterialColors;
 
+import org.apache.commons.lang3.EnumUtils;
+
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.charts.metric.GenericMetricChartData;
 import nodomain.freeyourgadget.gadgetbridge.activities.charts.mpchart.ChartSelection;
@@ -236,21 +238,12 @@ public class GenericMetricChartFragment extends AbstractChartFragment<GenericMet
             return null;
         }
 
-        if (savedInstanceState != null) {
-            final String savedMetricName = savedInstanceState.getString(STATE_SELECTED_METRIC);
-            if (savedMetricName != null) {
-                try {
-                    final MetricSample.Metric savedMetric = MetricSample.Metric.valueOf(savedMetricName);
-                    if (metrics.contains(savedMetric)) {
-                        return savedMetric;
-                    }
-                } catch (final IllegalArgumentException ignored) {
-                    // Fall back to the first recorded metric.
-                }
-            }
-        }
+        final String metricName = savedInstanceState != null
+            ? savedInstanceState.getString(STATE_SELECTED_METRIC)
+            : requireActivity().getIntent().getStringExtra(ActivityChartsActivity.EXTRA_MODE);
+        final MetricSample.Metric metric = EnumUtils.getEnum(MetricSample.Metric.class, metricName);
 
-        return metrics.get(0);
+        return metrics.contains(metric) ? metric : metrics.get(0);
     }
 
     private void setupMetricSpinner() {
