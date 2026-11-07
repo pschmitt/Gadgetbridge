@@ -9,8 +9,12 @@
 * Casio GBD-200: Migrate old paired devices to new implementation
 * Coospo: Expose live heart rate
 * Enable predictive back gesture
+* Garmin: Add charts for training status
+* Garmin: Add new dashboard widgets for ascent, descent, and dive readiness
 * Garmin: Generate turns from points in GPX track
+* Health Connect: Sync basal metabolic rate
 * Mi Band 6: Improve workout details parsing
+* Replace initial permissions request with per-device permissions
 * Update minSdk to 24 (Android 7 / Nougat)
 
 #### 2026.11.1
