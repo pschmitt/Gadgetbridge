@@ -60,6 +60,10 @@ public class ManualSamplesParser extends XiaomiActivityParser {
             return false;
         }
 
+        return persistSamples(context, gbDevice, decodeVersion2(bytes));
+    }
+
+    static List<XiaomiManualSample> decodeVersion2(final byte[] bytes) {
         final ByteBuffer buf = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
         buf.limit(buf.limit() - 4); // discard crc at the end
         buf.get(new byte[7]); // skip fileId bytes
@@ -78,29 +82,55 @@ public class ManualSamplesParser extends XiaomiActivityParser {
 
         final List<XiaomiManualSample> samples = new ArrayList<>();
 
-        while (buf.position() < buf.limit()) {
+        // 4-byte timestamp + type byte
+        while (buf.remaining() >= 5) {
             final int timestamp = buf.getInt();
-            final int type = buf.get() & 0xff;
+            // High nibble: value length in bytes. Low nibble: measurement (1 HR, 2 SpO2,
+            // 3 stress, 4 temperature, 5 blood pressure), see
+            // https://codeberg.org/Freeyourgadget/Gadgetbridge/issues/3517#issuecomment-1516353
+            final int typeAndLength = buf.get() & 0xff;
+            final int length = typeAndLength >> 4;
+            final int measurement = typeAndLength & 0x0f;
+            if (length > buf.remaining()) {
+                LOG.warn("Manual sample {} claims {} bytes, {} remain", typeAndLength, length, buf.remaining());
+                break;
+            }
 
+            final int type;
             final int value;
-            // FIXME: This is incomplete - the type is actually composed of 2 nibbles that
-            // define the data length + type
-            // see https://codeberg.org/Freeyourgadget/Gadgetbridge/issues/3517#issuecomment-1516353
-            switch (type) {
-                case XiaomiManualSampleProvider.TYPE_HR:
-                case XiaomiManualSampleProvider.TYPE_SPO2:
-                case XiaomiManualSampleProvider.TYPE_STRESS:
-                    value = buf.get() & 0xff;
+            switch (measurement) {
+                case 1:
+                case 2:
+                case 3:
+                    // Stored under the 1-byte type constant, whatever length the band sent.
+                    type = measurement == 1 ? XiaomiManualSampleProvider.TYPE_HR
+                            : measurement == 2 ? XiaomiManualSampleProvider.TYPE_SPO2
+                            : XiaomiManualSampleProvider.TYPE_STRESS;
+                    if (length == 1) {
+                        value = buf.get() & 0xff;
+                    } else if (length == 2) {
+                        value = buf.getShort() & 0xffff;
+                    } else {
+                        LOG.warn("Unexpected length {} for manual sample {}", length, typeAndLength);
+                        buf.position(buf.position() + length);
+                        continue;
+                    }
                     break;
-                case XiaomiManualSampleProvider.TYPE_TEMPERATURE:
+                case 4:
+                    if (length != 4) {
+                        LOG.warn("Unexpected length {} for manual sample {}", length, typeAndLength);
+                        buf.position(buf.position() + length);
+                        continue;
+                    }
+                    type = XiaomiManualSampleProvider.TYPE_TEMPERATURE;
                     // FIXME: This is actually 2 2-byte values, see the comment linked above
                     value = buf.getInt();
                     break;
                 // TODO blood pressure, see the comment linked above
                 default:
-                    LOG.warn("Unknown sample type {}", type);
-                    // We need to abort parsing, as we don't know the sample size
-                    return false;
+                    LOG.warn("Unknown manual sample type {}, skipping {} bytes", typeAndLength, length);
+                    buf.position(buf.position() + length);
+                    continue;
             }
 
             if (value == 0) {
@@ -116,8 +146,11 @@ public class ManualSamplesParser extends XiaomiActivityParser {
 
             samples.add(sample);
         }
+        if (buf.hasRemaining()) {
+            LOG.warn("Ignoring {} trailing manual sample bytes", buf.remaining());
+        }
 
-        return persistSamples(context, gbDevice, samples);
+        return samples;
     }
 
     @Nullable

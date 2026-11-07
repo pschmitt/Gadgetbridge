@@ -86,6 +86,60 @@ public class ManualSamplesParserTest {
         assertNull(decode(packet));
     }
 
+    /// 7-byte file id, padding byte, the given records, 4-byte CRC (not checked by the decoder).
+    private static byte[] version2(final String records) {
+        return GB.hexStringToByteArray("00000000000000" + "00" + records + "00000000");
+    }
+
+    @Test
+    public void decodeVersion2() {
+        final List<XiaomiManualSample> samples = ManualSamplesParser.decodeVersion2(version2(
+                "8A90A965" + "12" + "63" +
+                "C793A965" + "13" + "00" +
+                "9698A965" + "13" + "1C" +
+                "E79CA965" + "44" + "5A0E0000"));
+
+        assertEquals(3, samples.size());
+        assertEquals(XiaomiManualSampleProvider.TYPE_SPO2, samples.get(0).getType().intValue());
+        assertEquals(99, samples.get(0).getValue().intValue());
+        assertEquals(0x65A9908AL * 1000, samples.get(0).getTimestamp());
+        assertEquals(XiaomiManualSampleProvider.TYPE_STRESS, samples.get(1).getType().intValue());
+        assertEquals(28, samples.get(1).getValue().intValue());
+        assertEquals(XiaomiManualSampleProvider.TYPE_TEMPERATURE, samples.get(2).getType().intValue());
+        assertEquals(0x0E5A, samples.get(2).getValue().intValue());
+    }
+
+    @Test
+    public void decodeVersion2TwoByteValueIsStoredUnderTheOneByteType() {
+        final List<XiaomiManualSample> samples = ManualSamplesParser.decodeVersion2(version2(
+                "8A90A965" + "21" + "4800"));
+
+        assertEquals(1, samples.size());
+        assertEquals(XiaomiManualSampleProvider.TYPE_HR, samples.get(0).getType().intValue());
+        assertEquals(72, samples.get(0).getValue().intValue());
+    }
+
+    @Test
+    public void decodeVersion2SkipsUnknownTypesByTheirLength() {
+        final List<XiaomiManualSample> samples = ManualSamplesParser.decodeVersion2(version2(
+                "8A90A965" + "65" + "780050003C00" +
+                "9698A965" + "12" + "62"));
+
+        assertEquals(1, samples.size());
+        assertEquals(XiaomiManualSampleProvider.TYPE_SPO2, samples.get(0).getType().intValue());
+        assertEquals(98, samples.get(0).getValue().intValue());
+    }
+
+    @Test
+    public void decodeVersion2KeepsSamplesBeforeATruncatedRecord() {
+        final List<XiaomiManualSample> samples = ManualSamplesParser.decodeVersion2(version2(
+                "8A90A965" + "12" + "63" +
+                "9698A965" + "44" + "5A0E"));
+
+        assertEquals(1, samples.size());
+        assertEquals(99, samples.get(0).getValue().intValue());
+    }
+
     private static List<XiaomiManualSample> decode(final String hex) {
         return decode(GB.hexStringToByteArray(hex));
     }
