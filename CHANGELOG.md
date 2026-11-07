@@ -7,20 +7,27 @@
 * Initial support for Coospo H808S
 * Add automatic sync of loyalty cards
 * Casio GBD-200: Migrate old paired devices to new implementation
-* Charts: Show sleep period chart total last, below a divider
 * Coospo: Expose live heart rate
+* Enable predictive back gesture
+* Garmin: Generate turns from points in GPX track
+* Mi Band 6: Improve workout details parsing
+* Update minSdk to 24 (Android 7 / Nougat)
+
+#### 2026.11.1
+
+* Charts: Show sleep period chart total last, below a divider
 * Dashboard: Center axis labels under their bars
+* Dashboard: Fix manage widgets setting
 * Dashboard: Fix tiles reshuffling on long press
 * Dashboard: Improve support for large font sizes
 * Dashboard: Show awake sleep in the day widget
 * Dashboard: Use HRV weekly average chart color for the line
 * Dashboard: Use the sleep chart theme colors in widgets
-* Enable predictive back gesture
+* Endurain: Fix SSO login callback
+* Fix crash on weather processing on Android < 13
 * Garmin: Fix regression in web request URL encoding
-* Garmin: Generate turns from points in GPX track
 * Health Connect: Fix skin temperature deltas relative to the baseline
-* Mi Band 6: Improve workout details parsing
-* Update minSdk to 24 (Android 7 / Nougat)
+* Zepp OS: Improve BTBR packet handling
 
 #### 2026.11.0
 

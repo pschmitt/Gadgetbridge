@@ -1,0 +1,7 @@
+• Dashboard: Fix tiles reshuffling on long press
+• Dashboard: Other small fixes and improvements
+• Endurain: Fix SSO login callback
+• Fix crash on weather processing on Android < 13
+• Garmin: Fix regression in web request URL encoding
+• Health Connect: Fix skin temperature deltas relative to the baseline
+• Zepp OS: Improve BTBR packet handling

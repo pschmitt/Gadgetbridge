@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <!-- For contributors: do not modify this file - the project maintainers will update it as needed -->
+    <release version="2026.11.1" versioncode="257">
+        <change>Charts: Show sleep period chart total last, below a divider</change>
+        <change>Dashboard: Center axis labels under their bars</change>
+        <change>Dashboard: Fix manage widgets setting</change>
+        <change>Dashboard: Fix tiles reshuffling on long press</change>
+        <change>Dashboard: Improve support for large font sizes</change>
+        <change>Dashboard: Show awake sleep in the day widget</change>
+        <change>Dashboard: Use HRV weekly average chart color for the line</change>
+        <change>Dashboard: Use the sleep chart theme colors in widgets</change>
+        <change>Endurain: Fix SSO login callback</change>
+        <change>Fix crash on weather processing on Android &lt; 13</change>
+        <change>Garmin: Fix regression in web request URL encoding</change>
+        <change>Health Connect: Fix skin temperature deltas relative to the baseline</change>
+        <change>Zepp OS: Improve BTBR packet handling</change>
+    </release>
     <release version="2026.11.0" versioncode="256">
         <change>Initial support for Anker Soundcore Motion+, R50i NC, V20i</change>
         <change>Initial support for Bettdow FB051 (MoYoung / Da Fit)</change>
