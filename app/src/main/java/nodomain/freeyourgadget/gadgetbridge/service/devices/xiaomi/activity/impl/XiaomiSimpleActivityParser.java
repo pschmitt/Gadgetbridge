@@ -242,13 +242,15 @@ public class XiaomiSimpleActivityParser {
             return this;
         }
 
+        /** Unsigned 16-bit value. */
         public Builder addShort(final String key, final String unit) {
-            dataEntries.add(new XiaomiSimpleDataEntry(key, unit, ByteBuffer::getShort));
+            dataEntries.add(new XiaomiSimpleDataEntry(key, unit, buf -> buf.getShort() & 0xffff));
             return this;
         }
 
+        /** Unsigned 16-bit value. */
         public Builder addShort(final String key, final String unit, final double multiplier) {
-            dataEntries.add(new XiaomiSimpleDataEntry(key, unit, ByteBuffer::getShort, multiplier));
+            dataEntries.add(new XiaomiSimpleDataEntry(key, unit, buf -> buf.getShort() & 0xffff, multiplier));
             return this;
         }
 
