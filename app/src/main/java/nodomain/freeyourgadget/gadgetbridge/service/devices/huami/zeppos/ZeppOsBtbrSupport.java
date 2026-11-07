@@ -158,7 +158,13 @@ public class ZeppOsBtbrSupport extends AbstractBTBRDeviceSupport implements Zepp
             // TODO check seqNum
             seqNumRx = seqNum;
 
-            final int length = packetBuffer.getShort();
+            final int length = packetBuffer.getShort() & 0xFFFF;
+            if (length + 8 > packetBuffer.capacity()) {
+                LOG.warn("Packet length {} would not fit in the buffer, skipping 1b", length);
+                packetBuffer.reset();
+                packetBuffer.get();
+                continue;
+            }
             if (packetBuffer.remaining() < length + 3) {
                 // not enough bytes for payload + crc + trailer
                 packetBuffer.reset();
@@ -187,7 +193,11 @@ public class ZeppOsBtbrSupport extends AbstractBTBRDeviceSupport implements Zepp
                 continue;
             }
 
-            handlePacket(cmd, payload);
+            try {
+                handlePacket(cmd, payload);
+            } catch (final Exception e) {
+                LOG.error("Failed to handle packet for cmd={}", String.format("0x%02x", cmd), e);
+            }
         }
 
         packetBuffer.compact();
