@@ -388,6 +388,11 @@ public class WorkoutSummaryParserTest {
         assertEquals(118d, num(data, ActivitySummaryEntries.HR_MIN), 0.001);
         assertEquals(156d, num(data, ActivitySummaryEntries.HR_MAX), 0.001);
         assertEquals(147d, num(data, ActivitySummaryEntries.HR_AVG), 0.001);
+
+        assertEquals(774d, num(data, ActivitySummaryEntries.CALORIES_TOTAL), 0.001);
+        assertEquals(0.3d, num(data, ActivitySummaryEntries.TRAINING_EFFECT_ANAEROBIC), 0.001);
+        assertEquals(96d, num(data, ActivitySummaryEntries.WORKOUT_LOAD), 0.001);
+        assertEquals(3d, num(data, ActivitySummaryEntries.VITALITY_GAIN), 0.001);
     }
 
     /** Outdoor cycling v2 v3 (Mi Watch Color Sport), 4 Oct 2026, 18.09 km ride. */

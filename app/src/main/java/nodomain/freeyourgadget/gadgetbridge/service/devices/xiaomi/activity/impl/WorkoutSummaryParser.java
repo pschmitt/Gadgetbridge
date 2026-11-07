@@ -824,6 +824,26 @@ public class WorkoutSummaryParser extends XiaomiActivityParser implements Activi
         builder.addInt(HR_ZONE_AEROBIC, UNIT_SECONDS);
         builder.addInt(HR_ZONE_FAT_BURN, UNIT_SECONDS);
         builder.addInt(HR_ZONE_WARM_UP, UNIT_SECONDS);
+        if (version >= 6) {
+            // Checked on an elliptical v6 summary: total calories 774 against 678 active,
+            // active time 1795 s equal to the duration, anaerobic effect 0.3, load 96,
+            // vitality 3. The body tiles to its 79 bytes.
+            builder.addShort(CALORIES_TOTAL, UNIT_KCAL);
+            builder.addUnknown(4); // active time again
+            builder.addFloat(TRAINING_EFFECT_ANAEROBIC, UNIT_NONE);
+            builder.addUnknown(1); // reserved (1 byte)
+            // Route byte, as in outdoor cycling: 8 more bytes follow 0xFC, 0xFD or 0xFF.
+            builder.addUnknown(1);
+            builder.addUnknownIfPreviousByte(8, route -> route == 0xFC || route == 0xFD || route == 0xFF);
+            builder.addUnknown(1); // reserved (1 byte)
+            builder.addInt(TIME_GOAL, UNIT_SECONDS);
+            builder.addShort(CALORIES_GOAL, UNIT_KCAL);
+            builder.addShort(CADENCE_GOAL, UNIT_SPM);
+            builder.addShort(WORKOUT_LOAD, UNIT_NONE);
+            builder.addUnknown(1); // reserved (1 byte)
+            builder.addByte(VITALITY_GAIN, UNIT_NONE);
+            builder.addUnknown(1); // reserved (1 byte)
+        }
 
         return builder.build();
     }
