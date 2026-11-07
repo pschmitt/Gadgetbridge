@@ -22,10 +22,7 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -39,6 +36,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.android.material.color.MaterialColors;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 
 import org.apache.commons.lang3.EnumUtils;
 
@@ -62,7 +60,6 @@ public class GenericMetricChartFragment extends AbstractChartFragment<GenericMet
     private static final String STATE_SELECTED_METRIC = "selectedMetric";
 
     private GbChartView chart;
-    private Spinner metricSpinner;
     private TextView timeSpanText;
     private LinearLayout statsContainer;
 
@@ -197,7 +194,6 @@ public class GenericMetricChartFragment extends AbstractChartFragment<GenericMet
             getChartsHost().enableSwipeRefresh(scrollY == 0);
         });
 
-        metricSpinner = rootView.findViewById(R.id.generic_metric_spinner);
         timeSpanText = rootView.findViewById(R.id.generic_metric_time_span_text);
         chart = rootView.findViewById(R.id.generic_metric_chart);
         statsContainer = rootView.findViewById(R.id.generic_metric_stats_container);
@@ -205,7 +201,7 @@ public class GenericMetricChartFragment extends AbstractChartFragment<GenericMet
         metrics = getAvailableMetrics(getChartsHost().getDevice());
         selectedMetric = getInitialMetric(savedInstanceState);
 
-        setupMetricSpinner();
+        setupMetricDropdown(rootView);
         chart.setZoomable(true);
         chart.dismissSelectionOnTapOutside(rootView);
 
@@ -246,35 +242,25 @@ public class GenericMetricChartFragment extends AbstractChartFragment<GenericMet
         return metrics.contains(metric) ? metric : metrics.get(0);
     }
 
-    private void setupMetricSpinner() {
-        final List<MetricItem> metricItems = new ArrayList<>();
-        for (final MetricSample.Metric metric : metrics) {
-            metricItems.add(new MetricItem(metric, getMetricLabel(metric)));
+    private void setupMetricDropdown(final View rootView) {
+        final String[] labels = new String[metrics.size()];
+        for (int i = 0; i < labels.length; i++) {
+            labels[i] = getMetricLabel(metrics.get(i));
         }
 
-        final ArrayAdapter<MetricItem> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, metricItems);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        metricSpinner.setAdapter(adapter);
-        metricSpinner.setEnabled(metricItems.size() > 1);
-        metricSpinner.setPrompt(getString(R.string.generic_metric_select_metric));
+        final MaterialAutoCompleteTextView metricDropdown = rootView.findViewById(R.id.generic_metric_dropdown);
+        metricDropdown.setSimpleItems(labels);
+        rootView.findViewById(R.id.generic_metric_dropdown_layout).setEnabled(labels.length > 1);
 
         if (selectedMetric != null) {
-            metricSpinner.setSelection(metrics.indexOf(selectedMetric));
+            metricDropdown.setText(getMetricLabel(selectedMetric), false);
         }
 
-        metricSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id) {
-                final MetricSample.Metric metric = ((MetricItem) parent.getItemAtPosition(position)).metric;
-                if (metric != selectedMetric) {
-                    selectedMetric = metric;
-                    refresh();
-                }
-            }
-
-            @Override
-            public void onNothingSelected(final AdapterView<?> parent) {
-                // Keep the previous metric selected.
+        metricDropdown.setOnItemClickListener((parent, view, position, id) -> {
+            final MetricSample.Metric metric = metrics.get(position);
+            if (metric != selectedMetric) {
+                selectedMetric = metric;
+                refresh();
             }
         });
     }
@@ -344,22 +330,6 @@ public class GenericMetricChartFragment extends AbstractChartFragment<GenericMet
 
         private boolean hasData() {
             return sampleCount > 0;
-        }
-    }
-
-    private static class MetricItem {
-        private final MetricSample.Metric metric;
-        private final String label;
-
-        private MetricItem(final MetricSample.Metric metric, final String label) {
-            this.metric = metric;
-            this.label = label;
-        }
-
-        @NonNull
-        @Override
-        public String toString() {
-            return label;
         }
     }
 }
