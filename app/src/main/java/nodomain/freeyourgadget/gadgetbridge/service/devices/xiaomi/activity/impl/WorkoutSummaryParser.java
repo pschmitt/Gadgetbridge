@@ -903,13 +903,22 @@ public class WorkoutSummaryParser extends XiaomiActivityParser implements Activi
             builder.addByte(ActivitySummaryEntries.GROUP_COUNT, UNIT_NONE);
             builder.addUnknown(4);
             builder.addFloat(TRAINING_EFFECT_ANAEROBIC, UNIT_NONE);
-            builder.addUnknown(3);
+            builder.addUnknown(1);
+            if (version >= 8) {
+                // reserved (5 bytes). With it the v8 body tiles to its 108 bytes and the
+                // workout load of a rowing v8 file reads 2 instead of 0.
+                builder.addUnknown(5);
+            }
+            builder.addUnknown(2);
             builder.addInt(TIME_GOAL, UNIT_SECONDS);
             builder.addShort(CALORIES_GOAL, UNIT_KCAL);
             builder.addShort(ActivitySummaryEntries.GOAL_COUNT, UNIT_NONE);
             builder.addShort(WORKOUT_LOAD, UNIT_NONE);
             builder.addUnknown(1);
             builder.addByte(VITALITY_GAIN, UNIT_NONE);
+            if (version >= 8) {
+                builder.addUnknown(3); // reserved (3 bytes)
+            }
         } else {
             builder.addUnknown(4);
         }

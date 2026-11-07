@@ -206,6 +206,8 @@ public class WorkoutSummaryParserTest {
                 + num(data, ActivitySummaryEntries.HR_ZONE_WARM_UP);
         assertEquals("heart rate zones should add up to the active seconds",
                 num(data, ActivitySummaryEntries.ACTIVE_SECONDS), zones, 0.001);
+
+        assertEquals(2, num(data, ActivitySummaryEntries.WORKOUT_LOAD), 0.001);
     }
 
     /** Outdoor cycling v8 (Smart Band 10 Pro), 23 Sep 2026, 5.28 km ride, no route. */
