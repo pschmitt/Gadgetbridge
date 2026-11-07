@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.preference.MultiSelectListPreference;
@@ -71,6 +72,8 @@ public class DashboardPreferencesActivity extends AbstractSettingsActivityV2 {
             if (manageWidgets != null) {
                 manageWidgets.setOnPreferenceClickListener(preference -> {
                     new DashboardPreferences().requestStartEditing();
+                    startActivity(new Intent(requireContext(), ControlCenterv2.class)
+                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
                     requireActivity().finish();
                     return true;
                 });

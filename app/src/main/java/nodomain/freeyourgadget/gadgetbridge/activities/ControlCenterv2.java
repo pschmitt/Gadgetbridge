@@ -77,6 +77,7 @@ import java.util.Set;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.data.DashboardPreferences;
 import nodomain.freeyourgadget.gadgetbridge.activities.debug.DebugActivityV2;
 import nodomain.freeyourgadget.gadgetbridge.activities.discovery.DiscoveryActivityV2;
 import nodomain.freeyourgadget.gadgetbridge.activities.welcome.WelcomeActivity;
@@ -294,7 +295,10 @@ public class ControlCenterv2 extends AppCompatActivity
 
     private void selectDefaultTab() {
         String key = GBApplication.getPrefs().getString("default_main_screen", "dashboard");
-        NavTab tab = NavTab.fromKey(key);
+        selectTab(NavTab.fromKey(key));
+    }
+
+    private void selectTab(final NavTab tab) {
         int index = visibleTabs.indexOf(tab);
         if (index < 0) return;
 
@@ -582,6 +586,10 @@ public class ControlCenterv2 extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         handleShortcut(getIntent());
+        if (new DashboardPreferences().hasStartEditingRequest()) {
+            // onResume only runs for the current page, DashboardFragment consumes this
+            selectTab(NavTab.DASHBOARD);
+        }
         if (isLanguageInvalid || isThemeInvalid) {
             isLanguageInvalid = false;
             isThemeInvalid = false;
