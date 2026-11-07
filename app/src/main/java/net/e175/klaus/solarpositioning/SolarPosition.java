@@ -9,11 +9,11 @@ package net.e175.klaus.solarpositioning;
 public record SolarPosition(double azimuth, double zenithAngle) {
   public SolarPosition {
     if (!Double.isFinite(azimuth) || azimuth < 0 || azimuth > 360) {
-      throw new IllegalArgumentException("illegal value %.3f for azimuth".formatted(azimuth));
+      throw new IllegalArgumentException(String.format("illegal value %.3f for azimuth", azimuth));
     }
     if (!Double.isFinite(zenithAngle) || zenithAngle < 0 || zenithAngle > 180) {
       throw new IllegalArgumentException(
-          "illegal value %.3f for zenithAngle".formatted(zenithAngle));
+          String.format("illegal value %.3f for zenithAngle", zenithAngle));
     }
   }
 

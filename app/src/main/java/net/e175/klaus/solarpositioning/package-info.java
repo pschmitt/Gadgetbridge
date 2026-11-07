@@ -5,5 +5,6 @@
  * Changes done:
  * - Add "GBMathUtil.java"
  * - Replace all "Math.fma" calls with "GBMathUtil.fma"
+ * - Replace all String.formatted with String.format
  */
 package net.e175.klaus.solarpositioning;
