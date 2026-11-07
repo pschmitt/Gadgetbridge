@@ -80,6 +80,21 @@ public class WorkoutSummaryParserTest {
                     + "FBwAAtAMAANUAAADoAVMRAABmZiZAACcDAAAAAAAAAACIAAMAAAAAAAAAAAAAAAAAAAAA"
                     + "aQBdAAcAAEblwNo=";
 
+    /** Outdoor walking v9, 4 Jan 2026, workout load 28, vitality +10. */
+    private static final String OUTDOOR_WALKING_V9_04JAN =
+            "glJaaQQJ2QD3///4P4AAf/AAAAAfAgCDUlppIVhaaZ0FAACdBQAACAoAAM8ArwAjAgAA1gEAAFYDAABv3s1ANA31"
+                    + "QKYLAABVAH8AhwCHo2MAAAAAAAAAAAAAAAAAAAAAAAAAAGZmJkAAAAAAAAAAAAAAAAAAABAAAAAAAADVAAAA"
+                    + "bQIAAO8BAABQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAQAA"
+                    + "AAAAAAAAAAAAAAAACgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                    + "AAAAAAAAAAAAAAAAAAAAAAAAAAALE479";
+
+    @Test
+    public void outdoorWalkingV9_readsLoadAndVitality() {
+        final ActivitySummaryData data = parse(OUTDOOR_WALKING_V9_04JAN);
+        assertEquals(28d, num(data, ActivitySummaryEntries.WORKOUT_LOAD), 0.001);
+        assertEquals(10d, num(data, ActivitySummaryEntries.VITALITY_GAIN), 0.001);
+    }
+
     private static ActivitySummaryData parse(final String base64) {
         final byte[] bytes = Base64.getDecoder().decode(base64);
         final BaseActivitySummary summary = new BaseActivitySummary();

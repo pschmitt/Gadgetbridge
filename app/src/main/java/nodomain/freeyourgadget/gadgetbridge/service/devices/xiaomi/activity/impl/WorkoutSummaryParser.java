@@ -16,7 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.activity.impl;
 
-import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.ACTIVE_SCORE;
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.ACTIVE_SECONDS;
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.ALTITUDE_AVG;
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.ALTITUDE_MAX;
@@ -577,8 +576,9 @@ public class WorkoutSummaryParser extends XiaomiActivityParser implements Activi
             builder.addUnknown(46);
             builder.addShort(WORKOUT_LOAD, UNIT_NONE);
             builder.addUnknown(15);
-            builder.addShort(ACTIVE_SCORE, UNIT_NONE);
-            builder.addUnknown(17);
+            // Same spacing after the load as the v6 tail, where the vitality byte matches the watch.
+            builder.addByte(VITALITY_GAIN, UNIT_NONE);
+            builder.addUnknown(18);
             builder.addShort(AVG_GROUND_CONTACT_TIME, UNIT_MILLISECONDS);
             builder.addShort(MIN_GROUND_CONTACT_TIME, UNIT_MILLISECONDS);
             builder.addUnknown(6);
