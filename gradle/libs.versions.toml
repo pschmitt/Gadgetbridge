@@ -60,7 +60,6 @@ robolectric = "4.17"
 searchpreference = "2.7.3"
 slf4j = "2.0.20"
 snakeyaml = "2.7"
-solarpositioning = "3.0.3"
 zxing = "3.5.4"
 
 [libraries]
@@ -134,7 +133,6 @@ robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "
 searchpreference = { group = "com.github.ByteHamster", name = "SearchPreference", version.ref = "searchpreference" }
 slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 snakeyaml = { group = "org.yaml", name = "snakeyaml", version.ref = "snakeyaml" }
-solarpositioning = { group = "net.e175.klaus", name = "solarpositioning", version.ref = "solarpositioning" }
 zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
 
 [bundles]

@@ -286,7 +286,8 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
-    implementation(libs.solarpositioning)
+    // klausbrunner/solarpositioning v3.0.3 is vendored in the app, for SDK < 33 compatibility
+    //implementation(libs.solarpositioning)
     implementation(libs.cbor)
     // use pristine greendao instead of our custom version, since our custom jitpack-packaged
     // version contains way too much and our custom patches are in the generator only.
