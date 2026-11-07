@@ -1,13 +1,32 @@
+/*  Copyright (C) 2026 José Rebelo, oddballza, a0z, Thomas Kuehne
+
+    This file is part of Gadgetbridge.
+
+    Gadgetbridge is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Gadgetbridge is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.widgets
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.ActiveCaloriesWidget
+import nodomain.freeyourgadget.gadgetbridge.widgets.impl.AscentWidget
+import nodomain.freeyourgadget.gadgetbridge.widgets.impl.DescentWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.ActiveTimeWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.BloodPressureWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.BodyEnergyWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.CaloriesWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.DistanceWidget
+import nodomain.freeyourgadget.gadgetbridge.widgets.impl.DiveReadinessWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.GoalsWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.HeartRateWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.HrvWidget
@@ -40,6 +59,8 @@ import nodomain.freeyourgadget.gadgetbridge.widgets.impl.WeightWidget
 object WidgetRegistry {
     private val common: List<GBWidget<*>> = listOf(
         ActiveCaloriesWidget,
+        AscentWidget,
+        DescentWidget,
         ActiveTimeWidget,
         BasalMetabolicRateWidget,
         BloodPressureWidget,
@@ -49,6 +70,7 @@ object WidgetRegistry {
         BodyWaterWidget,
         CaloriesWidget,
         DistanceWidget,
+        DiveReadinessWidget,
         GoalsWidget,
         HeartRateWidget,
         HrvWidget,

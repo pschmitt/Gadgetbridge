@@ -88,7 +88,7 @@ public interface MetricSample extends TimeSample {
         /// @see FitEnduranceScore#getLevel()
         GARMIN_ENDURANCE_SCORE(1, UNIT_NONE, R.string.metric_garmin_endurance_score),
         /// @see FitFunctionalMetrics#getFunctionalThresholdPower()
-        /// @see FitFunctionalMetrics#getCyclingLactaceThresholdHr()
+        /// @see FitFunctionalMetrics#getCyclingLactateThresholdHr()
         GARMIN_FUNCTIONAL_THRESHOLD_POWER(2, UNIT_WATT, R.string.metric_garmin_functional_threshold_power),
         /// @see FitHillScore#getHillEndurance()
         /// @see FitHillScore#getLevel()
@@ -148,9 +148,9 @@ public interface MetricSample extends TimeSample {
         /// @see FitMetricRecovery#getRecoveryMinutes()
         GARMIN_RECOVERY_TIME(23, UNIT_MINUTES, R.string.recoveryTime),
         /// @see FitMonitoring#getTotalAscent()
-        DAILY_TOTAL_ASCENT(24, UNIT_METERS, R.string.ascentMeters),
+        DAILY_TOTAL_ASCENT(24, UNIT_METERS, R.string.activityTotalAscent),
         /// @see FitMonitoring#getTotalDescent()
-        DAILY_TOTAL_DESCENT(25, UNIT_METERS, R.string.descentMeters),
+        DAILY_TOTAL_DESCENT(25, UNIT_METERS, R.string.activityTotalDescent),
         /// @see FitDiveReadiness#getDiveReadiness()
         GARMIN_DIVE_READINESS(26, UNIT_NONE, R.string.metric_garmin_dive_readiness),
         /// @see FitLoadHistory#getTrainingStatus()
