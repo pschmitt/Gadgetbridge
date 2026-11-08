@@ -582,7 +582,7 @@ public class ZeppOsActivityDetailsParser extends AbstractHuamiActivityDetailsPar
 
     private void trace(final String format, final Object... args) {
         if (LOG.isTraceEnabled()) {
-            final Object[] argsWithDate = ArrayUtils.insert(0, args, SDF.format(new Date(activityPointBuilder.getTime())));
+            final Object[] argsWithDate = ArrayUtils.insert(0, args, SDF.format(new Date(timestamp + offset)));
 
             //noinspection StringConcatenationArgumentToLogCall
             LOG.trace("{}: " + format, argsWithDate);
