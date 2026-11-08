@@ -298,6 +298,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.gloryfit.watches.Y6Coordinat
 import nodomain.freeyourgadget.gadgetbridge.devices.gloryfitpro.watches.DM58Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.gree.GreeAcCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.hama.fit6900.HamaFit6900DeviceCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.huawei.huaweibanda2.HuaweiBandA2Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.huawei.huaweiwatch6.HuaweiWatch6Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.huawei.huaweiwatch6.HuaweiWatch6ProCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.huawei.huaweiwatchgt7.HuaweiWatchGT7Coordinator;
@@ -1168,6 +1169,7 @@ public enum DeviceType {
     HONORBAND4(HonorBand4Coordinator::new),
     HONORBAND5(HonorBand5Coordinator::new),
     HUAWEIBANDAW70(HuaweiBandAw70Coordinator::new),
+    HUAWEIBANDA2(HuaweiBandA2Coordinator::new),
     HUAWEIBAND6(HuaweiBand6Coordinator::new),
     HUAWEIWATCHGT(HuaweiWatchGTCoordinator::new),
     HUAWEIBAND2PRO(HuaweiBand2ProCoordinator::new),
