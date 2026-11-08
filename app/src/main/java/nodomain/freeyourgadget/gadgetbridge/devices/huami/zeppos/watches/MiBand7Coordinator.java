@@ -65,6 +65,7 @@ public class MiBand7Coordinator extends ZeppOsCoordinator {
 
     @Override
     public boolean supportsScreenshots(@NonNull final GBDevice device) {
+        // #3386 - Only supported in Zepp OS >= 2.0
         return false;
     }
 

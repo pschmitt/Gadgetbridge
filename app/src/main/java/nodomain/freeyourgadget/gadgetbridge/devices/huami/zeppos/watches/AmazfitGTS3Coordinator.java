@@ -59,6 +59,12 @@ public class AmazfitGTS3Coordinator extends ZeppOsCoordinator {
     }
 
     @Override
+    public boolean supportsScreenshots(@NonNull final GBDevice device) {
+        // #3386 - Only supported in Zepp OS >= 2.0
+        return false;
+    }
+
+    @Override
     public int getDeviceNameResource() {
         return R.string.devicetype_amazfit_gts3;
     }
