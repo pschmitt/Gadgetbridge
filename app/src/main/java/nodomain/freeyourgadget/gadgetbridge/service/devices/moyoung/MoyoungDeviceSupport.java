@@ -193,7 +193,7 @@ public class MoyoungDeviceSupport extends AbstractBTLESingleDeviceSupport {
 
     @Override
     protected TransactionBuilder initializeDevice(TransactionBuilder builder) {
-        final AbstractMoyoungDeviceCoordinator coordinator = (AbstractMoyoungDeviceCoordinator) getDevice().getDeviceCoordinator();
+        final AbstractMoyoungDeviceCoordinator coordinator = getDeviceCoordinator();
         final int mtu = coordinator.getMtu();
         builder.requestMtu(mtu + 3);  // Add 3 bytes for the BLE overhead
 
@@ -216,6 +216,10 @@ public class MoyoungDeviceSupport extends AbstractBTLESingleDeviceSupport {
         sendPacket(builder, MoyoungPacketOut.buildPacket(mtu, MoyoungConstants.CMD_QUERY_ALARM_CLOCK, new byte[0]));
 
         return builder;
+    }
+
+    private AbstractMoyoungDeviceCoordinator getDeviceCoordinator() {
+        return (AbstractMoyoungDeviceCoordinator) getDevice().getDeviceCoordinator();
     }
 
     @Override
@@ -350,9 +354,16 @@ public class MoyoungDeviceSupport extends AbstractBTLESingleDeviceSupport {
         }
         if (packetType == MoyoungConstants.CMD_TRIGGER_MEASURE_BLOOD_PRESSURE) {
             int dataUnknown = payload[0] & 0xff;
-            int data1 = payload[1] & 0xff;
-            int data2 = payload[2] & 0xff;
-            LOG.info("Measure blood pressure finished: {}/{} ({})", data1, data2, dataUnknown);
+            int systolic = payload[1] & 0xff;
+            int diastolic = payload[2] & 0xff;
+
+            final boolean invalid = systolic == 255 && diastolic == 255;
+            if (invalid) {
+                LOG.warn("Ignoring invalid blood pressure: {}/{} ({})", systolic, diastolic, dataUnknown);
+                return true;
+            }
+
+            LOG.info("Measure blood pressure finished: {}/{} ({})", systolic, diastolic, dataUnknown);
 
             try (DBHandler dbHandler = GBApplication.acquireDB()) {
                 MoyoungBloodPressureSampleProvider sampleProvider = new MoyoungBloodPressureSampleProvider(getDevice(), dbHandler.getDaoSession());
@@ -361,8 +372,8 @@ public class MoyoungDeviceSupport extends AbstractBTLESingleDeviceSupport {
 
                 MoyoungBloodPressureSample sample = new MoyoungBloodPressureSample();
                 sample.setTimestamp(System.currentTimeMillis());
-                sample.setBpSystolic(data1);
-                sample.setBpDiastolic(data2);
+                sample.setBpSystolic(systolic);
+                sample.setBpDiastolic(diastolic);
                 sample.setDeviceId(deviceId);
                 sample.setUserId(userId);
 
@@ -870,7 +881,7 @@ public class MoyoungDeviceSupport extends AbstractBTLESingleDeviceSupport {
             saveAlarmFromPayload(alarm);
         }
 
-        AbstractMoyoungDeviceCoordinator coordinator = (AbstractMoyoungDeviceCoordinator) getDevice().getDeviceCoordinator();
+        AbstractMoyoungDeviceCoordinator coordinator = getDeviceCoordinator();
         for (int i = alarmsInPacket; i <= coordinator.getAlarmSlotCount(getDevice()); i++) {
             nodomain.freeyourgadget.gadgetbridge.entities.Alarm alarm = new nodomain.freeyourgadget.gadgetbridge.entities.Alarm();
             alarm.setUnused(true);
@@ -911,7 +922,7 @@ public class MoyoungDeviceSupport extends AbstractBTLESingleDeviceSupport {
     @Override
     public void onSetAlarms(ArrayList<? extends Alarm> alarms) {
         LOG.info("Setting {} alarms on device", alarms.size());
-        AbstractMoyoungDeviceCoordinator coordinator = (AbstractMoyoungDeviceCoordinator) getDevice().getDeviceCoordinator();
+        AbstractMoyoungDeviceCoordinator coordinator = getDeviceCoordinator();
         try {
             TransactionBuilder builder = performInitialized("onSetAlarms");
             for (int i = 0; i < coordinator.getAlarmSlotCount(getDevice()); i++) {
@@ -1694,7 +1705,7 @@ public class MoyoungDeviceSupport extends AbstractBTLESingleDeviceSupport {
 
     @SuppressWarnings("unchecked")
     private <T extends MoyoungSetting<?>> T getSetting(String id) {
-        AbstractMoyoungDeviceCoordinator coordinator = (AbstractMoyoungDeviceCoordinator) getDevice().getDeviceCoordinator();
+        AbstractMoyoungDeviceCoordinator coordinator = getDeviceCoordinator();
         for (MoyoungSetting<?> setting : coordinator.getSupportedSettings()) {
             if (setting.name.equals(id))
                 return (T) setting;

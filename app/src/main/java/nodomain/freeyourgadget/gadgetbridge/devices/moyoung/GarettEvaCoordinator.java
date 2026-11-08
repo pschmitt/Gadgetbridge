@@ -18,21 +18,15 @@ package nodomain.freeyourgadget.gadgetbridge.devices.moyoung;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.util.regex.Pattern;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
-import nodomain.freeyourgadget.gadgetbridge.devices.GenericBloodPressureSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.MoyoungBloodPressureSampleProvider;
-import nodomain.freeyourgadget.gadgetbridge.devices.MoyoungStressSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.TimeSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.MoyoungBloodPressureSample;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
-import nodomain.freeyourgadget.gadgetbridge.model.BloodPressureSample;
-import nodomain.freeyourgadget.gadgetbridge.model.SleepScoreSample;
-import nodomain.freeyourgadget.gadgetbridge.model.StressSample;
 
 public class GarettEvaCoordinator extends AbstractMoyoungDeviceCoordinator {
     @Override
