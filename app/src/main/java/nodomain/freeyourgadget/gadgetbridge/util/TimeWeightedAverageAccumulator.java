@@ -37,6 +37,7 @@ public class TimeWeightedAverageAccumulator {
             }
             lastTimestamp = timestamp;
             first = false;
+            count++;
             return;
         }
         long timeDiff = timestamp - lastTimestamp;
