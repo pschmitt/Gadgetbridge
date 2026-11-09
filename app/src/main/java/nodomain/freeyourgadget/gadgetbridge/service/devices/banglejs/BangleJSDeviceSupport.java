@@ -844,6 +844,7 @@ public class BangleJSDeviceSupport extends AbstractBTLESingleDeviceSupport {
             saveLastSyncTimestamp(System.currentTimeMillis() - 1000L * 60);
             getDevice().unsetBusyTask();
             GB.updateTransferNotification(null, "", false, 100, getContext());
+            GB.signalActivityDataFinish(getDevice());
         } else {
             LOG.warn("Unknown actfetch state {}", state);
         }
