@@ -37,12 +37,10 @@ public class TestPaiSampleProvider extends AbstractTestSampleProvider<PaiSample>
 
     @NonNull
     @Override
-    public List<PaiSample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<PaiSample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<PaiSample> samples = new ArrayList<>();
-        final long now = System.currentTimeMillis();
-
         final long firstTs = (timestampFrom + HOUR_MILLIS - 1) / HOUR_MILLIS * HOUR_MILLIS;
-        for (long ts = firstTs; ts < timestampTo && ts <= now; ts += HOUR_MILLIS) {
+        for (long ts = firstTs; ts < timestampTo; ts += HOUR_MILLIS) {
             samples.add(createSample(ts));
         }
 

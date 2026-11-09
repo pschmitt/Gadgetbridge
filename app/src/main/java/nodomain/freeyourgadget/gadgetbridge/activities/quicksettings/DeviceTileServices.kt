@@ -16,8 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities.quicksettings
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 
 /**
  * Ten numbered Quick Settings tile slots. Each class is a thin subclass of
@@ -26,52 +24,42 @@ import androidx.annotation.RequiresApi
  * independently to a device setting via [QuickSettingsTilesActivity].
  */
 
-@RequiresApi(Build.VERSION_CODES.N)
 class DeviceTileService0 : AbstractDeviceTileService() {
     override fun tileIndex() = 0
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
 class DeviceTileService1 : AbstractDeviceTileService() {
     override fun tileIndex() = 1
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
 class DeviceTileService2 : AbstractDeviceTileService() {
     override fun tileIndex() = 2
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
 class DeviceTileService3 : AbstractDeviceTileService() {
     override fun tileIndex() = 3
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
 class DeviceTileService4 : AbstractDeviceTileService() {
     override fun tileIndex() = 4
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
 class DeviceTileService5 : AbstractDeviceTileService() {
     override fun tileIndex() = 5
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
 class DeviceTileService6 : AbstractDeviceTileService() {
     override fun tileIndex() = 6
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
 class DeviceTileService7 : AbstractDeviceTileService() {
     override fun tileIndex() = 7
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
 class DeviceTileService8 : AbstractDeviceTileService() {
     override fun tileIndex() = 8
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
 class DeviceTileService9 : AbstractDeviceTileService() {
     override fun tileIndex() = 9
 }

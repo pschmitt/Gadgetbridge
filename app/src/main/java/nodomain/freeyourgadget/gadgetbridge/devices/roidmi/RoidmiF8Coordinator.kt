@@ -75,8 +75,8 @@ class RoidmiF8Coordinator : AbstractBLEDeviceCoordinator() {
     override fun getSupportedDeviceSpecificAuthenticationSettings(): IntArray =
         intArrayOf(R.xml.devicesettings_roidmi_f8_pairingkey)
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> =
-        RoidmiF8Support::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport =
+        RoidmiF8Support()
 
     override fun getDeviceNameResource(): Int = R.string.devicetype_roidmi_f8
 

@@ -664,7 +664,7 @@ public class FitProDeviceSupport extends AbstractBTLESingleDeviceSupport {
             if (country == null) {
                 country = language;
             }
-            localeString = language + "_" + country.toUpperCase();
+            localeString = language + "_" + country.toUpperCase(Locale.ROOT);
         }
         LOG.info("Setting device to locale: " + localeString);
 

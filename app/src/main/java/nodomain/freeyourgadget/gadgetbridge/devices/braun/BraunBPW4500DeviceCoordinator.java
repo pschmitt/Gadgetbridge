@@ -44,8 +44,8 @@ public class BraunBPW4500DeviceCoordinator extends AbstractBLEDeviceCoordinator 
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(GBDevice device) {
-        return BraunBPW4500DeviceSupport.class;
+    public DeviceSupport createDeviceSupport(GBDevice device) {
+        return new BraunBPW4500DeviceSupport();
     }
 
     @Override

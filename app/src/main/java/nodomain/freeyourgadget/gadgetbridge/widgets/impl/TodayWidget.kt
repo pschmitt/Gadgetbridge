@@ -155,6 +155,7 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
             yesterday = yesterday,
             now = now,
             remSupported = scope.devices.any { it.deviceCoordinator.supportsRemSleep(it) },
+            awakeSupported = scope.devices.any { it.deviceCoordinator.supportsAwakeSleep(it) },
             singleStage = ActivityKind.SLEEP_ANY in allKinds &&
                 allKinds.none { it == ActivityKind.LIGHT_SLEEP || it == ActivityKind.DEEP_SLEEP || it == ActivityKind.REM_SLEEP },
         )
@@ -310,7 +311,8 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
                 DayClockView.Segment(at(0, 40), at(1, 50), Kind.DEEP_SLEEP),
                 DayClockView.Segment(at(1, 50), at(2, 30), Kind.LIGHT_SLEEP),
                 DayClockView.Segment(at(2, 30), at(3, 0), Kind.REM_SLEEP),
-                DayClockView.Segment(at(3, 0), at(4, 10), Kind.LIGHT_SLEEP),
+                DayClockView.Segment(at(3, 0), at(3, 10), Kind.AWAKE_SLEEP),
+                DayClockView.Segment(at(3, 10), at(4, 10), Kind.LIGHT_SLEEP),
                 DayClockView.Segment(at(4, 10), at(4, 50), Kind.DEEP_SLEEP),
                 DayClockView.Segment(at(4, 50), at(5, 40), Kind.LIGHT_SLEEP),
                 DayClockView.Segment(at(5, 40), at(6, 20), Kind.REM_SLEEP),
@@ -328,6 +330,7 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
             yesterday = emptyList(),
             now = at(15, 30),
             remSupported = true,
+            awakeSupported = true,
             singleStage = false,
         )
     }
@@ -338,6 +341,7 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
         ActivityKind.LIGHT_SLEEP, ActivityKind.SLEEP_ANY -> Kind.LIGHT_SLEEP
         ActivityKind.DEEP_SLEEP -> Kind.DEEP_SLEEP
         ActivityKind.REM_SLEEP -> Kind.REM_SLEEP
+        ActivityKind.AWAKE_SLEEP -> Kind.AWAKE_SLEEP
         ActivityKind.NOT_WORN -> Kind.NOT_WORN
         else -> Kind.WORN
     }
@@ -450,6 +454,11 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
             Kind.REM_SLEEP,
             R.string.activity_type_rem_sleep
         ) else null,
+        if (data.awakeSupported && !data.singleStage) legendItem(
+            context,
+            Kind.AWAKE_SLEEP,
+            R.string.abstract_chart_fragment_kind_awake_sleep
+        ) else null,
         legendItem(context, Kind.NOT_WORN, R.string.abstract_chart_fragment_kind_not_worn),
     )
 
@@ -482,13 +491,14 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
 
     /**
      * The day's stretches, the stretches of yesterday after [now], [now] in seconds after midnight (null for a
-     * past day), whether a device reports REM sleep, and whether the sleep has only one stage.
+     * past day), whether a device reports REM and awake sleep, and whether the sleep has only one stage.
      */
     class Data(
         val segments: List<DayClockView.Segment>,
         val yesterday: List<DayClockView.Segment>,
         val now: Int?,
         val remSupported: Boolean,
+        val awakeSupported: Boolean,
         val singleStage: Boolean,
     )
 }

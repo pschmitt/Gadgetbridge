@@ -476,12 +476,15 @@ public class DeviceConfig {
             public void parseTlv() throws ParseException {
                 if (this.tlv.contains(0x03))
                     this.hardwareVersion = this.tlv.getString(0x03);
-                this.softwareVersion = this.tlv.getString(0x07);
+
+                if(this.tlv.contains(0x07))
+                    this.softwareVersion = this.tlv.getString(0x07);
 
                 if(this.tlv.contains(0x09))
                     this.serialNumber = this.tlv.getString(0x09);
 
-                this.productModel = this.tlv.getString(0x0A).trim();
+                if(this.tlv.contains(0x0A))
+                    this.productModel = this.tlv.getString(0x0A).trim();
 
                 if(this.tlv.contains(0x0F))
                     this.packageName = this.tlv.getString(0x0F);

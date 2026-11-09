@@ -1,9 +1,12 @@
 package nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.d2;
 
+import androidx.annotation.NonNull;
+
 import java.util.regex.Pattern;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.watches.venu.GarminVenu2PlusCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 
 public class GarminD2AirX10Coordinator extends GarminVenu2PlusCoordinator {
     @Override
@@ -21,5 +24,10 @@ public class GarminD2AirX10Coordinator extends GarminVenu2PlusCoordinator {
     @Override
     public int getDeviceNameResource() {
         return R.string.devicetype_garmin_d2_air_x10;
+    }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
     }
 }

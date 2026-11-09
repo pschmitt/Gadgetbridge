@@ -19,6 +19,7 @@ package nodomain.freeyourgadget.gadgetbridge.service.receivers;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -93,6 +94,11 @@ public class AutoConnectIntervalReceiver extends BroadcastReceiver {
             }
         } else if (action.equals("GB_RECONNECT")) {
             mScheduled = false;
+            final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+            if (adapter == null || !adapter.isEnabled()) {
+                LOG.info("Bluetooth adapter is disabled - not re-connecting");
+                return;
+            }
             for (GBDevice device : devices) {
                 if (device.getState() == GBDevice.State.WAITING_FOR_RECONNECT) {
                     LOG.info("time based re-connect to {} ({})", device.getAddress(), device.getName());

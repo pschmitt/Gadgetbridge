@@ -1,6 +1,218 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <!-- For contributors: do not modify this file - the project maintainers will update it as needed -->
+    <release version="2026.11.1" versioncode="257">
+        <change>Charts: Show sleep period chart total last, below a divider</change>
+        <change>Dashboard: Center axis labels under their bars</change>
+        <change>Dashboard: Fix manage widgets setting</change>
+        <change>Dashboard: Fix tiles reshuffling on long press</change>
+        <change>Dashboard: Improve support for large font sizes</change>
+        <change>Dashboard: Show awake sleep in the day widget</change>
+        <change>Dashboard: Use HRV weekly average chart color for the line</change>
+        <change>Dashboard: Use the sleep chart theme colors in widgets</change>
+        <change>Endurain: Fix SSO login callback</change>
+        <change>Fix crash on weather processing on Android &lt; 13</change>
+        <change>Garmin: Fix regression in web request URL encoding</change>
+        <change>Health Connect: Fix skin temperature deltas relative to the baseline</change>
+        <change>Zepp OS: Improve BTBR packet handling</change>
+    </release>
+    <release version="2026.11.0" versioncode="256">
+        <change>Initial support for Anker Soundcore Motion+, R50i NC, V20i</change>
+        <change>Initial support for Bettdow FB051 (MoYoung / Da Fit)</change>
+        <change>Initial support for Beurer BM59</change>
+        <change>Initial support for BRAZ/7HARRY (FitPro)</change>
+        <change>Initial support for Casio GG-B100</change>
+        <change>Initial support for Colmi P10</change>
+        <change>Initial support for Fire-Boltt 069, KW19-B, Ninja Phantom (MoYoung / Da Fit)</change>
+        <change>Initial support for GE Fit Plus (QN-Scale)</change>
+        <change>Initial support for HiFuture Zone 2 (GloryFit)</change>
+        <change>Initial support for Huawei Watch 6 / 6 Pro / D3</change>
+        <change>Initial support for iGPSPORT BSC 100Max</change>
+        <change>Initial support for Innovo iP900BP-B pulse oximeter</change>
+        <change>Initial support for some other iTag versions</change>
+        <change>Initial support for T70 (GloryFit)</change>
+        <change>Initial support for Teufel Mynd</change>
+        <change>Initial support for Xiaomi Smart Band 11, Smart Band 11 Active, Watch S5</change>
+        <change>Initial support for Yawell Y27 AI Health WatchPad</change>
+        <change>Initial support for Zeblaze Stratos 4 Pro</change>
+        <change>Experimental support for Anker Soundcore Space One</change>
+        <change>Experimental support for Concept2 PM5</change>
+        <change>Experimental support for Coros Pace 3</change>
+        <change>Experimental support for Garmin Quatix 7 / 7X</change>
+        <change>Experimental support for Segway Ninebot F2 Pro KickScooter</change>
+        <change>Experimental support for 15 Anker Soundcore devices</change>
+        <change>Refresh design for alarms list and details</change>
+        <change>Refresh design for app manager</change>
+        <change>Refresh design for charts</change>
+        <change>Refresh design for dashboard</change>
+        <change>Refresh design for device discovery list</change>
+        <change>Refresh design for splash screen</change>
+        <change>Refresh design for permissions screen</change>
+        <change>Refresh design for test device dialog</change>
+        <change>Refresh design for world clocks, contacts, widgets screens</change>
+        <change>AAWireless: Add card item for paired phones</change>
+        <change>Add additional activity icons, refresh others</change>
+        <change>Add altitude correction from SRTM tiles</change>
+        <change>Add companion pairing hint to device cards</change>
+        <change>Add confirmation on zip restore from unknown app</change>
+        <change>Add discovery requirements screen</change>
+        <change>Add file installer device card item for debug builds</change>
+        <change>Add quick controls from device cards</change>
+        <change>Add warning when accessing device developer settings</change>
+        <change>Add workouts tab to main screen</change>
+        <change>Amazfit Bip: Add experimental sleep estimation</change>
+        <change>Anker Soundcore: Add quick settings</change>
+        <change>Anker Soundcore: Allow supported feature overrides</change>
+        <change>Anker Soundcore: Display find device dialog for earbud selection</change>
+        <change>Bangle.js: Fix back button closing the app</change>
+        <change>Bangle.js: Stop double-counting insets in the app loader WebView</change>
+        <change>Charts: Activity list design refresh</change>
+        <change>Charts: Add optional overview page</change>
+        <change>Charts: Adjust some too-bright colors</change>
+        <change>Charts: Display HRV 7-day average</change>
+        <change>Charts: Display workout intervals from track segments</change>
+        <change>Charts: Fix chart ranges daylight savings</change>
+        <change>Charts: Fix sleep time inconsistencies for some devices</change>
+        <change>Charts: Fix VO2 max on some devices</change>
+        <change>Charts: Keep chips in one scrollable row</change>
+        <change>Charts: Keep x-axis marker labels from overlapping</change>
+        <change>Charts: Plot body fat, water and muscle history on the weight chart</change>
+        <change>Charts: Refresh sleep hypnogram</change>
+        <change>Charts: Show heart rate reading on sleep chart if available</change>
+        <change>Charts: Update actionbar title, hide tabs if single chart</change>
+        <change>Charts: Update default HR color to red</change>
+        <change>Charts: Use list preferences for color and range, show the device tabs in the chart settings</change>
+        <change>CMF Watch Pro: Fix sleep time inconsistencies</change>
+        <change>Configure and hide device card items</change>
+        <change>Contacts: Allow import from phone contacts</change>
+        <change>Cycling sensor: Fix CSC measurement parsing for combined sensors</change>
+        <change>Cycling sensor: Record and show crank cadence</change>
+        <change>Cycling sensor: Reset live speed and cadence when the sensor goes silent</change>
+        <change>Dashboard: Allow configuration of stress widget time window</change>
+        <change>Dashboard: Fix today widget in DST transition</change>
+        <change>Data management: Collapse legacy export/import by default</change>
+        <change>Debug: Add preference search</change>
+        <change>Debug: Allow custom notification picture selection</change>
+        <change>Debug: Allow selection of device to import database table</change>
+        <change>Debug: Refresh device icons</change>
+        <change>Deprecate SMS Receiver</change>
+        <change>Device list: Fix some crashes and resets</change>
+        <change>Discovery: Add device candidate details screen</change>
+        <change>Dismiss the welcome screen after the first device is paired</change>
+        <change>DJI Osmo Action 4: Add camera gallery via Wi-Fi</change>
+        <change>Do not display changelog on the very first run</change>
+        <change>Endurain: Add support for Endurain 0.20</change>
+        <change>Expand/collapse folders when clicking the folder icon</change>
+        <change>Fix "Bluetooth is disabled" toast spam on automatic reconnect</change>
+        <change>Fix connection to devices on startup not respecting all-devices setting</change>
+        <change>Fix crash when returning from another screen to device settings</change>
+        <change>Fix crash when switching theme from the welcome screen</change>
+        <change>Fix notification privacy mode on some devices</change>
+        <change>Fix service crash loop on reconnection</change>
+        <change>Fix sleep day assignment in 24h rolling mode</change>
+        <change>Fix some settings in subscreens not working</change>
+        <change>Fossil: Add quick settings</change>
+        <change>Garmin: Add card item to send waypoints</change>
+        <change>Garmin: Add Intent API to send watch messages</change>
+        <change>Garmin: Add notification for app and watch crashes on debug builds</change>
+        <change>Garmin: Add support for custom apps for navigation and loyalty cards</change>
+        <change>Garmin: Add workout templates extra reps, load category</change>
+        <change>Garmin: Allow importing data from official app</change>
+        <change>Garmin: Display map in waypoint activity</change>
+        <change>Garmin: Display workout set exercise name if available</change>
+        <change>Garmin: Dynamically check music and find devices capabilities</change>
+        <change>Garmin: Estimate sleep for older watches</change>
+        <change>Garmin: Fix request MIME type for some web requests</change>
+        <change>Garmin: Fix workout templates step names</change>
+        <change>Garmin: Improve JSON request decoding</change>
+        <change>Garmin: Improve PRG install process</change>
+        <change>Garmin: Improve upload speed</change>
+        <change>Garmin: Optimize loyalty cards sync</change>
+        <change>Garmin: Persist more sleep related statistics</change>
+        <change>Garmin: Remove unsupported capabilities</change>
+        <change>Garmin: Send waypoints from Plus Codes</change>
+        <change>H59: Add notification and incoming call support</change>
+        <change>Health Connect: Do not sync samples with a timestamp in the future</change>
+        <change>Health Connect: Export strength workout sets as exercise segments</change>
+        <change>Health Connect: Implement deletion of activities</change>
+        <change>Health Connect: Map aerobics to exercise class and CrossFit to boot camp</change>
+        <change>Health Connect: Skip weight samples with a value of zero</change>
+        <change>Health Connect: Write total calories if reported by the device</change>
+        <change>Huami / Zepp OS: Fix elevation correction</change>
+        <change>Huami: Enable SpO2 / Stress / PAI for devices that have it</change>
+        <change>Huami: Fix overlapping sleep sessions</change>
+        <change>Huami: Fix parsing of accelerometer data for older non-Zepp-OS devices</change>
+        <change>Huawei: Enable Sleep Breath feature</change>
+        <change>Hydration: Refresh dashboard after manual entry</change>
+        <change>iGPSPORT: Always send notification name and content</change>
+        <change>Load the notifications app list asynchronously</change>
+        <change>Maps: Allow configuration of dark mode theme, add low contrast dark theme</change>
+        <change>Maps: Fix tiles on preference change</change>
+        <change>Mi Body Composition Scale: Fix missing impedance</change>
+        <change>Mi Watch Color Sport: Improve workout parsing</change>
+        <change>Navigation: Optional arrow in generic navigation notifications</change>
+        <change>Notifications: Add Khmer and Thai transliterations</change>
+        <change>Notifications: Allow forwarding local-only notifications</change>
+        <change>Notifications: Allow ignoring app list for VoIP calls</change>
+        <change>Notifications: Fix SMS notification replies</change>
+        <change>Open crash stack traces in a text viewer</change>
+        <change>Oppo Headphones: Add ANC level support</change>
+        <change>Oppo Headphones: Add quick controls</change>
+        <change>Pebble: Add preference for choosing which app store to use</change>
+        <change>Pebble: Allow starting/activating apps and watchfaces from the app manager</change>
+        <change>Pebble: Fix back button closing the app store</change>
+        <change>Pebble: Fix double-counting insets in the app store WebView</change>
+        <change>Pebble: Pebble: Add tab for app/watchface updates to app manager</change>
+        <change>Polar H9/H10: Enable support for live data</change>
+        <change>Quick Settings: Long press to device settings</change>
+        <change>Rename "Keep activity data on device" developer setting</change>
+        <change>Revamp app notifications configuration</change>
+        <change>Shokz: Add quick controls</change>
+        <change>Sinilink: Replace custom actions with quick controls</change>
+        <change>Sleep as Android: Fix alarms skipped outside of tracking</change>
+        <change>Sleep As Android: Multiple stability improvements</change>
+        <change>Sony headphones: Add quick controls</change>
+        <change>Sony headphones: Fix equalizer custom bands not visible</change>
+        <change>Soundcore Liberty 4 NC: Fix NC settings</change>
+        <change>Test Device: Add photo gallery</change>
+        <change>Test Device: Add some missing test data</change>
+        <change>Test Device: Fix feature overrides when multiple test devices exist</change>
+        <change>Test device: Fix test HR samples</change>
+        <change>Test device: Improve configuration of enabled features</change>
+        <change>Test Device: Improve random data generation</change>
+        <change>Throttle device list updates</change>
+        <change>Update some old dialogs to Material 3</change>
+        <change>Weather: Optimise solar calculations</change>
+        <change>Workout details: Allow for more than 2 charts to be selected</change>
+        <change>Workout details: Display HR zone thresholds and time percentages</change>
+        <change>Workout templates: Add button to duplicate steps</change>
+        <change>Workout templates: Add sync status dot indicator</change>
+        <change>Workout templates: Allow sharing workouts</change>
+        <change>Workout templates: Improve repeat group rows</change>
+        <change>Workout templates: Simplify step value labels</change>
+        <change>Workout templates: Sort alphabetically</change>
+        <change>Workout Templates: Use cards in the template list and editor</change>
+        <change>Workouts: Add statistics overview</change>
+        <change>Workouts: Simplify weight column for whole KGs</change>
+        <change>Workouts: Update filter screen to Material 3</change>
+        <change>Xiaomi-protobuf: Add Intent API to send watch messages</change>
+        <change>Xiaomi-protobuf: Add settings for irregular heart rhythm alert and sleep breathing rate</change>
+        <change>Xiaomi-protobuf: Always allow raw summary, details and GPS sharing</change>
+        <change>Xiaomi-protobuf: Fix NPE when fetching body energy samples</change>
+        <change>Xiaomi-protobuf: Fix reprocessing getting stuck when there are no files</change>
+        <change>Xiaomi-protobuf: Keep activities that fail to be parsed</change>
+        <change>Xiaomi-protobuf: Parse sleep respiratory rate and into-bed time</change>
+        <change>Xiaomi-protobuf: Resume workout GPS and live stats transmission on reconnection</change>
+        <change>Xiaomi-protobuf: Sleep As Android improvements</change>
+        <change>Xiaomi: Add SpO2 sleep-only mode, keep the low alert threshold</change>
+        <change>Yawell/Colmi: Fix sync getting stuck and blocking calls</change>
+        <change>Zepp OS: Allow importing shared workout template JSON</change>
+        <change>Zepp OS: Enable HRV if BioCharge app is available</change>
+        <change>Zepp OS: Export swim intervals as FIT length records</change>
+        <change>Zepp OS: Optimise notification image conversion</change>
+        <change>Zepp OS: Respect notification picture orientation</change>
+        <change>Zepp OS: Sync calendar from watch to phone</change>
+    </release>
     <release version="0.95.1" versioncode="255">
         <change>Fix build reproducibility</change>
     </release>

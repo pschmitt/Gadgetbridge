@@ -7,7 +7,6 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsActivity
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsScreen
 import nodomain.freeyourgadget.gadgetbridge.databinding.ActivityGarminAuthExpiredBinding
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.GarminPrefs

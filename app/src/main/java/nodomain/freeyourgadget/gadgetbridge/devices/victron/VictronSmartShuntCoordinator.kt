@@ -20,8 +20,8 @@ class VictronSmartShuntCoordinator : AbstractBLEDeviceCoordinator() {
         return "Victron"
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return VictronSmartShuntSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return VictronSmartShuntSupport()
     }
 
     override fun getDeviceNameResource(): Int {

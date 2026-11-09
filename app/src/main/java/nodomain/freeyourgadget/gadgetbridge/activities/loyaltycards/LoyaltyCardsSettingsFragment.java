@@ -24,8 +24,10 @@ import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.Loyal
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_INSTALL_FOSSWALLET;
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_OPEN_CATIMA;
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_SYNC;
+import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_SYNC_ARCHIVED;
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_SYNC_GROUPS;
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_SYNC_GROUPS_ONLY;
+import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_SYNC_ON_CHANGE;
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_SYNC_STARRED;
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.LOYALTY_CARDS_SYNC_WATCH_REQUEST;
 import static nodomain.freeyourgadget.gadgetbridge.activities.loyaltycards.LoyaltyCardsSettingsConst.PREF_KEY_HEADER_LOYALTY_CARDS_CATIMA;
@@ -37,6 +39,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -81,6 +84,14 @@ public class LoyaltyCardsSettingsFragment extends AbstractPreferenceFragment {
     private static final Logger LOG = LoggerFactory.getLogger(LoyaltyCardsSettingsFragment.class);
 
     private static final long SYNC_DIALOG_TIMEOUT_MS = 30_000;
+    private static final Set<String> AUTO_SYNC_PREFERENCES = Set.of(
+        LOYALTY_CARDS_CATIMA_PACKAGE,
+        LOYALTY_CARDS_SYNC_ON_CHANGE,
+        LOYALTY_CARDS_SYNC_GROUPS_ONLY,
+        LOYALTY_CARDS_SYNC_GROUPS,
+        LOYALTY_CARDS_SYNC_ARCHIVED,
+        LOYALTY_CARDS_SYNC_STARRED
+    );
 
     private GBDevice device;
 
@@ -102,6 +113,12 @@ public class LoyaltyCardsSettingsFragment extends AbstractPreferenceFragment {
             if (!success) {
                 GB.toast(context, context.getString(R.string.workout_sync_status_failed), Toast.LENGTH_LONG, GB.ERROR);
             }
+        }
+    };
+
+    private final SharedPreferences.OnSharedPreferenceChangeListener autoSyncListener = (sharedPreferences, key) -> {
+        if (device != null && key != null && AUTO_SYNC_PREFERENCES.contains(key)) {
+            new CatimaManager(requireContext()).autoSync(device);
         }
     };
 
@@ -253,6 +270,10 @@ public class LoyaltyCardsSettingsFragment extends AbstractPreferenceFragment {
         }
 
         final boolean permissionGranted = ContextCompat.checkSelfPermission(requireContext(), catima.getReadPermission()) == PackageManager.PERMISSION_GRANTED;
+        if (catimaInstalled && permissionGranted) {
+            LocalBroadcastManager.getInstance(requireContext())
+                .sendBroadcast(new Intent(CatimaManager.ACTION_LOYALTY_CARDS_REFRESH_OBSERVER));
+        }
         final Preference catimaPermissionsPreference = findPreference(LOYALTY_CARDS_CATIMA_PERMISSIONS);
         if (catimaPermissionsPreference != null) {
             catimaPermissionsPreference.setSummary(getString(R.string.loyalty_cards_app_permissions_summary, selectedAppName));
@@ -285,9 +306,18 @@ public class LoyaltyCardsSettingsFragment extends AbstractPreferenceFragment {
             });
         }
 
+        final boolean supportsSyncRequest = device.getDeviceCoordinator().supportsLoyaltyCardsSyncRequest(device);
+
         final Preference syncWatchRequestPreference = findPreference(LOYALTY_CARDS_SYNC_WATCH_REQUEST);
         if (syncWatchRequestPreference != null) {
-            syncWatchRequestPreference.setVisible(device.getDeviceCoordinator().supportsLoyaltyCardsSyncRequest(device));
+            syncWatchRequestPreference.setVisible(supportsSyncRequest);
+        }
+
+        final Preference syncOnChangePreference = findPreference(LOYALTY_CARDS_SYNC_ON_CHANGE);
+        if (syncOnChangePreference != null) {
+            syncOnChangePreference.setVisible(
+                catimaInstalled && permissionGranted && !supportsSyncRequest && catima.supportsChangeNotifications()
+            );
         }
 
         final PreferenceCategory headerCatima = findPreference(PREF_KEY_HEADER_LOYALTY_CARDS_CATIMA);
@@ -342,6 +372,18 @@ public class LoyaltyCardsSettingsFragment extends AbstractPreferenceFragment {
                 syncOptionsCategory.getPreference(i).setEnabled(allowSync);
             }
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(autoSyncListener);
+    }
+
+    @Override
+    public void onStop() {
+        getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(autoSyncListener);
+        super.onStop();
     }
 
     @Override

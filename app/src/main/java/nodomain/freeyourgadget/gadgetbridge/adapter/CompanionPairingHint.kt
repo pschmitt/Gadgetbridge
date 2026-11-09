@@ -2,7 +2,6 @@ package nodomain.freeyourgadget.gadgetbridge.adapter
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -10,7 +9,6 @@ import androidx.core.content.edit
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
-import nodomain.freeyourgadget.gadgetbridge.util.BondingUtil
 import nodomain.freeyourgadget.gadgetbridge.util.CompanionDeviceUtil
 import org.slf4j.LoggerFactory
 
@@ -54,12 +52,8 @@ object CompanionPairingHint {
     @JvmStatic
     @RequiresApi(Build.VERSION_CODES.O)
     fun pair(activity: Activity, device: GBDevice) {
-        @Suppress("MissingPermission")
-        val bonded = BondingUtil.getBluetoothAdapter(activity)
-            ?.getRemoteDevice(device.address)
-            ?.bondState == BluetoothDevice.BOND_BONDED
-        val useLe = !bonded && device.deviceCoordinator.connectionType == DeviceCoordinator.ConnectionType.BLE
-        CompanionDeviceUtil.associateCompanion(activity, device.address, useLe, REQUEST_CODE, null, null)
+        // #7279 - The device is connected, so it may not advertise - set useLe=false
+        CompanionDeviceUtil.associateCompanion(activity, device.address, false, REQUEST_CODE, null, null)
     }
 
     @JvmStatic

@@ -41,9 +41,9 @@ public class PebbleHardware {
     private static final Logger LOG = LoggerFactory.getLogger(PebbleHardware.class);
 
     // ======================= Vendor IDs =======================
-    // 340 - Standard Pebble devices
+    // 340 - Original Pebble devices
     public static final int PEBBLE_VENDOR_ID = BluetoothCompanyIdentifiers.PEBBLE_TECHNOLOGY;
-    // 3818 - Core devices (Pebble 2 Duo)
+    // 3818 - Core devices (2025+)
     public static final int CORE_VENDOR_ID = BluetoothCompanyIdentifiers.CORE_DEVICES_LLC;
 
     // ======================= Platform Enum =======================
@@ -60,7 +60,7 @@ public class PebbleHardware {
         DIORITE("diorite", "Pebble 2",          true,    true,      true,   "silk"),
         EMERY("emery", "Pebble Time 2",         true,    true,      true,   "robert", "obelix"),
         FLINT("flint", "Pebble 2 Duo",          true,    true,      false,  "asterix"),
-        GABBRO("gabbro", "Pebble Time Round 2", true,    true,      true,   "getafix");
+        GABBRO("gabbro", "Pebble Round 2",      true,    true,      true,   "getafix");
 
         private final String platformName;
         private final String displayName;
@@ -226,7 +226,7 @@ public class PebbleHardware {
         // Pebble 2 Duo / Core (FLINT) - BLE only
         register(15, "asterix", Platform.FLINT);
 
-        // Pebble Time Round 2 (GABBRO) - unreleased, BLE only
+        // Pebble Round 2 (GABBRO) - unreleased, BLE only
         register(19, "getafix_evt", Platform.GABBRO);
         register(20, "getafix_dvt", Platform.GABBRO);
 

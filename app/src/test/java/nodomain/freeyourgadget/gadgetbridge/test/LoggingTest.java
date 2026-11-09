@@ -33,12 +33,10 @@ public class LoggingTest extends TestBase {
      * has to put them back for whatever runs next.
      */
     @After
-    @Override
-    public void tearDown() throws Exception {
+    public void tearDown() {
         final Logging logging = Logging.getInstance();
         logging.setTraceLogging(false);
         logging.setFileLoggingEnabled(false);
-        super.tearDown();
     }
 
     @Test

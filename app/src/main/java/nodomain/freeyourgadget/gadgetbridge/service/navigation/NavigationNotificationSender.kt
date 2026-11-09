@@ -43,7 +43,13 @@ class NavigationNotificationSender(private val support: AbstractDeviceSupport) {
         if (destinationReached) {
             spec.title = context.getString(R.string.navigation_destination_reached)
         } else {
-            spec.title = nav.distanceToTurn?.takeIf { it.isNotBlank() } ?: spec.sourceName
+            val title = nav.distanceToTurn?.takeIf { it.isNotBlank() } ?: spec.sourceName
+            val symbol = if (support.devicePrefs.getBoolean(DeviceSettingsPreferenceConst.PREF_NAVIGATION_SYMBOLS, false)) {
+                NavigationUtils.getActionSymbol(nav.nextAction)
+            } else {
+                ""
+            }
+            spec.title = if (symbol.isEmpty()) title else "$symbol $title"
             spec.body = listOfNotNull(
                 nav.instruction?.takeIf { it.isNotBlank() },
                 nav.ETA?.takeIf { it.isNotBlank() }?.let { context.getString(R.string.navigation_eta, it) },

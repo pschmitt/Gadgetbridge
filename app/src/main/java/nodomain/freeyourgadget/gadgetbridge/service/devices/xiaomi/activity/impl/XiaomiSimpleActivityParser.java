@@ -16,6 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.activity.impl;
 
+import android.content.Context;
+
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.SWIM_STYLE;
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.TIME_END;
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.TIME_START;
@@ -153,8 +155,9 @@ public class XiaomiSimpleActivityParser {
                     final int zoneTime = Objects.requireNonNull(hrZones.get(zoneKey)).intValue();
 
                     final int resolvedColor;
-                    if (zoneColor != 0 && GBApplication.getContext() != null) {
-                        resolvedColor = GBApplication.getContext().getResources().getColor(zoneColor);
+                    final Context zoneContext = GBApplication.getContextOrNull();
+                    if (zoneColor != 0 && zoneContext != null) {
+                        resolvedColor = zoneContext.getResources().getColor(zoneColor);
                     } else {
                         resolvedColor = 0;
                     }
@@ -239,13 +242,15 @@ public class XiaomiSimpleActivityParser {
             return this;
         }
 
+        /** Unsigned 16-bit value. */
         public Builder addShort(final String key, final String unit) {
-            dataEntries.add(new XiaomiSimpleDataEntry(key, unit, ByteBuffer::getShort));
+            dataEntries.add(new XiaomiSimpleDataEntry(key, unit, buf -> buf.getShort() & 0xffff));
             return this;
         }
 
+        /** Unsigned 16-bit value. */
         public Builder addShort(final String key, final String unit, final double multiplier) {
-            dataEntries.add(new XiaomiSimpleDataEntry(key, unit, ByteBuffer::getShort, multiplier));
+            dataEntries.add(new XiaomiSimpleDataEntry(key, unit, buf -> buf.getShort() & 0xffff, multiplier));
             return this;
         }
 

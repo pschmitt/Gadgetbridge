@@ -42,6 +42,11 @@ public class AppManagerFragmentInstalledWatchfaces extends AbstractAppManagerFra
     }
 
     @Override
+    protected boolean isUpdateManager() {
+        return false;
+    }
+
+    @Override
     protected String getSortFilename() {
         return mGBDevice.getAddress() + ".watchfaces";
     }

@@ -65,4 +65,9 @@ public class GarminEpixCoordinator extends GarminWatchCoordinator {
     public boolean supportsSleepScore(@NonNull final GBDevice device) {
         return false;
     }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }

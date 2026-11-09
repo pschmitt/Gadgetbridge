@@ -28,6 +28,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,6 +38,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -75,6 +77,7 @@ import java.util.Set;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
+import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.data.DashboardPreferences;
 import nodomain.freeyourgadget.gadgetbridge.activities.debug.DebugActivityV2;
 import nodomain.freeyourgadget.gadgetbridge.activities.discovery.DiscoveryActivityV2;
 import nodomain.freeyourgadget.gadgetbridge.activities.welcome.WelcomeActivity;
@@ -83,6 +86,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.DeviceManager;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceService;
+import nodomain.freeyourgadget.gadgetbridge.model.HeartRateSample;
 import nodomain.freeyourgadget.gadgetbridge.model.RecordedDataTypes;
 import nodomain.freeyourgadget.gadgetbridge.util.AndroidUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.BarShade;
@@ -90,7 +94,6 @@ import nodomain.freeyourgadget.gadgetbridge.util.DeviceHelper;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.GBChangeLog;
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
-import nodomain.freeyourgadget.gadgetbridge.util.PermissionsUtils;
 
 //TODO: extend AbstractGBActivity, but it requires actionbar that is not available
 public class ControlCenterv2 extends AppCompatActivity
@@ -173,43 +176,46 @@ public class ControlCenterv2 extends AppCompatActivity
             }
         }
     };
-    private boolean pesterWithPermissions = true;
-    private final Map<GBDevice, ActivitySample> currentHRSample = new HashMap<>();
-    private final Map<GBDevice, Long> currentHRSampleReceivedAt = new HashMap<>();
 
-    public ActivitySample getCurrentHRSample(final GBDevice device) {
-        final ActivitySample sample = currentHRSample.get(device);
+    private final Map<GBDevice, Integer> currentHeartRate = new HashMap<>();
+    private final Map<GBDevice, Long> currentHeartRateReceivedAt = new HashMap<>();
+
+    @Nullable
+    public Integer getCurrentHeartRate(final GBDevice device) {
+        final Integer heartRate = currentHeartRate.get(device);
 
         if (!device.getDeviceCoordinator().supportsLiveOnlyHeartRateDisplay(device)) {
-            return sample;
+            return heartRate;
         }
 
-        final Long receivedAt = currentHRSampleReceivedAt.get(device);
+        final Long receivedAt = currentHeartRateReceivedAt.get(device);
 
-        if (sample == null || receivedAt == null) {
+        if (heartRate == null || receivedAt == null) {
             return null;
         }
 
         if (SystemClock.elapsedRealtime() - receivedAt > REALTIME_HR_SAMPLE_TTL_MS) {
-            currentHRSample.remove(device);
-            currentHRSampleReceivedAt.remove(device);
+            currentHeartRate.remove(device);
+            currentHeartRateReceivedAt.remove(device);
             return null;
         }
 
-        return sample;
+        return heartRate;
     }
 
-    private void setCurrentHRSample(final GBDevice device, ActivitySample sample) {
-        if (HeartRateUtils.getInstance().isValidHeartRateValue(sample.getHeartRate())) {
-            currentHRSample.put(device, sample);
-            currentHRSampleReceivedAt.put(device, SystemClock.elapsedRealtime());
+    private void setCurrentHeartRate(final GBDevice device, final int heartRate) {
+        if (HeartRateUtils.getInstance().isValidHeartRateValue(heartRate)) {
+            currentHeartRate.put(device, heartRate);
+            currentHeartRateReceivedAt.put(device, SystemClock.elapsedRealtime());
         }
     }
 
-    private void handleRealtimeSample(final GBDevice device, Serializable extra) {
-        if (extra instanceof ActivitySample) {
-            ActivitySample sample = (ActivitySample) extra;
-            setCurrentHRSample(device, sample);
+    private void handleRealtimeSample(final GBDevice device, final Serializable extra) {
+        // Depending on the device, a realtime sample can be an ActivitySample or a HeartRateSample
+        if (extra instanceof HeartRateSample) {
+            setCurrentHeartRate(device, ((HeartRateSample) extra).getHeartRate());
+        } else if (extra instanceof ActivitySample) {
+            setCurrentHeartRate(device, ((ActivitySample) extra).getHeartRate());
         }
     }
 
@@ -288,7 +294,10 @@ public class ControlCenterv2 extends AppCompatActivity
 
     private void selectDefaultTab() {
         String key = GBApplication.getPrefs().getString("default_main_screen", "dashboard");
-        NavTab tab = NavTab.fromKey(key);
+        selectTab(NavTab.fromKey(key));
+    }
+
+    private void selectTab(final NavTab tab) {
         int index = visibleTabs.indexOf(tab);
         if (index < 0) return;
 
@@ -389,7 +398,7 @@ public class ControlCenterv2 extends AppCompatActivity
         barShades = new BarShade.ScrollListener(findViewById(R.id.main_content));
         updateBottomNavigationVisibility();
 
-        // A page's fragment, and its view, are created after the page is selected
+        // A page's fragment, and its view, are created after onCreate
         getSupportFragmentManager().registerFragmentLifecycleCallbacks(new FragmentManager.FragmentLifecycleCallbacks() {
             @Override
             public void onFragmentViewCreated(@NonNull final FragmentManager fm, @NonNull final Fragment fragment,
@@ -430,6 +439,15 @@ public class ControlCenterv2 extends AppCompatActivity
         if (savedInstanceState == null) {
             selectDefaultTab();
         }
+
+        // Create the pages next to the current page when the main thread is idle,
+        // after the current page is drawn.
+        Looper.myQueue().addIdleHandler(() -> {
+            if (!isDestroyed()) {
+                viewPager.setOffscreenPageLimit(1);
+            }
+            return false;
+        });
 
         // Make sure the SwipeRefreshLayout doesn't interfere with the ViewPager2
         viewPager.getChildAt(0).setOnTouchListener((v, event) -> {
@@ -480,17 +498,10 @@ public class ControlCenterv2 extends AppCompatActivity
         filterLocal.addAction(DeviceManager.ACTION_DEVICES_CHANGED);
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, filterLocal);
 
-        // Open the Welcome flow on first run, only check permissions on next runs
+        // Open the Welcome flow on first run
         boolean firstRun = prefs.getBoolean("first_run", true);
         if (firstRun) {
             launchWelcomeActivity();
-        } else {
-            pesterWithPermissions = prefs.getBoolean("permission_pestering", true);
-            if (pesterWithPermissions && !PermissionsUtils.checkAllPermissions(this)) {
-                Intent permissionsIntent = new Intent(this, PermissionsActivity.class);
-                permissionsIntent.putExtra(PermissionsActivity.ARG_SHOW_DO_NOT_ASK_BUTTON, true);
-                startActivity(permissionsIntent);
-            }
         }
 
         final GBChangeLog cl = GBChangeLog.createChangeLog(this);
@@ -567,6 +578,10 @@ public class ControlCenterv2 extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         handleShortcut(getIntent());
+        if (new DashboardPreferences().hasStartEditingRequest()) {
+            // onResume only runs for the current page, DashboardFragment consumes this
+            selectTab(NavTab.DASHBOARD);
+        }
         if (isLanguageInvalid || isThemeInvalid) {
             isLanguageInvalid = false;
             isThemeInvalid = false;

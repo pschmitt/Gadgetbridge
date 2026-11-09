@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import nodomain.freeyourgadget.gadgetbridge.GBException;
 import nodomain.freeyourgadget.gadgetbridge.entities.BaseActivitySummary;
+import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityPoint;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrack;
 import nodomain.freeyourgadget.gadgetbridge.model.GPSCoordinate;
@@ -43,7 +44,9 @@ public class HuamiActivityDetailsParser extends AbstractHuamiActivityDetailsPars
     private static final byte TYPE_SPEED5 = 5;
     private static final byte TYPE_SPEED6 = 6;
     private static final byte TYPE_SWIMMING = 8;
+    private static final byte TYPE_POINT11 = 11;
 
+    private final ActivityKind activityKind;
     private final ActivityTrack activityTrack;
     private final Date baseDate;
     private long baseLongitude;
@@ -58,6 +61,7 @@ public class HuamiActivityDetailsParser extends AbstractHuamiActivityDetailsPars
     private boolean skipCounterByte;
 
     public HuamiActivityDetailsParser(BaseActivitySummary summary) {
+        this.activityKind = ActivityKind.fromCode(summary.getActivityKind());
         this.baseLongitude = summary.getBaseLongitude();
         this.baseLatitude = summary.getBaseLatitude();
         this.baseAltitude = summary.getBaseAltitude();
@@ -115,6 +119,9 @@ public class HuamiActivityDetailsParser extends AbstractHuamiActivityDetailsPars
                         break;
                     case TYPE_SWIMMING:
                         i += consumeSwimming(bytes, i);
+                        break;
+                    case TYPE_POINT11:
+                        i += consumePoint11(bytes, i, totalTimeOffset);
                         break;
                     default:
                         LOG.warn("unknown packet type" + type);
@@ -223,6 +230,33 @@ public class HuamiActivityDetailsParser extends AbstractHuamiActivityDetailsPars
             ap.setHeartRate(v6);
             add(ap);
         }
+        return 6;
+    }
+
+    private int consumePoint11(byte[] bytes, int offset, long timeOffsetSeconds) {
+        int heartRate = BLETypeConversions.toUint16(bytes[offset]);
+        int v2 = BLETypeConversions.toUint16(bytes[offset + 1]);
+        int v3 = BLETypeConversions.toUint16(bytes[offset + 2]);
+        int v4 = BLETypeConversions.toUint16(bytes[offset + 3]);
+        int cadence = BLETypeConversions.toUint16(bytes[offset + 4]);
+        int stepLength = BLETypeConversions.toUint16(bytes[offset + 5]);
+
+        ActivityPoint ap = getActivityPointFor(timeOffsetSeconds);
+
+        if (heartRate > 0) {
+            ap.setHeartRate(heartRate);
+        }
+        if (ActivityKind.isPaceActivity(activityKind)) {
+            if (cadence > 0) {
+                ap.setCadence(cadence);
+            }
+            if (stepLength > 0) {
+                // Convert centimeters to millimeters
+                ap.setStepLength(stepLength * 10);
+            }
+        }
+        add(ap);
+
         return 6;
     }
 

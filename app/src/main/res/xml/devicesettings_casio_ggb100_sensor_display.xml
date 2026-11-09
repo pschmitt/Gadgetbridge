@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ListPreference
+        android:icon="@drawable/ic_altitude_24px"
+        android:defaultValue="1"
+        android:entries="@array/pref_casio_altitude_interval"
+        android:entryValues="@array/pref_casio_altitude_interval_values"
+        android:key="casio_altitude_measurement_interval"
+        app:useSimpleSummaryProvider="true"
+        android:title="@string/pref_casio_altitude_interval_title" />
+    <ListPreference
+        android:icon="@drawable/ic_height"
+        android:defaultValue="0"
+        android:entries="@array/pref_casio_altimeter_display"
+        android:entryValues="@array/pref_casio_altimeter_display_values"
+        android:key="casio_altimeter_display"
+        app:useSimpleSummaryProvider="true"
+        android:title="@string/pref_casio_altimeter_display_title" />
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:icon="@drawable/ic_show_chart"
+        android:key="casio_pressure_graph"
+        android:layout="@layout/preference_checkbox"
+        android:title="@string/pref_casio_pressure_graph_title" />
+</androidx.preference.PreferenceScreen>

@@ -44,8 +44,8 @@ public class SuperCarsCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(@NonNull final GBDevice device) {
-        return SuperCarsSupport.class;
+    public DeviceSupport createDeviceSupport(@NonNull final GBDevice device) {
+        return new SuperCarsSupport();
     }
 
     @Override

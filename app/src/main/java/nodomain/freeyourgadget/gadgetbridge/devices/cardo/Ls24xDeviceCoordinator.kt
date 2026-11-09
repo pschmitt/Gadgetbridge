@@ -24,8 +24,8 @@ class Ls24xDeviceCoordinator : AbstractBLEDeviceCoordinator() {
         return Pattern.compile("UCS LS2")
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return CardoDeviceSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return CardoDeviceSupport()
     }
 
 

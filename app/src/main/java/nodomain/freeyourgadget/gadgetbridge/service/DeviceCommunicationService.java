@@ -77,14 +77,17 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.GBException;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.HeartRateUtils;
+import nodomain.freeyourgadget.gadgetbridge.capabilities.loyaltycards.CatimaManager;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.BluetoothConnectReceiver;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.CalendarReceiver;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.service.btle.BLEScanService;
 import nodomain.freeyourgadget.gadgetbridge.service.receivers.AutoConnectIntervalReceiver;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
+import nodomain.freeyourgadget.gadgetbridge.util.permissions.GBPermission;
 
 public class DeviceCommunicationService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
     public static class DeviceStruct {
@@ -280,8 +283,16 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
                     sendDeviceConnectedBroadcast(device.getAddress());
                     sendCachedNotifications(device);
                     sendPendingSleepAsAndroidAction(device);
+                    new CatimaManager(DeviceCommunicationService.this).autoSync(device);
                 } else if (subject == GBDevice.DeviceUpdateSubject.DEVICE_STATE && (device.getState() == GBDevice.State.SCANNED)) {
                     sendDeviceAPIBroadcast(device.getAddress(), API_LEGACY_ACTION_DEVICE_SCANNED);
+                }
+            } else if (CatimaManager.ACTION_LOYALTY_CARDS_REFRESH_OBSERVER.equals(action)) {
+                deviceReceiversManager.refreshCatimaContentObserver();
+            } else if (GBPermission.ACTION_PERMISSIONS_GRANTED.equals(action)) {
+                final List<String> permissions = intent.getStringArrayListExtra(GBPermission.EXTRA_PERMISSIONS);
+                if (permissions != null) {
+                    onPermissionsGranted(permissions);
                 }
             } else if (BLEScanService.EVENT_DEVICE_FOUND.equals(action)) {
                 String deviceAddress = intent.getStringExtra(BLEScanService.EXTRA_DEVICE_ADDRESS);
@@ -337,6 +348,20 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
         }
     };
 
+    private void onPermissionsGranted(final List<String> permissions) {
+        LOG.info("Permissions granted: {}", permissions);
+        // Some permissions are checked when registering the receivers
+        updateReceiversState();
+        if (permissions.contains(GBPermission.GADGETBRIDGE_NOTIFICATIONS.name())) {
+            // Show the service notification right away
+            GB.updateNotification(GBApplication.app().getDeviceManager().getSelectedDevices(), this);
+        }
+        if (permissions.contains(GBPermission.BLUETOOTH.name())) {
+            // Without the Bluetooth permission, the service did not start in the foreground
+            startForeground();
+        }
+    }
+
     private void updateReceiversState() {
         boolean enableReceivers = false;
         boolean anyDeviceInitialized = false;
@@ -369,6 +394,8 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
         IntentFilter localFilter = new IntentFilter();
         localFilter.addAction(GBDevice.ACTION_DEVICE_CHANGED);
         localFilter.addAction(BLEScanService.EVENT_DEVICE_FOUND);
+        localFilter.addAction(CatimaManager.ACTION_LOYALTY_CARDS_REFRESH_OBSERVER);
+        localFilter.addAction(GBPermission.ACTION_PERMISSIONS_GRANTED);
         //noinspection deprecation
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, localFilter);
     }
@@ -552,6 +579,9 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
             final String deviceAddress = gbDevice.getAddress();
 
             LOG.debug("Will attempt to connect to {}", gbDevice);
+            final GBDevice.State stateBeforeConnect = gbDevice.getState();
+            final boolean automaticReconnect = stateBeforeConnect == GBDevice.State.WAITING_FOR_RECONNECT ||
+                    stateBeforeConnect == GBDevice.State.WAITING_FOR_SCAN;
 
             if (!gbDevice.getDeviceCoordinator().isConnectable()) {
                 // we cannot connect to beacons, skip this device
@@ -584,6 +614,12 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
             if (!fromExtra && !autoReconnect) {
                 LOG.debug("connectToDevice - {} neither from extra nor auto reconnect (2)",
                         deviceAddress);
+                continue;
+            }
+
+            final DeviceCoordinator.ConnectionType connectionType = gbDevice.getDeviceCoordinator().getConnectionType();
+            if ((connectionType.usesBluetoothLE() || connectionType.usesBluetoothClassic()) && !GBPermission.BLUETOOTH.isGranted(this)) {
+                LOG.warn("connectToDevice - {} skipped, Bluetooth permission not granted", deviceAddress);
                 continue;
             }
 
@@ -664,6 +700,8 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
                     final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
                     if (adapter == null) {
                         GB.toast(this, getString(R.string.bluetooth_is_not_supported_), Toast.LENGTH_SHORT, GB.WARN);
+                    } else if (!adapter.isEnabled() && automaticReconnect) {
+                        LOG.warn("connectToDevice - {} Bluetooth is disabled", deviceAddress);
                     } else if (!adapter.isEnabled()) {
                         GB.toast(this, getString(R.string.bluetooth_is_disabled_), Toast.LENGTH_SHORT, GB.WARN);
                     } else {

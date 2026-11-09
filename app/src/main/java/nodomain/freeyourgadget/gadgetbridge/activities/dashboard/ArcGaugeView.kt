@@ -6,12 +6,17 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.RectF
+import android.text.Layout
 import android.util.AttributeSet
+import android.view.View
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.android.material.color.MaterialColors
 import nodomain.freeyourgadget.gadgetbridge.R
+import kotlin.math.ceil
 import kotlin.math.cos
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -59,7 +64,15 @@ class ArcGaugeView @JvmOverloads constructor(
      */
     fun setProgress(color: Int, fraction: Float) {
         colors = intArrayOf(color)
-        sections = if (fraction > 0) listOf(Section(0, 0f, min(fraction, 1f), roundStart = true, roundEnd = true)) else emptyList()
+        sections = if (fraction > 0) listOf(
+            Section(
+                0,
+                0f,
+                min(fraction, 1f),
+                roundStart = true,
+                roundEnd = true
+            )
+        ) else emptyList()
         marker = -1f
         invalidate()
     }
@@ -67,7 +80,13 @@ class ArcGaugeView @JvmOverloads constructor(
     /**
      * Consecutive [segments] (fractions of the sweep) in [colors], with a marker at [value] unless it is negative.
      */
-    fun setZones(colors: IntArray, segments: FloatArray, value: Float, gapBetweenSegments: Boolean = true, markerColor: Int? = null) {
+    fun setZones(
+        colors: IntArray,
+        segments: FloatArray,
+        value: Float,
+        gapBetweenSegments: Boolean = true,
+        markerColor: Int? = null
+    ) {
         this.colors = colors
         sections = sections(segments, if (gapBetweenSegments) SEGMENT_GAP else 0f)
         marker = if (value >= 0) min(value, 1f) else -1f
@@ -78,13 +97,41 @@ class ArcGaugeView @JvmOverloads constructor(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val available = MeasureSpec.getSize(widthMeasureSpec)
-        val width = if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.UNSPECIFIED) maxGaugeWidth else min(available, maxGaugeWidth)
+        val width = if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.UNSPECIFIED) maxGaugeWidth else min(
+            available,
+            maxGaugeWidth
+        )
         val height = (width * VIEW_HEIGHT / VIEW_WIDTH).roundToInt()
-        val childSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST)
+        val heightSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST)
         for (i in 0 until childCount) {
-            getChildAt(i).measure(childSpec, MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST))
+            measureValue(getChildAt(i), width, heightSpec)
         }
         setMeasuredDimension(width, height)
+    }
+
+    /**
+     * Measures [child] on one line. When it is wider than the inside of the ring, wrap it at its spaces,
+     * but no narrower than its widest word.
+     */
+    private fun measureValue(child: View, width: Int, heightSpec: Int) {
+        child.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), heightSpec)
+        val inner = (width * INNER_WIDTH / VIEW_WIDTH).roundToInt()
+        if (child !is TextView || child.measuredWidth <= inner) {
+            return
+        }
+        val text = child.text
+        var widestWord = 0f
+        var start = 0
+        while (start < text.length) {
+            var end = start
+            while (end < text.length && !text[end].isWhitespace()) end++
+            widestWord = max(widestWord, Layout.getDesiredWidth(text, start, end, child.paint))
+            start = end + 1
+        }
+        val wrapWidth = max(inner, ceil(widestWord).toInt() + child.totalPaddingLeft + child.totalPaddingRight)
+        if (wrapWidth < child.measuredWidth) {
+            child.measure(MeasureSpec.makeMeasureSpec(wrapWidth, MeasureSpec.AT_MOST), heightSpec)
+        }
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -120,7 +167,14 @@ class ArcGaugeView @JvmOverloads constructor(
         }
     }
 
-    private fun drawSection(canvas: Canvas, start: Float, end: Float, color: Int, roundStart: Boolean, roundEnd: Boolean) {
+    private fun drawSection(
+        canvas: Canvas,
+        start: Float,
+        end: Float,
+        color: Int,
+        roundStart: Boolean,
+        roundEnd: Boolean
+    ) {
         if (end <= start) return
         strokePaint.color = color
         canvas.drawArc(oval, START_DEGREES + SWEEP_DEGREES * start, SWEEP_DEGREES * (end - start), false, strokePaint)
@@ -133,7 +187,16 @@ class ArcGaugeView @JvmOverloads constructor(
     private fun drawCap(canvas: Canvas, at: Float, capRadius: Float, startCap: Boolean) {
         val degrees = START_DEGREES + SWEEP_DEGREES * at
         val (x, y) = pointAt(at)
-        canvas.drawArc(x - capRadius, y - capRadius, x + capRadius, y + capRadius, if (startCap) degrees - 180 else degrees, 180f, true, fillPaint)
+        canvas.drawArc(
+            x - capRadius,
+            y - capRadius,
+            x + capRadius,
+            y + capRadius,
+            if (startCap) degrees - 180 else degrees,
+            180f,
+            true,
+            fillPaint
+        )
     }
 
     private fun pointAt(fraction: Float): Pair<Float, Float> {
@@ -152,6 +215,7 @@ class ArcGaugeView @JvmOverloads constructor(
         private const val CENTER_Y = 46f
         private const val RADIUS = 40f
         private const val STROKE = 8f
+        private const val INNER_WIDTH = 2 * RADIUS - STROKE
         private const val VALUE_CENTER = 0.47f
         private const val START_DEGREES = 150f
         private const val SWEEP_DEGREES = 240f

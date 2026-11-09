@@ -55,6 +55,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.GarminRestingMetabolicRateSa
 import nodomain.freeyourgadget.gadgetbridge.devices.GarminSleepStatsSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.GarminSpo2SampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.GarminStressSampleProvider;
+import nodomain.freeyourgadget.gadgetbridge.devices.GenericMetricSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.GenericTrainingLoadAcuteSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.GenericTrainingLoadChronicSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.HydrationSampleProvider;
@@ -73,6 +74,7 @@ import nodomain.freeyourgadget.gadgetbridge.install.InstallHandlerV2;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryParser;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrackProvider;
+import nodomain.freeyourgadget.gadgetbridge.model.MetricSample;
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.WorkoutTemplateSpec;
 import nodomain.freeyourgadget.gadgetbridge.model.BodyEnergySample;
 import nodomain.freeyourgadget.gadgetbridge.model.SolarChargeSample;
@@ -151,8 +153,8 @@ public abstract class GarminCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(@NonNull final GBDevice device) {
-        return GarminSupport.class;
+    public DeviceSupport createDeviceSupport(@NonNull final GBDevice device) {
+        return new GarminSupport();
     }
 
     @Override
@@ -396,6 +398,11 @@ public abstract class GarminCoordinator extends AbstractBLEDeviceCoordinator {
     }
 
     @Override
+    public boolean supportsWatchAppMessages(@NonNull final GBDevice device) {
+        return supports(device, GarminCapability.CONNECTIQ_WATCH_APP_DOWNLOAD);
+    }
+
+    @Override
     public boolean supportsAppsManagement(@NonNull final GBDevice device) {
         // FIXME: experimental until better polished
         return experimentalSettingEnabled(device, "garmin_experimental_app_management");
@@ -494,4 +501,8 @@ public abstract class GarminCoordinator extends AbstractBLEDeviceCoordinator {
         return true;
     }
 
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return GenericMetricSampleProvider.supportsMetrics(device, MetricSample.Metric.GARMIN_TRAINING_STATUS);
+    }
 }

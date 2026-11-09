@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
-import java.time.DayOfWeek;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -172,14 +171,7 @@ public class InitOperation extends AbstractBTLEOperation<CasioGBD200DeviceSuppor
     // ── GPS encoding ─────────────────────────────────────────────────────────
 
     private byte[] makeGpsChunk0(double lat, double lon) {
-        ByteBuffer buf = ByteBuffer.allocate(20).order(ByteOrder.BIG_ENDIAN);
-        buf.put((byte) 0x24);
-        buf.put((byte) 0x00);
-        buf.put((byte) 0x01);
-        buf.putDouble(lat);
-        buf.putDouble(lon);
-        buf.put((byte) 0x04);
-        return buf.array();
+        return Casio2C2DSupport.buildGpsChunk(0, lat, lon);
     }
 
     private byte[] makeGpsChunk1(double alt) {
@@ -195,22 +187,7 @@ public class InitOperation extends AbstractBTLEOperation<CasioGBD200DeviceSuppor
     // ── Time encoding (DOW: Sunday=0, Monday=1 … Saturday=6) ────────────────
 
     private void writeCurrentTime() {
-        ZonedDateTime now = ZonedDateTime.now();
-        // DOW: Sunday=0 … Saturday=6; Java DayOfWeek: Mon=1…Sun=7
-        int dow = now.getDayOfWeek() == DayOfWeek.SUNDAY ? 0 : now.getDayOfWeek().getValue();
-        byte[] arr = new byte[11];
-        arr[0]  = Casio2C2DSupport.FEATURE_CURRENT_TIME;
-        arr[1]  = (byte) (now.getYear() & 0xff);
-        arr[2]  = (byte) ((now.getYear() >> 8) & 0xff);
-        arr[3]  = (byte) now.getMonthValue();
-        arr[4]  = (byte) now.getDayOfMonth();
-        arr[5]  = (byte) now.getHour();
-        arr[6]  = (byte) now.getMinute();
-        arr[7]  = (byte) now.getSecond();
-        arr[8]  = (byte) dow;
-        arr[9]  = 0x00; // fractions256
-        arr[10] = 0x01; // reason = manual sync
-        write(arr);
+        write(Casio2C2DSupport.buildCurrentTimePacket(ZonedDateTime.now()));
     }
 
     // ── AbstractBTLEOperation ────────────────────────────────────────────────

@@ -38,11 +38,13 @@ public class BluetoothNameTest extends TestBase {
             put("Amazfit GTS 4 mini New", DeviceType.AMAZFITGTS4MININEW); // #5472
             put("Mi Smart Band 4C_D77E", DeviceType.MIBAND4C);
             put("Xiaomi Band 9 Active AB01", DeviceType.MIBAND9ACTIVE);
+            put("Xiaomi Band 11 Active D1F4", DeviceType.MIBAND11ACTIVE); // #7239
             put("vívoactive 3 Music", DeviceType.GARMIN_VIVOACTIVE_3_MUSIC); // #6619
             put("vívoactive 6", DeviceType.GARMIN_VIVOACTIVE_6);
             put("CIRQA Smart Band", DeviceType.GARMIN_CIRQA); // matrix
             put("CMF Buds 2", DeviceType.NOTHING_CMF_BUDS_2); // #5579
             put("CMF Buds 2a", DeviceType.NOTHING_CMF_BUDS_2A); // #6028
+            put("COROS PACE 3 72DC12", DeviceType.COROS_PACE_3); // #3929
             put("HC96", DeviceType.HC96);
             put("KW19-B", DeviceType.KW19_B); // #7092
             put("FireBoltt 069", DeviceType.FIREBOLTT_069);
@@ -62,6 +64,7 @@ public class BluetoothNameTest extends TestBase {
             put("soundcore P2", DeviceType.SOUNDCORE_P2); // #7006
             put("soundcore P2i", DeviceType.SOUNDCORE_P2I); // #7006
             put("soundcore P2 Mini", DeviceType.SOUNDCORE_P2_MINI); // #7006
+            put("Soundcore Motion+", DeviceType.SOUNDCORE_MOTION_PLUS); // #4648
             put("soundcore V20i", DeviceType.SOUNDCORE_V20I); // #4644
             put("Soundcore Q30", DeviceType.SOUNDCORE_Q30); // #4316
             put("soundcore Q30", DeviceType.SOUNDCORE_Q30); // #6371
@@ -116,6 +119,11 @@ public class BluetoothNameTest extends TestBase {
             put("MOMENTUM M2 IEBT", DeviceType.SENNHEISER_MOMENTUM_IN_EAR_WIRELESS);
             put("MOMENTUM M2 AEBT", null); // the over-ear MOMENTUM Wireless, not tested
             put("Polar H10 96C0B12D", DeviceType.POLARH10);
+            put("808S 0007734", DeviceType.COOSPO_H808S);
+            put("H808S-1A2B3C", DeviceType.COOSPO_H808S);
+            put("H808S", DeviceType.COOSPO_H808S);
+            put("h808s-4d5e6f", DeviceType.COOSPO_H808S);
+            put("COOSPO H808S-1A2B3C", DeviceType.COOSPO_H808S);
             put("Forerunner 165 Music", DeviceType.GARMIN_FORERUNNER_165_MUSIC);
             put("Forerunner 170", DeviceType.GARMIN_FORERUNNER_170); // #6276
             put("Forerunner 170 Music", DeviceType.GARMIN_FORERUNNER_170_MUSIC);
@@ -146,6 +154,7 @@ public class BluetoothNameTest extends TestBase {
             put("HUAWEI WATCH GT 7-06B", DeviceType.HUAWEIWATCHGT7); // #6731
             put("HUAWEI Band 11-CEF", DeviceType.HUAWEIBAND11); // #5839
             put("HUAWEI Band 11 Pro-C5A", DeviceType.HUAWEIBAND11PRO); // #5989
+            put("HUAWEI band A2-AFC", DeviceType.HUAWEIBANDA2); // #7280
             put("HUAWEI FreeClip 2", DeviceType.HUAWEI_FREECLIP2);
             put("Edge Explore", DeviceType.GARMIN_EDGE_EXPLORE); // #4855
             put("Edge Explore 2", DeviceType.GARMIN_EDGE_EXPLORE_2); // #4855
@@ -158,10 +167,12 @@ public class BluetoothNameTest extends TestBase {
             put("fenix 6S Pro Solar", DeviceType.GARMIN_FENIX_6S_PRO_SOLAR); // #5568
             put("fenix 6S", DeviceType.GARMIN_FENIX_6S);
             put("xiaomi.scooter.5max", DeviceType.XIAOMI_SCOOTER_5_MAX);
+            put("NAGVF2421C0000", DeviceType.NINEBOT_KICKSCOOTER); // #7136
             put("R50Pro", DeviceType.R50PRO);
             put("P22B1", DeviceType.P22B1);
             put("SBM67", DeviceType.SILVERCREST_SBM_67);
             put("BPM Smart", DeviceType.SANITAS_SBM_67);
+            put("BM59", DeviceType.BEURER_BM_59); // #7186
             put("BM69", DeviceType.BEURER_BM_69); // #6687
             put("Sinilink-APP", DeviceType.SINILINK); // #6040
             put("80EL", DeviceType.EIGHTBITDO_MICRO);
@@ -271,6 +282,7 @@ public class BluetoothNameTest extends TestBase {
             put("Bip S Lite", DeviceType.AMAZFITBIPS_LITE); // #2055
             put("Mi Smart Band 5", DeviceType.MIBAND5); // #1929
             put("CASIO STB-1000", DeviceType.CASIOGB6900); // #1902
+            put("CASIO GG-B100", DeviceType.CASIOGGB100);
             put("Amazfit Bip 3 Pro", DeviceType.AMAZFITBIP3PRO); // #3249
             put("Redmi Band Pro AB01", DeviceType.REDMISMARTBANDPRO); // #3069
             put("HRM600:1234", DeviceType.GARMIN_HRM_600); // #5633
@@ -299,6 +311,7 @@ public class BluetoothNameTest extends TestBase {
             put("C20", DeviceType.C20); // #4070
             put("C 20", DeviceType.C20); // #5495
             put("C20_Pro", DeviceType.C20PRO); // #6763
+            put("Bettdow FB051", DeviceType.BETTDOW_FB051);
             put("OV-Touch2.6_LE", DeviceType.OVTOUCH26); // #5628
             put("BPW4500", DeviceType.BRAUN_BPW4500); // #5886
             put("MATSON Monitor", DeviceType.BM2_BATTERY_MONITOR); // #6212
@@ -314,6 +327,7 @@ public class BluetoothNameTest extends TestBase {
             put("ROIDMI Cleaner F1", DeviceType.ROIDMI_F8); // #6674
             put("Xiaomi Smart Band 10 Pro AB01", DeviceType.MIBAND10PRO); // #6248
             put("SmartShunt HQ2303UCHFV", DeviceType.VICTRON_SMARTSHUNT); // #6263
+            put("soundcore R50i NC", DeviceType.SOUNDCORE_R50I_NC); // #5559
             put("Soundcore Life Tune", DeviceType.SOUNDCORE_LIFE_TUNE); // #6396
             put("Soundcore Life Tune XR", DeviceType.SOUNDCORE_LIFE_TUNE_XR); // #6396
             put("OsmoAction4-ABCD", DeviceType.DJI_OSMO_ACTION_4);

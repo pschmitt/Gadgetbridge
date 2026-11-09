@@ -56,7 +56,7 @@ public class SetLanguageSettingRequest extends Request {
             if (country.isEmpty()) {
                 country = language;
             }
-            localeString = language + "-" + country.toUpperCase();
+            localeString = language + "-" + country.toUpperCase(Locale.ROOT);
         } else {
             localeString = localeString.replace("_", "-");
         }

@@ -25,9 +25,15 @@ public class GBDatabase {
 
     public static final String DATABASE_NAME = "Gadgetbridge";
 
+    private final Context context;
+
     private DaoMaster daoMaster = null;
     private SQLiteOpenHelper helper = null;
     private DaoSession session = null;
+
+    public GBDatabase(final Context context) {
+        this.context = context;
+    }
 
     public DaoMaster getDaoMaster() {
         return daoMaster;
@@ -55,7 +61,7 @@ public class GBDatabase {
         LOG.info("Database closed");
     }
 
-    void setupDatabase(final Context context) {
+    void setupDatabase() {
         if (session != null) {
             LOG.warn("Database already setup");
             return;
@@ -83,7 +89,7 @@ public class GBDatabase {
             final File toFile = new File(dbPath);
             FileUtils.copyStreamToFile(inputStream, toFile);
         } finally {
-            setupDatabase(GBApplication.app());
+            setupDatabase();
         }
 
         // Validate database - must be AFTER setupDatabase so that helper is not null
@@ -98,7 +104,7 @@ public class GBDatabase {
             final File sourceFile = new File(dbPath);
             FileUtils.copyFile(sourceFile, destFile);
         } finally {
-            setupDatabase(GBApplication.app());
+            setupDatabase();
         }
     }
 
@@ -108,7 +114,7 @@ public class GBDatabase {
             final File source = new File(dbPath);
             FileUtils.copyFileToStream(source, dest);
         } finally {
-            setupDatabase(GBApplication.app());
+            setupDatabase();
         }
     }
 

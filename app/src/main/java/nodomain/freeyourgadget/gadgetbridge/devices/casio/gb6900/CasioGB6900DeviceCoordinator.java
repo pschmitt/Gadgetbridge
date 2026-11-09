@@ -87,8 +87,8 @@ public class CasioGB6900DeviceCoordinator extends CasioDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return CasioGB6900DeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new CasioGB6900DeviceSupport();
     }
 
     @Override

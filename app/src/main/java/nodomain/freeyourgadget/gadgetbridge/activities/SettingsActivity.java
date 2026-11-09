@@ -30,7 +30,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.widget.Toast;
@@ -482,15 +481,11 @@ public class SettingsActivity extends AbstractSettingsActivityV2 implements Acti
 
             pref = findPreference("pref_screen_quick_settings");
             if (pref != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    pref.setOnPreferenceClickListener(preference -> {
-                        Intent enableIntent = new Intent(requireContext(), QuickSettingsPreferencesActivity.class);
-                        startActivity(enableIntent);
-                        return true;
-                    });
-                } else {
-                    pref.setVisible(false);
-                }
+                pref.setOnPreferenceClickListener(preference -> {
+                    Intent enableIntent = new Intent(requireContext(), QuickSettingsPreferencesActivity.class);
+                    startActivity(enableIntent);
+                    return true;
+                });
             }
 
             pref = findPreference("pref_category_sleepasandroid");

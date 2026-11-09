@@ -325,15 +325,22 @@ class DashboardGridBinder(
     }
 
     /**
-     * Puts [instanceId] at the first free column under the items before it.
+     * Puts [instanceId] at the first free column under the items before it,
+     * if this does not move the items after it.
      */
     fun placeAtFirstFree(instanceId: String) {
         val position = positionOf(instanceId)
         if (position < 0) return
-        val before = items.take(position).map(::rectOf)
-        val width = items[position].variant.width
-        val column = WidgetGrid.firstFreeColumn(columns, WidgetGrid.stack(columns, before), width)
-        setColumn(instanceId, column)
+        val rects = items.map(::rectOf)
+        val before = rects.take(position)
+        val after = rects.drop(position + 1)
+        val rect = rects[position]
+        val column = WidgetGrid.firstFreeColumn(columns, WidgetGrid.stack(columns, before), rect.width)
+        val placed = WidgetGrid.stack(columns, before + rect.copy(x = column) + after).takeLast(after.size)
+        val notPlaced = WidgetGrid.stack(columns, before + after).takeLast(after.size)
+        if (placed == notPlaced) {
+            setColumn(instanceId, column)
+        }
     }
 
     private fun positionOf(instanceId: String): Int =
@@ -433,7 +440,7 @@ class DashboardGridBinder(
     }
 
     private fun configOf(item: PlacedWidget): WidgetConfig {
-        val prefs = Prefs(GBApplication.getWidgetSharedPrefs(item.instance.instanceId))
+        val prefs = Prefs(requireNotNull(GBApplication.getWidgetSharedPrefs(item.instance.instanceId)))
         return WidgetConfig(item.instance, prefs, dashboardShowAllDevices, dashboardDeviceList, item.variant)
     }
 

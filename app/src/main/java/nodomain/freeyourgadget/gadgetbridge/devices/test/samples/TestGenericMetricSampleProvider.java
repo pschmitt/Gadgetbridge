@@ -27,6 +27,7 @@ public class TestGenericMetricSampleProvider extends GenericMetricSampleProvider
     private static final double RACE_DISTANCE_HALF_MARATHON = 21097.5;
     private static final double RACE_DISTANCE_FULL_MARATHON = 42195;
     private static final double RIEGEL_CONSTANT = 1.06;
+    private static final int[] TRAINING_STATUSES = {5, 4, 4, 7, 7, 8, 3, 5, 6, 1, 1, -1, 2, 4, 9};
 
     private final Set<MetricSample.Metric> metrics;
 
@@ -43,6 +44,7 @@ public class TestGenericMetricSampleProvider extends GenericMetricSampleProvider
         }
 
         final List<GenericMetricSample> samples = new ArrayList<>();
+        final long timestampEnd = Math.min(timestampTo, System.currentTimeMillis());
 
         switch (metric) {
             case GENERIC_TRAINING_LOAD_ACUTE:
@@ -59,9 +61,9 @@ public class TestGenericMetricSampleProvider extends GenericMetricSampleProvider
                 break;
         }
 
-        for (long day = AbstractTestSampleProvider.startOfDay(timestampFrom); day < timestampTo; day += DAY_MILLIS) {
+        for (long day = AbstractTestSampleProvider.startOfDay(timestampFrom); day < timestampEnd; day += DAY_MILLIS) {
             final long ts = day + SAMPLE_TIME_MILLIS;
-            if (ts < timestampFrom || ts >= timestampTo) {
+            if (ts < timestampFrom || ts >= timestampEnd) {
                 continue;
             }
             samples.add(newSample(metric, ts, getValue(metric, ts)));
@@ -134,6 +136,10 @@ public class TestGenericMetricSampleProvider extends GenericMetricSampleProvider
             }
             case GARMIN_RECOVERY_TIME -> {
                 return TestDeviceRand.randInt(ts, 0, 2880);
+            }
+            case GARMIN_TRAINING_STATUS -> {
+                final long dayIndex = (ts - TestDeviceRand.BASE_TIMESTAMP) / DAY_MILLIS;
+                return TRAINING_STATUSES[(int) Math.floorMod(dayIndex / 4, TRAINING_STATUSES.length)];
             }
             case DAILY_TOTAL_ASCENT, DAILY_TOTAL_DESCENT -> {
                 return TestDeviceRand.randInt(ts, 0, 400);

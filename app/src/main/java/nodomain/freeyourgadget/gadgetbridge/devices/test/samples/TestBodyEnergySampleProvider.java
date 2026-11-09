@@ -28,7 +28,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.BodyEnergySample;
 public class TestBodyEnergySampleProvider extends AbstractTestSampleProvider<BodyEnergySample> {
     @NonNull
     @Override
-    public List<BodyEnergySample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<BodyEnergySample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<BodyEnergySample> samples = new ArrayList<>();
 
         for (long ts = timestampFrom; ts < timestampTo; ts += 15 * 60 * 1000L) {

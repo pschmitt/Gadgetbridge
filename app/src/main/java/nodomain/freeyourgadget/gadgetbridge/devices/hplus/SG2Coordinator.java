@@ -68,7 +68,7 @@ public class SG2Coordinator extends HPlusCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return SG2Support.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new SG2Support();
     }
 }

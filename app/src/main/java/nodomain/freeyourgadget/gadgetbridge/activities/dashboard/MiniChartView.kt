@@ -63,6 +63,7 @@ class MiniChartView @JvmOverloads constructor(
             null -> Unit
             is MiniChart.Progress -> drawProgress(canvas, chart)
             is MiniChart.Composition -> drawComposition(canvas, chart.colors, chart.values)
+            is MiniChart.Timeline -> drawTimeline(canvas, chart)
             is MiniChart.ZoneBar -> drawZoneBar(canvas, chart)
             is MiniChart.Bars -> drawBars(canvas, chart)
             is MiniChart.Line -> drawLine(canvas, chart)
@@ -210,6 +211,25 @@ class MiniChartView @JvmOverloads constructor(
             fillPaint.color = colors[min(i, colors.size - 1)]
             canvas.drawRect(x, top, x + widths[i], top + barHeight, fillPaint)
             x += widths[i] + GAP_DP * density
+        }
+        canvas.restore()
+    }
+
+    private fun drawTimeline(canvas: Canvas, chart: MiniChart.Timeline) {
+        val total = chart.weights.sum()
+        if (total <= 0f) return
+        val radius = height / 2f
+        clipPath.reset()
+        rect.set(0f, 0f, width.toFloat(), height.toFloat())
+        clipPath.addRoundRect(rect, radius, radius, Path.Direction.CW)
+        canvas.save()
+        canvas.clipPath(clipPath)
+        var x = 0f
+        for (i in chart.weights.indices) {
+            val next = x + chart.weights[i] / total * width
+            fillPaint.color = chart.colors[i]
+            canvas.drawRect(x, 0f, next, height.toFloat(), fillPaint)
+            x = next
         }
         canvas.restore()
     }

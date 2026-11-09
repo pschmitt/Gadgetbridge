@@ -84,8 +84,8 @@ public class SonySWR12DeviceCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return SonySWR12DeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new SonySWR12DeviceSupport();
     }
 
     @Override

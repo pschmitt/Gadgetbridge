@@ -1,7 +1,5 @@
 plugins {
     id("java-library")
-    id("idea")
-    id("eclipse")
     alias(libs.plugins.protobuf)
 }
 
@@ -15,22 +13,16 @@ dependencies {
     implementation(libs.protobuf.lite)
 }
 
-sourceSets {
-    main {
-        proto {
-            srcDir("main/src/proto")
-        }
-    }
-}
-
 protobuf {
     protoc {
-        artifact = libs.protoc.get().toString()
+        artifact = "${libs.protoc.get()}"
     }
 
     generateProtoTasks {
-        all().forEach {
-            it.builtins.findByName("java")?.option("lite")
+        all().forEach { task ->
+            task.builtins {
+                findByName("java")?.option("lite")
+            }
         }
     }
 }

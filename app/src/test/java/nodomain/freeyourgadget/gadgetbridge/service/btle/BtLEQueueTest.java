@@ -11,11 +11,6 @@ public class BtLEQueueTest extends TestBase {
         super.setUp();
     }
 
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
     @Test
     public void testIsConnected() throws Exception {
         // TODO

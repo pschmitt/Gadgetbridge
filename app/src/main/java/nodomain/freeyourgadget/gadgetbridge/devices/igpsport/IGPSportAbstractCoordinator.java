@@ -49,8 +49,8 @@ public abstract class IGPSportAbstractCoordinator extends AbstractBLEDeviceCoord
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(@NonNull final GBDevice device) {
-        return IGPSportDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(@NonNull final GBDevice device) {
+        return new IGPSportDeviceSupport();
     }
 
     @Nullable

@@ -100,6 +100,7 @@ import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.ActivityGauge;
 import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.GaugeDrawer;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
+import nodomain.freeyourgadget.gadgetbridge.activities.permissions.DevicePermissionsActivity;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
@@ -109,7 +110,6 @@ import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.Device;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceFolder;
-import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser;
 import nodomain.freeyourgadget.gadgetbridge.model.DailyTotals;
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
@@ -244,6 +244,7 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         holder.infoIcons.setVisibility(View.GONE);
         holder.quickControls.setVisibility(View.GONE);
         holder.companionHint.setVisibility(View.GONE);
+        holder.permissionsHint.setVisibility(View.GONE);
         holder.deviceImageView.setOnLongClickListener(null);
         holder.deviceInfoBox.setVisibility(View.GONE);
         holder.cardViewActivityCardLayout.setVisibility(View.GONE);
@@ -372,9 +373,9 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         //dynamically from the coordinator's declared card items, see DeviceCardItemBinder
         String hrSampleText = null;
         if (parent.getContext() instanceof ControlCenterv2) {
-            ActivitySample sample = ((ControlCenterv2) parent.getContext()).getCurrentHRSample(device);
-            if (sample != null) {
-                hrSampleText = String.valueOf(sample.getHeartRate());
+            Integer heartRate = ((ControlCenterv2) parent.getContext()).getCurrentHeartRate(device);
+            if (heartRate != null) {
+                hrSampleText = String.valueOf(heartRate);
             }
         }
         DeviceCardItemBinder.bind(
@@ -392,6 +393,7 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         );
 
         bindCompanionHint(holder, device);
+        bindPermissionsHint(holder, device);
 
         ItemWithDetailsAdapter infoAdapter = new ItemWithDetailsAdapter(context, device.getDeviceInfos());
         infoAdapter.setHorizontalAlignment(true);
@@ -461,7 +463,27 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         });
     }
 
+    private void bindPermissionsHint(final ViewHolder holder, final GBDevice device) {
+        // One hint at a time, and the companion association can remove a missing permission
+        if (holder.companionHint.getVisibility() == View.VISIBLE || !PermissionsHint.shouldShow(context, device)) {
+            holder.permissionsHint.setVisibility(View.GONE);
+            return;
+        }
+        holder.permissionsHint.setVisibility(View.VISIBLE);
+        holder.permissionsHintDismiss.setOnClickListener(v -> {
+            PermissionsHint.dismiss(context, device);
+            notifyItemChanged(holder.getBindingAdapterPosition());
+        });
+        holder.permissionsHintGrant.setOnClickListener(v ->
+            context.startActivity(DevicePermissionsActivity.newIntent(context, device))
+        );
+    }
+
     public void onResume() {
+        // Re-check missing permissions
+        PermissionsHint.invalidate();
+        notifyItemRangeChanged(0, getItemCount());
+
         if (pendingCompanionAddress == null) {
             return;
         }
@@ -839,6 +861,10 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
         final Button companionHintDismiss;
         final Button companionHintPair;
 
+        final LinearLayout permissionsHint;
+        final Button permissionsHintDismiss;
+        final Button permissionsHintGrant;
+
         ImageView deviceInfoView;
         //overflow
         final RelativeLayout deviceInfoBox;
@@ -874,6 +900,10 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
             companionHint = view.findViewById(R.id.companion_hint);
             companionHintDismiss = view.findViewById(R.id.companion_hint_dismiss);
             companionHintPair = view.findViewById(R.id.companion_hint_pair);
+
+            permissionsHint = view.findViewById(R.id.permissions_hint);
+            permissionsHintDismiss = view.findViewById(R.id.permissions_hint_dismiss);
+            permissionsHintGrant = view.findViewById(R.id.permissions_hint_grant);
 
             cardViewActivityCardLayout = view.findViewById(R.id.card_view_activity_card_layout);
 

@@ -196,9 +196,7 @@
     <string name="discovery_stop_scanning">Zastaviť hľadanie</string>
     <string name="discovery_start_scanning">Spustiť hľadanie</string>
     <string name="action_discover">Pripojiť nové zariadenia</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="title_activity_android_pairing">Párovať zariadenie</string>
-    <string name="android_pairing_hint">Použite párovanie BT Androidu pre spárovanie so zariadením.</string>
     <string name="title_activity_mi_band_pairing">Párovať Mi Band</string>
     <string name="pairing">Párujem s %s…</string>
     <string name="pairing_creating_bond_with">Vytváram väzbu s %1$s (%2$s)</string>
@@ -255,7 +253,6 @@
     <string name="stats_y_axis_label">Krokov za minútu</string>
     <string name="control_center_find_lost_device">Nájsť stratené zariadenie</string>
     <string name="control_center_cancel_to_stop_vibration">Zrušit pro zastavení vibrací.</string>
-    <string name="title_activity_charts">Vaše aktivity</string>
     <string name="title_activity_set_alarm">Nastaviť budíky</string>
     <string name="controlcenter_start_configure_alarms">Nastavenie budíkov</string>
     <string name="title_activity_alarm_details">Detaily budenia</string>
@@ -573,7 +570,6 @@
     <string name="prefs_sleep_time_summary">Určuje čas, kedy je zaregistrovaný spánok</string>
     <string name="bottom_nav_dashboard">Nástenka</string>
     <string name="pref_dashboard_widget_goals_chart_title">Graf cieľov</string>
-    <string name="weekstepschart_steps_a_week_or_month">Kroky za týždeň/mesiac</string>
     <string name="pref_dashboard_cards_summary">Nakreslite karty okolo widgety na paneli</string>
     <string name="active_time">Aktívny čas</string>
     <string name="activity_type_rem_sleep">REM spánok</string>
@@ -591,13 +587,11 @@
     <string name="pref_header_heartrate_sleep">Spánok</string>
     <string name="controlcenter_set_parent_folder">Nastaviť nadradený priečinok</string>
     <string name="steps_streaks_total_steps_hint_totals">Celkový počet krokov, ktoré boli zaznamenané</string>
-    <string name="pref_dashboard_first_summary">Zobraziť nástenku, keď Gadgetbridge začne, namiesto obrazovky zariadení</string>
     <string name="pref_dashboard_widget_show_legend_title">Zobraziť legendu</string>
     <string name="pref_sleepasandroid_feat_notifications">Upozornenia</string>
     <string name="permission_calendar_summary">Odosielanie kalendára do gadgets</string>
     <string name="controlcenter_toggle_details">Prepnúť podrobnosti</string>
     <string name="pref_sleep_mode_sleep_screen_title">Spánková obrazovka</string>
-    <string name="pref_dashboard_first_title">Zobraziť najprv nástenku</string>
     <string name="pref_dashboard_cards_title">Zobraziť widgety na karte</string>
     <string name="activity_list_summary_active_time">Aktívny čas</string>
     <string name="error_setting_alias">Chyba pri nastavení prezývky:</string>

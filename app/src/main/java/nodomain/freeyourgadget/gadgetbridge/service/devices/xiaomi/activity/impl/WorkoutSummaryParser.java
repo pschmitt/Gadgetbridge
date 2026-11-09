@@ -16,7 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.service.devices.xiaomi.activity.impl;
 
-import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.ACTIVE_SCORE;
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.ACTIVE_SECONDS;
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.ALTITUDE_AVG;
 import static nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries.ALTITUDE_MAX;
@@ -577,8 +576,9 @@ public class WorkoutSummaryParser extends XiaomiActivityParser implements Activi
             builder.addUnknown(46);
             builder.addShort(WORKOUT_LOAD, UNIT_NONE);
             builder.addUnknown(15);
-            builder.addShort(ACTIVE_SCORE, UNIT_NONE);
-            builder.addUnknown(17);
+            // Same spacing after the load as the v6 tail, where the vitality byte matches the watch.
+            builder.addByte(VITALITY_GAIN, UNIT_NONE);
+            builder.addUnknown(18);
             builder.addShort(AVG_GROUND_CONTACT_TIME, UNIT_MILLISECONDS);
             builder.addShort(MIN_GROUND_CONTACT_TIME, UNIT_MILLISECONDS);
             builder.addUnknown(6);
@@ -824,6 +824,26 @@ public class WorkoutSummaryParser extends XiaomiActivityParser implements Activi
         builder.addInt(HR_ZONE_AEROBIC, UNIT_SECONDS);
         builder.addInt(HR_ZONE_FAT_BURN, UNIT_SECONDS);
         builder.addInt(HR_ZONE_WARM_UP, UNIT_SECONDS);
+        if (version >= 6) {
+            // Checked on an elliptical v6 summary: total calories 774 against 678 active,
+            // active time 1795 s equal to the duration, anaerobic effect 0.3, load 96,
+            // vitality 3. The body tiles to its 79 bytes.
+            builder.addShort(CALORIES_TOTAL, UNIT_KCAL);
+            builder.addUnknown(4); // active time again
+            builder.addFloat(TRAINING_EFFECT_ANAEROBIC, UNIT_NONE);
+            builder.addUnknown(1); // reserved (1 byte)
+            // Route byte, as in outdoor cycling: 8 more bytes follow 0xFC, 0xFD or 0xFF.
+            builder.addUnknown(1);
+            builder.addUnknownIfPreviousByte(8, route -> route == 0xFC || route == 0xFD || route == 0xFF);
+            builder.addUnknown(1); // reserved (1 byte)
+            builder.addInt(TIME_GOAL, UNIT_SECONDS);
+            builder.addShort(CALORIES_GOAL, UNIT_KCAL);
+            builder.addShort(CADENCE_GOAL, UNIT_SPM);
+            builder.addShort(WORKOUT_LOAD, UNIT_NONE);
+            builder.addUnknown(1); // reserved (1 byte)
+            builder.addByte(VITALITY_GAIN, UNIT_NONE);
+            builder.addUnknown(1); // reserved (1 byte)
+        }
 
         return builder.build();
     }
@@ -903,13 +923,22 @@ public class WorkoutSummaryParser extends XiaomiActivityParser implements Activi
             builder.addByte(ActivitySummaryEntries.GROUP_COUNT, UNIT_NONE);
             builder.addUnknown(4);
             builder.addFloat(TRAINING_EFFECT_ANAEROBIC, UNIT_NONE);
-            builder.addUnknown(3);
+            builder.addUnknown(1);
+            if (version >= 8) {
+                // reserved (5 bytes). With it the v8 body tiles to its 108 bytes and the
+                // workout load of a rowing v8 file reads 2 instead of 0.
+                builder.addUnknown(5);
+            }
+            builder.addUnknown(2);
             builder.addInt(TIME_GOAL, UNIT_SECONDS);
             builder.addShort(CALORIES_GOAL, UNIT_KCAL);
             builder.addShort(ActivitySummaryEntries.GOAL_COUNT, UNIT_NONE);
             builder.addShort(WORKOUT_LOAD, UNIT_NONE);
             builder.addUnknown(1);
             builder.addByte(VITALITY_GAIN, UNIT_NONE);
+            if (version >= 8) {
+                builder.addUnknown(3); // reserved (3 bytes)
+            }
         } else {
             builder.addUnknown(4);
         }

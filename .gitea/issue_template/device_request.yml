@@ -60,15 +60,6 @@ body:
         Different gadget brands may use the same application, so this helps identify compatibility quicker.
     validations:
       required: true
-  - type: input
-    id: btname
-    attributes:
-      label: What is the Bluetooth name of the device?
-      description: |
-        Please include the exact bluetooth name, as displayed while searching for the device.
-        We use the Bluetooth name to set the matching of the device and model.
-    validations:
-      required: true
   - type: textarea
     id: info
     attributes:
@@ -76,10 +67,12 @@ body:
       description: >
         Include all details about the gadget that will be useful to us when implementing a support for this gadget. 
 
-        Ideally, use an [Android Bluetooth scanner](https://gadgetbridge.org/internals/development/bluetooth/) 
-        app like nRF Connect or BLExplorer and provide screenshots 
-        of the scanned gadget from that app. This provides a name and some available UUIDs, which are needed 
-        for implementation. You may want to blur MAC addresses for privacy reasons.
+        Ideally, long press the device in the Gadgetbridge discovery screen, click "Show details", and share the
+        device details displayed. If displayed, click the "Read GATT characteristics" button to read all
+        characteristics that the device exposes (not available on some devices).
+        
+        This provides the name and some available UUIDs, which are needed for implementation.
+        
       placeholder: If you want to include logs, don't include it here. Use the next text field for that.
     validations:
       required: true

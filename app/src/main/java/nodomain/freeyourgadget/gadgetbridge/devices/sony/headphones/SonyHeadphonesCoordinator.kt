@@ -145,8 +145,8 @@ abstract class SonyHeadphonesCoordinator : AbstractBLClassicDeviceCoordinator() 
         return false
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return SonyHeadphonesSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return SonyHeadphonesSupport()
     }
 
     override fun getDefaultIconResource(): Int {

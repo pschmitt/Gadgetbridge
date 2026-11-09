@@ -23,20 +23,12 @@
     public static *;
 }
 
-# Keep constructors for support classes, as they're called by reflection in DeviceSupportFactory#createServiceDeviceSupport
--keep public class * extends nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport
--keepclassmembers class * extends nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport {
-    public <init>(nodomain.freeyourgadget.gadgetbridge.model.DeviceType);
-    public <init>();
-}
 -keepattributes JavascriptInterface
 
-# Keep coordinators, they're only referenced from DeviceType
--keep public class * implements nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
--keepclassmembers class * implements nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator {
-  <init>();
+# DeviceType is the root for DeviceCoordinators and their DeviceSupports
+-keep class nodomain.freeyourgadget.gadgetbridge.model.DeviceType {
+    *;
 }
-
 # https://github.com/tony19/logback-android/issues/29
 -dontwarn javax.mail.**
 
@@ -102,6 +94,11 @@
 -keepclassmembers class nodomain.freeyourgadget.gadgetbridge.service.devices.qhybrid.requests.fossil.device_info.*Info {
   <init>();
 }
+
+# Hilt / Dagger
+# Keep rules come with hilt-android (proguard.txt) and dagger (META-INF/com.android.tools/r8),
+# covering entry points and @LazyClassKey/@HiltViewModel maps. Do not add broad
+# dagger/hilt -keep rules here; only add targeted rules if a minified build proves they are needed.
 
 # jsoup 1.22.1 introduces support for re2j, but falls back to java Regex if not available
 # Since we only use jsoup to clean the html, we do not need the extra dependency

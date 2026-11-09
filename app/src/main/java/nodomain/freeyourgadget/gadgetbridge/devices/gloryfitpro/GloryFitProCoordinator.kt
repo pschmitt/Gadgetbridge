@@ -43,8 +43,8 @@ abstract class GloryFitProCoordinator : AbstractBLEDeviceCoordinator() {
         return DeviceCoordinator.DeviceKind.WATCH
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return GloryFitProSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return GloryFitProSupport()
     }
 
     override fun suggestUnbindBeforePair(): Boolean {

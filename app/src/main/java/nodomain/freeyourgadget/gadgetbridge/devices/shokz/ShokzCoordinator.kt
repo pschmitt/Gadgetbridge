@@ -31,8 +31,8 @@ abstract class ShokzCoordinator : AbstractBLClassicDeviceCoordinator() {
         return "Shokz"
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport?> {
-        return ShokzSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return ShokzSupport()
     }
 
     override fun suggestUnbindBeforePair(): Boolean {

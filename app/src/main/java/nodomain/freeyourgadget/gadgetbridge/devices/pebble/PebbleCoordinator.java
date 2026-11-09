@@ -256,8 +256,8 @@ public class PebbleCoordinator extends AbstractBLClassicDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return PebbleSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new PebbleSupport();
     }
 
     @Override

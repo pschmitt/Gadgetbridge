@@ -40,6 +40,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.weightKg
 import nodomain.freeyourgadget.gadgetbridge.model.workouts.spec.workoutTemplates
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.workouts.ZeppOsExerciseCatalog
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.workouts.ZeppOsExerciseLists
+import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.workouts.ZeppOsWorkoutTemplateDecoder
 import nodomain.freeyourgadget.gadgetbridge.service.devices.huami.zeppos.workouts.ZeppOsWorkoutTemplateUploader
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -61,6 +62,7 @@ object ZeppOsWorkoutTemplateSpec {
             nameMaxLength = 20
             noteMaxLength = 20
             exporter = ZeppOsWorkoutTemplateUploader
+            importer = ZeppOsWorkoutTemplateDecoder
 
             // TODO: Disabled since we have no captures to know how to encode track run
             // sport(ActivityKind.TRACK_RUN) { runningOnPlayground() } // "Running on playground"

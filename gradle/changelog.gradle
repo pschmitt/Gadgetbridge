@@ -1,0 +1,73 @@
+tasks.register("buildGitChangelog") {
+    final def changelogFile = layout.buildDirectory.file("generated/res/changelog/xml/changelog_git.xml")
+
+    final def gitFile = rootProject.file(".git")
+    def gitHead = null
+
+    if (gitFile.isDirectory()) {
+        gitHead = new File(gitFile, "HEAD")
+    } else if (gitFile.isFile()) {
+        def gitDir = gitFile.text.trim().replaceFirst(/^gitdir:\s*/, "")
+        gitHead = new File(gitDir).with {
+            isAbsolute() ? new File(it, "HEAD") : new File(gitFile.parentFile, "${it.path}/HEAD")
+        }
+    }
+
+    if (gitHead?.exists()) {
+        inputs.file(gitHead)
+    }
+    outputs.file(changelogFile)
+
+    // Capture configuration-cache-safe references before doLast
+    final def providersFactory = providers
+    final def versionCodeValue = project.hasProperty("getVersionCode") ? project.getVersionCode() : null
+
+    doLast {
+        final def outputFile = changelogFile.get().asFile
+        outputFile.parentFile.mkdirs()
+
+        final def changelogNode = new Node(null, "changelog")
+
+        try {
+            def allCommits = providersFactory.exec {
+                commandLine("git", "log", "-n", "300", "--pretty=format:%H %s")
+            }.standardOutput.asText.get()
+
+            def commitVersionCode = versionCodeValue
+            def includedCommits = 0
+            def includedTranslations = 0
+
+            for (String line : allCommits.trim().split("\r?\n")) {
+                if (includedCommits > 100) {
+                    break
+                }
+
+                final def parts = line.split(" ", 2)
+
+                final def fullCommitHash = parts[0]
+                final def commitMessage = parts[1].replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]", "")
+                final def commitHash = fullCommitHash.take(10)
+                final def currentVersionCode = commitVersionCode != null ? commitVersionCode-- : null
+
+                if (commitMessage.contains("Translated using Weblate")) {
+                    if (includedTranslations == 0) {
+                        final def releaseNode = new Node(changelogNode, "release", [version: commitHash, versioncode: currentVersionCode])
+                        new Node(releaseNode, "change", [:], "Sync translations from Weblate")
+                    }
+                    includedTranslations++
+                    continue
+                }
+
+                final def releaseNode = new Node(changelogNode, "release", [version: commitHash, versioncode: currentVersionCode])
+                final def _  = new Node(releaseNode, "change", [:], commitMessage)
+                includedCommits++
+            }
+        } catch (ignored) {
+            logger.warn("Skipping git changelog: git is not available")
+        }
+
+        outputFile.withWriter("UTF-8") { writer ->
+            groovy.xml.XmlUtil.serialize(changelogNode, writer)
+        }
+    }
+}

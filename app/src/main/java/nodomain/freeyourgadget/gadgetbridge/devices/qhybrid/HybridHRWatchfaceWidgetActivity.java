@@ -19,9 +19,7 @@ package nodomain.freeyourgadget.gadgetbridge.devices.qhybrid;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
-import android.view.MenuItem;
 
-import androidx.annotation.NonNull;
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -66,31 +64,13 @@ public class HybridHRWatchfaceWidgetActivity extends AbstractSettingsActivityV2 
         }
 
         super.onCreate(savedInstanceState);
-    }
 
-    @Override
-    public void onBackPressed() {
-        // Hardware back button
-        Intent output = new Intent();
+        // The intent keeps a reference to the widget and the system serializes it when the activity
+        // finishes, so the result includes later changes to the widget
+        final Intent output = new Intent();
         output.putExtra("widgetIndex", widgetIndex);
         output.putExtra("widgetSettings", widget);
         setResult(RESULT_OK, output);
-        finish();
-        super.onBackPressed();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            // Action bar back button
-            Intent output = new Intent();
-            output.putExtra("widgetIndex", widgetIndex);
-            output.putExtra("widgetSettings", widget);
-            setResult(RESULT_OK, output);
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     public static class HybridHRWatchfaceWidgetFragment extends AbstractPreferenceFragment implements Preference.OnPreferenceChangeListener {

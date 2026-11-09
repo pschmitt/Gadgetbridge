@@ -207,7 +207,6 @@
     <string name="dbmanagementactivity_error_cleaning_export_directory">Pogreška prilikom brisanja datoteka iz direktorija za izvoz %1$s</string>
     <string name="dbmanagementactivity_export_data_title">Izvesti podatke\?</string>
     <string name="dbmanagementactivity_error_importing_shared">Pogreška pri uvozu preferencija: %1$s</string>
-    <string name="activity_db_management_exportimport_label">Izvoz i uvoz</string>
     <string name="pref_summary_setup_bt_pairing">Deaktivirajte ovo ako imate problema s povezivanjem</string>
     <string name="menuitem_notifications">Obavijesti</string>
     <string name="menuitem_activity">Povijest vježbanja</string>
@@ -215,8 +214,6 @@
     <string name="preferences_rtl_settings">Podrška zdesna nalijevo</string>
     <string name="share_log">Dijeli zapisnik</string>
     <string name="share_log_warning">Imajte na umu da datoteke zapisnika Gadgetbridgea koje mogu sadržavati mnogo osobnih podataka, uključujući, ali ne ograničavajući se na zdravstvene podatke, jedinstvene identifikatore (kao što je MAC adresa uređaja), glazbene postavke itd. Razmislite o uređivanju datoteke i uklanjanju ovih informacija prije slanja datoteke javnom izvješću o problemu.</string>
-    <string name="toast_app_must_be_selected">Aplikacija mora biti odabrana da bi se konfigurirala</string>
-    <string name="edittext_notification_filter_words_hint">Unesite željene riječi, novi redak za svaku</string>
     <string name="hr_widget_battery">Baterija</string>
     <string name="hr_widget_weather">Vrijeme</string>
     <string name="hr_widget_nothing">Ništa</string>
@@ -536,14 +533,7 @@
     <string name="pref_invalid_frequency_title">Nevažeća frekvenciju</string>
     <string name="pref_invalid_frequency_message">Molimo unesite frekvenciju između 87,5 i 108,0</string>
     <string name="language_and_region_prefs">Postavke jezika i regije</string>
-    <string name="title_activity_notification_filter">Filtar obavijesti</string>
-    <string name="toast_app_must_not_be_selected">Aplikacija se ne smije odabrati za konfiguraciju</string>
-    <string name="toast_notification_filter_saved_successfully">Filtar obavijesti spremljen</string>
     <string name="filter_mode_none">Ne filtriraj</string>
-    <string name="filter_mode_whitelist">Prikaži kada su riječi sadržane</string>
-    <string name="filter_mode_blacklist">Blokiraj kada su riječi sadržane</string>
-    <string name="filter_submode_at_least_one">Najmanje jedna od riječi</string>
-    <string name="filter_submode_all">Sve riječi</string>
     <string name="appwidget_text">Zzz</string>
     <string name="appwidget_sleep_alarm_widget_label">Alarm za spavanje</string>
     <string name="widget_listing_label">Status i alarmi</string>
@@ -569,8 +559,6 @@
     <string name="watchface_dialog_widget_preset_right">Desno</string>
     <string name="prefs_game_mode_summary">Samo ako vaš telefon podržava način igranja</string>
     <string name="title_activity_notification_management">Postavke obavijesti</string>
-    <string name="check_all_applications">Provjeri sve aplikacije</string>
-    <string name="uncheck_all_applications">Poništi sve aplikacije</string>
     <string name="fw_upgrade_notice_amazfitcor">Spremate se instalirati %s firmware na vaš Amazfit Cor.
 \n
 \nObavezno instalirajte .fw datoteku, a nakon toga .res datoteku. Vaš band će se ponovno pokrenuti nakon instaliranja.
@@ -637,9 +625,6 @@
     <string name="pref_title_notifications_pebblemsg">Pebble poruke</string>
     <string name="pref_title_whenscreenon">…također kada je zaslon uključen</string>
     <string name="pref_header_notification_application_settings">Postavke aplikacije</string>
-    <string name="pref_title_notification_use_as">Koristite popis aplikacija za…</string>
-    <string name="pref_title_notification_use_as_deny">Odbij obavijesti odabranih aplikacija</string>
-    <string name="pref_title_notification_use_as_allow">Dopusti obavijesti odabranih aplikacija</string>
     <string name="pref_title_transliteration">Transliteracija</string>
     <string name="pref_summary_transliteration">Omogućite ovo ako vaš uređaj nema podršku za font vašeg jezika</string>
     <string name="pref_rtl_max_line_length_summary">Produljuje ili skraćuje retke s desna na lijevo tekst na koje je odvojen</string>
@@ -717,7 +702,6 @@
     <string name="interval_forty_five_minutes">svakih 45 minuta</string>
     <string name="interval_one_hour">jednom na sat</string>
     <string name="stats_title">Zone brzine</string>
-    <string name="title_activity_charts">Aktivnost i spavanje</string>
     <string name="title_activity_set_alarm">Konfiguracija alarma</string>
     <string name="reminder_time">Vrijeme</string>
     <string name="reminder_message">Poruka</string>
@@ -864,7 +848,6 @@
     <string name="activity_prefs_weight_kg">Težina u kg</string>
     <string name="activity_prefs_step_length_cm">Duljina koraka u cm</string>
     <string name="activity_prefs_discovery_pairing">Opcije otkrivanja i uparivanja</string>
-    <string name="pref_charts_range_off">Raspon grafikona postavljen je na tjedan</string>
     <string name="pref_chart_heartrate_color_orange">Narančasta</string>
     <string name="pref_title_chart_heartrate_color">Boja otkucaja srca</string>
     <string name="activity_prefs_chart_min_steps_per_minute">Minimalni broj koraka u minuti za otkrivanje aktivnosti</string>
@@ -946,7 +929,6 @@
     <string name="you_did_not_sleep">Niste spavali</string>
     <string name="automatic">Automatski</string>
     <string name="pref_title_charts_range">Raspon grafikona</string>
-    <string name="pref_charts_range_on">Raspon grafikona postavljen je na mjesec</string>
     <string name="pref_title_upper_button_function_double">Gornji gumb dvostruko</string>
     <string name="pref_summary_use_custom_font">Omogućite ovo ako vaš uređaj ima prilagođeni firmware font za emoji podršku</string>
     <string name="pref_title_huami_force_new_protocol">Novi protokol za autentifikaciju</string>
@@ -975,7 +957,6 @@
     <string name="activity_type_hiking">Pješačenje</string>
     <string name="pref_title_middle_button_function_long">Srednji gumb dugo</string>
     <string name="pref_title_middle_button_function_double">Srednji gumb dvostruko</string>
-    <string name="permission_granting_mandatory">Sva su ta dopuštenja potrebna i može doći do nestabilnosti ako se ne daju</string>
     <string name="pref_check_permission_status_summary">Provjerite i zatražite nedostajuća dopuštenja čak i kada možda nisu potrebna odmah. Onemogućite ovo samo ako vaši uređaji zapravo ne podržavaju nijednu od ovih značajki. Nedavanje dopuštenja može uzrokovati probleme!</string>
     <string name="sports_activity_quick_filter_7days">7 dana</string>
     <string name="sports_activity_quick_filter_30days">30 dana</string>
@@ -1062,8 +1043,6 @@
     <string name="discovery_stop_scanning">Zaustavi skeniranje</string>
     <string name="discovery_start_scanning">Pokreni otkrivanje</string>
     <string name="action_discover">Povežite novi uređaj</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
-    <string name="android_pairing_hint">Za uparivanje uređaja koristite dijaloški okvir Android Bluetooth uparivanja.</string>
     <string name="title_activity_mi_band_pairing">Uparite svoj Mi Band</string>
     <string name="pairing">Uparivanje sa %s…</string>
     <string name="pairing_creating_bond_with">Stvaranje veze s %1$s (%2$s)</string>
@@ -1147,7 +1126,6 @@
     <string name="dbmanagementactivity_old_activity_db_deletion_failed">Brisanje baze podataka stare aktivnosti nije uspjelo.</string>
     <string name="dbmanagementactivity_overwrite">Prepiši</string>
     <string name="set">Postavi</string>
-    <string name="activity_DB_ShowContentButton">Prikaži sadržaj direktorija za izvoz/uvoz</string>
     <string name="unit_metric">Metrički</string>
     <string name="unit_imperial">Imperial</string>
     <string name="timeformat_24h">24H</string>
@@ -1155,9 +1133,7 @@
     <string name="pref_screen_notification_profile_alarm_clock">Alarm</string>
     <string name="activity_type_light_sleep">Lagano spavanje</string>
     <string name="preferences_fm_frequency">FM frekvencija</string>
-    <string name="toast_notification_filter_words_empty_hint">Molimo unesite barem jednu riječ</string>
     <string name="filter_mode">Način filtra</string>
-    <string name="mode_configuration">Način konfiguracije</string>
     <string name="save_configuration">Spremi konfiguraciju</string>
     <string name="appwidget_not_connected">Nije povezano, alarm nije postavljen.</string>
     <string name="add_widget">Dodaj widget</string>
@@ -1387,7 +1363,6 @@
     <string name="hr_widget_heart_rate">Otkucaji srca</string>
     <string name="hr_widget_steps">Koraci</string>
     <string name="hr_widget_date">Datum</string>
-    <string name="error_no_location_access">Pristup lokaciji mora biti odobren i omogućen da bi skeniranje ispravno radilo</string>
     <string name="pref_qhybrid_title_widget_draw_circles">Nacrtajte krugove widgeta</string>
     <string name="pref_qhybrid_save_raw_activity_files">Spremi neobrađene datoteke aktivnosti</string>
     <string name="hr_widget_last_notification">Posljednja obavijest</string>

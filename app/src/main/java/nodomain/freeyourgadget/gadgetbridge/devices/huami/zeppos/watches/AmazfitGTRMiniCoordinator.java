@@ -69,17 +69,18 @@ public class AmazfitGTRMiniCoordinator extends ZeppOsCoordinator {
     }
 
     @Override
-    public boolean supportsWifiHotspot(final GBDevice device) {
-        return false;
-    }
-
-    @Override
     public boolean supportsFtpServer(final GBDevice device) {
         return false;
     }
 
     @Override
     public boolean supportsBluetoothPhoneCalls(final GBDevice device) {
+        return false;
+    }
+
+    @Override
+    public boolean supportsSleepScore(@NonNull final GBDevice device) {
+        // Zepp OS 2.0
         return false;
     }
 

@@ -7,12 +7,12 @@ import androidx.core.net.toUri
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
-import nodomain.freeyourgadget.gadgetbridge.GBDatabaseManager
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.util.GB
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.IOException
 
 class DatabaseExportWorker(
     private val mContext: Context,
@@ -39,8 +39,10 @@ class DatabaseExportWorker(
         }
 
         try {
-            mContext.contentResolver.openOutputStream(dst.toUri()).use { out ->
-                GBDatabaseManager.exportDB(out)
+            val outputStream = mContext.contentResolver.openOutputStream(dst.toUri())
+                ?: throw IOException("Unable to open $dst for writing")
+            outputStream.use { out ->
+                GBApplication.app().databaseManager.exportDB(out)
             }
 
             GBApplication.getPrefs().preferences.edit {

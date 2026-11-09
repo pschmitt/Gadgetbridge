@@ -91,7 +91,6 @@
     <string name="appmananger_app_delete_cache">கேச் இருந்து நீக்கி அகற்றவும்</string>
     <string name="appmanager_health_activate">செயல்படுத்து</string>
     <string name="appmanager_hrm_activate">HRM ஐ செயல்படுத்தவும்</string>
-    <string name="check_all_applications">எல்லா பயன்பாடுகளையும் சரிபார்க்கவும்</string>
     <string name="pref_world_clocks_title">உலக கடிகாரங்கள்</string>
     <string name="title_activity_alarm_details">அலாரம் விவரங்கள்</string>
     <string name="pref_summary_rtl">உங்கள் சாதனம் வலது-இடது மொழிகளைக் காட்ட முடியாவிட்டால் இதை இயக்கவும்</string>
@@ -206,10 +205,7 @@
     <string name="moondrop_touch_earbud">காதணி</string>
     <string name="moondrop_touch_trigger">தூண்டுதல்</string>
     <string name="moondrop_touch_action_assistant">குரல் உதவியாளரைத் தூண்டும்</string>
-    <string name="soundcore_button_brightness_medium">சராசரி</string>
     <string name="soundcore_equalizer_direction_hanging">தொங்கும்</string>
-    <string name="soundcore_equalizer_band4">பேண்ட் 4</string>
-    <string name="soundcore_equalizer_band5">பேண்ட் 5</string>
     <string name="triple_tap">டிரிபிள் டேப்</string>
     <string name="pref_device_action_fitness_app_control_stop">உடற்பயிற்சி பயன்பாட்டு கண்காணிப்பு நிறுத்தம்</string>
     <string name="pref_device_action_fitness_app_control_toggle">உடற்பயிற்சி பயன்பாட்டு கண்காணிப்பை மாற்றவும்</string>
@@ -262,7 +258,6 @@
     <string name="zepp_os_watchface_red_fantasy">சிவப்பு கற்பனை</string>
     <string name="pref_summary_contextual_arabic">சூழ்நிலை அரபு மொழியை ஆதரிக்க இதை இயக்கவும்</string>
     <string name="preferences_rtl_settings">இடது உதவி</string>
-    <string name="toast_notification_filter_saved_successfully">அறிவிப்பு வடிகட்டி சேமிக்கப்பட்டது</string>
     <string name="filter_mode_none">வடிகட்ட வேண்டாம்</string>
     <string name="qhybrid_buttons_overwrite_success">பொத்தான்கள் மேலெழுதப்பட்டன</string>
     <string name="hr_widget_date">திகதி</string>
@@ -315,7 +310,6 @@
     <string name="pref_summary_notifications_pebblemsg">Pebble வழியாகக் கூழாங்கலுக்கு அறிவிப்புகளை அனுப்பும் பயன்பாடுகளுக்கான உதவி.</string>
     <string name="pref_title_notifications_generic">பொதுவான அறிவிப்பு உதவி</string>
     <string name="pref_title_whenscreenon">… திரை இயக்கத்தில் இருக்கும்போது</string>
-    <string name="pref_title_notification_use_as_allow">தேர்ந்தெடுக்கப்பட்ட பயன்பாடுகளிலிருந்து அறிவிப்புகளை அனுமதிக்கவும்</string>
     <string name="pref_summary_transliteration">உங்கள் சாதனத்தின் எழுத்துருவுக்கு உங்கள் சாதனத்திற்கு எந்த ஆதரவும் இல்லை என்றால் இதை இயக்கவும்</string>
     <string name="pref_summary_banglejs_text_bitmap">கடிகாரத்தின் எழுத்துருவுடன் ஒரு வார்த்தையை வழங்க முடியாவிட்டால், அதை கேசெட் பிரிட்சில் ஒரு பிட்மேப்பிற்கு வழங்கவும், கடிகாரத்தில் பிட்மேப்பைக் காண்பிக்கவும்</string>
     <string name="pref_title_banglejs_phone_gps_enbale">தொலைபேசி சி.பி.எச் தரவைப் பயன்படுத்தவும்</string>
@@ -372,7 +366,6 @@
     <string name="qhybrid_calibration_100_steps">100 படிகள்</string>
     <string name="hybridhr_widget_bg_dashed_circle">கோடு வட்டம்</string>
     <string name="pref_title_touch_spotify">சுபாடிபை</string>
-    <string name="soundcore_equalizer_band9">பேண்ட் 9</string>
     <string name="mijia_lywsd_comfort_level_title">ஆறுதல் நிலை</string>
     <string name="pref_summary_prefix_notification_with_app">மூல பயன்பாட்டின் பெயருடன் முன்னொட்டு அறிவிப்பு தலைப்பு</string>
     <string name="activity_type_worn">அணிந்த</string>
@@ -509,7 +502,6 @@
     <string name="danish">டேனிச்</string>
     <string name="activity_prefs_weight_kg">கிலோ எடை</string>
     <string name="activity_prefs_step_length_cm">முதல்வரில் படி நீளம்</string>
-    <string name="weekstepschart_steps_a_week_or_month">வாரத்திற்கு/மாதத்திற்கு படிகள்</string>
     <string name="error_creating_directory_for_logfiles">பதிவு கோப்புகளுக்கான கோப்பகத்தை உருவாக்குவது பிழை: %1$s</string>
     <string name="title_activity_db_management">தரவு மேலாண்மை</string>
     <string name="dbmanagementactivity_import_successful">இறக்குமதி செய்யப்பட்டது.</string>
@@ -576,12 +568,10 @@
     <string name="prefs_equalizer_preset">சமநிலைப்படுத்தி முன்னமைவு</string>
     <string name="prefs_game_mode_summary">உங்கள் தொலைபேசி விளையாட்டு பயன்முறையை ஆதரித்தால் மட்டுமே</string>
     <string name="battery_i">பேட்டரி %d</string>
-    <string name="soundcore_equalizer_band1">பேண்ட் 1</string>
     <string name="fossil_hr_pairing_successful">வாட்ச் வெற்றிகரமாக இணைத்தல்</string>
     <string name="info_menu_structure_set">பட்டியல் கட்டமைப்பு சாதொபொகு சிபியில் அமைக்கப்பட்டுள்ளது</string>
     <string name="prefs_wena3_home_icon_name_pedometer">படி எண்ணிக்கை</string>
     <string name="widget_screen_no_free_slots_description">சாதனத்தில் விட்செட் திரைகளுக்கு இலவச இடங்கள் இல்லை (மொத்த இடங்கள்: %1$s)</string>
-    <string name="pref_dashboard_first_summary">சாதனங்களின் திரைக்கு பதிலாக கேசெட் பிரிட்ச் தொடங்கும் போது டாச்போர்டைக் காட்டு</string>
     <string name="url">முகவரி</string>
     <string name="pref_fetch_unknown_files_summary">கடிகாரத்திலிருந்து அறியப்படாத செயல்பாட்டு கோப்புகளைப் பெறுங்கள். அவை செயலாக்கப்படாது, ஆனால் தொலைபேசியில் சேமிக்கப்படும்.</string>
     <string name="pref_dashboard_widget_today_time_indicator_title">தற்போதைய நேர காட்டி</string>
@@ -641,7 +631,6 @@
     <string name="FetchActivityOperation_about_to_transfer_since">%1$s முதல் தரவை மாற்றப் போகிறது</string>
     <string name="activity_prefs_height_cm">முதல்வரில் உயரம்</string>
     <string name="pref_header_charts">விளக்கப்படங்கள் அமைப்புகள்</string>
-    <string name="pref_charts_range_off">விளக்கப்படங்கள் வரம்பு ஒரு வாரத்திற்கு அமைக்கப்பட்டுள்ளது</string>
     <string name="pref_chart_heartrate_color_red">சிவப்பு</string>
     <string name="activity_prefs_chart_min_steps_per_minute_for_run">ரன் கண்டறிய நிமிடத்திற்கு குறைந்தபட்ச படிகள்</string>
     <string name="authenticating">ஏற்பு</string>
@@ -704,7 +693,6 @@
     <string name="notification_gps_title">கேசெட் பிரிட்ச் சி.பி.எச்</string>
     <string name="menuitem_map">வரைபடம்</string>
     <string name="menuitem_heart_rate_push">இதய துடிப்பு உந்துதல்</string>
-    <string name="title_activity_notification_filter">அறிவிப்பு வடிகட்டி</string>
     <string name="prefs_fm_presets_presets">முன்னமைவுகள்</string>
     <string name="qhybrid_second_timezone_offset_relative_to_utc">யுடிசியுடன் ஒப்பிடும்போது இரண்டாவது நேர மண்டல ஆஃப்செட்</string>
     <string name="steps">படிகள்</string>
@@ -910,8 +898,6 @@
     <string name="zepp_os_watchface_business_style">வணிக நடை</string>
     <string name="watch9_time_minutes">நிமிடங்கள்:</string>
     <string name="prefs_fm_preset_instructions">முன்னமைவை சேமிக்க பொத்தானை அழுத்தவும்</string>
-    <string name="toast_app_must_not_be_selected">கட்டமைக்க பயன்பாடு தேர்ந்தெடுக்கப்படக்கூடாது</string>
-    <string name="edittext_notification_filter_words_hint">விரும்பிய சொற்களை உள்ளிடவும், ஒவ்வொன்றிற்கும் புதிய வரி</string>
     <string name="save_configuration">உள்ளமைவைச் சேமிக்கவும்</string>
     <string name="quick_alarm_description">விட்செட்டிலிருந்து அலாரம்</string>
     <string name="degrees">டிகிரி</string>
@@ -941,7 +927,6 @@
     <string name="sony_speak_to_chat_timeout_off">அணை</string>
     <string name="sony_quick_access_triple_tap">விரைவான அணுகல் (மூன்று தட்டு)</string>
     <string name="soundcore_equalizer_direction_lying">பொய்</string>
-    <string name="soundcore_equalizer_band8">பேண்ட் 8</string>
     <string name="pref_screen_auto_brightness_title">ஆட்டோ ஒளி</string>
     <string name="idasen_control_button_mid">நடுப்பகுதி</string>
     <string name="idasen_control_button_stand">நிற்க</string>
@@ -968,8 +953,6 @@
     <string name="hr_widget_nothing">எதுவும் இல்லை</string>
     <string name="hr_appname_stopwatch">ச்டாப்வாட்ச்</string>
     <string name="pref_title_upper_button_long_press_action">மேல் பொத்தான் நீண்ட அழுத்த நடவடிக்கை</string>
-    <string name="error_no_bluetooth_scan">ஊடலை ச்கேன் அணுகல் வழங்கப்பட வேண்டும் மற்றும் ச்கேனிங் சரியாக வேலை செய்ய இயக்கப்பட வேண்டும்</string>
-    <string name="error_no_bluetooth_connect">ஊடலை இணைப்பு அணுகல் வழங்கப்பட வேண்டும் மற்றும் ச்கேனிங் சரியாக வேலை செய்ய இயக்கப்பட வேண்டும்</string>
     <string name="device_is_currently_bonded">ஏற்கனவே பிணைக்கப்பட்டுள்ளது</string>
     <string name="error_retrieving_devices_database">தரவுத்தளத்திலிருந்து சாதனங்களை மீட்டெடுப்பதில் பிழை</string>
     <string name="backFootLandings">பின் கால் தரையிறக்கங்கள்</string>
@@ -980,7 +963,6 @@
     <string name="activity_summaries_statistics">புள்ளிவிவரங்கள்</string>
     <string name="activity_summaries_all_activities">அனைத்து நடவடிக்கைகளும்</string>
     <string name="pref_header_stress">தகைவு</string>
-    <string name="soundcore_button_brightness_high">உயர்ந்த</string>
     <string name="soundcore_equalizer_direction_standing">நின்று</string>
     <string name="miscale_small_objects_summary">10 கிலோவை விட இலகுவான பொருட்களின் எடையை சேமிக்கவும்</string>
     <string name="fossil_hr_confirmation_skipped">சாதனத்தின் உறுதிப்படுத்தலைத் தவிர்க்கிறது</string>
@@ -1102,7 +1084,6 @@
     <string name="activity_summary_edit_name_title">லேபிளைத் திருத்து</string>
     <string name="kind_font">எழுத்துரு</string>
     <string name="pref_title_lower_button_function_double">கீழ் பொத்தானை இரட்டை</string>
-    <string name="error_no_location_access">இருப்பிட அணுகல் வழங்கப்பட வேண்டும் மற்றும் ச்கேனிங் சரியாக வேலை செய்ய இயக்கப்பட வேண்டும்</string>
     <string name="about_core_team_title">முக்கிய குழு (முதல் குறியீடு பங்களிப்பின் வரிசையில்)</string>
     <string name="fossil_hr_edit_action_delete">நீக்கு</string>
     <string name="watchface_dialog_widget_cat_2nd_tz_widget">2 வது நேர மண்டல விட்செட்</string>
@@ -1356,7 +1337,6 @@
     <string name="temperature_scale_celsius">செல்சியச்</string>
     <string name="temperature_scale_fahrenheit">பாரன்ஈட்</string>
     <string name="fossil_hr_nav_app_not_installed_notify_title">வழிசெலுத்தல் பயன்பாடு கண்காணிப்பில் நிறுவப்படவில்லை</string>
-    <string name="pref_dashboard_first_title">முதலில் டாச்போர்டைக் காட்டு</string>
     <string name="pref_dashboard_all_devices_summary">டாச்போர்டில் உள்ள மொத்தங்களுக்கான அனைத்து சேர்க்கப்பட்ட சாதனங்களிலிருந்தும் செயல்பாட்டு தரவை இணைக்கவும்</string>
     <string name="alarm_slot_reset">அலாரம் ச்லாட் இயல்புநிலைக்கு அமைக்கப்பட்டுள்ளது</string>
     <string name="pref_sleepasandroid_feat_notifications">அறிவிப்புகள்</string>
@@ -1364,7 +1344,6 @@
     <string name="activity_type_free_sparring">இலவச ச்பார்ரிங்</string>
     <string name="zetime_date_format">தேதி வடிவம்</string>
     <string name="sony_surround_mode_off">அணை</string>
-    <string name="soundcore_button_brightness_low">குறைந்த</string>
     <string name="pref_summary_bottom_navigation_bar_on">வழிசெலுத்தல் பட்டி அல்லது கிடைமட்ட ச்வைப்பிங்கைப் பயன்படுத்தி முதன்மையான திரைகளுக்கு இடையில் மாறவும்</string>
     <string name="garmin_agps_local_file">உள்ளக கோப்பு</string>
     <string name="toggle_debug_mode">பிழைத்திருத்த பயன்முறையை மாற்றவும்</string>
@@ -1379,7 +1358,6 @@
     <string name="pref_media_rewind">திரும்புக</string>
     <string name="pref_device_action_broadcast">ஒளிபரப்பு அனுப்பவும்</string>
     <string name="activity_DB_ExportButton">தரவு ஏற்றுமதி</string>
-    <string name="activity_DB_ShowContentButton">ஏற்றுமதி/இறக்குமதி அடைவு உள்ளடக்கத்தைக் காட்டு</string>
     <string name="discovery_yes_pair">பேரிக்காய்</string>
     <string name="_pebble_watch_open_on_phone">ஆண்ட்ராய்டு சாதனத்தில் திறக்கவும்</string>
     <string name="activity_type_not_measured">அளவிடப்படவில்லை</string>
@@ -1474,8 +1452,6 @@
     <string name="menuitem_membership_cards">உறுப்பினர் அட்டைகள்</string>
     <string name="menuitem_eject_water">தண்ணீரை வெளியேற்றவும்</string>
     <string name="zepp_os_watchface_minimalist">குறைந்தபட்சம்</string>
-    <string name="filter_mode_whitelist">சொற்கள் இருக்கும்போது காண்பி</string>
-    <string name="filter_mode_blacklist">சொற்கள் இருக்கும்போது தடுக்கவும்</string>
     <string name="widget_1_hour">1 மணி நேரம்</string>
     <string name="pref_title_upper_button_function_short">மேல் பொத்தான் குறுகிய</string>
     <string name="first_start_get_started_title">தொடங்கவும்</string>
@@ -1695,8 +1671,6 @@
     <string name="error_location_enabled_mandatory">சாதனங்களுக்கான ச்கேன் செய்ய இருப்பிடம் இயக்கப்பட வேண்டும்</string>
     <string name="watchface_dialog_title_widget">விட்செட் அமைப்புகள்</string>
     <string name="watchface_setting_title_display_refresh_timeout">புதுப்பிப்பு நேரத்தை காண்பி</string>
-    <string name="soundcore_equalizer_band6">பேண்ட் 6</string>
-    <string name="soundcore_equalizer_band7">பேண்ட் 7</string>
     <string name="soundcore_equalizer_frequency">மீடிறன், மீள்திறன், நிகழ்வெண், நிகழ்வு</string>
     <string name="soundcore_equalizer_value">மதிப்பு</string>
     <string name="pref_activity_recognize_biking">பைக்கிங் அங்கீகரிக்கவும்</string>
@@ -1743,7 +1717,6 @@
     <string name="warning">எச்சரிக்கை!</string>
     <string name="note">குறிப்பு</string>
     <string name="no_data">தரவு இல்லை</string>
-    <string name="toast_app_must_be_selected">கட்டமைக்க பயன்பாடு தேர்ந்தெடுக்கப்பட வேண்டும்</string>
     <string name="hr_widget_calories">கலோரிகள்</string>
     <string name="activeSeconds">செயலில்</string>
     <string name="stepRateAvg">சராசரி படி வீதம்</string>
@@ -1778,7 +1751,6 @@
     <string name="soundcore_equalizer_custom_title">தனிப்பயனாக்கு…</string>
     <string name="soundcore_equalizer_custom_summary">அளவுரு சமநிலை அமைப்புகளை உள்ளமைக்கவும்</string>
     <string name="soundcore_equalizer_direction">சாதன திசை</string>
-    <string name="soundcore_equalizer_band3">பேண்ட் 3</string>
     <string name="pref_media_play">ஊடக நாடகம்</string>
     <string name="pref_media_playpause">பிளேபேக்கை மாற்றவும்</string>
     <string name="pref_activity_recognize_rowing">ரோயிங்கை அங்கீகரிக்கவும்</string>
@@ -1828,7 +1800,6 @@
     <string name="french_ca">பிரஞ்சு (கனடா)</string>
     <string name="activity_prefs_about_you">உங்களைப் பற்றி</string>
     <string name="activity_prefs_height_inches">அங்குல உயரம்</string>
-    <string name="pref_charts_range_on">விளக்கப்படங்கள் வரம்பு ஒரு மாதத்திற்கு அமைக்கப்பட்டுள்ளது</string>
     <string name="weekstepschart_steps_a_month">மாதத்திற்கு படிகள்</string>
     <string name="pref_title_pebble_health_store_raw">மூல பதிவை தரவுத்தளத்தில் சேமிக்கவும்</string>
     <string name="dbmanagementactivvity_cannot_access_export_path">ஏற்றுமதி பாதையை அணுக முடியாது. டெவலப்பர்களை தொடர்பு கொள்ளவும்.</string>
@@ -1862,8 +1833,6 @@
     <string name="activity_type_biathlon">பயாத்லான்</string>
     <string name="activity_summary_detail_clear_gpx_track">சிபிஎக்ச் பாதையை அழிக்கவும்</string>
     <string name="activity_summary_detail_editing_gpx_track">இணைக்கப்பட்ட சிபிஎக்ச் பாதையைத் திருத்துதல்</string>
-    <string name="toast_notification_filter_words_empty_hint">தயவுசெய்து குறைந்தது ஒரு வார்த்தையையாவது உள்ளிடவும்</string>
-    <string name="filter_submode_all">எல்லா வார்த்தைகளும்</string>
     <string name="prefs_button_long_press_action_selection_title">நீண்ட அழுத்த பொத்தானை அழுத்தவும்</string>
     <string name="pref_crash_notification_summary">பயன்பாடு செயலிழக்கும்போது, பிழையுடன் அறிவிப்பைக் காண்பி</string>
     <string name="pref_check_permission_status">இசைவு நிலையை சரிபார்க்கவும்</string>
@@ -1975,7 +1944,6 @@
     <string name="unknown_state">தெரியாத நிலை</string>
     <string name="test_notification">சோதனை அறிவிப்பு</string>
     <string name="installing_binary_d_d">பைனரி %1$d/ %2$d ஐ நிறுவுகிறது</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="pairing_unable_to_pair_with">%1$s ( %2$s) உடன் இணைக்க முடியவில்லை</string>
     <string name="left">இடது</string>
     <string name="vertical">செங்குத்து</string>
@@ -1990,7 +1958,6 @@
     <string name="heartrate_bpm_140">140 பிபிஎம்</string>
     <string name="spo2_perc_80">80%</string>
     <string name="control_center_find_lost_device">இழந்த சாதனத்தைக் கண்டறியவும்</string>
-    <string name="title_activity_charts">செயல்பாடு மற்றும் தூக்கம்</string>
     <string name="pref_contacts_summary">கடிகாரத்தில் தொடர்புகளை உள்ளமைக்கவும்</string>
     <string name="reminder_time">நேரம்</string>
     <string name="reminder_no_free_slots_description">சாதனத்தில் நினைவூட்டல்களுக்கு இலவச இடங்கள் இல்லை (மொத்த இடங்கள்: %1$s)</string>
@@ -2091,8 +2058,6 @@
     <string name="turkish">துருக்கிய</string>
     <string name="dbmanagementactivity_error_exporting_shared">பிழை ஏற்றுமதி விருப்பம்: %1$s</string>
     <string name="action_db_management">தரவு மேலாண்மை</string>
-    <string name="activity_db_management_exportimport_label">ஏற்றுமதி மற்றும் இறக்குமதி</string>
-    <string name="alarm_smart_wakeup_interval">அறிவுள்ள விழிப்புணர்வு இடைவெளி:</string>
     <string name="devicestatus_disconnecting">சாதனம் துண்டிக்கப்படுகிறது!</string>
     <string name="mi2_enable_text_notifications">உரை அறிவிப்புகள்</string>
     <string name="activity_type_dynamic_cycle">மாறும் சுழற்சி</string>
@@ -2185,7 +2150,6 @@
     <string name="appmanager_download_app_error">பயன்பாட்டைப் பதிவிறக்குவதில் பிழை</string>
     <string name="blacklist_all_for_notifications">அறிவிப்புகளுக்கு அனைத்தையும் தடுப்புப்பட்டியலில் வைக்கவும்</string>
     <string name="whitelist_all_for_notifications">அனைத்து அறிவிப்புகளுக்கும் அனுமதிப்பட்டியல்</string>
-    <string name="uncheck_all_applications">எல்லா பயன்பாடுகளையும் தேர்வு செய்யவும்</string>
     <string name="title_activity_fw_app_insaller">FW/APP நிறுவி</string>
     <string name="fw_upgrade_notice">நீங்கள் %s ஐ நிறுவ உள்ளீர்கள்.</string>
     <string name="fw_upgrade_notice_amazfitbip">உங்கள் AMAZFIT BIP இல் %s ஃபார்ம்வேரை நிறுவ உள்ளீர்கள்.\n\n .Fw கோப்பு, பின்னர் .res கோப்பு மற்றும் இறுதியாக .gps கோப்பை நிறுவுவதை உறுதிசெய்க. .Fw கோப்பை நிறுவிய பின் உங்கள் கடிகாரம் மறுதொடக்கம் செய்யும்.\n\n குறிப்பு: இந்த கோப்புகள் முன்பு நிறுவப்பட்டதைப் போலவே இருந்தால் நீங்கள் .res மற்றும் .gps ஐ நிறுவ வேண்டியதில்லை.\n\n உங்கள் சொந்த ஆபத்தில் தொடரவும்!</string>
@@ -2254,8 +2218,6 @@
     <string name="pref_summary_notification_times_enabled">குறிப்பிட்ட நேரங்களுக்கு இடையில் மட்டுமே அறிவிப்புகளை அனுப்பவும்</string>
     <string name="pref_summary_notification_media_ignores_application_list">பயன்பாட்டு பட்டியலுக்கு முன் ஊடக அறிவிப்புகளை செயலாக்கவும். இந்த விருப்பம் தேர்வு செய்யப்படாவிட்டால், சாதனத்தில் செயல்பட ஊடக கட்டுப்பாடுகள் பயன்பாட்டு பட்டியலில் ஊடக பயன்பாடுகள் அனுமதிக்கப்பட வேண்டும்.</string>
     <string name="pref_header_notification_application_settings">பயன்பாட்டு அமைப்புகளுக்கு</string>
-    <string name="pref_title_notification_use_as">பயன்பாடுகள் பட்டியலைப் பயன்படுத்தவும்…</string>
-    <string name="pref_title_notification_use_as_deny">தேர்ந்தெடுக்கப்பட்ட பயன்பாடுகளிலிருந்து அறிவிப்புகளை மறுக்கவும்</string>
     <string name="pref_summary_banglejs_phone_gps_network_only">இருப்பிடத்தை தீர்மானிக்க பிணைய வழங்குநரை மட்டுமே பயன்படுத்தவும். இது துல்லியமான செலவில் மின் நுகர்வு குறைக்கிறது. மீண்டும் இணைப்பு தேவை.</string>
     <string name="pref_title_banglejs_phone_gps_update_interval">சி.பி.எச் தரவு புதுப்பிப்பு இடைவெளி</string>
     <string name="pref_summary_banglejs_phone_gps_update_interval">எம்.எச்சில், சி.பி.எச் நிலை எவ்வளவு அடிக்கடி புதுப்பிக்கப்படுகிறது என்பதற்கான இடைவெளி</string>
@@ -2385,7 +2347,6 @@
     <string name="discovery_bluetooth_le_scan">ஊடலை லு ச்கேன்:</string>
     <string name="action_discover">புதிய சாதனத்தை இணைக்கவும்</string>
     <string name="title_activity_android_pairing">இணை சாதனம்</string>
-    <string name="android_pairing_hint">சாதனத்தை இணைக்க ஆண்ட்ராய்டு ஊடலை இணைத்தல் உரையாடலைப் பயன்படுத்தவும்.</string>
     <string name="title_activity_mi_band_pairing">உங்கள் எம்ஐ இசைக்குழுவை இணை</string>
     <string name="pairing">%s உடன் இணைத்தல்…</string>
     <string name="no_supported_devices_found">உதவி சாதனங்கள் எதுவும் கிடைக்கவில்லை</string>
@@ -2657,9 +2618,7 @@
     <string name="watch9_time_hours">மணி:</string>
     <string name="title_activity_watch9_pairing">9 இணைத்தல் பார்க்கவும்</string>
     <string name="title_activity_watch9_calibration">9 அளவுத்திருத்தத்தைப் பாருங்கள்</string>
-    <string name="filter_submode_at_least_one">குறைந்தது ஒரு சொற்கள்</string>
     <string name="filter_mode">வடிகட்டி பயன்முறை</string>
-    <string name="mode_configuration">பயன்முறை உள்ளமைவு</string>
     <string name="watch_not_connected">வாட்ச் இணைக்கப்படவில்லை</string>
     <string name="qhybrid_use_activity_hand_as_notification_counter">செயல்பாட்டு கையை அறிவிப்பு கவுண்டராகப் பயன்படுத்துங்கள்</string>
     <string name="qhybrid_buttons_overwrite_error">பிழை மேலெழுதும் பொத்தான்கள்</string>
@@ -2671,7 +2630,6 @@
     <string name="pref_qhybrid_title_widget_draw_circles">விட்செட் வட்டங்களை வரையவும்</string>
     <string name="gpx_receiver_files_received">Gpx கோப்பு (கள்) பெறப்பட்டது:</string>
     <string name="permission_request">%1$s ஆனது ஆண்ட்ராய்டு இலிருந்து உங்கள் சாதனத்திற்கு செய்திகளையும் பிற தரவையும் அனுப்ப உங்களை அனுமதிக்கிறது. இதைச் செய்ய, அந்தத் தரவை அணுக இசைவு தேவை, அது இல்லாமல், அது சரியாகச் செயல்படாமல் போகலாம். \n\nஅந்த அனுமதிகளைக் கோரும் சில Android உரையாடல்கள் உங்களுக்கு இப்போது வழங்கப்படும். \n\nதொடர, \"%2$s\" என்பதைத் தட்டவும்.</string>
-    <string name="permission_granting_mandatory">இந்த அனுமதிகள் அனைத்தும் தேவை மற்றும் வழங்கப்படாவிட்டால் உறுதியற்ற தன்மை ஏற்படக்கூடும்</string>
     <string name="permission_notification_listener">உங்கள் மொபைலின் திரை முடக்கப்பட்டிருக்கும் போது, உங்கள் வாட்ச்சில் அறிவிப்புகளைக் காட்ட, %1$sக்கு அறிவிப்புகளுக்கான அணுகல் தேவை. \n\n\"%2$s\" என்பதைத் தட்டி \"%1$s\" என்பதைத் தட்டி, \"அறிவிப்பு அணுகலை இசைவு\" என்பதை இயக்கி, %1$sக்குத் திரும்ப \"பின்\" என்பதைத் தட்டவும்.</string>
     <string name="permission_notification_policy_access">உங்கள் மொபைலின் திரை முடக்கத்தில் இருக்கும் போது, %1$s க்கு தொந்தரவு செய்ய வேண்டாம் அமைப்புகளுக்கான அணுகல் தேவை. \n\n\"%2$s\" என்பதைத் தட்டி, \"%1$s\" என்பதைத் தட்டி, \"தொந்தரவு செய்ய இசைவு\" என்பதை இயக்கி, %1$sக்குத் திரும்ப \"பின்\" என்பதைத் தட்டவும்.</string>
     <string name="permission_location">உங்கள் திரை முடக்கத்தில் இருந்தாலும், உங்கள் வாட்சுடன் தொடர்ந்து இணைந்திருக்க, பின்னணியில் உள்ள உங்கள் இருப்பிடத்திற்கான அணுகல் %1$sக்கு தேவை. \n\nபின்வரும் திரையில் \"%2$s\" என்பதைத் தேர்வுசெய்து, %1$sக்குத் திரும்ப \"பின்\" என்பதைத் தட்டவும்.</string>
@@ -2798,7 +2756,6 @@
     <string name="soundcore_equalizer_preset_signature">சவுண்ட்கோர் கையொப்பம்</string>
     <string name="soundcore_equalizer_preset_balanced">சமநிலையானது</string>
     <string name="soundcore_equalizer_reset_title">இயல்புநிலைக்கு மீட்டமைக்கவும்</string>
-    <string name="soundcore_equalizer_band2">பேண்ட் 2</string>
     <string name="miscale_weight_unit_imperial">இம்பீரியல் (பவுண்ட்)</string>
     <string name="mijia_lywsd_comfort_humidity_summary">பரிந்துரைக்கப்பட்ட வரம்பு: 20 - 85</string>
     <string name="protocol_version">நெறிமுறை பதிப்பு</string>
@@ -3671,7 +3628,6 @@
     <string name="notif_export_zip_failed_title">சிப்பை ஏற்றுமதி செய்ய முடியவில்லை! உங்கள் அமைப்புகளைச் சரிபார்க்கவும்.</string>
     <string name="unknown_error">அறியப்படாத பிழை</string>
     <string name="uploading_resources">ஆதாரங்களைப் பதிவேற்றுகிறது…</string>
-    <string name="charts_two_items_only">நீங்கள் ஒரு நேரத்தில் இரண்டு பொருட்களை மட்டுமே ஒப்பிட முடியும்.</string>
     <string name="charts_at_least_one_item">குறைந்தது ஒரு உருப்படியாவது தேர்ந்தெடுக்கப்பட்டிருக்க வேண்டும்.</string>
     <string name="fwinstaller_file_not_compatible_to_device">தேர்ந்தெடுக்கப்பட்ட கோப்பு சாதனத்துடன் இணக்கமாக இல்லை</string>
     <string name="fwinstaller_no_compatible_device_found">%1s ஐ நிறுவ இணக்கமான சாதனம் எதுவும் இல்லை</string>

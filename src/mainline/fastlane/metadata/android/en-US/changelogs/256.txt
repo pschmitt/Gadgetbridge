@@ -1,0 +1,10 @@
+• Support for 25 new + 21 experimental devices
+• Refreshed design for dashboard, charts, alarms, and more
+• Device cards: quick controls, configurable items
+• Workouts tab with statistics overview
+• Revamped app notifications configuration
+• Garmin: import from official app, sleep estimation for older watches
+• Workouts: elevation correction from SRTM tiles
+• Multiple fixes for charts, Health Connect, Huami, Xiaomi, Zepp OS, and more
+
+Read the full changelog in the project repository.

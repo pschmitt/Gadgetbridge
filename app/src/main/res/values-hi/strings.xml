@@ -54,7 +54,6 @@
     <string name="interval_one_minute">एक मिनट में एक बार</string>
     <string name="prefs_title_heartrate_measurement_interval">पूरे दिन एचआर (HR) माप</string>
     <string name="title_activity_set_alarm">अलार्म को कॉन्फ़िगर करें</string>
-    <string name="title_activity_charts">गतिविधि और नींद</string>
     <string name="control_center_cancel_to_stop_vibration">कंपन को रोकने के लिए रद्द करें।</string>
     <string name="control_center_find_lost_device">खोई हुई डिवाइस का पता लगाएं</string>
     <string name="stats_y_axis_label">प्रति मिनट कदम</string>

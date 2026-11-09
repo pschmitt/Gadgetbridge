@@ -190,9 +190,7 @@
     <string name="discovery_stop_scanning">Σταμάτημα σάρωσης</string>
     <string name="discovery_start_scanning">Έναρξη ανεύρεσης</string>
     <string name="action_discover">Σύνδεση νέας συσκευής</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="title_activity_android_pairing">Σύζευξη συσκευής</string>
-    <string name="android_pairing_hint">Χρήση του διαλόγου σύζευξης Bluetooth του Android για σύζευξη με τη συσκευή.</string>
     <string name="title_activity_mi_band_pairing">Σύζευξη με το Mi Band</string>
     <string name="pairing">Γίνεται σύζευξη με το %s…</string>
     <string name="pairing_creating_bond_with">Δημιουργία δεσμού με το %1$s (%2$s)</string>
@@ -250,7 +248,6 @@
     <string name="stats_y_axis_label">Βήματα ανά λεπτό</string>
     <string name="control_center_find_lost_device">Εντοπισμός συσκευής</string>
     <string name="control_center_cancel_to_stop_vibration">Ακυρώστε για να σταματήσει η δόνηση.</string>
-    <string name="title_activity_charts">Δραστηριότητα και ύπνος</string>
     <string name="title_activity_set_alarm">Ρυθμίσεις ξυπνητηριών</string>
     <string name="controlcenter_start_configure_alarms">Ρυθμίσεις ξυπνητηριών</string>
     <string name="title_activity_alarm_details">Λεπτομέρειες ξυπνητηριού</string>
@@ -568,17 +565,8 @@
     <string name="language_and_region_prefs">Ρυθμίσεις γλώσσας και περιοχής</string>
     <string name="debugactivity_really_factoryreset_title">Επαναφορά εργοστασιακών ρυθμίσεων;</string>
     <string name="debugactivity_really_factoryreset">Κάνοντας επαναφορά εργοστασιακών ρυθμίσεων όλα τα δεδομένα θα διαγραφούν από την συνδεδεμένη συσκευή (αν υποστηρίζεται). Επίσης, οι συσκευές Xiaomi/Huami τείνουν να αλλάζουν την διεύθυνση MAC στο Bluetooth και η εφαρμογή τις εμφανίζει σαν μια νέα συσκευή.</string>
-    <string name="title_activity_notification_filter">Λίστα απο/επιλογής ειδοποιήσεων</string>
-    <string name="edittext_notification_filter_words_hint">Εισάγετε τις λέξεις που επιθυμείτε, μία γραμμή για κάθε λέξη</string>
-    <string name="toast_notification_filter_saved_successfully">Το φίλτρο ειδοποιήσεων αποθηκεύτηκε</string>
     <string name="filter_mode_none">Να μην υπάρχει φιλτράρισμα</string>
-    <string name="filter_mode_whitelist">Να φαίνεται όταν εμπεριέχονται λέξεις</string>
-    <string name="filter_mode_blacklist">Να μπλοκάρεται όταν εμπεριέχονται λέξεις</string>
-    <string name="filter_submode_at_least_one">Τουλάχιστον μια από τις λέξεις</string>
-    <string name="filter_submode_all">Όλες οι λέξεις</string>
-    <string name="toast_notification_filter_words_empty_hint">Παρακαλώ εισάγετε τουλάχιστον μια λέξη</string>
     <string name="filter_mode">Λειτουργία φιλτραρίσματος</string>
-    <string name="mode_configuration">Ρύθμιση λειτουργίας</string>
     <string name="save_configuration">Απογοήτευση ρυθμίσεων</string>
     <string name="appwidget_not_connected">Δεν υπάρχει σύνδεση, το ξυπνητήρι δεν ρυθμίστηκε.</string>
     <string name="activity_type_exercise">Ασκηση</string>
@@ -658,8 +646,6 @@
     <string name="pref_header_charts">Ρυθμίσεις γραφημάτων</string>
     <string name="pref_title_charts_average">Εμφάνιση των μέσων όρων στα διαγράμματα</string>
     <string name="pref_title_charts_range">Εύρος γραφημάτων</string>
-    <string name="pref_charts_range_on">Το εύρος διαγραμμάτων έχει οριστεί σε ένα μήνα</string>
-    <string name="pref_charts_range_off">Το εύρος των γραφημάτων έχει οριστεί σε μια Εβδομάδα</string>
     <string name="weekstepschart_steps_a_month">Βήματα ανά μήνα</string>
     <string name="weeksleepchart_sleep_a_month">Ύπνος ανά μήνα</string>
     <string name="menuitem_nfc">NFC</string>
@@ -674,7 +660,6 @@
     <string name="activity_DB_delete_legacy_button">Διαγραφή παλιάς βάσης δεδομένων</string>
     <string name="activity_DB_empty_button">Άδειασμα βάσης δεδομένων</string>
     <string name="activity_db_management_empty_DB">Άδεια βάση δεδομένων</string>
-    <string name="activity_db_management_exportimport_label">Εξαγωγή και εισαγωγή</string>
     <string name="activity_db_management_empty_db_warning">Προειδοποίηση! Πατώντας αυτό το κουμπί θα διαγράψετε τη βάση δεδομένων σας και θα ξεκινήσετε από την αρχή.</string>
     <string name="appwidget_sleep_alarm_widget_label">Ξυπνητήρι ύπνου</string>
     <string name="widget_listing_label">Κατάσταση και συναγερμοί</string>
@@ -739,7 +724,6 @@
     <string name="hr_widget_last_notification">Τελευταία ειδοποίηση</string>
     <string name="pref_qhybrid_save_raw_activity_files">Αποθήκευση μη επεξεργασμένων αρχείων δραστηριότητας</string>
     <string name="pref_qhybrid_title_widget_draw_circles">Σχεδίαση κύκλων γραφικών στοιχείων</string>
-    <string name="error_no_location_access">Πρέπει να χορηγηθεί άδεια για πρόσβαση σε δεδομένα τοποθεσίας για να είναι δυνατή η λειτουργία της σάρωσης</string>
     <string name="prefs_button_long_press_action_selection_title">Ενέργεια παρατεταμένου πατήματος κουμπιού</string>
     <string name="prefs_button_variable_actions">Λεπτομερείς ρυθμίσεις πατημάτων κουμπιού</string>
     <string name="prefs_button_triple_press_action_selection_title">Ενέργεια γεγονότος3</string>
@@ -877,7 +861,6 @@
     <string name="error_background_service_reason_truncated">Η εκκίνηση της υπηρεσίας παρασκηνίου απέτυχε επειδή…</string>
     <string name="error_background_service">Αποτυχία έναρξης της υπηρεσίας παρασκηνίου</string>
     <string name="error_version_check_extreme_caution">ΠΡΟΣΟΧΗ: Σφάλμα κατά τον έλεγχο των πληροφοριών έκδοσης! Δεν πρέπει να συνεχίσετε! Βλέπω οτι το όνομα της έκδοσης είναι \"%s\"</string>
-    <string name="permission_granting_mandatory">Όλα αυτά τα δικαιώματα απαιτούνται και εάν δεν χορηγηθούν ενδέχεται να προκύψει αστάθεια</string>
     <string name="menuitem_stress">Άγχος</string>
     <string name="fw_upgrade_notice_miband5">Πρόκειται να εγκαταστήσετε το υλικολογισμικό %s στο Mi Band 5.
 \n
@@ -975,8 +958,6 @@
     <string name="appmanager_downloaded_to_cache">Λήφθηκε %s στο cache</string>
     <string name="appmanager_download_app_error">Σφάλμα κατά τη λήψη της εφαρμογής</string>
     <string name="title_activity_notification_management">Ρυθμίσεις ειδοποιήσεων</string>
-    <string name="check_all_applications">Επιλογή όλων των εφαρμογών</string>
-    <string name="uncheck_all_applications">Αποεπιλογή όλων των εφαρμογών</string>
     <string name="fw_upgrade_notice_amazfitbip3">Είστε έτοιμοι να εγκαταστήσετε το %s firmware στο Amazfit Bip 3 σας.\n\nΠαρακαλούμε βεβαιωθείτε ότι εγκαταστήσετε το αρχείο .fw και μετά από αυτό το αρχείο .res. Το ρολόι σας θα επανεκκινήσει μετά την εγκατάσταση του αρχείου .fw.\n\nΣημείωση: Δεν χρειάζεται να εγκαταστήσετε .res αν είναι ακριβώς το ίδιο με αυτό που είχε εγκατασταθεί προηγουμένως.\n\nΠΡΟΧΩΡΗΣΤΕ ΜΕ ΔΙΚΗ ΣΑΣ ΕΥΘΥΝΗ!</string>
     <string name="fw_upgrade_notice_amazfitbip3pro">Είστε έτοιμοι να εγκαταστήσετε το %s firmware στο Amazfit Bip 3 Pro σας.\n\nΠαρακαλούμε βεβαιωθείτε ότι εγκαταστήσετε το αρχείο .fw και μετά από αυτό το αρχείο .res. Το ρολόι σας θα επανεκκινήσει μετά την εγκατάσταση του αρχείου .fw.\n\nΣημείωση: Δεν χρειάζεται να εγκαταστήσετε .res αν είναι ακριβώς το ίδιο με αυτό που είχε εγκατασταθεί προηγουμένως.\n\nΠΡΟΧΩΡΗΣΤΕ ΜΕ ΔΙΚΗ ΣΑΣ ΕΥΘΥΝΗ!</string>
     <string name="fw_upgrade_notice_amazfitvergel">Είστε έτοιμοι να εγκαταστήσετε το %s firmware στο Amazfit Verge Lite σας.\n\nΠαρακαλούμε βεβαιωθείτε ότι εγκαταστήσετε το αρχείο .fw, τότε το αρχείο .res και τελικά το αρχείο .gps. Το ρολόι σας θα επανεκκινήσει μετά την εγκατάσταση του αρχείου .fw.\n\nΣημείωση: Δεν χρειάζεται να εγκαταστήσετε .res και .gps αν αυτά τα αρχεία είναι ακριβώς τα ίδια με αυτά που είχε εγκατασταθεί προηγουμένως.\n\nΠΡΟΧΩΡΗΣΤΕ ΜΕ ΔΙΚΗ ΣΑΣ ΕΥΘΥΝΗ!</string>
@@ -1066,9 +1047,6 @@
     <string name="pref_summary_notification_times_enabled">Αποστολή ειδοποιήσεων μόνο μεταξύ συγκεκριμένων ωρών</string>
     <string name="pref_title_notification_media_ignores_application_list">Οι ειδοποιήσεις πολυμέσων αγνοούν τη λίστα εφαρμογών</string>
     <string name="pref_header_notification_application_settings">Ρυθμίσεις ανά εφαρμογή</string>
-    <string name="pref_title_notification_use_as">Χρησιμοποιήστε τη λίστα εφαρμογών για …</string>
-    <string name="pref_title_notification_use_as_deny">Απόρριψη ειδοποιήσεων από επιλεγμένες εφαρμογές</string>
-    <string name="pref_title_notification_use_as_allow">Να επιτρέπονται ειδοποιήσεις από επιλεγμένες εφαρμογές</string>
     <string name="pref_title_banglejs_text_bitmap">Κείμενο ως Bitmaps</string>
     <string name="pref_summary_banglejs_text_bitmap">Εάν μια λέξη δεν μπορεί να εμφανιστεί με τη γραμματοσειρά του ρολογιού, εμφάνισέ την σε bitmap στο Gadgetbridge και εμφάνισε το γrαφικό bitmap στο ρολόι</string>
     <string name="pref_title_banglejs_txt_bitmap_size">Μέγεθος κειμένου Bitmap</string>
@@ -1334,7 +1312,6 @@
     <string name="title_activity_reminder_details">Λεπτομέρειες υπενθύμισης</string>
     <string name="title_activity_contact_details">Λεπτομέρειες επαφής</string>
     <string name="title_activity_world_clock_details">Λεπτομέρειες παγκόσμιου ρολογιού</string>
-    <string name="alarm_smart_wakeup_interval">Χρονιό διάστημα έξυπνης αφύπνισης:</string>
     <string name="alarm_smart_wakeup_interval_default">5 λεπτά</string>
     <string name="user_feedback_set_settings_ok">Οι ρυθμίσεις αποστέλλονται στη συσκευή.</string>
     <string name="chart_no_active_data">Δεν εντοπίστηκαν δραστηριότητες.</string>
@@ -1366,7 +1343,6 @@
     <string name="pai_plus_num">+ %d</string>
     <string name="num_min">%d λεπτά</string>
     <string name="transition">Μετάβαση</string>
-    <string name="charts_two_items_only">Μπορείτε να συγκρίνετε μόνο δύο στοιχεία κάθε φορά.</string>
     <string name="charts_at_least_one_item">Θα πρέπει να υπάρχει τουλάχιστον ένα στοιχείο επιλεγμένο.</string>
     <string name="charts_min_max_heartrate_popup">Χαμηλότερος καρδιακός ρυθμός: %1$d\nΥψηλότερος καρδιακός ρυθμός: %2$d\nΈνταση κίνησης: %3$s</string>
     <string name="fwinstaller_file_not_compatible_to_device">Το επιλεγμένο αρχείο δεν είναι συμβατό με τη συσκευή</string>
@@ -1449,7 +1425,6 @@
     <string name="activity_prefs_step_length_cm">Μήκος βήματος σε εκατοστά</string>
     <string name="activity_prefs_discovery_pairing">Επιλογές εντοπισμού και σύζευξης</string>
     <string name="pref_chart_sleep_lines_limit">Πόσες γραμμές συνεδρίας ύπνου θα εμφανίζονται πριν από την κύλιση</string>
-    <string name="weekstepschart_steps_a_week_or_month">Βήματα την εβδομάδα / μήνα</string>
     <string name="weeksleepchart_sleep_a_week_or_month">Ύπνος την εβδομάδα / μήνα</string>
     <string name="activity_prefs_chart_min_steps_per_minute_for_run">Ελάχιστα βήματα ανά λεπτό για ανίχνευση τρεξίματος</string>
     <string name="activity_prefs_chart_min_steps_per_minute">Ελάχιστα βήματα ανά λεπτό για ανίχνευση δραστηριότητας</string>
@@ -1479,7 +1454,6 @@
     <string name="status">Κατάσταση</string>
     <string name="set">Ορισμός</string>
     <string name="activity_data_management_directory_content_title">Εξαγωγή/Εισαγωγή περιεχομένου φακέλου</string>
-    <string name="activity_DB_ShowContentButton">Εμφάνιση περιεχομένου φακέλου εξαγωγής/εισαγωγής</string>
     <string name="dbmanagementactivity_export_finished">Η διαγραφή ολοκληρώθηκε</string>
     <string name="dateformat_day_month">Ημέρα, Μήνας</string>
     <string name="dateformat_month_day">Μήνας, Ημέρα</string>

@@ -46,6 +46,7 @@ import nodomain.freeyourgadget.gadgetbridge.activities.AboutUserPreferencesActiv
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.ControlCenterv2;
 import nodomain.freeyourgadget.gadgetbridge.activities.discovery.DiscoveryActivityV2;
+import nodomain.freeyourgadget.gadgetbridge.activities.permissions.DevicePermissionsActivity;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
@@ -193,6 +194,7 @@ public class MiBandPairingActivity extends AbstractGBActivity implements Bonding
             }
             Intent intent = new Intent(this, ControlCenterv2.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
+            DevicePermissionsActivity.startAfterPairing(this, macAddress);
         }
         finish();
     }

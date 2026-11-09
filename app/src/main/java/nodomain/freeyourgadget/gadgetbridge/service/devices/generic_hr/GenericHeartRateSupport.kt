@@ -17,6 +17,9 @@
 package nodomain.freeyourgadget.gadgetbridge.service.devices.generic_hr
 
 import android.content.Intent
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import java.io.Serializable
+import nodomain.freeyourgadget.gadgetbridge.BuildConfig
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventBatteryInfo
@@ -26,6 +29,8 @@ import nodomain.freeyourgadget.gadgetbridge.devices.HeartRrIntervalSampleProvide
 import nodomain.freeyourgadget.gadgetbridge.entities.GenericHeartRateSample
 import nodomain.freeyourgadget.gadgetbridge.entities.HeartRrIntervalSample
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
+import nodomain.freeyourgadget.gadgetbridge.model.DeviceService
+import nodomain.freeyourgadget.gadgetbridge.model.HeartRateSample
 import nodomain.freeyourgadget.gadgetbridge.service.btle.AbstractBTLESingleDeviceSupport
 import nodomain.freeyourgadget.gadgetbridge.service.btle.GattService
 import nodomain.freeyourgadget.gadgetbridge.service.btle.TransactionBuilder
@@ -165,6 +170,7 @@ class GenericHeartRateSupport : AbstractBTLESingleDeviceSupport(LOG) {
                 val deviceId = DBHelper.getDevice(device, db.getDaoSession()).id!!
                 val sample = GenericHeartRateSample(heartRate.timestamp, deviceId, userId, heartRate.heartRate)
                 sampleProvider.addSample(sample)
+                publishRealtimeSample(sample)
 
                 val rrIntervals: ArrayList<Int> = heartRate.rrIntervals
                 if (!rrIntervals.isEmpty()) {
@@ -186,6 +192,17 @@ class GenericHeartRateSupport : AbstractBTLESingleDeviceSupport(LOG) {
         } catch (e: Exception) {
             LOG.error("Failed to save heartRate sample", e)
         }
+    }
+
+    /**
+     * Broadcast the sample to the live views (device card, heart rate dialog, live activity).
+     */
+    private fun publishRealtimeSample(sample: HeartRateSample) {
+        val intent = Intent(DeviceService.ACTION_REALTIME_SAMPLES)
+        intent.setPackage(BuildConfig.APPLICATION_ID)
+        intent.putExtra(GBDevice.EXTRA_DEVICE, device)
+        intent.putExtra(DeviceService.EXTRA_REALTIME_SAMPLE, sample as Serializable)
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
     }
 
     companion object {

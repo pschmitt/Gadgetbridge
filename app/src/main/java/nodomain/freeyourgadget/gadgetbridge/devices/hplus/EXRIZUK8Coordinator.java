@@ -51,8 +51,8 @@ public class EXRIZUK8Coordinator extends HPlusCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return EXRIZUK8Support.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new EXRIZUK8Support();
     }
 
     @Override

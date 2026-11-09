@@ -58,6 +58,18 @@ public class AmazfitGTR3Coordinator extends ZeppOsCoordinator {
     }
 
     @Override
+    public boolean supportsSleepScore(@NonNull final GBDevice device) {
+        // Zepp OS 1.0
+        return false;
+    }
+
+    @Override
+    public boolean supportsScreenshots(@NonNull final GBDevice device) {
+        // #3386 - Only supported in Zepp OS >= 2.0
+        return false;
+    }
+
+    @Override
     public DeviceKind getDeviceKind(@NonNull GBDevice device) {
         return DeviceKind.WATCH;
     }

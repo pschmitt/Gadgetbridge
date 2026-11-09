@@ -29,6 +29,7 @@ import java.time.zone.ZoneRules;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
@@ -108,9 +109,9 @@ public class ZeppOsWorldClocksService extends AbstractZeppOsService {
 
             // Usually the 3-letter city code (eg. LIS for Lisbon)
             if (clock.getCode() != null) {
-                baos.write(StringUtils.truncate(clock.getCode(), 3).toUpperCase().getBytes(StandardCharsets.UTF_8));
+                baos.write(StringUtils.truncate(clock.getCode(), 3).toUpperCase(Locale.ROOT).getBytes(StandardCharsets.UTF_8));
             } else {
-                baos.write(StringUtils.truncate(clock.getLabel(), 3).toUpperCase().getBytes(StandardCharsets.UTF_8));
+                baos.write(StringUtils.truncate(clock.getLabel(), 3).toUpperCase(Locale.ROOT).getBytes(StandardCharsets.UTF_8));
             }
             baos.write(0x00);
 

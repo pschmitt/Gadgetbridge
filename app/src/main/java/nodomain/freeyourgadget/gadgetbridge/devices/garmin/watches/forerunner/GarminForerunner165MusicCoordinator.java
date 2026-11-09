@@ -23,4 +23,9 @@ public class GarminForerunner165MusicCoordinator extends GarminWatchCoordinator 
     public boolean supportsTrainingLoad(@NonNull final GBDevice device) {
         return false;
     }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }

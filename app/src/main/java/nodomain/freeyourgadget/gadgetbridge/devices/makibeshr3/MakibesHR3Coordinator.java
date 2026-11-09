@@ -193,8 +193,8 @@ public class MakibesHR3Coordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return MakibesHR3DeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new MakibesHR3DeviceSupport();
     }
 
     @Override

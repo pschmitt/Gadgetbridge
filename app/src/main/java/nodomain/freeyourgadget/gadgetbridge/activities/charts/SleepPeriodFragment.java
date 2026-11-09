@@ -350,6 +350,12 @@ public class SleepPeriodFragment extends SleepFragment<SleepPeriodFragment.MyCha
         final List<String> rowLabels = new ArrayList<>();
         final List<Integer> rowColors = new ArrayList<>();
         final List<Function1<Integer, String>> rowTexts = new ArrayList<>();
+        for (int stage = 0; stage < labels.length; stage++) {
+            final int index = stage;
+            rowLabels.add(labels[stage]);
+            rowColors.add(colors[stage]);
+            rowTexts.add(i -> data.stageMinutes[index][i] > 0 ? getHM((long) data.stageMinutes[index][i]) : emptyValue);
+        }
         rowLabels.add("");
         rowColors.add(null);
         rowTexts.add(i -> {
@@ -357,14 +363,8 @@ public class SleepPeriodFragment extends SleepFragment<SleepPeriodFragment.MyCha
             for (int stage = 0; stage < sleepStages; stage++) {
                 total += data.stageMinutes[stage][i];
             }
-            return total > 0 ? getString(R.string.sleep_total_value, getHM((long) total)) : emptyValue;
+            return total > 0 ? getHM((long) total) : emptyValue;
         });
-        for (int stage = 0; stage < labels.length; stage++) {
-            final int index = stage;
-            rowLabels.add(labels[stage]);
-            rowColors.add(colors[stage]);
-            rowTexts.add(i -> data.stageMinutes[index][i] > 0 ? getHM((long) data.stageMinutes[index][i]) : emptyValue);
-        }
         binding.weekSleepChart.setSelectionContent(x -> DaySelections.of(
                 data.epochDays, x, rowLabels, rowColors, rowTexts, emptyValue
         ));

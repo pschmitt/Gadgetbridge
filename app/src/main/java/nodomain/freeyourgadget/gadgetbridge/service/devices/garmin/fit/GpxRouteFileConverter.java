@@ -41,6 +41,7 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitFileId;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitLap;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.garmin.fit.messages.FitRecord;
+import nodomain.freeyourgadget.gadgetbridge.util.gpx.GpxTurnDetector;
 import nodomain.freeyourgadget.gadgetbridge.util.gpx.model.GpxFile;
 import nodomain.freeyourgadget.gadgetbridge.util.gpx.model.GpxNavigationPoint;
 import nodomain.freeyourgadget.gadgetbridge.util.gpx.model.GpxTrackPoint;
@@ -107,6 +108,8 @@ public class GpxRouteFileConverter {
         }
 
         final List<RecordData> gpxPointDataRecords = new ArrayList<>();
+        final List<Double> pointDistances = new ArrayList<>();
+        final List<Long> pointTimestamps = new ArrayList<>();
 
         double totalAscent = 0;
         double totalDescent = 0;
@@ -149,12 +152,30 @@ public class GpxRouteFileConverter {
 
             prevPoint = point;
             gpxPointDataRecords.add(recordBuilder.build(0x05));
+            pointDistances.add(totalDistance);
+            pointTimestamps.add(runningTs);
         }
 
         final List<GpxNavigationPoint> gpxNavigationPointList = gpxFile.getTracks().get(0)
                 .getTrackSegments().stream()
                 .flatMap(segment -> segment.getNavigationPoints().stream())
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        if (includeNavigation && gpxNavigationPointList.isEmpty()) {
+            for (final GpxTurnDetector.Turn turn : GpxTurnDetector.turnPoints(gpxTrackPointList)) {
+                final GpxTrackPoint point = gpxTrackPointList.get(turn.pointIndex());
+                gpxNavigationPointList.add(new GpxNavigationPoint(
+                        point.getLongitude(),
+                        point.getLatitude(),
+                        pointDistances.get(turn.pointIndex()),
+                        new Date(pointTimestamps.get(turn.pointIndex()) * 1000L),
+                        turn.action(),
+                        null,
+                        0
+                ));
+            }
+            LOG.debug("Detected {} navigation turns from the track points", gpxNavigationPointList.size());
+        }
 
         final List<RecordData> gpxCoursePointDataRecords = new ArrayList<>();
 

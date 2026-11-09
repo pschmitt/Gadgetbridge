@@ -15,7 +15,7 @@ import kotlin.math.roundToInt
  */
 data class ChartSelection(val title: String, val rows: List<Row>, val description: String) {
     /**
-     * A row without a [color] is drawn without a swatch, e.g. for a total.
+     * A row without a [color] is drawn without a swatch, e.g. for a total, and below a divider unless it is first.
      */
     data class Row(val color: Int?, val text: String)
 }

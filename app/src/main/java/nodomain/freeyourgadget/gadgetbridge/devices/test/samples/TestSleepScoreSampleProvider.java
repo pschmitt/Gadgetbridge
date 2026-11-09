@@ -14,7 +14,7 @@ public class TestSleepScoreSampleProvider extends AbstractTestSampleProvider<Sle
 
     @NonNull
     @Override
-    public List<SleepScoreSample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<SleepScoreSample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<SleepScoreSample> samples = new ArrayList<>();
 
         for (long day = startOfDay(timestampFrom); day < timestampTo; day += DAY_MILLIS) {
@@ -31,7 +31,7 @@ public class TestSleepScoreSampleProvider extends AbstractTestSampleProvider<Sle
     @Nullable
     @Override
     public SleepScoreSample getLatestSample() {
-        return new TestSleepScoreSample(startOfDay(System.currentTimeMillis()) + WAKE_TIME_MILLIS);
+        return getLatestSample(System.currentTimeMillis());
     }
 
     @Nullable

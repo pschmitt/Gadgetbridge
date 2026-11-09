@@ -6,7 +6,7 @@ plugins {
 java {
     toolchain {
         // Setting sourceCompatibility and targetCompatibility isn't required as this module ships
-        // no complied code.
+        // no compiled code.
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
@@ -34,12 +34,23 @@ sourceSets {
     }
 }
 
-tasks.register<JavaExec>("genSources") {
-    inputs.dir("src")
-    inputs.dir("src-template")
-    outputs.dir(project.rootProject.file("app/build/generated/sources/gbdao"))
+abstract class JavaExecDao : JavaExec() {
+    @get:OutputDirectory
+    abstract val generatedSourceDirectory: DirectoryProperty
+}
+
+tasks.register<JavaExecDao>("genSources") {
+    description = "Generate DAO entity and session source files"
+
+    val appProject = project(":app")
+    generatedSourceDirectory.set(appProject.layout.buildDirectory.dir("generated/sources/gbdao"))
+
+    inputs.dir(file("src"))
+    inputs.dir(file("src-template"))
+    outputs.dir(generatedSourceDirectory)
 
     mainClass = application.mainClass
+    args(generatedSourceDirectory.get().asFile.absolutePath)
     classpath = sourceSets.main.get().runtimeClasspath
     workingDir = file("../")
     if (gradle.startParameter.logLevel <= LogLevel.INFO) {

@@ -7,9 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver;
+import android.widget.AbsListView;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 import androidx.annotation.AttrRes;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -233,14 +237,15 @@ public final class BarShade {
 
         @Nullable
         private static View findScrolling(final View view) {
-            if (view.getVisibility() != View.VISIBLE) {
+            // With large font sizes, a text view might report that it can scroll when its text is taller than the view
+            if (view.getVisibility() != View.VISIBLE || view instanceof TextView) {
                 return null;
             }
             if (view instanceof ViewPager2) {
                 final View page = currentPage((ViewPager2) view);
                 return page != null ? findScrolling(page) : null;
             }
-            if (view.canScrollVertically(-1) || view.canScrollVertically(1)) {
+            if (view.canScrollVertically(-1) || view.canScrollVertically(1) || isScrollContainer(view)) {
                 return view;
             }
             if (view instanceof ViewGroup) {
@@ -253,6 +258,14 @@ public final class BarShade {
                 }
             }
             return null;
+        }
+
+        private static boolean isScrollContainer(final View view) {
+            if (view instanceof RecyclerView) {
+                final RecyclerView.LayoutManager layoutManager = ((RecyclerView) view).getLayoutManager();
+                return layoutManager != null && layoutManager.canScrollVertically();
+            }
+            return view instanceof NestedScrollView || view instanceof ScrollView || view instanceof AbsListView;
         }
 
         @Nullable

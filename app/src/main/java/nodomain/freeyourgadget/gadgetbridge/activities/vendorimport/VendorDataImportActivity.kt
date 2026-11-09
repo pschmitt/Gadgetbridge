@@ -11,9 +11,8 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.work.WorkInfo
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
@@ -34,6 +33,7 @@ import org.slf4j.LoggerFactory
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
+@AndroidEntryPoint
 class VendorDataImportActivity : AbstractGBActivity() {
     private lateinit var binding: ActivityVendorDataImportBinding
     private val dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
@@ -42,18 +42,7 @@ class VendorDataImportActivity : AbstractGBActivity() {
     private var renderedExport: VendorExport? = null
     private var renderedCategoriesFor: VendorExportDevice? = null
 
-    private val viewModel: VendorDataImportViewModel by viewModels {
-        viewModelFactory {
-            initializer {
-                val device = intent.getDevice()!!
-                VendorDataImportViewModel(
-                    application,
-                    device,
-                    device.deviceCoordinator.getVendorDataImporter(device)!!
-                )
-            }
-        }
-    }
+    private val viewModel: VendorDataImportViewModel by viewModels()
 
     private val pickFile = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {

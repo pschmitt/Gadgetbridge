@@ -128,6 +128,10 @@ fun interface WorkoutTemplateExporter {
     fun export(template: WorkoutTemplate): WorkoutTemplateFile?
 }
 
+fun interface WorkoutTemplateImporter {
+    fun import(bytes: ByteArray): WorkoutTemplate?
+}
+
 /**
  * What a device supports for workout templates.
  */
@@ -151,4 +155,5 @@ data class WorkoutTemplateSpec(
      * Null when the raw data of a template cannot be shared.
      */
     val exporter: WorkoutTemplateExporter? = null,
+    val importer: WorkoutTemplateImporter? = null,
 )

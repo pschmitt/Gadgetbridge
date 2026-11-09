@@ -37,11 +37,6 @@ public class EntitiesTest extends TestBase {
         userAttributesDao = daoSession.getUserAttributesDao();
     }
 
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
 
     @Test
     public void testUser() {

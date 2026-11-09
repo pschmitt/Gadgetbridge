@@ -15,12 +15,14 @@ import java.util.Objects;
 
 import ch.qos.logback.classic.util.ContextInitializer;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
-import nodomain.freeyourgadget.gadgetbridge.GBDatabaseManager;
 import nodomain.freeyourgadget.gadgetbridge.GBEnvironment;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceType;
+import java.lang.reflect.Field;
+import java.util.List;
+import nodomain.freeyourgadget.gadgetbridge.devices.DeviceManager;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -32,7 +34,7 @@ import static org.junit.Assert.assertNotNull;
  * directory.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23, application = GBTestApplication.class)
+@Config(sdk = 24, application = GBTestApplication.class)
 public abstract class TestBase {
     protected GBApplication app = (GBApplication) RuntimeEnvironment.application;
     protected DaoSession daoSession;
@@ -59,15 +61,22 @@ public abstract class TestBase {
         app = (GBApplication) RuntimeEnvironment.application;
         assertNotNull(app);
         assertNotNull(getContext());
-        GBDatabaseManager.setupDatabase(app);
+        app.getDatabaseManager().setupDatabase();
         dbHandler = GBApplication.acquireDB();
         daoSession = dbHandler.getDaoSession();
         assertNotNull(daoSession);
     }
 
+    /**
+     * Releases the write lock taken in {@link #setUp()}. This does not close the database, which
+     * {@link GBApplication#onTerminate()} does when Robolectric tears down the application.
+     */
     @After
-    public void tearDown() throws Exception {
-        GBDatabaseManager.closeDatabase();
+    public void releaseDbHandler() throws Exception {
+        if (dbHandler != null) {
+            dbHandler.close();
+            dbHandler = null;
+        }
     }
 
     protected GBDevice createDummyGDevice(String macAddress) {
@@ -79,5 +88,18 @@ public abstract class TestBase {
 
     protected Context getContext() {
         return app;
+    }
+
+    protected void registerDeviceWithManager(final GBDevice device) {
+        try {
+            final DeviceManager deviceManager = GBApplication.app().getDeviceManager();
+            final Field field = DeviceManager.class.getDeclaredField("deviceList");
+            field.setAccessible(true);
+            final List<GBDevice> deviceList = (List<GBDevice>) field.get(deviceManager);
+            deviceList.clear();
+            deviceList.add(device);
+        } catch (final Exception e) {
+            throw new AssertionError("Failed to register test device", e);
+        }
     }
 }

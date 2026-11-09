@@ -322,7 +322,8 @@ public class GarminJson {
             case TYPE_NULL:
                 return JsonNull.INSTANCE;
             case TYPE_BOOL:
-                return new JsonPrimitive(buffer.get() != 0x00);
+                // Garmin interprets negative values as false
+                return new JsonPrimitive(buffer.get() > 0x00);
             case TYPE_SINT32:
                 return new JsonPrimitive(buffer.getInt());
             case TYPE_SINT64:

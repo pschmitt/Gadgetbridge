@@ -17,7 +17,7 @@ public class TestTrainingLoadChronicSampleProvider extends AbstractTestSamplePro
 
     @NonNull
     @Override
-    public List<GenericTrainingLoadChronicSample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<GenericTrainingLoadChronicSample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<GenericTrainingLoadChronicSample> samples = new ArrayList<>();
 
         for (long day = startOfDay(timestampFrom); day < timestampTo; day += DAY_MILLIS) {
@@ -34,7 +34,7 @@ public class TestTrainingLoadChronicSampleProvider extends AbstractTestSamplePro
     @Nullable
     @Override
     public GenericTrainingLoadChronicSample getLatestSample() {
-        return createSample(startOfDay(System.currentTimeMillis()) + SAMPLE_TIME_MILLIS);
+        return getLatestSample(System.currentTimeMillis());
     }
 
     @Nullable

@@ -17,7 +17,7 @@ public class TestSolarChargeSampleProvider extends AbstractTestSampleProvider<So
 
     @NonNull
     @Override
-    public List<SolarChargeSample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<SolarChargeSample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<SolarChargeSample> samples = new ArrayList<>();
 
         final long firstTs = (timestampFrom + SAMPLE_INTERVAL_MILLIS - 1) / SAMPLE_INTERVAL_MILLIS * SAMPLE_INTERVAL_MILLIS;

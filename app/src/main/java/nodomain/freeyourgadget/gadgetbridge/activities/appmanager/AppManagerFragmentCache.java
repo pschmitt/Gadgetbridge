@@ -35,6 +35,11 @@ public class AppManagerFragmentCache extends AbstractAppManagerFragment {
     }
 
     @Override
+    protected boolean isUpdateManager() {
+        return false;
+    }
+
+    @Override
     protected List<GBDeviceApp> getSystemAppsInCategory() {
         return null;
     }

@@ -38,7 +38,7 @@ public class HuamiDevicePrefs extends DevicePrefs {
             String language = Locale.getDefault().getLanguage();
             String country = Locale.getDefault().getCountry();
 
-            localeString = language + "_" + country.toUpperCase();
+            localeString = language + "_" + country.toUpperCase(Locale.ROOT);
         }
 
         if (localeString.startsWith("0x")) {

@@ -76,4 +76,9 @@ public class GarminForerunner630Coordinator extends GarminWatchCoordinator {
     public boolean supportsHrvMeasurement(@NonNull final GBDevice device) {
         return false;
     }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }

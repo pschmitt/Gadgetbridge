@@ -20,6 +20,11 @@ set -euo pipefail
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+if [ -z "${INSIDE_NIX_RANDOMSTRING:-}" ] && command -v nix-shell &>/dev/null; then
+  export INSIDE_NIX_RANDOMSTRING=1
+  exec nix shell nixpkgs#xmlstarlet --command "$0" "$@"
+fi
+
 # Path of the ADB binary to use for ADB commands. If not set, "adb" will
 # be used as the binary, meaning it will search from the PATH. Alternatively,
 # if "ANDROID_HOME" variable exists, it will be used as fallback to search

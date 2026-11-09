@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <objectAnimator android:duration="300">
+        <propertyValuesHolder
+            android:propertyName="alpha"
+            android:valueType="floatType">
+            <keyframe
+                android:fraction="0.0"
+                android:value="0.0" />
+            <keyframe
+                android:fraction="0.3"
+                android:value="0.0" />
+            <keyframe
+                android:fraction="1.0"
+                android:value="1.0" />
+        </propertyValuesHolder>
+        <propertyValuesHolder
+            android:propertyName="scaleX"
+            android:valueFrom="0.95"
+            android:valueTo="1.0"
+            android:valueType="floatType" />
+        <propertyValuesHolder
+            android:propertyName="scaleY"
+            android:valueFrom="0.95"
+            android:valueTo="1.0"
+            android:valueType="floatType" />
+    </objectAnimator>
+</set>

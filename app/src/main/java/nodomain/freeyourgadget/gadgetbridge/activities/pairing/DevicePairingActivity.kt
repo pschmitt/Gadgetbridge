@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity
 import nodomain.freeyourgadget.gadgetbridge.activities.AuthKeyActivity
+import nodomain.freeyourgadget.gadgetbridge.activities.permissions.DevicePermissionsActivity
 import nodomain.freeyourgadget.gadgetbridge.databinding.ActivityDevicePairingBinding
 import nodomain.freeyourgadget.gadgetbridge.databinding.ItemPairingStepBinding
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
@@ -154,6 +155,7 @@ class DevicePairingActivity : AbstractGBActivity() {
         if (phase == PairingPhase.Initialized) {
             LOG.info("Pairing completed for {}", viewModel.candidate.macAddress)
             GB.toast(this, getString(R.string.pairing_success, viewModel.candidate.name), Toast.LENGTH_SHORT, GB.INFO)
+            DevicePermissionsActivity.startAfterPairing(this, viewModel.candidate.macAddress)
             setResult(RESULT_OK)
             finish()
         }

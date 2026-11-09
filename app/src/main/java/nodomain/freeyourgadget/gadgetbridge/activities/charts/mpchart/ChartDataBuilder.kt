@@ -70,6 +70,7 @@ internal object ChartDataBuilder {
     private const val MAX_CANDLE_SPACE = 0.45f
     private const val SOLID_FILL_ALPHA = 255
     private const val BAND_FILL_ALPHA = 0x40
+    private const val SLOT_HALF_WIDTH = 0.5
 
     fun columns(spec: ChartSpec) = spec.series.filter { it.style is SeriesStyle.Column && it.points.isNotEmpty() }
 
@@ -99,6 +100,7 @@ internal object ChartDataBuilder {
         val candles = ranges - bands.toSet()
         val lines = spec.series.filter { it.style is SeriesStyle.Line && it.points.isNotEmpty() }
         val stages = spec.series.filter { it.style is SeriesStyle.Stages && it.points.isNotEmpty() }
+        val spans = spec.series.filter { it.style is SeriesStyle.Span && it.points.isNotEmpty() }
         require(columns.isEmpty() || bands.isEmpty()) { "Range and column series can't share a chart" }
         val step = layout.width + layout.gap
         return CombinedData().apply {
@@ -118,10 +120,11 @@ internal object ChartDataBuilder {
             if (candles.isNotEmpty()) {
                 candleData = CandleData(candles.map { candleDataSet(it, xOrigin) })
             }
-            if (lines.isNotEmpty() || stages.isNotEmpty()) {
+            if (lines.isNotEmpty() || stages.isNotEmpty() || spans.isNotEmpty()) {
                 lineData = LineData(
                     stages.map { stagesDataSet(it, xOrigin) } +
-                        lines.flatMap { series -> segments(series).map { lineDataSet(series, it, xOrigin) } }
+                        lines.flatMap { series -> segments(series).map { lineDataSet(series, it, xOrigin) } } +
+                        spans.flatMap { series -> series.points.map { spanDataSet(series, it, xOrigin) } }
                 )
             }
         }
@@ -183,6 +186,21 @@ internal object ChartDataBuilder {
         return CandleDataSet(entries, series.label).apply {
             color = style.color
             barSpace = ((1f - (style.width ?: 1f)) / 2f).coerceIn(0f, MAX_CANDLE_SPACE)
+            isHighlightEnabled = false
+            isDrawValuesEnabled = false
+            axisDependency = axisDependency(series)
+        }
+    }
+
+    private fun spanDataSet(series: ChartSeries, point: ChartPoint, xOrigin: Double): SpanDataSet {
+        val style = series.style as SeriesStyle.Span
+        val start = (point.x - SLOT_HALF_WIDTH - xOrigin).toFloat()
+        val end = ((point.xEnd ?: point.x) + SLOT_HALF_WIDTH - xOrigin).toFloat()
+        val y = point.y.toFloat()
+        val entries = listOf(Entry(x = start, y = y, data = point.x.toFloat()), Entry(x = end, y = y, data = point.x.toFloat()))
+        return SpanDataSet(entries, series.label).apply {
+            color = style.color
+            isDrawCirclesEnabled = false
             isHighlightEnabled = false
             isDrawValuesEnabled = false
             axisDependency = axisDependency(series)

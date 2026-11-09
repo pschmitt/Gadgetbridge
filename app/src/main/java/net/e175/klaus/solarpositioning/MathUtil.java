@@ -1,0 +1,47 @@
+package net.e175.klaus.solarpositioning;
+
+final class MathUtil {
+  private MathUtil() {}
+
+  static double polynomial(double x, double... coeffs) {
+    int n = coeffs.length - 1;
+    double sum = coeffs[n];
+    for (int i = n - 1; i >= 0; i--) {
+      sum = GBMathUtil.fma(x, sum, coeffs[i]);
+    }
+    return sum;
+  }
+
+  static void checkLatLonRange(double latitude, double longitude) {
+    if (!Double.isFinite(latitude)
+        || !Double.isFinite(longitude)
+        || latitude < -90.0
+        || latitude > 90.0
+        || longitude < -180.0
+        || longitude > 180.0) {
+      throw new IllegalArgumentException("latitude/longitude out of range");
+    }
+  }
+
+  static void checkElevationAngle(double elevationAngle) {
+    if (!Double.isFinite(elevationAngle) || elevationAngle < -90.0 || elevationAngle > 90.0) {
+      throw new IllegalArgumentException("elevation angle out of range [-90, 90]");
+    }
+  }
+
+  static boolean checkRefractionParamsUsable(double pressure, double temperature) {
+    return Double.isFinite(pressure)
+        && Double.isFinite(temperature)
+        && pressure > 0.0
+        && pressure < 3000.0
+        && temperature > -273
+        && temperature < 273;
+  }
+
+  static double limitTo(double degrees, double max) {
+    double remainder = degrees % max;
+    double limited = remainder < 0.0 ? remainder + max : remainder;
+    // Adding max to a tiny negative remainder can round up to the excluded boundary.
+    return limited >= max ? 0.0 : limited;
+  }
+}

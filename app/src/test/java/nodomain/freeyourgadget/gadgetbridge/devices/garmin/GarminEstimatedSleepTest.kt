@@ -43,7 +43,7 @@ class GarminEstimatedSleepTest : TestBase() {
         DBHelper.getDevice(device, daoSession)
         val events = GarminEventSampleProvider(device, daoSession)
         // An earlier import faked light sleep from minute 0 to 180 for this file
-        assertTrue(events.persistSamples(listOf(fakedEvent(0, EventType.START), fakedEvent(180, EventType.STOP)), null))
+        assertTrue(events.persistSamples(listOf(fakedEvent(0, EventType.START), fakedEvent(180, EventType.STOP)), app))
 
         val night = EstimatedSleepSession(
             onset = at(30),
@@ -61,8 +61,8 @@ class GarminEstimatedSleepTest : TestBase() {
             remThreshold = 0.6f,
         )
         events.deleteFakedSleepEvents(at(0).toEpochMilli(), at(180).toEpochMilli())
-        assertTrue(GarminEstimatedSleepStageSampleProvider(device, daoSession).persistSamples(RawSleepStream.stageSamples(night), null))
-        assertTrue(events.persistSamples(RawSleepStream.sleepEvents(night), null))
+        assertTrue(GarminEstimatedSleepStageSampleProvider(device, daoSession).persistSamples(RawSleepStream.stageSamples(night), app))
+        assertTrue(events.persistSamples(RawSleepStream.sleepEvents(night), app))
 
         val samples = GarminActivitySampleProvider(device, daoSession)
             .getAllActivitySamples(at(0).epochSecond.toInt(), at(200).epochSecond.toInt())

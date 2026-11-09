@@ -44,8 +44,8 @@ public class FlipperZeroCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return FlipperZeroSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new FlipperZeroSupport();
     }
 
     @Override

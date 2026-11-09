@@ -30,8 +30,8 @@ class BeurerBm69Coordinator : AbstractBLEDeviceCoordinator() {
         return BONDING_STYLE_NONE
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return GenericBloodPressureSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return GenericBloodPressureSupport()
     }
 
     override fun getDeviceKind(device: GBDevice): DeviceCoordinator.DeviceKind {

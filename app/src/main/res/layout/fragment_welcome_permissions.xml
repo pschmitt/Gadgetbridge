@@ -38,14 +38,6 @@
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_do_not_ask_again"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="@string/first_start_permissions_do_not_ask_again" />
-
-            <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_request_all"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

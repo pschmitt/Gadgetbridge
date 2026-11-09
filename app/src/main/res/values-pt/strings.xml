@@ -169,9 +169,7 @@
     <string name="discovery_stop_scanning">Parar com a busca</string>
     <string name="discovery_start_scanning">Iniciar descoberta</string>
     <string name="action_discover">Conectar novo aparelho</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="title_activity_android_pairing">Parear aparelho</string>
-    <string name="android_pairing_hint">Use a caixa de diálogo Android Bluetooth para parear o aparelho.</string>
     <string name="title_activity_mi_band_pairing">Emparelhar com a sua Mi Band</string>
     <string name="pairing">A emparelhar com %s…</string>
     <string name="pairing_creating_bond_with">A criar ligação com %1$s (%2$s)</string>
@@ -219,7 +217,6 @@
     <string name="pref_screen_notification_profile_generic_social">Rede social</string>
     <string name="control_center_find_lost_device">Encontrar aparelho perdido</string>
     <string name="control_center_cancel_to_stop_vibration">Cancele para parar a vibração.</string>
-    <string name="title_activity_charts">Atividade e sono</string>
     <string name="title_activity_set_alarm">Configurar alarmes</string>
     <string name="title_activity_set_reminders">Configurar Lembretes</string>
     <string name="controlcenter_start_configure_alarms">Configurar alarmes</string>
@@ -636,7 +633,6 @@
     <string name="pref_summary_sync_calendar">Possibilita alertas de calendário, mesmo quando desconectado</string>
     <string name="pref_summary_allow_high_mtu">Aumenta velocidade de transferência, mas pode não funcionar em alguns aparelhos Android.</string>
     <string name="pref_title_allow_high_mtu">Permitir MTU alto</string>
-    <string name="error_no_location_access">Acesso à localização deve ser concedido e ativado para a varredura funcionar adequadamente</string>
     <string name="alarm_snooze">Adiar</string>
     <string name="prefs_button_long_press_action_selection_title">Ação do botão quando pressionado longo</string>
     <string name="prefs_button_variable_actions">Configurações detalhados de pressionamento de botão</string>
@@ -697,7 +693,6 @@
     <string name="widget_set_alarm_after">Definir alarme após:</string>
     <string name="widget_listing_label">Estado e Alarmes</string>
     <string name="appwidget_sleep_alarm_widget_label">Alarme de Sono</string>
-    <string name="activity_db_management_exportimport_label">Exportar e Importar</string>
     <string name="activity_DB_empty_button">Esvaziar banco de dados</string>
     <string name="activity_DB_delete_legacy_button">Apagar BD antigo</string>
     <string name="activity_DB_test_export_button">Executar AutoExportação Agora</string>
@@ -710,8 +705,6 @@
     <string name="menuitem_nfc">NFC</string>
     <string name="weeksleepchart_sleep_a_month">Sono por mês</string>
     <string name="weekstepschart_steps_a_month">Passos por mês</string>
-    <string name="pref_charts_range_off">O intervalo de gráficos está definido para uma Semana</string>
-    <string name="pref_charts_range_on">O intervalo de gráficos está definido para um Mês</string>
     <string name="pref_title_charts_range">Intervalo de gráficos</string>
     <string name="pref_title_charts_average">Mostrar médias nos gráficos</string>
     <string name="pref_header_charts">Configurações dos gráficos</string>
@@ -791,17 +784,8 @@
     <string name="activity_type_exercise">Exercício</string>
     <string name="appwidget_not_connected">Não conectado, alarme não definido.</string>
     <string name="save_configuration">Gravar Configuração</string>
-    <string name="mode_configuration">Configuração do modo</string>
     <string name="filter_mode">Modo de Filtro</string>
-    <string name="toast_notification_filter_words_empty_hint">Insira pelo menos uma palavra</string>
-    <string name="filter_submode_all">Todas as palavras</string>
-    <string name="filter_submode_at_least_one">Pelo menos uma das palavras</string>
-    <string name="filter_mode_blacklist">Bloquear quando contiver as palavras</string>
-    <string name="filter_mode_whitelist">Mostrar quando contiver as palavras</string>
     <string name="filter_mode_none">Não filtrar</string>
-    <string name="toast_notification_filter_saved_successfully">Filtro de notificação gravado</string>
-    <string name="edittext_notification_filter_words_hint">Insira as palavras desejadas, nova linha para cada uma</string>
-    <string name="title_activity_notification_filter">Filtro de notificação</string>
     <string name="live_activity_max_heart_rate">Frequência cardíaca atual / máx: %1$d / %2$d</string>
     <string name="no_data">Nenhuns dados</string>
     <string name="overstep">Passos excedentes: %1$s</string>
@@ -922,7 +906,6 @@
     <string name="error_background_service_reason_truncated">A inicialização do serviço de plano de fundo porque…</string>
     <string name="error_background_service">Falha ao iniciar o serviço de plano de fundo</string>
     <string name="error_version_check_extreme_caution">CUIDADO: erro ao verificar as informações de versão! Não deve continuar! Nome da versão encontrado: \"%s\"</string>
-    <string name="permission_granting_mandatory">Todas estas permissões são necessárias e instabilidade pode ocorrer se não concedidas</string>
     <string name="about_links">Ligações</string>
     <string name="activity_filter_to_placeholder">hoje</string>
     <string name="activity_filter_from_placeholder">passado distante</string>
@@ -1031,7 +1014,6 @@
     <string name="menuitem_findphone">Encontrar telefone</string>
     <string name="menuitem_spo2">SpO2</string>
     <string name="activity_error_no_app_for_png">Para compartilhar esta captura de ecrã, instale uma app que pode manipular ficheiros de imagens.</string>
-    <string name="activity_DB_ShowContentButton">Mostrar Exportar/Importar conteúdo do diretório</string>
     <string name="activity_data_management_directory_content_title">Exportar/Importar conteúdo do diretório</string>
     <string name="dbmanagementactivity_export_confirmation">Realmente exportar dados\? Dados de atividades exportados anteriormente (se houver) e preferências serão substituídos.</string>
     <string name="dbmanagementactivity_export_data_title">Exportar dados\?</string>
@@ -1140,7 +1122,6 @@
     <string name="sony_button_mode_ambient_sound_control">Controlo Som Ambiente</string>
     <string name="sony_button_mode_playback_control">Controlo da reprodução</string>
     <string name="sony_button_mode_volume_control">Controlo do Volume</string>
-    <string name="uncheck_all_applications">Desmarcar todos as aplicações</string>
     <string name="fw_upgrade_notice_amazfitx">Está prestes a instalar o firmware %s no seu Amazfit X.
 \n
 \nCertifique-se de instalar o ficheiro .fw e depois disso o ficheiro .res. A sua pulseira será reiniciada após a instalação do ficheiro .fw.
@@ -1151,9 +1132,6 @@
     <string name="pref_theme_black_background">Usar plano de fundo preto no tema escuro</string>
     <string name="pref_title_ping_tone">Tom do ping</string>
     <string name="pref_header_notification_application_settings">Configurações por aplicação</string>
-    <string name="pref_title_notification_use_as">Usar a lista de aplicações para…</string>
-    <string name="pref_title_notification_use_as_deny">Negar notificações das aplicações selecionadas</string>
-    <string name="pref_title_notification_use_as_allow">Permitir notificações de apps selecionadas</string>
     <string name="pref_title_message_privacy_mode">Modo de privacidade de mensagens</string>
     <string name="pref_message_privacy_mode_off">Exibir todo o conteúdo</string>
     <string name="pref_message_privacy_mode_complete">Ocultar todo o conteúdo</string>
@@ -1174,8 +1152,6 @@
     <string name="notification_channel_low_battery_name">Bateria baixa</string>
     <string name="menuitem_barometer">Barômetro</string>
     <string name="menuitem_flashlight">Lanterna</string>
-    <string name="toast_app_must_not_be_selected">A app não deve estar selecionada para ser configurada</string>
-    <string name="toast_app_must_be_selected">A app deve ser selecionada para ser configurada</string>
     <string name="gpx_receiver_activity_title">Receptor GPX Gadgetbridge</string>
     <string name="minutes_mi">min/mi</string>
     <string name="fossil_hr_commute_processing">Processando solicitação…</string>
@@ -1321,7 +1297,6 @@
     <string name="prefs_galaxy_touch_options">Opções de toque</string>
     <string name="qhybrid_pref_title_actions">Ações</string>
     <string name="title_activity_notification_management">Configurações de notificação</string>
-    <string name="check_all_applications">Marcar todos as aplicações</string>
     <string name="set">Definir</string>
     <string name="watchface_dialog_widget_preset_right">Direita</string>
     <string name="watchface_widget_type_2nd_tz">2º fuso horário</string>
@@ -1631,7 +1606,6 @@
     <string name="clap_hands_to_wakeup_device">Bata palmas para ligar a ecrã</string>
     <string name="seconds_6">6 segundos</string>
     <string name="weeksleepchart_sleep_a_week_or_month">Sono por semana/mês</string>
-    <string name="weekstepschart_steps_a_week_or_month">Passos por semana/mês</string>
     <string name="intent_api_allow_activity_sync_summary">Permitir o acionamento da sincronização de atividades por meio da API de intenção</string>
     <string name="bottom_nav_devices">Dispositivos</string>
     <string name="pref_dashboard_devices_to_include">Dispositivos a serem incluídos</string>
@@ -1801,8 +1775,6 @@
     <string name="pref_summary_fossil_hr_navigation_instructions">Configurar o comportamento da app de navegação no relógio</string>
     <string name="uploadwatchfaceoperation_complete">Instalação do mostrador de relógio concluída</string>
     <string name="bottom_nav_dashboard">Painel</string>
-    <string name="pref_dashboard_first_title">Mostrar o painel primeiro</string>
-    <string name="pref_dashboard_first_summary">Mostrar o painel quando o Gadgetbridge for iniciado, em vez do ecrã de dispositivos</string>
     <string name="pref_dashboard_widget_today_title">Gráfico de atividades</string>
     <string name="pref_dashboard_all_devices_summary">Combine os dados de atividade de todos os dispositivos adicionados para obter os totais no painel</string>
     <string name="pref_sleepasandroid_features_summary">O suporte difere de dispositivo para dispositivo</string>
@@ -2173,7 +2145,6 @@
     <string name="elevationGain">Ganho de elevação</string>
     <string name="menuitem_forecast">Previsão</string>
     <string name="moondrop_touch_action_assistant">Iniciar o Assistente de Voz</string>
-    <string name="soundcore_button_brightness_medium">Médio</string>
     <string name="watchface_dialog_widget_cat_generic">Genérico</string>
     <string name="activity_db_management_autoexport_location">Não foi possível perceber a localização. Provavelmente um problema do sistema de permissão mais recente do Android. Muito provavelmente, a exportação automática não funciona no momento.</string>
     <string name="activity_type_golf">Golfe</string>
@@ -2431,7 +2402,6 @@
     <string name="pref_screen_notification_profile_schedule">Agendar</string>
     <string name="pref_screen_notification_profile_todo_list">Lista de tarefas</string>
     <string name="pref_screen_notification_idle_alerts">Alertas de inatividade</string>
-    <string name="alarm_smart_wakeup_interval">Intervalo de ativação inteligente:</string>
     <string name="user_feedback_set_settings_ok">Configurações enviadas para o dispositivo.</string>
     <string name="prefs_heartrate_alert_experimental_title">Alerta de frequência cardíaca (experimental)</string>
     <string name="prefs_heartrate_alert_experimental_description">Vibrar a pulseira quando a frequência cardíaca estiver acima de um limite, sem nenhuma atividade física evidente nos últimos 10 minutos. Este recurso é experimental e não foi testado exaustivamente.</string>
@@ -2481,7 +2451,6 @@
     <string name="date_placeholders__date__time">%1$s, %2$s</string>
     <string name="date_placeholders__start_time__end_time">%1$s – %2$s</string>
     <string name="transition">Transição</string>
-    <string name="charts_two_items_only">Só pode comparar dois elementos por vez.</string>
     <string name="charts_at_least_one_item">Deve haver pelo menos um elemento selecionado.</string>
     <string name="fwinstaller_file_not_compatible_to_device">O ficheiro selecionado não é compatível com o dispositivo</string>
     <string name="fwinstaller_no_compatible_device_found">Não foi encontrado nenhum dispositivo compatível para instalar %1s</string>
@@ -2950,8 +2919,6 @@
     <string name="aqi_level_dangerous">perigoso</string>
     <string name="pref_title_upper_button_long_press_action">Ação de pressionar longamente o botão superior</string>
     <string name="pref_title_lower_button_short_press_action">Ação de pressionar brevemente o botão inferior</string>
-    <string name="error_no_bluetooth_scan">O acesso à varredura Bluetooth deve ser concedido e ativado para que a varredura funcione corretamente</string>
-    <string name="error_no_bluetooth_connect">O acesso à conexão Bluetooth deve ser concedido e ativado para que a digitalização funcione corretamente</string>
     <string name="permission_notification_policy_access">%1$s precisa de acesso às configurações de Não Perturbe para respeitá-las no seu relógio quando o ecrã do telefone estiver desligado.\n\nToque em \"%2$s\" e depois em \"%1$s\" e ative \"Permitir Não Perturbe\", depois toque em \"Voltar\" para retornar a %1$s.</string>
     <string name="app_crash_notification_title">%1s travou</string>
     <string name="app_crash_share_stacktrace">Partilhar erro</string>
@@ -3747,8 +3714,6 @@
     <string name="soundbrenner_pref_subdivision_triplet">Tercinas</string>
     <string name="soundcore_voice_prompts">Avisos de voz</string>
     <string name="soundcore_button_brightness">Brilho do botão</string>
-    <string name="soundcore_button_brightness_low">Baixo</string>
-    <string name="soundcore_button_brightness_high">Alto</string>
     <string name="soundcore_ldac_mode_title">Modo LDAC</string>
     <string name="soundcore_ldac_mode_summary">Ativar o LDAC reduzirá a vida útil da pilha e pode causar instabilidade na conexão</string>
     <string name="soundcore_auto_power_off_title">Desligamento automático</string>
@@ -3787,25 +3752,8 @@
     <string name="soundcore_equalizer_direction_hanging">Suspenso</string>
     <string name="soundcore_equalizer_reset_title">Restaurar padrões</string>
     <string name="soundcore_equalizer_reset_summary">Define todas as faixas do equalizador de volta aos padrões</string>
-    <string name="soundcore_equalizer_band1">Faixa 1</string>
-    <string name="soundcore_equalizer_band2">Faixa 2</string>
-    <string name="soundcore_equalizer_band3">Faixa 3</string>
-    <string name="soundcore_equalizer_band4">Faixa 4</string>
-    <string name="soundcore_equalizer_band5">Faixa 5</string>
-    <string name="soundcore_equalizer_band6">Faixa 6</string>
-    <string name="soundcore_equalizer_band7">Faixa 7</string>
-    <string name="soundcore_equalizer_band8">Faixa 8</string>
-    <string name="soundcore_equalizer_band9">Faixa 9</string>
     <string name="soundcore_equalizer_frequency">Frequência</string>
     <string name="soundcore_equalizer_value">Valor</string>
-    <string name="soundcore_equalizer_band1_freq">100 Hz</string>
-    <string name="soundcore_equalizer_band2_freq">200 Hz</string>
-    <string name="soundcore_equalizer_band3_freq">400 Hz</string>
-    <string name="soundcore_equalizer_band4_freq">800 Hz</string>
-    <string name="soundcore_equalizer_band5_freq">1,6 kHz</string>
-    <string name="soundcore_equalizer_band6_freq">3,2 kHz</string>
-    <string name="soundcore_equalizer_band7_freq">6,4 kHz</string>
-    <string name="soundcore_equalizer_band8_freq">12,8 kHz</string>
     <string name="miscale_weight_unit_title">Unidade de peso</string>
     <string name="miscale_weight_unit_summary">Define a unidade de peso das medições exibidas</string>
     <string name="miscale_weight_unit_metric">Métrico (kg)</string>
@@ -4101,9 +4049,6 @@
     <string name="widgets_drag_to_reorder">Arraste para reordenar</string>
     <string name="widgets_more_options">Mais opções</string>
     <string name="pref_widget_devices_mode_inherit">Herdar do painel</string>
-    <string name="pref_widget_columns_title">Largura</string>
-    <string name="pref_widget_columns_one">1 coluna</string>
-    <string name="pref_widget_columns_two">2 colunas</string>
     <string name="pref_widget_title_title">Título personalizado</string>
     <string name="pref_widget_title_summary">Substitui o título padrão do widget. Deixe vazio para usar o padrão.</string>
     <string name="pref_sleepasandroid_feat_heart_rr_intervals">Intervalos R-R</string>
@@ -4748,7 +4693,6 @@
     <string name="service_not_logged_in">Não conectado, a integração está desativada</string>
     <string name="service_logged_in_refresh_token">Conectado ao %1$s\nO token de atualização expira em: %2$s</string>
     <string name="service_server_version">\nVersão do servidor: %1$s</string>
-    <string name="endurain_logout_failed">Falha ao sair</string>
     <string name="service_logged_out">Sessão encerrada com sucesso</string>
     <string name="prefs_online_fitness_trackers_title">Rastreadores de fitness on-line</string>
     <string name="prefs_online_fitness_trackers_summary">Configure como aceder e usar rasteadores de fitness on-line</string>
@@ -4766,16 +4710,12 @@
     <string name="endurain_uploading_started">A enviar para o Endurain…</string>
     <string name="endurain_successfully_uploaded_toast">Enviado com sucesso para o Endurain</string>
     <string name="endurain_error_while_uploading_toast">Erro ao enviar para o Endurain</string>
-    <string name="endurain_unable_to_upload_gpx_file_toast">Não foi possível enviar o ficheiro de atividade para o Endurain: %1$s</string>
-    <string name="endurain_setup_title">Configuração do Endurain</string>
-    <string name="endurain_setup_server">Servidor Endurain</string>
     <string name="service_setup_login_type_local">Local</string>
     <string name="service_setup_login_type_sso">SSO</string>
     <string name="service_setup_mfa_code">Código MFA</string>
     <string name="service_setup_next">Avançar</string>
     <string name="activity_detail_upload_to_endurain">Enviar para o Endurain</string>
     <string name="service_logged_in_to">Conectado ao %s</string>
-    <string name="wanderer_setup_api_token_error">O token da API deve começar com wanderer_key_</string>
     <string name="service_setup_missing_information">Preencha os dois campos</string>
     <string name="wanderer_toast_successfully_uploaded">Enviado com sucesso para o Wanderer</string>
     <string name="wanderer_toast_upload_error">Erro de envio do Wanderer: %1$s</string>

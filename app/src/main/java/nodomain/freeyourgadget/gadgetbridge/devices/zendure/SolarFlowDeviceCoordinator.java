@@ -55,8 +55,8 @@ public class SolarFlowDeviceCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return SolarFlowDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new SolarFlowDeviceSupport();
     }
 
     @NonNull

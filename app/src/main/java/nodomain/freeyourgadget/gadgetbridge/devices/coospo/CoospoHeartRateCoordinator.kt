@@ -32,8 +32,8 @@ abstract class CoospoHeartRateCoordinator: AbstractBLEDeviceCoordinator() {
         return "Coospo"
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return GenericHeartRateSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return GenericHeartRateSupport()
     }
 
     override fun getDefaultIconResource(): Int {
@@ -41,6 +41,16 @@ abstract class CoospoHeartRateCoordinator: AbstractBLEDeviceCoordinator() {
     }
 
     override fun supportsHeartRateMeasurement(device: GBDevice): Boolean {
+        return true
+    }
+
+    override fun supportsRealtimeData(device: GBDevice): Boolean {
+        // Heart rate is always streamed by these devices, so expose the live views
+        return true
+    }
+
+    override fun supportsLiveOnlyHeartRateDisplay(device: GBDevice): Boolean {
+        // The value is only meaningful while we are receiving it, there is nothing to display otherwise
         return true
     }
 

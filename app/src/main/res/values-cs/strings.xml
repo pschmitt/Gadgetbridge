@@ -169,9 +169,7 @@
     <string name="discovery_stop_scanning">Zastavit hledání</string>
     <string name="discovery_start_scanning">Spustit hledání</string>
     <string name="action_discover">Připojit nové zařízení</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="title_activity_android_pairing">Párovat zařízení</string>
-    <string name="android_pairing_hint">Použijte dialog párování Bluetooth systému Android pro spárování se zařízením.</string>
     <string name="title_activity_mi_band_pairing">Párovat Mi Band</string>
     <string name="pairing">Páruji s %s…</string>
     <string name="pairing_creating_bond_with">Vytvářím vazbu s %1$s (%2$s)</string>
@@ -219,7 +217,6 @@
     <string name="pref_screen_notification_profile_generic_social">Sociální sítě</string>
     <string name="control_center_find_lost_device">Najít zařízení</string>
     <string name="control_center_cancel_to_stop_vibration">Zastavit vibrací.</string>
-    <string name="title_activity_charts">Aktivita a spánek</string>
     <string name="title_activity_set_alarm">Nastavit budíky</string>
     <string name="controlcenter_start_configure_alarms">Nastavit budíky</string>
     <string name="title_activity_alarm_details">Podrobnosti budíku</string>
@@ -573,17 +570,8 @@
     <string name="debugactivity_really_factoryreset_title">Opravdu uvést do továrního nastavení\?</string>
     <string name="debugactivity_really_factoryreset">Uvedení do továrního nastavení smaže z připojeného zařízení všechna data (je-li toto podporováno). Xiaomi/Huami také provedou změnu Bluetooth MAC adresy a budou se pro Gadgetbridge tvářit jako nová zařízení.</string>
     <string name="activity_type_exercise">Cvičení</string>
-    <string name="title_activity_notification_filter">Filtr oznámení</string>
-    <string name="edittext_notification_filter_words_hint">Zadejte požadovaná slova, jedno na řádek</string>
-    <string name="toast_notification_filter_saved_successfully">Filtr oznámení uložen</string>
     <string name="filter_mode_none">Nefiltrovat</string>
-    <string name="filter_mode_whitelist">Zobrazit při výskytu slov</string>
-    <string name="filter_mode_blacklist">Nezobrazit při výskytu slov</string>
-    <string name="filter_submode_at_least_one">Alespoň jedno ze slov</string>
-    <string name="filter_submode_all">Všechna slova</string>
-    <string name="toast_notification_filter_words_empty_hint">Zadejte prosím alespoň jedno slovo</string>
     <string name="filter_mode">Režim filtrování</string>
-    <string name="mode_configuration">Konfigurace režimu</string>
     <string name="save_configuration">Uložit konfiguraci</string>
     <string name="appwidget_not_connected">Nepřipojeno, budíky neodeslány.</string>
     <string name="prefs_disconnect_notification">Upozornění při odpojení</string>
@@ -662,8 +650,6 @@
     <string name="pref_header_charts">Nastavení grafů</string>
     <string name="pref_title_charts_average">Zobrazovat v grafech průměry</string>
     <string name="pref_title_charts_range">Časové období grafů</string>
-    <string name="pref_charts_range_on">Rozsah nastaven na měsíc</string>
-    <string name="pref_charts_range_off">Rozsah nastaven na týden</string>
     <string name="weekstepschart_steps_a_month">Kroky za měsíc</string>
     <string name="weeksleepchart_sleep_a_month">Spánek za měsíc</string>
     <string name="menuitem_nfc">NFC</string>
@@ -678,7 +664,6 @@
     <string name="activity_DB_delete_legacy_button">Vymazat starou databázi</string>
     <string name="activity_DB_empty_button">Vymazat databázi</string>
     <string name="activity_db_management_empty_DB">Vymazat databázi</string>
-    <string name="activity_db_management_exportimport_label">Export a import</string>
     <string name="activity_db_management_empty_db_warning">Varování! Stisknutím tohoto tlačítka vymažete všechna data a začnete od začátku.</string>
     <string name="appwidget_sleep_alarm_widget_label">Budík spánku</string>
     <string name="widget_listing_label">Stav a budíky</string>
@@ -746,7 +731,6 @@
     <string name="prefs_button_variable_actions">Detailní nastavení stisku tlačítka</string>
     <string name="prefs_button_long_press_action_selection_title">Akce pro dlouhý stisk</string>
     <string name="alarm_snooze">Odložit</string>
-    <string name="error_no_location_access">Přístup k poloze musí být díky systému Android přístupů povolen a zapnut, aby bylo možno správně naskenovat zařízení</string>
     <string name="pref_title_allow_high_mtu">Povolit vyšší MTU</string>
     <string name="pref_summary_allow_high_mtu">Zrychluje přenosovou rychlost, ale na některých Android zařízení nemusí pracovat správně.</string>
     <string name="pref_summary_sync_calendar">Umožňuje upozornění kalendáře, i při odpojeném zařízení</string>
@@ -836,7 +820,6 @@
     <string name="menuitem_worldclock">Světový Čas</string>
     <string name="pref_title_weather_summary">Použito pro poskytovatele počasí v systému LineageOS. Ostatní verze Androidu vyžadují aplikaci jako například „Breezy Weather“. Více informací naleznete na webu Gadgetbridge.</string>
     <string name="error_version_check_extreme_caution">POZOR: Chyba při kontrole verze! Nedoporučujeme pokračovat! Verze má název „%s“</string>
-    <string name="permission_granting_mandatory">Všechna tato oprávnění jsou vyžadována a pokud nebudou udělena, může dojít k nestabilitě</string>
     <string name="activity_detail_show_gps_label">Zobrazit trasu GPS</string>
     <string name="activity_detail_duration_label">Doba trvání</string>
     <string name="activity_detail_end_label">Konec</string>
@@ -1046,7 +1029,6 @@
 \nPoznámka: soubory .res a .gps nemusíte instalovat, pokud jsou totožné s již dříve nainstalovanými.
 \n
 \nPOKRAČUJTE NA VLASTNÍ NEBEZPEČÍ!</string>
-    <string name="activity_DB_ShowContentButton">Zobrazit obsah adresáře exportu/importu</string>
     <string name="activity_data_management_directory_content_title">Obsah adresáře exportu/importu</string>
     <string name="widget_settings_select_device_title">Vyberte zařízení</string>
     <string name="dbmanagementactivity_export_confirmation">Opravdu chcete exportovat data? Dříve exportovaná data aktivit a nastavení budou přepsána (pokud existují).</string>
@@ -1210,19 +1192,12 @@
     <string name="nothing_prefs_inear_summary">Přehrávat/pozastavovat hudbu podle detekce nošení</string>
     <string name="nothing_prefs_audiomode_title">Audio mód</string>
     <string name="nothing_prefs_inear_title">Detekce nošení</string>
-    <string name="pref_title_notification_use_as">Použít seznam aplikací k…</string>
-    <string name="pref_title_notification_use_as_deny">Zakázání oznámení z vybraných aplikací</string>
     <string name="title_activity_notification_management">Nastavení oznámení</string>
-    <string name="check_all_applications">Označit všechny aplikace</string>
-    <string name="uncheck_all_applications">Zrušit označení všech aplikací</string>
     <string name="pref_header_notification_application_settings">Nastavení jednotlivých aplikací</string>
-    <string name="pref_title_notification_use_as_allow">Povolení oznámení z vybraných aplikací</string>
     <string name="pref_title_message_privacy_mode">Nastavení soukromí pro oznámení</string>
     <string name="pref_message_privacy_mode_off">Zobrazit všechen text</string>
     <string name="pref_message_privacy_mode_complete">Skrýt všechen text</string>
     <string name="pref_applications_settings">Seznam aplikací</string>
-    <string name="toast_app_must_be_selected">Aplikace musí být označena, aby ji bylo možno konfigurovat</string>
-    <string name="toast_app_must_not_be_selected">Aplikace nesmí být označena, aby ji bylo možno konfigurovat</string>
     <string name="prefs_equalizer_preset">Předvolba ekvalizéru</string>
     <string name="pref_title_equalizer_bass_boost">Zesílení basů</string>
     <string name="pref_title_equalizer_soft">Měkký</string>
@@ -1984,8 +1959,6 @@
     <string name="activity_type_kitesurfing">Kitesurfing</string>
     <string name="activity_type_icehockey">Lední hokej</string>
     <string name="activity_type_iceskating">Bruslení</string>
-    <string name="error_no_bluetooth_scan">Musí být povoleno Bluetooth skenování pro správnou funkci</string>
-    <string name="error_no_bluetooth_connect">Musí být povoleno Bluetooth připojení pro správnou funkci</string>
     <string name="permission_request">Aplikace %1$s umožňuje posílání zpráv a dalších dat ze systému Android do vašeho zařízení. K tomu potřebuje oprávnění k přístupu k těmto datům, bez kterého nemusí správně fungovat.\n\nNyní se vám zobrazí několik dialogových oken systému Android, která si tato oprávnění vyžádají.\n\nPro pokračování klepněte na „%2$s“.</string>
     <string name="hrZoneAerobic">Aerobní</string>
     <string name="hrZoneNa">Není k dispozici</string>
@@ -2236,7 +2209,6 @@
     <string name="common_symbols">Běžné znaky</string>
     <string name="latvian">Lotyština</string>
     <string name="busy_task_fetch_statistics">Stahování statistik</string>
-    <string name="alarm_smart_wakeup_interval">Interval inteligentního probuzení:</string>
     <string name="alarm_smart_wakeup_interval_default">5 minut</string>
     <string name="prefs_workmode">Pracovní režim</string>
     <string name="charts_legend_spo2_average">Průměrné okysličení krve</string>
@@ -2272,7 +2244,6 @@
     <string name="pref_enable_call_accept_summary">Povolit přijímání hovorů ze zařízení</string>
     <string name="error_invalid_menu_structure">Chybná JSON struktura menu</string>
     <string name="menuitem_body_composition">Složení těla</string>
-    <string name="weekstepschart_steps_a_week_or_month">Kroky za týden/měsíc</string>
     <string name="weeksleepchart_sleep_a_week_or_month">Spánek za týden/měsíc</string>
     <string name="activity_type_high_jump">Skok do výšky</string>
     <string name="menuitem_readiness">Připravenost</string>
@@ -2594,7 +2565,6 @@
     <string name="pref_dashboard_all_devices_title">Všechna zařízení</string>
     <string name="pref_dashboard_widget_double_size_title">Dvojitá velikost</string>
     <string name="pref_dashboard_select_devices_title">Vybrat zařízení…</string>
-    <string name="pref_dashboard_first_title">Zobrazit nejprve nástěnku</string>
     <string name="pref_sleepasandroid_feat_alarms">Budíky</string>
     <string name="pref_dashboard_widget_show_legend_title">Zobrazit legendu</string>
     <string name="pref_title_huawei_account">Účet Huawei</string>
@@ -2708,7 +2678,6 @@
     <string name="devicesetting_scannable_rssi_summary">Minimální hranice RSSI pro detekci</string>
     <string name="dashboard_settings">Nastavení nástěnky</string>
     <string name="sleepasandroid_settings">Sleep As Android</string>
-    <string name="pref_dashboard_first_summary">Po spuštění aplikace Gadgetbridge zobrazit nástěnku namísto obrazovky zařízení</string>
     <string name="pref_dashboard_cards_summary">Vykreslit karty kolem widgetů na nástěnce</string>
     <string name="pref_auto_reply_calls_summary">Mobil automaticky přijme příchozí hovory</string>
     <string name="pref_dashboard_widget_today_upside_down_title">Půlnoc dole</string>
@@ -2808,8 +2777,6 @@
     <string name="soundcore_equalizer_preset">Předvolba</string>
     <string name="soundcore_equalizer_direction">Směr zařízení</string>
     <string name="soundcore_equalizer_reset_summary">Nastavit všechna pásma ekvalizéru zpět na výchozí nastavení</string>
-    <string name="soundcore_equalizer_band1">Pásmo 1</string>
-    <string name="soundcore_equalizer_band6">Pásmo 6</string>
     <string name="hrv_status_low">Nízký</string>
     <string name="minutes_60">60 minut</string>
     <string name="hrv_status_poor">Špatný</string>
@@ -2818,10 +2785,7 @@
     <string name="body_energy_gained">Získaná</string>
     <string name="body_energy_legend_level">Úroveň tělesné energie</string>
     <string name="soundcore_button_brightness">Jas tlačítka</string>
-    <string name="soundcore_button_brightness_medium">Střední</string>
     <string name="body_energy_lost">Ztracená</string>
-    <string name="soundcore_button_brightness_low">Nízký</string>
-    <string name="soundcore_button_brightness_high">Vysoký</string>
     <string name="soundcore_equalizer_custom_summary">Upravit nastavení parametrického ekvalizéru</string>
     <string name="soundcore_equalizer_reset_title">Obnovit na výchozí</string>
     <string name="pref_header_hrv_status">Stav HRV</string>
@@ -2838,13 +2802,6 @@
     <string name="soundcore_equalizer_direction_standing">Stojící</string>
     <string name="soundcore_equalizer_direction_lying">Ležící</string>
     <string name="soundcore_equalizer_direction_hanging">Visící</string>
-    <string name="soundcore_equalizer_band2">Pásmo 2</string>
-    <string name="soundcore_equalizer_band3">Pásmo 3</string>
-    <string name="soundcore_equalizer_band4">Pásmo 4</string>
-    <string name="soundcore_equalizer_band5">Pásmo 5</string>
-    <string name="soundcore_equalizer_band7">Pásmo 7</string>
-    <string name="soundcore_equalizer_band8">Pásmo 8</string>
-    <string name="soundcore_equalizer_band9">Pásmo 9</string>
     <string name="soundcore_equalizer_frequency">Frekvence</string>
     <string name="hrv_status">Stav HRV</string>
     <string name="hrv_status_day_avg">Denní průměr</string>
@@ -3950,7 +3907,6 @@
     <string name="weight_scale_stone_format">%1$d st %2$d lb</string>
     <string name="weight_scale_unknown">\???.??? ??</string>
     <string name="record_data">Uložit</string>
-    <string name="charts_two_items_only">Můžete porovnat pouze dvě položky najednou.</string>
     <string name="charts_at_least_one_item">Měla by být vybrána alespoň jedna položka.</string>
     <string name="workout_cadence">Kadence</string>
     <string name="centimeters_second">cm/s</string>
@@ -4473,14 +4429,6 @@
     <string name="soundcore_equalizer_preset_small_speakers">Malé reproduktory</string>
     <string name="soundcore_equalizer_preset_spoken_word">Mluvené slovo</string>
     <string name="soundcore_equalizer_preset_treble_reducer">Snížení výšek</string>
-    <string name="soundcore_equalizer_band1_freq">100 Hz</string>
-    <string name="soundcore_equalizer_band2_freq">200 Hz</string>
-    <string name="soundcore_equalizer_band3_freq">400 Hz</string>
-    <string name="soundcore_equalizer_band4_freq">800 Hz</string>
-    <string name="soundcore_equalizer_band5_freq">1,6 kHz</string>
-    <string name="soundcore_equalizer_band6_freq">3,2 kHz</string>
-    <string name="soundcore_equalizer_band7_freq">6,4 kHz</string>
-    <string name="soundcore_equalizer_band8_freq">12,8 kHz</string>
     <string name="encryption">Šifrování</string>
     <string name="development_preference_do_not_change">Neměňte, pokud jste o to nebyli požádáni, nebo pokud nejste vývojář</string>
     <string name="preference_force_enabled">Vynutit zapnutí</string>
@@ -4566,7 +4514,6 @@
     <string name="service_not_logged_in">Nejste přihlášeni, integrace je zakázána</string>
     <string name="service_logged_in_refresh_token">Přihlášeni k %1$s\nObnovovací token vyprší: %2$s</string>
     <string name="service_server_version">\nVerze serveru: %1$s</string>
-    <string name="endurain_logout_failed">Odhlášení selhalo</string>
     <string name="service_logged_out">Úspěšně odhlášeno</string>
     <string name="prefs_online_fitness_trackers_title">Online fitness trackery</string>
     <string name="pref_header_auto_export_fit">Automaticky exportovat stopy FIT</string>
@@ -4606,16 +4553,12 @@
     <string name="unable_to_share_gpx_track_toast">Nepodařilo se sdílet stopu GPX: %1$s</string>
     <string name="endurain_successfully_uploaded_toast">Úspěšně nahráno na Endurain</string>
     <string name="endurain_error_while_uploading_toast">Chyba při nahrávání na Endurain</string>
-    <string name="endurain_unable_to_upload_gpx_file_toast">Nepodařilo se nahrát soubor aktivity na Endurain: %1$s</string>
-    <string name="endurain_setup_title">Nastavení Endurain</string>
-    <string name="endurain_setup_server">Server Endurain</string>
     <string name="service_setup_login_type_local">Místní</string>
     <string name="service_setup_login_type_sso">SSO</string>
     <string name="service_setup_mfa_code">Kód MFA</string>
     <string name="service_setup_next">Další</string>
     <string name="activity_detail_upload_to_endurain">Nahrát na Endurain</string>
     <string name="service_logged_in_to">Přihlášeni k %s</string>
-    <string name="wanderer_setup_api_token_error">Token API by měl začínat řetězcem wanderer_key_</string>
     <string name="service_setup_missing_information">Vyplňte prosím obě pole</string>
     <string name="wanderer_toast_successfully_uploaded">Úspěšně nahráno na Wanderer</string>
     <string name="wanderer_toast_upload_error">Chyba při nahrávání na Wanderer: %1$s</string>
@@ -4944,9 +4887,6 @@
     <string name="widgets_drag_to_reorder">Přetažením změňte pořadí</string>
     <string name="widgets_more_options">Další možnosti</string>
     <string name="pref_widget_devices_mode_inherit">Převzít z klávesnice</string>
-    <string name="pref_widget_columns_title">Šířka</string>
-    <string name="pref_widget_columns_one">1 sloupec</string>
-    <string name="pref_widget_columns_two">2 sloupce</string>
     <string name="pref_widget_title_title">Vlastní název</string>
     <string name="pref_widget_title_summary">Přepíše výchozí název widgetu. Ponechte prázdné pro použití výchozího názvu.</string>
     <string name="unit_hours">h</string>
@@ -5063,4 +5003,16 @@
     <string name="pref_header_device_card">Karta zařízení</string>
     <string name="pref_device_card_show_items_title">Zobrazit položky karet</string>
     <string name="pref_device_card_items_title">Položky karet</string>
+    <string name="controlcenter_snackbar_discovering_services">Objevování služeb…</string>
+    <string name="duration_short_three_months">3m</string>
+    <string name="pref_device_card_items_summary">Přizpůsobit položky na kartě zařízení</string>
+    <string name="pref_device_card_show_quick_controls_title">Zobrazit rychlé ovládání</string>
+    <string name="pref_device_card_quick_controls_title">Rychlé ovládání</string>
+    <string name="pref_device_card_quick_controls_summary">Přizpůsobit rychlé ovládání na kartě zařízení</string>
+    <string name="device_card_add_item">Přidat položku</string>
+    <string name="device_card_more_summary">Položky pod touto budou zobrazeny ve vyskakovacím okně</string>
+    <string name="device_card_items_reset_confirmation">Resetovat pořadí položek na kartě zařízení a obnovit odstraněné položky?</string>
+    <string name="device_card_quick_controls_reset_confirmation">Resetovat pořadí rychlého ovládání a obnovit odstraněná rychlá ovládání?</string>
+    <string name="pref_title_allow_unsupported_devices">Povolit nepodporovaná zařízení</string>
+    <string name="pref_summary_navigation_allow_unsupported_devices">Odesílat navigační pokyny jako oznámení do zařízení, která nepodporují navigaci</string>
 </resources>

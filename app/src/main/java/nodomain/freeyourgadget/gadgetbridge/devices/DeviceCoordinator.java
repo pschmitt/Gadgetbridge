@@ -63,6 +63,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryParser;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrackProvider;
 import nodomain.freeyourgadget.gadgetbridge.model.Alarm;
+import nodomain.freeyourgadget.gadgetbridge.model.AltitudeSample;
 import nodomain.freeyourgadget.gadgetbridge.model.BatteryConfig;
 import nodomain.freeyourgadget.gadgetbridge.model.BloodPressureSample;
 import nodomain.freeyourgadget.gadgetbridge.model.BodyEnergySample;
@@ -86,6 +87,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.WorkoutLoadSample;
 import nodomain.freeyourgadget.gadgetbridge.model.heartratezones.HeartRateZonesSpec;
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceSupport;
 import nodomain.freeyourgadget.gadgetbridge.service.ServiceDeviceSupport;
+import nodomain.freeyourgadget.gadgetbridge.util.permissions.DevicePermission;
 import nodomain.freeyourgadget.gadgetbridge.vendorimport.VendorDataImporter;
 import nodomain.freeyourgadget.gadgetbridge.widgets.DeviceWidgetsProvider;
 
@@ -328,6 +330,7 @@ public interface DeviceCoordinator {
     boolean supportsTrainingLoadChronic(@NonNull final GBDevice device);
     boolean supportsRacePrediction(@NonNull final GBDevice device);
     boolean supportsTrainingReadiness(@NonNull final GBDevice device);
+    boolean supportsTrainingStatus(@NonNull final GBDevice device);
     boolean supportsGlucoseMeasurement(@NonNull final GBDevice device);
 
     /**
@@ -426,6 +429,12 @@ public interface DeviceCoordinator {
      * (with this coordinator).
      */
     boolean supportsWeightMeasurement(@NonNull final GBDevice device);
+
+    /**
+     * Returns true if altitude measurement and fetching is supported by the device
+     * (with this coordinator).
+     */
+    boolean supportsPointAltitudeMeasurement(@NonNull final GBDevice device);
 
     /**
      * Returns true if storing hydration entries is supported for the device.
@@ -576,6 +585,12 @@ public interface DeviceCoordinator {
      */
     @Nullable
     TimeSampleProvider<? extends WeightSample> getWeightSampleProvider(@NonNull final GBDevice device, @NonNull final DaoSession session);
+
+    /**
+     * Returns the sample provider for altitude data, for the device being supported.
+     */
+    @Nullable
+    TimeSampleProvider<? extends AltitudeSample> getAltitudeSampleProvider(@NonNull final GBDevice device, @NonNull final DaoSession session);
 
     /**
      * Returns the sample provider for hydration data, for the device being supported.
@@ -771,6 +786,11 @@ public interface DeviceCoordinator {
      * @return
      */
     boolean supportsAppsManagement(@NonNull final GBDevice device);
+
+    /**
+     * Returns true if the phone can send messages to apps installed on this device.
+     */
+    boolean supportsWatchAppMessages(@NonNull final GBDevice device);
 
     boolean supportsCachedAppManagement(@NonNull final GBDevice device);
     boolean supportsInstalledAppManagement(@NonNull final GBDevice device);
@@ -1182,10 +1202,20 @@ public interface DeviceCoordinator {
      */
     boolean supportsGpsSharing(@NonNull final GBDevice device);
 
+    /**
+     * Returns the permissions that the device needs on this phone, with the section (recommended or optional),
+     * and the rationale for each.
+     */
+    @NonNull
+    List<DevicePermission> getPermissions(@NonNull final GBDevice device);
+
     int getOrderPriority();
 
+    /**
+     * Instantiates a new {@link  DeviceSupport}.
+     */
     @NonNull
-    Class<? extends DeviceSupport> getDeviceSupportClass(@NonNull final GBDevice device);
+    DeviceSupport createDeviceSupport(@NonNull final GBDevice device);
 
     EnumSet<ServiceDeviceSupport.Flags> getInitialFlags();
 
@@ -1275,6 +1305,8 @@ public interface DeviceCoordinator {
     HeartRateZonesSpec getHeartRateZonesSpec(@NonNull final GBDevice device);
 
     Set<BarcodeFormat> getSupportedBarcodeFormats(@NonNull final GBDevice device);
+
+    boolean supportsLoyaltyCards(@NonNull final GBDevice device);
 
     /**
      * Whether the device can request a sync of loyalty cards.

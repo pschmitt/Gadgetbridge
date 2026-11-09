@@ -40,7 +40,6 @@ import java.util.zip.ZipOutputStream;
 
 import nodomain.freeyourgadget.gadgetbridge.BuildConfig;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
-import nodomain.freeyourgadget.gadgetbridge.GBDatabaseManager;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
@@ -177,7 +176,7 @@ public class ZipBackupExportJob extends AbstractZipBackupJob {
         final ZipEntry zipEntry = new ZipEntry(DATABASE_FILENAME);
         zipOut.putNextEntry(zipEntry);
 
-        GBDatabaseManager.exportDB(zipOut);
+        GBApplication.app().getDatabaseManager().exportDB(zipOut);
 
         zipOut.closeEntry();
     }

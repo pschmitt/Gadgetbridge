@@ -53,8 +53,8 @@ public class Roidmi1Coordinator extends RoidmiCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return RoidmiSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new RoidmiSupport();
     }
 
     @Override

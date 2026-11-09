@@ -45,8 +45,8 @@ open class JabraEvolve255Coordinator : AbstractBLClassicDeviceCoordinator() {
         return "Jabra"
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport?> {
-        return JabraEvolve255Support::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return JabraEvolve255Support()
     }
 
     override fun getDeviceNameResource(): Int {

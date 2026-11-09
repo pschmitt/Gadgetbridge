@@ -283,7 +283,7 @@ public final class BtLEQueue implements Thread.UncaughtExceptionHandler {
         LOG.error("exception in thread {} (threadId={})", t.getName(), t.getId(), e);
 
         // TODO implement actual exception handling for mDispatchThread and mReceiverThread
-        new GBExceptionHandler(null, true).uncaughtException(t, e);
+        new GBExceptionHandler(true).uncaughtException(t, e);
     }
 
     @NonNull
@@ -437,6 +437,11 @@ public final class BtLEQueue implements Thread.UncaughtExceptionHandler {
         final CountDownLatch serverLatch = mWaitForServerActionResultLatch;
         if (serverLatch != null) {
             serverLatch.countDown();
+        }
+
+        if (mDisposed.get()) {
+            LOG.debug("handleDisconnected: already disposed, not changing the device state");
+            return;
         }
 
         boolean forceDisconnect;

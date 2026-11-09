@@ -67,6 +67,11 @@ public class AppManagerFragmentInstalledApps extends AbstractAppManagerFragment 
     }
 
     @Override
+    protected boolean isUpdateManager() {
+        return false;
+    }
+
+    @Override
     protected String getSortFilename() {
         return mGBDevice.getAddress() + ".watchapps";
     }

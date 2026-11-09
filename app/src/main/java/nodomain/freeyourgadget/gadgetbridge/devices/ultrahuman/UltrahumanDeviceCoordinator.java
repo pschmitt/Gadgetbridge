@@ -93,8 +93,8 @@ public class UltrahumanDeviceCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return UltrahumanDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new UltrahumanDeviceSupport();
     }
 
     @Override

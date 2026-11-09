@@ -23,10 +23,16 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.databinding.ActivityWelcomeBinding;
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity;
 
 public class WelcomeActivity extends AbstractGBActivity {
+    private static final Logger LOG = LoggerFactory.getLogger(WelcomeActivity.class);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AbstractGBActivity.init(this, AbstractGBActivity.NO_ACTIONBAR);
@@ -45,6 +51,17 @@ public class WelcomeActivity extends AbstractGBActivity {
         binding.welcomePageIndicator.setViewPager(binding.welcomeViewpager);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        final boolean firstRun = GBApplication.getPrefs().getBoolean("first_run", true);
+        if (firstRun && !GBApplication.app().getDeviceManager().getDevices().isEmpty()) {
+            // A device was added - dismiss the welcome screen
+            GBApplication.getPrefs().getPreferences().edit().putBoolean("first_run", false).apply();
+            finish();
+        }
+    }
+
     private static class WelcomeFragmentsPagerAdapter extends FragmentStateAdapter {
         public WelcomeFragmentsPagerAdapter(FragmentActivity fa) {
             super(fa);
@@ -57,14 +74,13 @@ public class WelcomeActivity extends AbstractGBActivity {
                 case 0 -> new WelcomeFragmentIntro();
                 case 1 -> new WelcomeFragmentOverview();
                 case 2 -> new WelcomeFragmentDocsSource();
-                case 3 -> new WelcomeFragmentPermissions();
                 default -> new WelcomeFragmentGetStarted();
             };
         }
 
         @Override
         public int getItemCount() {
-            return 5;
+            return 4;
         }
     }
 }

@@ -126,6 +126,7 @@ Alternatively you may use the standard logcat functionality to access the log.
 
 * Gadgetbridge is licensed under the [AGPLv3](LICENSE)
 * Files in app/src/main/java/net/osmand/ and app/src/main/aidl/net/osmand/ are taken from the [OsmAnd](https://osmand.net/) project, licensed under the GPLv3 by OsmAnd BV
+* Files in app/src/main/java/net/e175/klaus/solarpositioning are taken from the [klausbrunner/solarpositioning](https://github.com/klausbrunner/solarpositioning) project, licensed under the MIT license by Klaus A. Brunner
 * Files in app/src/main/java/org/bouncycastle are taken from the [Bouncy Castle](https://www.bouncycastle.org/java.html) project, licensed under the MIT license by The Legion of the Bouncy Castle Inc.
 * Files in app/src/main/java/com/android/nQuant are taken from the [nQuant.android](https://github.com/mcychan/nQuant.android/) project, licensed under the Apache license by Miller Cy Chan
 * Files in app/src/main/java/lineageos/ are taken from the [LineageOS](https://lineageos.org/) platform (formerly CyanogenMod), licensed under the Apache license by The CyanogenMod Project and LineageOS contributors

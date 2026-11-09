@@ -20,11 +20,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.lang.reflect.Field;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
-import nodomain.freeyourgadget.gadgetbridge.devices.DeviceManager;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.test.TestDeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.entities.Alarm;
@@ -473,19 +471,6 @@ public class DeviceAlarmReceiverTest extends TestBase {
         final int suffix = Math.abs(testName.getMethodName().hashCode()) % 256;
         final String address = String.format("AA:BB:CC:DD:EE:%02X", suffix);
         return new ThreeSlotTestDevice(address);
-    }
-
-    private void registerDeviceWithManager(final GBDevice device) {
-        try {
-            final DeviceManager deviceManager = GBApplication.app().getDeviceManager();
-            final Field field = DeviceManager.class.getDeclaredField("deviceList");
-            field.setAccessible(true);
-            final List<GBDevice> deviceList = (List<GBDevice>) field.get(deviceManager);
-            deviceList.clear();
-            deviceList.add(device);
-        } catch (final Exception e) {
-            throw new AssertionError("Failed to register test device", e);
-        }
     }
 
     private Intent setAlarmIntent(final int hour, final int minutes, final String message) {

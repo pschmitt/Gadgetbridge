@@ -22,7 +22,7 @@ import nodomain.freeyourgadget.gadgetbridge.test.GBTestApplication;
  * title and body, as empty strings.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23, application = GBTestApplication.class)
+@Config(sdk = 24, application = GBTestApplication.class)
 public class XiaomiNotificationSendTest {
 
     private XiaomiSupport support;

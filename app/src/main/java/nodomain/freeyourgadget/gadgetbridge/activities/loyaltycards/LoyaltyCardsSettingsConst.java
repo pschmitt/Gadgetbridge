@@ -32,8 +32,11 @@ public final class LoyaltyCardsSettingsConst {
     public static final String LOYALTY_CARDS_CATIMA_PERMISSIONS = "loyalty_cards_catima_permissions";
     public static final String LOYALTY_CARDS_SYNC = "loyalty_cards_sync";
     public static final String LOYALTY_CARDS_SYNC_WATCH_REQUEST = "loyalty_cards_sync_watch_request";
+    public static final String LOYALTY_CARDS_SYNC_ON_CHANGE = "loyalty_cards_sync_on_change";
     public static final String LOYALTY_CARDS_SYNC_GROUPS_ONLY = "loyalty_cards_sync_groups_only";
     public static final String LOYALTY_CARDS_SYNC_GROUPS = "loyalty_cards_sync_groups";
     public static final String LOYALTY_CARDS_SYNC_ARCHIVED = "loyalty_cards_sync_archived";
     public static final String LOYALTY_CARDS_SYNC_STARRED = "loyalty_cards_sync_starred";
+    public static final String LOYALTY_CARDS_LAST_SYNC_HASH = "loyalty_cards_last_sync_hash";
+    public static final String LOYALTY_CARDS_PENDING_SYNC_HASH = "loyalty_cards_pending_sync_hash";
 }

@@ -576,6 +576,7 @@ class GbChartView @JvmOverloads constructor(
         val label = spec.labeler ?: labelFor(spec.format)
         val unit = spec.unit
         axis.isDrawLabelsEnabled = spec.showLabels
+        if (axis === axisLeft) axis.isDrawGridLinesEnabled = spec.showGrid
         axis.valueFormatter = formatterFor { value -> if (unit == null) label(value) else "${label(value)} $unit" }
         axis.isGranularityEnabled = spec.format == ChartValueFormat.INTEGER
         spec.minimum?.let { axis.axisMinimum = it.toFloat() } ?: axis.resetAxisMinimum()

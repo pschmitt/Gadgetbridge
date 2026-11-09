@@ -55,8 +55,8 @@ public abstract class AbstractPolarDeviceCoordinator extends AbstractBLEDeviceCo
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(GBDevice device) {
-        return PolarH10DeviceSupport.class;
+    public DeviceSupport createDeviceSupport(GBDevice device) {
+        return new PolarH10DeviceSupport();
     }
 
     @Override

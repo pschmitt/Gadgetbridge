@@ -102,7 +102,7 @@
         <item name="android:windowBackground">@color/window_background_light</item>
         <item name="android:colorBackground">@color/window_background_light</item>
         <item name="android:statusBarColor">?attr/toolbar_bg</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightStatusBar">true</item>
         <!-- colorSurface, not ?android:attr/windowBackground: dialogs redefine windowBackground as
              a drawable, and windows read this as a color, which crashed when opening one -->
         <item name="android:navigationBarColor">?attr/colorSurface</item>
@@ -215,7 +215,7 @@
         <item name="android:windowBackground">@color/window_background_dark</item>
         <item name="android:colorBackground">@color/window_background_dark</item>
         <item name="android:statusBarColor">?attr/toolbar_bg</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
     </style>
@@ -242,7 +242,7 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeCloseButtonStyle">@style/GadgetbridgeTheme.ActionModeCloseButton</item>
         <item name="android:statusBarColor">?attr/toolbar_bg</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:colorControlHighlight">?attr/colorPrimary</item>
         <item name="drawer_header_color">?attr/toolbar_bg</item>
         <item name="drawer_title_color">?attr/textColorPrimary</item>
@@ -314,7 +314,7 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeCloseButtonStyle">@style/GadgetbridgeTheme.ActionModeCloseButton</item>
         <item name="android:statusBarColor">?attr/toolbar_bg</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:colorControlHighlight">?attr/colorPrimary</item>
         <item name="drawer_header_color">?attr/toolbar_bg</item>
         <item name="drawer_title_color">?attr/textColorPrimary</item>
@@ -580,8 +580,8 @@
         <item name="tabMinWidth">0dp</item>
         <item name="tabPaddingStart">14dp</item>
         <item name="tabPaddingEnd">14dp</item>
-        <item name="tabPaddingTop">6dp</item>
-        <item name="tabPaddingBottom">6dp</item>
+        <item name="tabPaddingTop">0dp</item>
+        <item name="tabPaddingBottom">0dp</item>
         <item name="android:paddingStart">10dp</item>
         <item name="android:paddingEnd">10dp</item>
         <item name="android:paddingTop">0dp</item>
@@ -601,8 +601,8 @@
         <item name="tabTextColor">@color/subtab_text_pill</item>
         <item name="tabSelectedTextColor">?attr/subtab_active</item>
         <item name="tabTextAppearance">@style/TextAppearance.App.TabSmall</item>
-        <item name="tabPaddingTop">4dp</item>
-        <item name="tabPaddingBottom">4dp</item>
+        <item name="tabPaddingTop">0dp</item>
+        <item name="tabPaddingBottom">0dp</item>
         <item name="android:paddingStart">0dp</item>
         <item name="android:paddingEnd">0dp</item>
         <item name="android:paddingTop">0dp</item>

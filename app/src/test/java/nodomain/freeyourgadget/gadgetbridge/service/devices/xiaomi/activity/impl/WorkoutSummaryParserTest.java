@@ -80,6 +80,21 @@ public class WorkoutSummaryParserTest {
                     + "FBwAAtAMAANUAAADoAVMRAABmZiZAACcDAAAAAAAAAACIAAMAAAAAAAAAAAAAAAAAAAAA"
                     + "aQBdAAcAAEblwNo=";
 
+    /** Outdoor walking v9, 4 Jan 2026, workout load 28, vitality +10. */
+    private static final String OUTDOOR_WALKING_V9_04JAN =
+            "glJaaQQJ2QD3///4P4AAf/AAAAAfAgCDUlppIVhaaZ0FAACdBQAACAoAAM8ArwAjAgAA1gEAAFYDAABv3s1ANA31"
+                    + "QKYLAABVAH8AhwCHo2MAAAAAAAAAAAAAAAAAAAAAAAAAAGZmJkAAAAAAAAAAAAAAAAAAABAAAAAAAADVAAAA"
+                    + "bQIAAO8BAABQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAQAA"
+                    + "AAAAAAAAAAAAAAAACgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                    + "AAAAAAAAAAAAAAAAAAAAAAAAAAALE479";
+
+    @Test
+    public void outdoorWalkingV9_readsLoadAndVitality() {
+        final ActivitySummaryData data = parse(OUTDOOR_WALKING_V9_04JAN);
+        assertEquals(28d, num(data, ActivitySummaryEntries.WORKOUT_LOAD), 0.001);
+        assertEquals(10d, num(data, ActivitySummaryEntries.VITALITY_GAIN), 0.001);
+    }
+
     private static ActivitySummaryData parse(final String base64) {
         final byte[] bytes = Base64.getDecoder().decode(base64);
         final BaseActivitySummary summary = new BaseActivitySummary();
@@ -206,6 +221,8 @@ public class WorkoutSummaryParserTest {
                 + num(data, ActivitySummaryEntries.HR_ZONE_WARM_UP);
         assertEquals("heart rate zones should add up to the active seconds",
                 num(data, ActivitySummaryEntries.ACTIVE_SECONDS), zones, 0.001);
+
+        assertEquals(2, num(data, ActivitySummaryEntries.WORKOUT_LOAD), 0.001);
     }
 
     /** Outdoor cycling v8 (Smart Band 10 Pro), 23 Sep 2026, 5.28 km ride, no route. */
@@ -386,6 +403,11 @@ public class WorkoutSummaryParserTest {
         assertEquals(118d, num(data, ActivitySummaryEntries.HR_MIN), 0.001);
         assertEquals(156d, num(data, ActivitySummaryEntries.HR_MAX), 0.001);
         assertEquals(147d, num(data, ActivitySummaryEntries.HR_AVG), 0.001);
+
+        assertEquals(774d, num(data, ActivitySummaryEntries.CALORIES_TOTAL), 0.001);
+        assertEquals(0.3d, num(data, ActivitySummaryEntries.TRAINING_EFFECT_ANAEROBIC), 0.001);
+        assertEquals(96d, num(data, ActivitySummaryEntries.WORKOUT_LOAD), 0.001);
+        assertEquals(3d, num(data, ActivitySummaryEntries.VITALITY_GAIN), 0.001);
     }
 
     /** Outdoor cycling v2 v3 (Mi Watch Color Sport), 4 Oct 2026, 18.09 km ride. */

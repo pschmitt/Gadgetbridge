@@ -57,7 +57,7 @@ class NxWearB8Coordinator : AbstractBLEDeviceCoordinator() {
 
     override fun getManufacturer(): String = "Nx Wear"
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> = NxWearB8Support::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport = NxWearB8Support()
 
     override fun getDeviceNameResource(): Int = R.string.devicetype_nx_wear_b8
 

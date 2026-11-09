@@ -31,10 +31,10 @@ public interface PersistenceProvider<T> {
     ///
     /// @param context optional context for displaying error messages
     /// @return {@code false} if at least one sample couldn't be persisted.
-    boolean persistSamples(@NonNull List<T> samples, @Nullable Context context);
+    boolean persistSamples(@NonNull List<T> samples, @NonNull Context context);
 
-    /// @see #persistSamples(List, Context) 
-    default boolean persistSamples(@NonNull T sample, @Nullable Context context) {
+    /// @see #persistSamples(List, Context)
+    default boolean persistSamples(@NonNull T sample, @NonNull Context context) {
         return persistSamples(Collections.singletonList(sample), context);
     }
 }

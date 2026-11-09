@@ -54,8 +54,8 @@ class ITagCoordinator : AbstractBLEDeviceCoordinator() {
 
     override fun supportsFindDevice(device: GBDevice): Boolean = true
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> =
-        ITagSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport =
+        ITagSupport()
 
     override fun getDeviceNameResource(): Int = R.string.devicetype_itag
 

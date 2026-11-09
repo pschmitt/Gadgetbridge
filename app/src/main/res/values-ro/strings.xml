@@ -120,8 +120,6 @@
     <string name="pref_title_rtl">De la dreapta la stânga</string>
     <string name="pref_header_privacy">Confidențialitate</string>
     <string name="pref_title_canned_replies">Răspunsuri</string>
-    <string name="filter_submode_at_least_one">Cel puțin unul dintre cuvinte</string>
-    <string name="filter_submode_all">Toate cuvintele</string>
     <string name="save_configuration">Salvare configurație</string>
     <string name="appwidget_not_connected">Deconectat(ă), alarma nu este setată.</string>
     <string name="mi2_prefs_button_press_broadcast_default_value" translatable="false">nodomain.freeyourgadget.gadgetbridge.ButtonPressed</string>
@@ -274,7 +272,6 @@
     <string name="open_fw_installer_pick_file">Alege fișierul</string>
     <string name="zetime_date_format_1">AA/LL/ZZ</string>
     <string name="zetime_date_format_3">LL/ZZ/AA</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="female">Femeie</string>
     <string name="title_activity_sleepmonitor">Monitorizare somn</string>
     <string name="pref_screen_notification_profile_missed_call">Notificare apel pierdut</string>
@@ -351,7 +348,6 @@
     <string name="pref_summary_use_custom_font">Activează această opțiune dacă dispozitivul re un font personalizat pentru a accepta emoji</string>
     <string name="zetime_calories_type">Tip de calorii</string>
     <string name="pref_title_banglejs_txt_bitmap_size">Dimensiunea bitmap a textului</string>
-    <string name="pref_title_notification_use_as">Utilizează lista de aplicații pentru a…</string>
     <string name="pref_summary_transliteration">Activează dacă dispozitivul nu are un font pentru limba ta</string>
     <string name="pref_title_screentime">Durata de funcționare a ecranului</string>
     <string name="miband_firmware_suggest_whitelist">Dacă instalezi acest firmware și descoperi că funcționează fără probleme, anunță dezvoltatorii Gadgetbridge. Ei vor marca această versiune de firmware (%s) ca fiind compatibilă.</string>
@@ -427,7 +423,6 @@
     <string name="stats_x_axis_label">Total minute</string>
     <string name="stats_y_axis_label">Pași pe minut</string>
     <string name="control_center_find_lost_device">Găsește dispozitivul pierdut</string>
-    <string name="title_activity_charts">Activitate și somn</string>
     <string name="proprietary_app_warning">Această caracteristică necesită instalarea unei aplicații proprietare</string>
     <string name="pref_header_calendar">Calendar</string>
     <string name="pref_header_connection">Conexiune</string>
@@ -456,8 +451,6 @@
     <string name="appmanager_download_started">Descărcarea aplicației a început</string>
     <string name="appmanager_downloaded_to_cache">Descărcat în cache: %s</string>
     <string name="appmanager_download_app_error">Eroare la descărcarea aplicației</string>
-    <string name="check_all_applications">Bifează toate aplicațiile</string>
-    <string name="uncheck_all_applications">Debifează toate aplicațiile</string>
     <string name="fw_upgrade_notice_amazfitbip_lite">Ești pe cale să instalezi firmware-ul %s pe Amazfit Bip Lite.
 \n
 \nAsigură-te că instalezi fișierul .fw, iar după aceea fișierul .res. Ceasul se va reporni după instalarea fișierului .fw.
@@ -542,7 +535,6 @@
     <string name="bluetooth_is_disabled_">Bluetooth dezactivat.</string>
     <string name="discovery_start_scanning">Începe căutarea</string>
     <string name="title_activity_mi_band_pairing">Asociază Mi Band</string>
-    <string name="android_pairing_hint">Utilizează dialogul de asociere Bluetooth Android pentru a asocia dispozitivul.</string>
     <string name="pairing">Se asociază cu %s…</string>
     <string name="pairing_creating_bond_with">Crearea unei legături cu %1$s (%2$s)</string>
     <string name="pairing_unable_to_pair_with">Imposibil de asociat cu %1$s (%2$s)</string>
@@ -576,8 +568,6 @@
     <string name="pref_title_notification_cache_while_disconnected">Memorează în cache când nu mai este din rază</string>
     <string name="pref_summary_notification_times_enabled">Trimite notificări numai în acest interval de timp</string>
     <string name="pref_title_notification_media_ignores_application_list">Lista aplicațiilor cu notificări media ignorate</string>
-    <string name="pref_title_notification_use_as_deny">Împiedică aplicațiile selectate să afișeze notificări</string>
-    <string name="pref_title_notification_use_as_allow">Permite notificări de la aplicațiile selectate</string>
     <string name="pref_summary_banglejs_phone_gps_enbale">Utilizează geo-localizarea telefonului pentru a suprascrie datele de geo-localizare de pe dispozitivul portabil</string>
     <string name="pref_title_banglejs_phone_gps_network_only">Utilizează rețeaua numai pentru a determina locația</string>
     <string name="pref_title_banglejs_webview_url">Adresa URL a aplicației de încărcare</string>
@@ -1016,7 +1006,6 @@
     <string name="qhybrid_title_watchface_designer">Designer cadran de ceas</string>
     <string name="watchface_resolution_doesnt_match">Rezoluția cadranului ceasului nu se potrivește cu ecranul dispozitivului. Cadranul ceasului este %1$s. Ecranul dispozitivului este %2$s</string>
     <string name="alarm_smart_wakeup_interval_default">5 minute</string>
-    <string name="alarm_smart_wakeup_interval">Interval de trezire inteligentă:</string>
     <string name="notif_battery_low_percent">%1$s baterie rămasă: %2$s%%</string>
     <string name="notif_battery_low_bigtext_last_charge_time">Ultima încărcare: %s
 \n</string>

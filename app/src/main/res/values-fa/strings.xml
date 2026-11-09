@@ -163,9 +163,7 @@
 \nیادداشت: درصورتی که فایل‌های با فرمت .res و .gps شما دقیقا مشابه فایلِ از پیش نصب شده می‌باشد نیازی به نصب مجدد آن نیست.
 \n
 \nبا مسئولیت خودتان ادامه دهید!</string>
-    <string name="check_all_applications">انتخاب تمام اپلیکیشن‌ها</string>
     <string name="title_activity_notification_management">تنظیمات اعلان‌ها</string>
-    <string name="uncheck_all_applications">حذف انتخاب تمام اپلیکیشن‌ها</string>
     <string name="fw_upgrade_notice_amazfitbip_lite">شما در حال نصب سیستم‌عامل (Firmware) %s بر روی دستگاه امیزفیت بیپ لایت (Amazfit bip lite) خود می‌باشید.
 \n
 \nلطفا از نصب فایل با پسوند .fw و پس از آن فایل با پسوند .res اطمینان حاصل فرمایید. ساعت شما پس از نصب فایل با پسوند .fw راه‌اندازی مجدد (ری‌استارت) خواهد شد.
@@ -386,9 +384,6 @@
     <string name="pref_title_notification_media_ignores_application_list">اعلان‌های رسانه فهرست برنامه‌ها را نادیده می‌گیرند</string>
     <string name="pref_summary_notification_media_ignores_application_list">اعلان‌های رسانه پیش از فهرست برنامه‌ها پردازش می‌شوند. اگر این گزینه فعال نباشد، برای کار کردن کنترل‌های رسانه روی دستگاه باید برنامه‌های رسانه در فهرست برنامه‌ها مجاز شوند.</string>
     <string name="pref_header_notification_application_settings">تنظیمات هر برنامه</string>
-    <string name="pref_title_notification_use_as">استفاده از فهرست برنامه‌ها برای…</string>
-    <string name="pref_title_notification_use_as_deny">رد کردن اعلان‌های برنامه‌های انتخاب‌شده</string>
-    <string name="pref_title_notification_use_as_allow">اجازه دادن به اعلان‌های برنامه‌های انتخاب‌شده</string>
     <string name="pref_title_banglejs_text_bitmap">متن به‌صورت Bitmap</string>
     <string name="pref_summary_banglejs_text_bitmap">اگر واژه‌ای با قلم ساعت قابل نمایش نباشد، در Gadgetbridge به یک bitmap تبدیل شده و آن bitmap روی ساعت نمایش داده می‌شود</string>
     <string name="pref_title_banglejs_txt_bitmap_size">اندازه Bitmap متن</string>
@@ -758,9 +753,7 @@
     <string name="discovery_bluetooth_scan">اسکن Bluetooth:</string>
     <string name="discovery_bluetooth_le_scan">اسکن Bluetooth LE:</string>
     <string name="action_discover">اتصال دستگاه جدید</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="title_activity_android_pairing">جفت‌سازی دستگاه</string>
-    <string name="android_pairing_hint">برای جفت‌سازی دستگاه از کادر جفت‌سازی Bluetooth در Android استفاده کنید.</string>
     <string name="title_activity_mi_band_pairing">جفت‌سازی Mi Band شما</string>
     <string name="pairing">در حال جفت‌سازی با %s…</string>
     <string name="choose_device">یک دستگاه انتخاب کنید</string>
@@ -924,7 +917,6 @@
     <string name="stats_y_axis_label">قدم در دقیقه</string>
     <string name="control_center_find_lost_device">پیدا کردن دستگاه گم‌شده</string>
     <string name="control_center_cancel_to_stop_vibration">برای توقف لرزش، لغو را انتخاب کنید.</string>
-    <string name="title_activity_charts">فعالیت و خواب</string>
     <string name="title_activity_set_alarm">تنظیم زنگ‌های هشدار</string>
     <string name="title_activity_set_reminders">تنظیم یادآورها</string>
     <string name="title_activity_set_contacts">تنظیم مخاطبان</string>
@@ -975,7 +967,6 @@
     <string name="alarm_fri_short">ج</string>
     <string name="alarm_sat_short">ش</string>
     <string name="alarm_smart_wakeup">بیدارسازی هوشمند</string>
-    <string name="alarm_smart_wakeup_interval">بازه بیدارسازی هوشمند:</string>
     <string name="alarm_smart_wakeup_interval_default">5 دقیقه</string>
     <string name="alarm_snooze">تعویق</string>
     <string name="user_feedback_miband_set_alarms_failed">در تنظیم زنگ‌های هشدار خطایی رخ داد، لطفاً دوباره تلاش کنید.</string>
@@ -1210,7 +1201,6 @@
     <string name="transition">گذار</string>
     <string name="you_slept">%1$s – %2$s</string>
     <string name="you_did_not_sleep">خوابی ثبت نشد</string>
-    <string name="charts_two_items_only">هر بار فقط می‌توانید دو مورد را مقایسه کنید.</string>
     <string name="charts_at_least_one_item">باید حداقل یک مورد انتخاب شده باشد.</string>
     <string name="charts_min_max_heartrate_popup">کمترین ضربان قلب: %1$d \nبیشترین ضربان قلب: %2$d \nشدت حرکت: %3$s</string>
     <string name="device_not_connected">متصل نیست.</string>
@@ -1400,14 +1390,11 @@
     <string name="activity_prefs_discovery_pairing">گزینه‌های کشف و جفت‌سازی</string>
     <string name="pref_title_charts_range">محدوده نمودارها</string>
     <string name="pref_chart_sleep_lines_limit">تعداد خطوط دوره‌های خواب که پیش از پیمایش نمایش داده می‌شوند</string>
-    <string name="pref_charts_range_on">محدوده نمودارها روی یک ماه تنظیم شده است</string>
-    <string name="pref_charts_range_off">محدوده نمودارها روی یک هفته تنظیم شده است</string>
     <string name="pref_chart_heartrate_color_red">قرمز</string>
     <string name="pref_chart_heartrate_color_orange">نارنجی</string>
     <string name="pref_title_chart_heartrate_color">رنگ ضربان قلب</string>
     <string name="weekstepschart_steps_a_month">قدم‌ها در ماه</string>
     <string name="weeksleepchart_sleep_a_month">خواب در ماه</string>
-    <string name="weekstepschart_steps_a_week_or_month">قدم‌ها در هفته/ماه</string>
     <string name="weeksleepchart_sleep_a_week_or_month">خواب در هفته/ماه</string>
     <string name="pref_title_chart_sleep_rolling_24_hour">محدوده خواب</string>
     <string name="pref_summary_chart_sleep_range">مشخص می‌کند که هر دوره خواب به کدام روز نسبت داده می‌شود</string>
@@ -1480,7 +1467,6 @@
     <string name="activity_DB_delete_legacy_button">حذف پایگاه داده قدیمی</string>
     <string name="activity_DB_empty_button">خالی کردن پایگاه داده</string>
     <string name="activity_db_management_empty_DB">خالی کردن پایگاه داده</string>
-    <string name="activity_db_management_exportimport_label">برون‌بری و درون‌ریزی</string>
     <string name="activity_db_management_empty_db_warning">هشدار! با فشار دادن این دکمه، پایگاه داده شما پاک می‌شود و از ابتدا شروع خواهید کرد.</string>
     <string name="persisting_samples_failed">خطا در ذخیره نمونه‌ها: %1$s</string>
     <string name="cancel">لغو</string>
@@ -1496,7 +1482,6 @@
     <string name="status">وضعیت</string>
     <string name="set">تنظیم</string>
     <string name="activity_data_management_directory_content_title">محتوای پوشه برون‌بری/درون‌ریزی</string>
-    <string name="activity_DB_ShowContentButton">نمایش محتوای پوشه برون‌بری/درون‌ریزی</string>
     <string name="dbmanagementactivity_export_finished">حذف پایان یافت</string>
     <string name="title_activity_vibration">لرزش</string>
     <string name="title_activity_pebble_pairing">جفت‌سازی Pebble</string>
@@ -2198,19 +2183,8 @@
     <string name="language_and_region_prefs">تنظیمات زبان و منطقه</string>
     <string name="prefs_fm_preset_instructions">برای ذخیره پیش‌تنظیم، دکمه را فشار طولانی دهید</string>
     <string name="prefs_fm_presets_presets">پیش‌تنظیم‌ها</string>
-    <string name="title_activity_notification_filter">فیلتر اعلان</string>
-    <string name="toast_app_must_not_be_selected">برای تنظیم، برنامه نباید انتخاب شده باشد</string>
-    <string name="toast_app_must_be_selected">برای تنظیم، برنامه باید انتخاب شده باشد</string>
-    <string name="edittext_notification_filter_words_hint">واژه‌های مورد نظر را وارد کنید، هر واژه در یک خط جدید</string>
-    <string name="toast_notification_filter_saved_successfully">فیلتر اعلان ذخیره شد</string>
     <string name="filter_mode_none">فیلتر نشود</string>
-    <string name="filter_mode_whitelist">نمایش در صورت وجود واژه‌ها</string>
-    <string name="filter_mode_blacklist">مسدود کردن در صورت وجود کلمات</string>
-    <string name="filter_submode_at_least_one">حداقل یکی از کلمات</string>
-    <string name="filter_submode_all">همه کلمات</string>
-    <string name="toast_notification_filter_words_empty_hint">لطفاً حداقل یک کلمه وارد کنید</string>
     <string name="filter_mode">حالت فیلتر</string>
-    <string name="mode_configuration">پیکربندی حالت</string>
     <string name="save_configuration">ذخیره پیکربندی</string>
     <string name="sleep_restless_moments">لحظات بی‌قراری</string>
     <string name="appwidget_not_connected">متصل نیست، زنگ هشدار تنظیم نشد.</string>
@@ -2267,9 +2241,6 @@
     <string name="prefs_button_triple_press_action_selection_title">عملکرد رویداد 3</string>
     <string name="prefs_button_variable_actions">تنظیمات دقیق فشار دکمه</string>
     <string name="prefs_button_long_press_action_selection_title">عملکرد فشار طولانی دکمه</string>
-    <string name="error_no_location_access">برای عملکرد صحیح اسکن، دسترسی به موقعیت مکانی باید داده و فعال شود</string>
-    <string name="error_no_bluetooth_scan">برای عملکرد صحیح اسکن، دسترسی به اسکن Bluetooth باید داده و فعال شود</string>
-    <string name="error_no_bluetooth_connect">برای عملکرد صحیح اسکن، دسترسی به اتصال Bluetooth باید داده و فعال شود</string>
     <string name="pref_qhybrid_title_widget_draw_circles">ترسیم دایره‌های ابزارک</string>
     <string name="pref_qhybrid_save_raw_activity_files">ذخیره فایل‌های خام فعالیت</string>
     <string name="hr_widget_last_notification">آخرین اعلان</string>
@@ -2286,7 +2257,6 @@
     <string name="about_additional_contributions">با سپاس فراوان از همه مشارکت‌کنندگان فهرست‌نشده برای کد، ترجمه، پشتیبانی، ایده، انگیزه، گزارش اشکال و کمک مالی… ✊</string>
     <string name="about_links">پیوندها</string>
     <string name="permission_request">%1$s به شما امکان می‌دهد پیام‌ها و داده‌های دیگر را از Android به دستگاه خود ارسال کنید. برای این کار به مجوز دسترسی به آن داده‌ها نیاز دارد و بدون آن ممکن است به‌درستی کار نکند.\n\nاکنون چند کادر گفت‌وگوی Android برای درخواست این مجوزها به شما نشان داده می‌شود.\n\nبرای ادامه، لطفاً روی \"%2$s\" ضربه بزنید.</string>
-    <string name="permission_granting_mandatory">همه این مجوزها لازم هستند و در صورت اعطا نشدن، ممکن است ناپایداری رخ دهد</string>
     <string name="permission_notification_listener">%1$s برای نمایش اعلان‌ها روی ساعت شما هنگام خاموش بودن صفحه نمایش گوشی، به دسترسی به اعلان‌ها نیاز دارد.\n\nلطفاً روی \"%2$s\" و سپس \"%1$s\" ضربه بزنید و \"Allow Notification Access\" را فعال کنید، سپس روی \"Back\" ضربه بزنید تا به %1$s بازگردید.</string>
     <string name="permission_notification_policy_access">%1$s برای اعمال تنظیمات مزاحم نشوید روی ساعت شما هنگام خاموش بودن صفحه نمایش گوشی، به دسترسی به این تنظیمات نیاز دارد.\n\nلطفاً روی \"%2$s\" و سپس \"%1$s\" ضربه بزنید و \"Allow Do Not Disturb\" را فعال کنید، سپس روی \"Back\" ضربه بزنید تا به %1$s بازگردید.</string>
     <string name="permission_location">%1$s برای اینکه حتی هنگام خاموش بودن صفحه نمایش به ساعت شما متصل بماند، به دسترسی به موقعیت مکانی در پس‌زمینه نیاز دارد.\n\nلطفاً در صفحه بعدی \"%2$s\" را انتخاب کنید، سپس روی \"Back\" ضربه بزنید تا به %1$s بازگردید.</string>
@@ -3175,9 +3145,6 @@
     <string name="soundbrenner_pref_subdivision_triplet">تریوله</string>
     <string name="soundcore_voice_prompts">پیام‌های صوتی</string>
     <string name="soundcore_button_brightness">روشنایی دکمه</string>
-    <string name="soundcore_button_brightness_low">کم</string>
-    <string name="soundcore_button_brightness_medium">متوسط</string>
-    <string name="soundcore_button_brightness_high">زیاد</string>
     <string name="soundcore_ldac_mode_title">حالت LDAC</string>
     <string name="soundcore_ldac_mode_summary">فعال کردن LDAC عمر باتری را کاهش می‌دهد و ممکن است باعث ناپایداری اتصال شود.</string>
     <string name="soundcore_auto_power_off_title">خاموش شدن خودکار</string>
@@ -3222,25 +3189,8 @@
     <string name="soundcore_equalizer_direction_hanging">آویزان</string>
     <string name="soundcore_equalizer_reset_title">بازنشانی به پیش‌فرض</string>
     <string name="soundcore_equalizer_reset_summary">همه باندهای Equalizer به تنظیمات پیش‌فرض بازگردانده می‌شوند.</string>
-    <string name="soundcore_equalizer_band1">باند 1</string>
-    <string name="soundcore_equalizer_band2">باند 2</string>
-    <string name="soundcore_equalizer_band3">باند 3</string>
-    <string name="soundcore_equalizer_band4">باند 4</string>
-    <string name="soundcore_equalizer_band5">باند 5</string>
-    <string name="soundcore_equalizer_band6">باند 6</string>
-    <string name="soundcore_equalizer_band7">باند 7</string>
-    <string name="soundcore_equalizer_band8">باند 8</string>
-    <string name="soundcore_equalizer_band9">باند 9</string>
     <string name="soundcore_equalizer_frequency">فرکانس</string>
     <string name="soundcore_equalizer_value">مقدار</string>
-    <string name="soundcore_equalizer_band1_freq">100 Hz</string>
-    <string name="soundcore_equalizer_band2_freq">200 Hz</string>
-    <string name="soundcore_equalizer_band3_freq">400 Hz</string>
-    <string name="soundcore_equalizer_band4_freq">800 Hz</string>
-    <string name="soundcore_equalizer_band5_freq">1.6 kHz</string>
-    <string name="soundcore_equalizer_band6_freq">3.2 kHz</string>
-    <string name="soundcore_equalizer_band7_freq">6.4 kHz</string>
-    <string name="soundcore_equalizer_band8_freq">12.8 kHz</string>
     <string name="miscale_weight_unit_title">واحد وزن</string>
     <string name="miscale_weight_unit_summary">واحد وزن برای اندازه‌گیری‌های نمایش‌داده‌شده را تعیین کنید.</string>
     <string name="miscale_weight_unit_metric">متریک (kg)</string>
@@ -3731,8 +3681,6 @@
     <string name="dashboard_settings">تنظیمات داشبورد</string>
     <string name="bottom_nav_dashboard">داشبورد</string>
     <string name="bottom_nav_devices">دستگاه‌ها</string>
-    <string name="pref_dashboard_first_title">نمایش داشبورد در ابتدا</string>
-    <string name="pref_dashboard_first_summary">هنگام شروع Gadgetbridge، به‌جای صفحه دستگاه‌ها داشبورد نمایش داده می‌شود</string>
     <string name="pref_dashboard_cards_title">نمایش ابزارک‌ها روی کارت</string>
     <string name="pref_dashboard_cards_summary">دور ابزارک‌های داشبورد کارت رسم می‌کند</string>
     <string name="pref_dashboard_widget_settings">تنظیمات ابزارک</string>
@@ -4524,7 +4472,6 @@
     <string name="service_not_logged_in">وارد نشده‌اید؛ یکپارچه‌سازی غیرفعال است</string>
     <string name="service_logged_in_refresh_token">وارد %1$s شدید\nانقضای توکن تازه‌سازی: %2$s</string>
     <string name="service_server_version">\nنسخه سرور: %1$s</string>
-    <string name="endurain_logout_failed">خروج از حساب ناموفق بود</string>
     <string name="service_logged_out">با موفقیت از حساب خارج شدید</string>
     <string name="prefs_online_fitness_trackers_title">ردیاب‌های آنلاین تناسب اندام</string>
     <string name="prefs_online_fitness_trackers_summary">پیکربندی نحوه دسترسی و استفاده از ردیاب‌های آنلاین تناسب اندام</string>
@@ -4542,16 +4489,12 @@
     <string name="endurain_uploading_started">در حال بارگذاری در Endurain…</string>
     <string name="endurain_successfully_uploaded_toast">با موفقیت در Endurain بارگذاری شد</string>
     <string name="endurain_error_while_uploading_toast">خطا در هنگام بارگذاری در Endurain</string>
-    <string name="endurain_unable_to_upload_gpx_file_toast">بارگذاری فایل فعالیت در Endurain امکان‌پذیر نیست: %1$s</string>
-    <string name="endurain_setup_title">راه‌اندازی Endurain</string>
-    <string name="endurain_setup_server">سرور Endurain</string>
     <string name="service_setup_login_type_local">محلی</string>
     <string name="service_setup_login_type_sso">SSO</string>
     <string name="service_setup_mfa_code">کد MFA</string>
     <string name="service_setup_next">بعدی</string>
     <string name="activity_detail_upload_to_endurain">بارگذاری در Endurain</string>
     <string name="service_logged_in_to">وارد %s شدید</string>
-    <string name="wanderer_setup_api_token_error">توکن API باید با wanderer_key_ شروع شود</string>
     <string name="service_setup_missing_information">لطفاً هر دو فیلد را پر کنید</string>
     <string name="wanderer_toast_successfully_uploaded">با موفقیت در Wanderer بارگذاری شد</string>
     <string name="wanderer_toast_upload_error">خطای بارگذاری Wanderer: %1$s</string>

@@ -16,7 +16,7 @@ public class TestWeightSampleProvider extends AbstractTestSampleProvider<WeightS
 
     @NonNull
     @Override
-    public List<WeightSample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<WeightSample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<WeightSample> samples = new ArrayList<>();
 
         float weight = TestDeviceRand.randFloat(timestampFrom, WEIGHT_MIN_KG, WEIGHT_MAX_KG);
@@ -38,8 +38,7 @@ public class TestWeightSampleProvider extends AbstractTestSampleProvider<WeightS
     @Nullable
     @Override
     public WeightSample getLatestSample() {
-        final long ts = startOfDay(System.currentTimeMillis()) + WEIGH_TIME_MILLIS;
-        return new TestWeightSample(ts, TestDeviceRand.randFloat(ts, WEIGHT_MIN_KG, WEIGHT_MAX_KG));
+        return getLatestSample(System.currentTimeMillis());
     }
 
     @Nullable

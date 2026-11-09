@@ -1,0 +1,28 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
+    <View
+        android:id="@+id/training_status_run_dot"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_marginEnd="12dp" />
+
+    <TextView
+        android:id="@+id/training_status_run_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="16sp"
+        android:textColor="?attr/textColorPrimary" />
+
+    <TextView
+        android:id="@+id/training_status_run_range"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="?android:attr/textColorSecondary" />
+</LinearLayout>

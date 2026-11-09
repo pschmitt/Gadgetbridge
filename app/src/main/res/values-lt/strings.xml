@@ -198,7 +198,6 @@
     <string name="stats_y_axis_label">Žingsniai per minutę</string>
     <string name="control_center_find_lost_device">Rasti pamestą įrenginį</string>
     <string name="control_center_cancel_to_stop_vibration">Atšaukti vibravimo stabdymą.</string>
-    <string name="title_activity_charts">Veikla ir miegas</string>
     <string name="title_activity_set_alarm">Konfigūruoti aliarmus</string>
     <string name="alarm_sun_short">Sk.</string>
     <string name="alarm_mon_short">Pr.</string>

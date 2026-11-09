@@ -383,10 +383,24 @@ public enum FitCodeGen {
                 printer.println();
                 printer.println(AUTO_GENERATED);
                 printer.format(Locale.ROOT, "public enum %s {", enumeration.name).println();
+                int next = 0;
                 for (final FitEnumEntry entry : enumeration.entries) {
+                    for (; next < entry.num && next <= enumeration.topUp; next++) {
+                        // fill unknown gaps
+                        printer.format(Locale.ROOT, "    %s_%d(%d, \"%s %d\"),",
+                            enumeration.name, next, next, enumeration.name, next
+                        ).println();
+                    }
                     printer.format(Locale.ROOT, "    %s(%d, \"%s\"),",
                             entry.name, entry.num, entry.text);
+                    next = entry.num+1;
                     printer.println();
+                }
+                for (; next <= enumeration.topUp; next++) {
+                    // expand until end of typical enumeration range
+                    printer.format(Locale.ROOT, "    %s_%d(%d, \"%s %d\"),",
+                        enumeration.name, next, next, enumeration.name, next
+                    ).println();
                 }
                 printer.println("    ;");
                 printer.println();
@@ -410,8 +424,18 @@ public enum FitCodeGen {
                 printer.println();
                 printer.println(AUTO_GENERATED);
                 printer.format(Locale.ROOT, "public enum %s {", enumeration.name).println();
+                int next = 0;
                 for (final FitEnumEntry entry : enumeration.entries) {
+                    for (; next < entry.num && next <= enumeration.topUp; next++) {
+                        // fill unknown gaps
+                        printer.format(Locale.ROOT, "    %s_%d(%d),", enumeration.name, next, next).println();
+                    }
                     printer.format(Locale.ROOT, "    %s(%d),", entry.name, entry.num).println();
+                    next = entry.num+1;
+                }
+                for (; next <= enumeration.topUp; next++) {
+                    // expand until end of typical enumeration range
+                    printer.format(Locale.ROOT, "    %s_%d(%d),", enumeration.name, next, next).println();
                 }
                 printer.println("    ;");
                 printer.println();
@@ -494,6 +518,7 @@ public enum FitCodeGen {
                 final JSONObject enumJson = enumerationsJson.getJSONObject(enumIndex);
                 final FitEnum enumFit = new FitEnum();
                 enumFit.name = enumJson.getString("name");
+                enumFit.topUp = enumJson.optInt("topUp", -1);
                 final JSONArray entries = enumJson.optJSONArray("entries");
                 if (entries != null) {
                     for (int entryIndex = 0; entryIndex < entries.length(); entryIndex++) {
@@ -948,7 +973,7 @@ public enum FitCodeGen {
     }
 
     private static String capitalize(final String str) {
-        return str.substring(0, 1).toUpperCase() + str.substring(1);
+        return str.substring(0, 1).toUpperCase(Locale.ROOT) + str.substring(1);
     }
 
     /**
@@ -1004,21 +1029,29 @@ public enum FitCodeGen {
                 for (final FitEnum fitEnum : enums) {
                     o.beginObject();
                     o.name("name").value(fitEnum.name);
+                    if (fitEnum.topUp > -1) {
+                        o.name("topUp").value(fitEnum.topUp);
+                    }
                     o.name("entries");
                     o.beginArray();
                     for (final FitEnumEntry fitEnumEntry : fitEnum.entries) {
-                        o.beginObject();
-                        o.setFormattingStyle(FormattingStyle.COMPACT);
-                        o.name("num").value(fitEnumEntry.num);
-                        o.name("name").value(fitEnumEntry.name);
-                        if (fitEnumEntry.label != null) {
-                            o.name("label").value(fitEnumEntry.label);
+                        if (fitEnumEntry.name != null) {
+                            if (!(fitEnum.name + "_" + fitEnumEntry.num).equals(fitEnumEntry.name)) {
+                                o.beginObject();
+                                o.setFormattingStyle(FormattingStyle.COMPACT);
+                                o.name("num").value(fitEnumEntry.num);
+                                o.name("name").value(fitEnumEntry.name);
+
+                                if (fitEnumEntry.label != null) {
+                                    o.name("label").value(fitEnumEntry.label);
+                                }
+                                if (fitEnumEntry.text != null) {
+                                    o.name("text").value(fitEnumEntry.text);
+                                }
+                                o.endObject();
+                                o.setFormattingStyle(FormattingStyle.PRETTY);
+                            }
                         }
-                        if (fitEnumEntry.text != null) {
-                            o.name("text").value(fitEnumEntry.text);
-                        }
-                        o.endObject();
-                        o.setFormattingStyle(FormattingStyle.PRETTY);
                     }
                     o.endArray();
                     o.endObject();
@@ -1144,10 +1177,12 @@ public enum FitCodeGen {
 
     static final class FitEnum implements Comparable<FitEnum> {
         String name;
+        int topUp;
         SortedSet<FitEnumEntry> entries;
 
         FitEnum() {
             name = null;
+            topUp = -1;
             entries = new TreeSet<>();
         }
 

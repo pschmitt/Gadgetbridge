@@ -30,8 +30,8 @@ public class FixedSampleDeviceCoordinator extends AbstractDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(@NonNull final GBDevice device) {
-        return DeviceSupport.class;
+    public DeviceSupport createDeviceSupport(@NonNull final GBDevice device) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -124,8 +124,8 @@ public class WithingsSteelHRDeviceCoordinator extends AbstractBLEDeviceCoordinat
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return WithingsSteelHRDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new WithingsSteelHRDeviceSupport();
     }
 
     @Override

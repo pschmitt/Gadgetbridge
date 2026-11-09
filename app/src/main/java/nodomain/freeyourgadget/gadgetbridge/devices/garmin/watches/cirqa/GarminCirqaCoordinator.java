@@ -81,4 +81,9 @@ public class GarminCirqaCoordinator extends GarminWatchCoordinator {
         // No screen
         return true;
     }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }

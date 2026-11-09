@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory
 class BaseActivitySummaryProvider(val device: GBDevice, val session: DaoSession) :
     PersistenceProvider<BaseActivitySummary> {
     override fun persistSamples(
-        samples: List<BaseActivitySummary>, context: Context?
+        samples: List<BaseActivitySummary>, context: Context
     ): Boolean {
         if (samples.isEmpty()) {
             return true
@@ -64,10 +64,9 @@ class BaseActivitySummaryProvider(val device: GBDevice, val session: DaoSession)
             dao.insertOrReplaceInTx(samples)
         } catch (e: Exception) {
             LOG.error("Error saving samples", e)
-            val ctx = context ?: GBApplication.getContext()
             val message: String =
-                ctx.getString(R.string.persisting_samples_failed, e.localizedMessage)
-            GB.toast(ctx, message, Toast.LENGTH_LONG, GB.ERROR, e)
+                context.getString(R.string.persisting_samples_failed, e.localizedMessage)
+            GB.toast(context, message, Toast.LENGTH_LONG, GB.ERROR, e)
             return false
         }
         return true

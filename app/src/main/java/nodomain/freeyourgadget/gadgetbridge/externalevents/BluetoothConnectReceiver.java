@@ -99,11 +99,6 @@ public class BluetoothConnectReceiver extends BroadcastReceiver {
             LOG.debug("re-connecting to observed device due to state {}", state);
         } else {
             final SharedPreferences pref = GBApplication.getDeviceSpecificSharedPrefs(address);
-            if (pref == null) {
-                LOG.warn("no preferences found for connecting device {}", address);
-                return;
-            }
-
             if (pref.getBoolean(GBPrefs.DEVICE_CONNECT_BACK, true)) {
                 LOG.debug("re-connecting to observed device due DEVICE_CONNECT_BACK preference");
             } else {

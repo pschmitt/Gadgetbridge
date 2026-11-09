@@ -31,8 +31,6 @@
     <string name="app_move_to_top">Премести на врх</string>
     <string name="title_activity_notification_management">Поставке обавештења</string>
     <string name="blacklist_all_for_notifications">Искључи све из обавештења</string>
-    <string name="check_all_applications">Означи све програме</string>
-    <string name="uncheck_all_applications">Одзначи све програме</string>
     <string name="action_debug">Разбубати</string>
     <string name="controlcenter_power_off">Искључи</string>
     <string name="action_quit">Напусти</string>
@@ -96,8 +94,6 @@
     <string name="pref_title_notification_prefer_long_text">Радије шаљи дугачка писана обавештења</string>
     <string name="pref_title_notification_filter">Не узнемиравај</string>
     <string name="pref_header_notification_application_settings">Појединачне поставке програма</string>
-    <string name="pref_title_notification_use_as">Користи списак програма ради…</string>
-    <string name="pref_title_notification_use_as_allow">Дозвољавање обавештења означених програма</string>
     <string name="pref_title_message_privacy_mode">Приватност порука</string>
     <string name="pref_message_privacy_mode_off">Приказуј сав садржај</string>
     <string name="pref_summary_banglejs_text_bitmap">Ако ли реч не може бити приказана на словолику часовника, претвори је у битмапу кроз програм и прикажи битмапу на часовнику</string>
@@ -139,7 +135,6 @@
     <string name="pref_summary_notifications_ignore_low_priority">Не шаљи небитна и мање битна обавештења часовнику</string>
     <string name="pref_summary_notification_prefer_long_text">Ако ли је доступно, шаљи дугачка обавештења уређају</string>
     <string name="pref_summary_notification_filter">Заустави сва обавештења док је на телезвону укључено не узнемиравај</string>
-    <string name="pref_title_notification_use_as_deny">Забрањивање обавештења означених програма</string>
     <string name="pref_title_transliteration">Пресловљавање</string>
     <string name="pref_summary_transliteration">Омогућите ово ако Вам уређај нема подршку за словолик Вашег језика</string>
     <string name="pref_title_banglejs_text_bitmap">Писмо као биткарте</string>
@@ -256,7 +251,6 @@
 \nдостигнућа</string>
     <string name="abstract_chart_fragment_kind_activity">Дејство</string>
     <string name="activity_list_summary_active_steps">Тренутни кораци</string>
-    <string name="title_activity_charts">Будност и сан</string>
     <string name="prefs_activity_monitoring_title">Надгледање дејстава</string>
     <string name="activity_summaries_all_activities">Сва дејства</string>
     <string name="pref_header_heartrate_allday">Целодневно надгледање</string>
@@ -275,7 +269,6 @@
     <string name="add_test_device">Додај пробни уређај</string>
     <string name="menuitem_alarm">Ларма</string>
     <string name="menuitem_goal">Циљ дејства</string>
-    <string name="filter_submode_all">Све речи</string>
     <string name="add_widget">Додај справицу</string>
     <string name="quick_alarm_description">Ларма из справице</string>
     <string name="widget_10_minutes">10 минута</string>
@@ -613,7 +606,6 @@
     <string name="discovery_start_scanning">Започни проналажење</string>
     <string name="discovery_bluetooth_scan">Претрага Блутута:</string>
     <string name="discovery_bluetooth_le_scan">Претрага благог Блутута:</string>
-    <string name="android_pairing_hint">Користи прозорче упаривања Блутутом Андроида ради упаривања уређаја.</string>
     <string name="title_activity_android_pairing">Упари уређај</string>
     <string name="pairing_creating_bond_with">Правим везу са %1$s %2$s</string>
     <string name="male">Мушко</string>
@@ -992,8 +984,6 @@
     <string name="activity_type_basketball">Кошарка</string>
     <string name="pref_screen_vibration_patterns_title">Обрасци трешње</string>
     <string name="world_clock_no_free_slots_description">Уређај нема слободних места за светске часовнике (укупно места: %1$s)</string>
-    <string name="pref_charts_range_on">Опсег таблице је постављен на месечно</string>
-    <string name="pref_charts_range_off">Опсег таблице је постављен на седмично</string>
     <string name="pref_chart_sleep_lines_limit">Колико линија седница спавања приказивати пре њиховог превлачења</string>
     <string name="activity_prefs_calories_burnt">Дневни циљ: потрошене калорије</string>
     <string name="activity_prefs_distance_meters">Дневни циљ: пређени пут у метрима</string>
@@ -1103,7 +1093,6 @@
     <string name="watch9_calibration_button">Баждари</string>
     <string name="preferences_rtl_settings">Подршка с’ десна на лево</string>
     <string name="prefs_fm_preset_instructions">Дуго притисните дугме за чување претпоставки</string>
-    <string name="title_activity_notification_filter">Пропусник обавештења</string>
     <string name="filter_mode_none">Не користи пропусник</string>
     <string name="filter_mode">Начин пропуштања</string>
     <string name="qhybrid_use_activity_hand_as_notification_counter">Користи дејствену руку као бројач обавештења</string>
@@ -1165,11 +1154,6 @@
     <string name="preferences_led_color">Боја светлосне диоде</string>
     <string name="preferences_fm_frequency">Учесталост радија</string>
     <string name="pref_invalid_frequency_title">Неправилна учесталост</string>
-    <string name="toast_app_must_be_selected">Програм мора бити означен да би био подешен</string>
-    <string name="edittext_notification_filter_words_hint">Унеси жељене речи, нова линија за сваку</string>
-    <string name="filter_mode_whitelist">Приказуј када су речи садржане</string>
-    <string name="filter_mode_blacklist">Забране када су речи садржане</string>
-    <string name="filter_submode_at_least_one">Најмање једна реч</string>
     <string name="save_configuration">Сачувај подешавања</string>
     <string name="appwidget_not_connected">Није повезано, ларма није постављена.</string>
     <string name="widget_settings_select_device_title">Изаберите уређај</string>
@@ -1193,7 +1177,6 @@
     <string name="pref_qhybrid_title_widget_draw_circles">Исцртавај кругове справице</string>
     <string name="pref_qhybrid_save_raw_activity_files">Сачувај сирове датотеке дејстава</string>
     <string name="gpx_receiver_activity_title">Пријемник ГПИкс-а Геџетбрвна</string>
-    <string name="permission_granting_mandatory">Сва ова овлашћења су неопходна и може доћи до нестабилности ако нису одобрена</string>
     <string name="error_background_service">Нисам успео да покренем позадинску услугу</string>
     <string name="error_background_service_reason_truncated">Покретање позадинске услуге није успело из разлога…</string>
     <string name="device_is_currently_bonded">ВЕЋ ЈЕ ПОВЕЗАН</string>
@@ -1219,7 +1202,6 @@
     <string name="activity_data_management_directory_content_title">Садржај фасцикле извоза/увоза</string>
     <string name="activity_db_management_autoexport_location">Нисам успео да разумем положај. Највероватније је по среди новији склоп овлашћења Андроида. Највероватније, самостални извоз сада не ради.</string>
     <string name="activity_DB_delete_legacy_button">Избриши старо хранилиште података</string>
-    <string name="activity_DB_ShowContentButton">Прикажи садржај фасцикле извоза/увоза</string>
     <string name="unit_metric">Метрички</string>
     <string name="pref_summary_setup_bt_pairing">Искључите ово уколико имате потешкоћа са повезивањем</string>
     <string name="activity_summary_detail_select_gpx_track">Изаберите путању ГПИкс-а</string>
@@ -1236,10 +1218,7 @@
     <string name="menuitem_workout_history">Повест вежбања</string>
     <string name="menuitem_membership_cards">Картице удружења</string>
     <string name="menuitem_phone">Телефон</string>
-    <string name="toast_app_must_not_be_selected">Програм не сме бити означен да би био подешен</string>
     <string name="share_log_warning">Молим, знајте да датотеке Геџетбриџа могу садржати доста личних података, укључујући, али не и само, податке о здрављу, личне податке (као што су адресе МАЦ-а), музички укус, итд. Размислите о уређивању датотеке и уклањању ових података пре слања датотеке у јавни извештај.</string>
-    <string name="toast_notification_filter_words_empty_hint">Молим, унеси најмање једну реч</string>
-    <string name="mode_configuration">Поставке начина</string>
     <string name="appwidget_setting_alarm">Поставка ларме за %1$02d:%2$02d</string>
     <string name="qhybrid_time_shift">Временски помак</string>
     <string name="qhybrid_second_timezone_offset_relative_to_utc">Помак друге временске области у односу на обласно време</string>
@@ -1266,7 +1245,6 @@
         <item quantity="other">%d сати</item>
     </plurals>
     <string name="n_a">Нема</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="prefs_fm_presets_presets">Претпоставке</string>
     <string name="pref_title_upper_button_function_double">Двоструко горње дугме</string>
     <string name="about_hash">Отпреми %s</string>
@@ -1310,15 +1288,12 @@
     <string name="appversion_by_creator">%1$s по %2$s</string>
     <string name="activity_DB_empty_button">Испразни хранилиште података</string>
     <string name="activity_db_management_empty_DB">Испразни хранилиште података</string>
-    <string name="activity_db_management_exportimport_label">Извоз и увоз</string>
     <string name="devicetype_binary_sensor">Бројчани пријемник</string>
     <string name="choose_auto_export_location">Изаберите положај извоза</string>
     <string name="notification_channel_name">Опште</string>
     <string name="menuitem_one_tap_measuring">Мерење једним тапом</string>
     <string name="menuitem_offline_voice">Глас ван мреже</string>
-    <string name="toast_notification_filter_saved_successfully">Сачуван је пропусник обавештења</string>
     <string name="pref_title_lower_button_function_long">Дуго доње дугме</string>
-    <string name="error_no_location_access">Приступ положају мора бити одобрен и омогућен ради претраге и правилног рада</string>
     <string name="error_location_enabled_mandatory">Положај мора бити укључен ради претраге уређаја</string>
     <string name="sonyswr12_settings_low_vibration">Дуга трешња је омогућена</string>
     <string name="sonyswr12_settings_stamina_summary">Чување снаге искључује повремено самостално мерење срчаних уређаја и продужује време рада</string>
@@ -1698,8 +1673,6 @@
     <string name="dashboard_calendar_month_goals_reached_title">% успешности до циљног броја корака</string>
     <string name="pref_dashboard_widget_today_hr_interval_summary">Количина минута на цртежу приказује „ношено“ након сваког успешног мерења срчаних откуцаја</string>
     <string name="pref_title_navigation_forward">Шаљи навођење на сат</string>
-    <string name="pref_dashboard_first_title">Прво прикажи управљачку полицу</string>
-    <string name="pref_dashboard_first_summary">Приказуј управљачку полицу приликом покретања Геџетбрвна, уместо заслона уређаја</string>
     <string name="pref_dashboard_widget_today_24h_summary">Приказуј дејства у једном 24-рочасовном кругу уместо у два 12-часовном кругу</string>
     <string name="pref_dashboard_all_devices_title">Сви уређаји</string>
     <string name="pref_dashboard_select_devices_title">Означите уређаје…</string>
@@ -1812,7 +1785,6 @@
     <string name="busy_task_fetch_pai_data">Добављам податке о ПАИ</string>
     <string name="sleep_colored_stats_rem">РЕМ</string>
     <string name="armenian">Јерменски</string>
-    <string name="alarm_smart_wakeup_interval">Међувреме паметног буђења:</string>
     <string name="gpx_route_upload_failed">Нисам успео отпремити путању ГПИкс-а</string>
     <string name="minutes_2">2 минута</string>
     <string name="minutes_3">3 минута</string>
@@ -1835,7 +1807,6 @@
     <string name="common_symbols">Уобичајени знаци</string>
     <string name="latvian">Летонски</string>
     <string name="serbian">Србски</string>
-    <string name="weekstepschart_steps_a_week_or_month">Седмични/месечни кораци</string>
     <string name="weeksleepchart_sleep_a_week_or_month">Седмично/месечно спавање</string>
     <string name="charts_legend_stress_average">Просечан стрес</string>
     <string name="charts_legend_spo2_average">Просечан кисеоник у крви</string>
@@ -2255,12 +2226,10 @@
     <string name="recoveryTime">Време опоравка</string>
     <string name="zepp_os_sun_moon_utc_title">Шаљи времена сунца/месеца у УТЦ</string>
     <string name="zepp_os_sun_moon_utc_summary">Омогућите ово уколико Ваш часовник показује погрешно време за сунце и месец</string>
-    <string name="error_no_bluetooth_scan">Претрага блутутом мора бити одобрена и омогућена да би претрага правилно радила</string>
     <string name="stepRateAvg">Просек брзине корака</string>
     <string name="pref_summary_keep_data_on_device">Задржаваће податке на уређају чак и након усклађивања. Корисно је уколико се ГБ користи заједно са другим програмима. То може узроковати да часовник препуни простор памети и/ли престане да се усклађује ваљано.</string>
     <string name="activity_type_pilates">Пилатес</string>
     <string name="distance_total">Укупна даљина</string>
-    <string name="error_no_bluetooth_connect">Приступ повезивању блутутом мора бити одобрено и омогућено ради правилног рада претраге</string>
     <string name="pref_summary_low_latency_fw_update">Може бити корисно на уређајима где угњежђавање драма не успева.</string>
     <string name="miband_fwinstaller_incompatible_version">Неодговарајући драм</string>
     <string name="pref_summary_dont_ack_transfers">Уколико није потврђен пријем траци, подаци о дејствима се не чисте. Корисно уколико је ГБ коришћен заједно са другим програмима.</string>
@@ -2517,7 +2486,6 @@
     <string name="mi2_prefs_inactivity_warnings_dnd_lunch_break_summary">Онемогући упозорења о мировању током одмора за ручак (12:00 – 14:00)</string>
     <string name="chinese">Кинески</string>
     <string name="delete_device_and_retain_files">Задржавај датотеке</string>
-    <string name="charts_two_items_only">Можете поредити само две ставке истовремено.</string>
     <string name="charts_at_least_one_item">Треба барем једна ставка да буде означена.</string>
     <string name="hrv_status_baseline_label">Основна линија</string>
     <string name="training_acute_load">Повремено оптерећење</string>

@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Locale;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
-import nodomain.freeyourgadget.gadgetbridge.GBDatabaseManager;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.files.FileManagerActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.vendorimport.VendorDataImportDeviceActivity;
@@ -124,7 +123,7 @@ public class DataManagementActivity extends AbstractGBActivity {
         //
 
         final View vendorImportSection = findViewById(R.id.vendorImportSection);
-        vendorImportSection.setVisibility(VendorDataImportDeviceActivity.getSupportedDevices().isEmpty() ? View.GONE : View.VISIBLE);
+        vendorImportSection.setVisibility(GBApplication.app().getDeviceManager().getSupportedDevices().isEmpty() ? View.GONE : View.VISIBLE);
         final Button vendorImportButton = findViewById(R.id.vendorImportButton);
         vendorImportButton.setOnClickListener(v -> startActivity(new Intent(this, VendorDataImportDeviceActivity.class)));
 
@@ -178,14 +177,12 @@ public class DataManagementActivity extends AbstractGBActivity {
             List<Device> activeDevices = DBHelper.getActiveDevices(lockHandler.getDaoSession());
             for (Device dbDevice : activeDevices) {
                 SharedPreferences deviceSharedPrefs = GBApplication.getDeviceSpecificSharedPrefs(dbDevice.getIdentifier());
-                if (sharedPrefs != null) {
-                    File myPath = FileUtils.getExternalFilesDir();
-                    File myFile = new File(myPath, "Export_preference_" + FileUtils.makeValidFileName(dbDevice.getIdentifier()));
-                    try {
-                        ImportExportSharedPreferences.exportToFile(deviceSharedPrefs, myFile);
-                    } catch (Exception ignore) {
-                        // some devices no not have device specific preferences
-                    }
+                File myPath = FileUtils.getExternalFilesDir();
+                File myFile = new File(myPath, "Export_preference_" + FileUtils.makeValidFileName(dbDevice.getIdentifier()));
+                try {
+                    ImportExportSharedPreferences.exportToFile(deviceSharedPrefs, myFile);
+                } catch (Exception ignore) {
+                    // some devices no not have device specific preferences
                 }
             }
         } catch (Exception e) {
@@ -208,22 +205,20 @@ public class DataManagementActivity extends AbstractGBActivity {
             List<Device> activeDevices = DBHelper.getActiveDevices(lockHandler.getDaoSession());
             for (Device dbDevice : activeDevices) {
                 SharedPreferences deviceSharedPrefs = GBApplication.getDeviceSpecificSharedPrefs(dbDevice.getIdentifier());
-                if (sharedPrefs != null) {
-                    File myPath = FileUtils.getExternalFilesDir();
-                    File myFile = new File(myPath, "Export_preference_" + FileUtils.makeValidFileName(dbDevice.getIdentifier()));
+                File myPath = FileUtils.getExternalFilesDir();
+                File myFile = new File(myPath, "Export_preference_" + FileUtils.makeValidFileName(dbDevice.getIdentifier()));
 
-                    if (!myFile.exists()) { //first try to use file in new format de_ad_be_af, if it doesn't exist use old format de:at:be:af
-                        myFile = new File(myPath, "Export_preference_" + dbDevice.getIdentifier());
-                        LOG.info("Trying to import with older filename");
-                    }else{
-                        LOG.info("Trying to import with new filename");
-                    }
+                if (!myFile.exists()) { //first try to use file in new format de_ad_be_af, if it doesn't exist use old format de:at:be:af
+                    myFile = new File(myPath, "Export_preference_" + dbDevice.getIdentifier());
+                    LOG.info("Trying to import with older filename");
+                }else{
+                    LOG.info("Trying to import with new filename");
+                }
 
-                    try {
-                        ImportExportSharedPreferences.importFromFile(deviceSharedPrefs, myFile);
-                    } catch (Exception ignore) {
-                        // some devices no not have device specific preferences
-                    }
+                try {
+                    ImportExportSharedPreferences.importFromFile(deviceSharedPrefs, myFile);
+                } catch (Exception ignore) {
+                    // some devices no not have device specific preferences
                 }
             }
         } catch (Exception e) {
@@ -255,7 +250,7 @@ public class DataManagementActivity extends AbstractGBActivity {
                             }
                         }
 
-                        GBDatabaseManager.exportDB(destFile);
+                        GBApplication.app().getDatabaseManager().exportDB(destFile);
                         GB.toast(DataManagementActivity.this, getString(R.string.dbmanagementactivity_exported_to, destFile.getAbsolutePath()), Toast.LENGTH_LONG, GB.INFO);
                     } catch (Exception ex) {
                         GB.toast(DataManagementActivity.this, getString(R.string.dbmanagementactivity_error_exporting_db, ex.getLocalizedMessage()), Toast.LENGTH_LONG, GB.ERROR, ex);
@@ -276,7 +271,7 @@ public class DataManagementActivity extends AbstractGBActivity {
                     try {
                         final File dir = FileUtils.getExternalFilesDir();
                         final File sourceFile = new File(dir, "Gadgetbridge");
-                        GBDatabaseManager.importDB(sourceFile);
+                        GBApplication.app().getDatabaseManager().importDB(sourceFile);
                         GB.toast(DataManagementActivity.this, getString(R.string.dbmanagementactivity_import_successful), Toast.LENGTH_LONG, GB.INFO);
                     } catch (Exception ex) {
                         GB.toast(DataManagementActivity.this, getString(R.string.dbmanagementactivity_error_importing_db, ex.getLocalizedMessage()), Toast.LENGTH_LONG, GB.ERROR, ex);

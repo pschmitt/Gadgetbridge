@@ -2182,7 +2182,7 @@ public class ZeTimeDeviceSupport extends AbstractBTLESingleDeviceSupport {
                 // sometimes country is null, no idea why, guess it.
                 country = language;
             }
-            localeString = language + "_" + country.toUpperCase();
+            localeString = language + "_" + country.toUpperCase(Locale.ROOT);
         }
 
         switch (localeString.substring(0, 2)) {

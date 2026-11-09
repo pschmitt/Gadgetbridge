@@ -95,8 +95,8 @@ public class Y5Coordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return Y5Support.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new Y5Support();
     }
 
     @Override

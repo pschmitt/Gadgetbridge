@@ -42,7 +42,7 @@ private fun WorkoutTemplate.flattenForDisplay(): List<WorkoutStepRow> {
 
 /**
  * The [WorkoutTemplate] being created or edited. The activity mutates the template in place and
- * calls [refreshRows] after a change.
+ * calls [refreshRows] or [refreshUnsavedChanges] after a change.
  *
  * A multisport leg is edited as a template of its own sport, see [startLeg] and [legResult].
  */
@@ -83,7 +83,10 @@ class WorkoutTemplateEditViewModel : ViewModel() {
     /**
      * The [WorkoutTemplateRepository.contentHash] of [template] as of the last [markBaseline] call.
      */
-    private var baselineHash: Int = 0
+    private var baselineHash: Int? = null
+
+    private val _hasUnsavedChanges = MutableStateFlow(false)
+    val hasUnsavedChanges: StateFlow<Boolean> = _hasUnsavedChanges.asStateFlow()
 
     fun startNew(vendorId: String, activityKind: ActivityKind) {
         started = true
@@ -126,12 +129,20 @@ class WorkoutTemplateEditViewModel : ViewModel() {
      */
     fun markBaseline() {
         baselineHash = WorkoutTemplateRepository.contentHash(template)
+        _hasUnsavedChanges.value = false
     }
 
-    fun hasUnsavedChanges(): Boolean = WorkoutTemplateRepository.contentHash(template) != baselineHash
+    /**
+     * Updates [hasUnsavedChanges] from the current content of [template].
+     */
+    fun refreshUnsavedChanges() {
+        val baseline = baselineHash ?: return
+        _hasUnsavedChanges.value = WorkoutTemplateRepository.contentHash(template) != baseline
+    }
 
     fun refreshRows() {
         _rows.value = template.flattenForDisplay()
+        refreshUnsavedChanges()
     }
 
     /**

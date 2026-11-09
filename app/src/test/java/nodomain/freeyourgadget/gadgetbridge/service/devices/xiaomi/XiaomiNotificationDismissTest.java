@@ -25,7 +25,7 @@ import nodomain.freeyourgadget.gadgetbridge.test.GBTestApplication;
  * NotificationListener never set one, and protobuf rejects a null string.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23, application = GBTestApplication.class)
+@Config(sdk = 24, application = GBTestApplication.class)
 public class XiaomiNotificationDismissTest {
 
     private static final int COMMAND_TYPE = 7;

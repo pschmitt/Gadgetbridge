@@ -49,8 +49,8 @@ abstract class GloryFitCoordinator : AbstractBLEDeviceCoordinator() {
         return DeviceCoordinator.DeviceKind.WATCH
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> {
-        return GloryFitSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return GloryFitSupport()
     }
 
     override fun getSampleProvider(

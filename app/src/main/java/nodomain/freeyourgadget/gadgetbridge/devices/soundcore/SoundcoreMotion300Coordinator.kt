@@ -19,6 +19,8 @@ package nodomain.freeyourgadget.gadgetbridge.devices.soundcore
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
+import nodomain.freeyourgadget.gadgetbridge.service.devices.soundcore.SoundcoreEqualizer
+import nodomain.freeyourgadget.gadgetbridge.service.devices.soundcore.SoundcoreEqualizerPresets
 import nodomain.freeyourgadget.gadgetbridge.service.devices.soundcore.devices.SoundcoreMotion300Protocol
 import java.util.regex.Pattern
 
@@ -69,11 +71,12 @@ class SoundcoreMotion300Coordinator : SoundcoreEarbudsCoordinator() {
         intArrayOf(12100, 13000, 14000, 15000, 16000, 17100, 18300, 20000),
     )
 
-    override fun getCustomEqualizerPresetNames(): Array<Int> = arrayOf(
-        R.string.soundcore_equalizer_preset_signature,
-        R.string.soundcore_equalizer_preset_xtra_bass,
-        R.string.soundcore_equalizer_preset_voice,
-        R.string.soundcore_equalizer_preset_balanced,
+    override fun getCustomEqualizerPresetNames(): List<SoundcoreEqualizer> = listOf(
+        SoundcoreEqualizerPresets.SIGNATURE,
+        SoundcoreEqualizerPresets.EXTRA_BASS,
+        SoundcoreEqualizerPresets.VOICE,
+        SoundcoreEqualizerPresets.BALANCED,
+        SoundcoreEqualizerPresets.CUSTOM,
     )
 
     override fun createProtocol(device: GBDevice): SoundcoreMotion300Protocol =

@@ -85,8 +85,8 @@ public class TeclastH30Coordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return TeclastH30Support.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new TeclastH30Support();
     }
 
     @Override

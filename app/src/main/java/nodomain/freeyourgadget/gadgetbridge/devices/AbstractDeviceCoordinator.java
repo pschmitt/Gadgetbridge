@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -87,6 +88,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryParser;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityTrackProvider;
 import nodomain.freeyourgadget.gadgetbridge.model.Alarm;
+import nodomain.freeyourgadget.gadgetbridge.model.AltitudeSample;
 import nodomain.freeyourgadget.gadgetbridge.model.BatteryConfig;
 import nodomain.freeyourgadget.gadgetbridge.model.BloodPressureSample;
 import nodomain.freeyourgadget.gadgetbridge.model.BodyEnergySample;
@@ -109,10 +111,13 @@ import nodomain.freeyourgadget.gadgetbridge.model.WeightSample;
 import nodomain.freeyourgadget.gadgetbridge.model.WorkoutLoadSample;
 import nodomain.freeyourgadget.gadgetbridge.model.heartratezones.HeartRateZonesSpec;
 import nodomain.freeyourgadget.gadgetbridge.service.ServiceDeviceSupport;
+import nodomain.freeyourgadget.gadgetbridge.util.CompanionDeviceUtil;
 import nodomain.freeyourgadget.gadgetbridge.util.FileUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
+import nodomain.freeyourgadget.gadgetbridge.util.permissions.DevicePermission;
+import nodomain.freeyourgadget.gadgetbridge.util.permissions.GBPermission;
 import nodomain.freeyourgadget.gadgetbridge.util.preferences.DevicePrefs;
 import nodomain.freeyourgadget.gadgetbridge.widgets.DeviceWidgetsProvider;
 
@@ -487,6 +492,12 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
 
     @Override
     @Nullable
+    public TimeSampleProvider<? extends AltitudeSample> getAltitudeSampleProvider(GBDevice device, DaoSession session) {
+        return null;
+    }
+
+    @Override
+    @Nullable
     public HydrationSampleProvider getHydrationSampleProvider(final GBDevice device, final DaoSession session) {
         return null;
     }
@@ -664,6 +675,11 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
     }
 
     @Override
+    public boolean supportsWatchAppMessages(@NonNull final GBDevice device) {
+        return false;
+    }
+
+    @Override
     public boolean supportsCachedAppManagement(@NonNull final GBDevice device) {
         try {
             return supportsAppsManagement(device) && getAppCacheDir() != null;
@@ -823,6 +839,11 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
     }
 
     @Override
+    public boolean supportsTrainingStatus(@NonNull GBDevice device) {
+        return false;
+    }
+
+    @Override
     public boolean supportsSolarCharging(@NonNull GBDevice device) {
         return false;
     }
@@ -845,6 +866,7 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
             supportsSpo2(device) ||
             supportsTemperatureMeasurement(device) ||
             supportsWeightMeasurement(device) ||
+            supportsPointAltitudeMeasurement(device) ||
             supportsHydration(device) ||
             supportsActiveCalories(device) ||
             supportsCyclingData(device) ||
@@ -852,6 +874,7 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
             supportsBloodPressureMeasurement(device) ||
             supportsRacePrediction(device) ||
             supportsTrainingReadiness(device) ||
+            supportsTrainingStatus(device) ||
             supportsSolarCharging(device);
     }
 
@@ -947,6 +970,11 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
 
     @Override
     public boolean supportsWeightMeasurement(@NonNull GBDevice device) {
+        return false;
+    }
+
+    @Override
+    public boolean supportsPointAltitudeMeasurement(@NonNull GBDevice device) {
         return false;
     }
 
@@ -1318,6 +1346,64 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
         return false;
     }
 
+    @NonNull
+    @Override
+    public List<DevicePermission> getPermissions(@NonNull final GBDevice device) {
+        final Context context = GBApplication.getContext();
+        final List<DevicePermission> permissions = new ArrayList<>();
+
+        final ConnectionType connectionType = getConnectionType();
+        if (connectionType.usesBluetoothLE() || connectionType.usesBluetoothClassic()) {
+            permissions.add(new DevicePermission(GBPermission.BLUETOOTH, DevicePermission.Section.RECOMMENDED));
+        }
+        if (CompanionDeviceUtil.getCompanionAssociations(context).isEmpty()) {
+            permissions.add(new DevicePermission(GBPermission.BATTERY_OPTIMIZATION, DevicePermission.Section.RECOMMENDED));
+        }
+        permissions.add(new DevicePermission(GBPermission.AUTOSTART, DevicePermission.Section.RECOMMENDED));
+        permissions.add(new DevicePermission(GBPermission.GADGETBRIDGE_NOTIFICATIONS, DevicePermission.Section.RECOMMENDED));
+
+        if (supportsAppNotifications(device) || supportsMusicInfo(device) || supportsNavigation(device)) {
+            permissions.add(switch (getDeviceKind(device)) {
+                case HEADPHONES, EARBUDS, SPEAKER -> new DevicePermission(
+                    GBPermission.NOTIFICATION_ACCESS,
+                    DevicePermission.Section.OPTIONAL,
+                    R.string.permission_notifications_aloud_summary
+                );
+                default -> new DevicePermission(GBPermission.NOTIFICATION_ACCESS, DevicePermission.Section.RECOMMENDED);
+            });
+        }
+        if (supportsPhoneCalls(device)) {
+            permissions.add(new DevicePermission(GBPermission.CALLS, DevicePermission.Section.RECOMMENDED));
+        }
+        if (supportsCallControl(device)) {
+            permissions.add(new DevicePermission(GBPermission.CALL_CONTROL, DevicePermission.Section.RECOMMENDED));
+        }
+        if (supportsPhoneCalls(device)) {
+            permissions.add(new DevicePermission(GBPermission.CONTACTS, DevicePermission.Section.RECOMMENDED));
+        } else if (supportsCalendarEvents(device)) {
+            permissions.add(new DevicePermission(GBPermission.CONTACTS, DevicePermission.Section.OPTIONAL));
+        }
+        if (supportsCalendarEvents(device)) {
+            permissions.add(new DevicePermission(GBPermission.CALENDAR, DevicePermission.Section.OPTIONAL));
+        }
+        if (supportsSmsReply(device)) {
+            permissions.add(new DevicePermission(GBPermission.SMS_REPLY, DevicePermission.Section.OPTIONAL));
+        }
+        if (supportsPhoneSilentMode(device) || supportsCallControl(device)) {
+            permissions.add(new DevicePermission(GBPermission.DND_ACCESS, DevicePermission.Section.OPTIONAL));
+        }
+        if (supportsGpsSharing(device)) {
+            permissions.add(new DevicePermission(GBPermission.LOCATION, DevicePermission.Section.OPTIONAL));
+            permissions.add(new DevicePermission(GBPermission.BACKGROUND_LOCATION, DevicePermission.Section.OPTIONAL));
+        }
+        if (supportsInternetAccess(device)) {
+            permissions.add(new DevicePermission(GBPermission.INTERNET_HELPER, DevicePermission.Section.OPTIONAL));
+        }
+
+        permissions.removeIf(permission -> !permission.getPermission().isAvailable(context));
+        return permissions;
+    }
+
     @Override
     public int getOrderPriority() {
         return 0;
@@ -1430,6 +1516,11 @@ public abstract class AbstractDeviceCoordinator implements DeviceCoordinator {
     @Override
     public Set<BarcodeFormat> getSupportedBarcodeFormats(@NonNull final GBDevice device) {
         return Collections.emptySet();
+    }
+
+    @Override
+    public boolean supportsLoyaltyCards(@NonNull final GBDevice device) {
+        return !getSupportedBarcodeFormats(device).isEmpty();
     }
 
     @Override

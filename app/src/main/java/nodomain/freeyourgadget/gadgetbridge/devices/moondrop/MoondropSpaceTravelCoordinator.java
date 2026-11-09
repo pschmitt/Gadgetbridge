@@ -74,8 +74,8 @@ public class MoondropSpaceTravelCoordinator extends AbstractBLClassicDeviceCoord
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return MoondropSpaceTravelDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new MoondropSpaceTravelDeviceSupport();
     }
 
     @Override

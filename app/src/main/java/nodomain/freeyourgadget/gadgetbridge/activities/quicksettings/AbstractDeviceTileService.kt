@@ -26,7 +26,6 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import androidx.annotation.RequiresApi
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
@@ -44,7 +43,6 @@ import org.slf4j.LoggerFactory
  * setting through [QuickSettings.apply]. When unassigned, tapping opens
  * [QuickSettingsTilesActivity] so the user can configure this tile slot.
  */
-@RequiresApi(Build.VERSION_CODES.N)
 abstract class AbstractDeviceTileService : TileService() {
 
     private var deviceAddress: String? = null

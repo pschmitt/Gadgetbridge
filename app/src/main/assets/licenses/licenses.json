@@ -270,5 +270,12 @@
     "type": "Apache 2.0",
     "url": "https://github.com/androidx/media",
     "path": "licenses/apache-2.0.txt"
+  },
+  {
+    "name": "fit-route",
+    "owner": "Nick Holloway",
+    "type": "MIT",
+    "url": "https://gitlab.com/nwholloway/fit-route",
+    "path": "licenses/fit-route.txt"
   }
 ]

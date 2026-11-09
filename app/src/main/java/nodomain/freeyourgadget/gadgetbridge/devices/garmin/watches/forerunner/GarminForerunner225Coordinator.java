@@ -92,4 +92,9 @@ public class GarminForerunner225Coordinator extends GarminWatchCoordinator {
     public boolean supportsCalendarEvents(@NonNull final GBDevice device) {
         return false;
     }
+
+    @Override
+    public boolean supportsTrainingStatus(@NonNull final GBDevice device) {
+        return false;
+    }
 }

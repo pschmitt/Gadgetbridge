@@ -90,8 +90,8 @@ public class MiCompositionScaleCoordinator extends AbstractBLEDeviceCoordinator 
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return MiCompositionScaleDeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new MiCompositionScaleDeviceSupport();
     }
 
     @Override

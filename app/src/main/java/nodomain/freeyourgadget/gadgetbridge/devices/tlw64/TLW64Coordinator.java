@@ -90,8 +90,8 @@ public class TLW64Coordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return TLW64Support.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new TLW64Support();
     }
 
     @Override

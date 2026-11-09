@@ -3,29 +3,31 @@ pluginManagement {
         mavenLocal()
         google {
             content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx\\..*")
+                includeGroupAndSubgroups("com.android")
+                includeGroupAndSubgroups("com.google")
+                includeGroupAndSubgroups("androidx")
             }
         }
         gradlePluginPortal()
         mavenCentral()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
     repositories {
         google {
             content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx\\..*")
+                includeGroupAndSubgroups("com.android")
+                includeGroupAndSubgroups("com.google")
+                includeGroupAndSubgroups("androidx")
             }
         }
         mavenCentral()
-        maven("https://jitpack.io") {
+        maven {
+            url = uri("https://jitpack.io")
             content {
-                includeGroupByRegex("com\\.github\\..*")
+                includeGroupAndSubgroups("com.github")
             }
         }
     }

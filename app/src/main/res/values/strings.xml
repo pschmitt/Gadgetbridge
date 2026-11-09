@@ -118,6 +118,7 @@
     <!-- Strings related to AppManager -->
     <string name="title_activity_appmanager">App Manager</string>
     <string name="appmanager_cached_watchapps_watchfaces">Apps in cache</string>
+    <string name="appmanager_watchapps_watchfaces_updates">Updates</string>
     <string name="appmanager_installed_watchapps">Installed apps</string>
     <string name="appmanager_installed_watchfaces">Installed watchfaces</string>
     <string name="appmanager_watchface_activate">Activate</string>
@@ -260,6 +261,8 @@
     <string name="pref_summary_navigation_allow_unsupported_devices">Send navigation instructions as notifications to devices that do not support navigation</string>
     <string name="pref_title_navigation_right_hand_driving">Right-hand traffic</string>
     <string name="pref_description_navigation_right_hand_driving">Controls which navigation icon is shown for roundabouts.</string>
+    <string name="pref_title_navigation_symbols">Show arrows</string>
+    <string name="pref_description_navigation_symbols">Add a unicode arrow for the next maneuver to the notification title. Disable if the gadget shows empty boxes instead.</string>
     <string name="pref_title_navigation_continuous_updates">Send continuous updates</string>
     <string name="pref_description_navigation_continuous_updates">If enabled, updates are sent continuously to the gadget. If disabled, updates are sent at each turn.</string>
     <string name="pref_title_navigation_update_rate">Update rate for continuous mode (in milliseconds)</string>
@@ -371,6 +374,8 @@
     <string name="pref_summary_notification_times_enabled">Only send notifications between specific times</string>
     <string name="pref_title_notification_media_ignores_application_list">Media notifications ignore app list</string>
     <string name="pref_summary_notification_media_ignores_application_list">Process media notifications before the app list. If this preference is unchecked, media applications need to be allowed in the application list for media controls to work on the device.</string>
+    <string name="pref_title_notification_calls_ignore_application_list">Calls ignore app list</string>
+    <string name="pref_summary_notification_calls_ignore_application_list">Forward calls from apps that are not allowed in the application list. Requires \"Enable VoIP app calls\".</string>
     <string name="pref_header_notification_application_settings">Per application settings</string>
     <string name="pref_title_transliteration">Transliteration</string>
     <string name="pref_summary_transliteration">Enable this if your device has no support for your language\'s font</string>
@@ -464,6 +469,51 @@
     <string name="casio_interval_timer_repeat">Auto-repeat</string>
     <string name="casio_interval_timer_default_label">Timer %1$d</string>
     <string name="casio_interval_timer_total">Total: %1$s × %2$d = %3$s</string>
+    <string name="pref_casio_location_indicator_title">Location indicator</string>
+    <string name="casio_location_indicator_add">Add waypoint</string>
+    <string name="casio_location_indicator_active">Active location</string>
+    <string name="casio_location_indicator_empty">No waypoints saved yet</string>
+    <string name="casio_location_indicator_default_label">Location %1$d</string>
+    <string name="casio_location_indicator_no_fix">No GPS fix</string>
+    <string name="casio_location_indicator_invalid_coordinates">Invalid coordinates</string>
+    <string name="casio_location_indicator_use_current">Use current location</string>
+    <string name="casio_location_indicator_import_gpx">Import GPX</string>
+    <string name="casio_location_indicator_export_gpx">Export GPX</string>
+    <string name="casio_location_indicator_imported">Imported %1$d waypoints</string>
+    <string name="casio_location_indicator_import_no_waypoints">No waypoints found in file</string>
+    <string name="casio_location_indicator_import_failed">Could not import GPX file</string>
+    <string name="casio_location_indicator_exported">GPX exported</string>
+    <string name="casio_location_indicator_empty_export">No waypoints to export</string>
+    <string name="casio_location_indicator_export_failed">Could not export GPX file</string>
+    <string name="pref_casio_countdown_timer_title">Countdown timer (HH:MM:SS)</string>
+    <string name="pref_casio_pressure_energy_calc_title">Use pressure data for energy calculation</string>
+    <string name="pref_casio_compass_auto_correction_title">Compass auto-correction</string>
+    <string name="pref_casio_altitude_interval_title">Altitude auto-measurement interval</string>
+    <string name="pref_casio_altimeter_display_title">Altimeter display</string>
+    <string name="pref_casio_mode_carousel_title">Mode carousel</string>
+    <string name="pref_casio_mode_carousel_summary">Enable and reorder the watch modes</string>
+    <string name="pref_casio_display_screens_title">Display screens</string>
+    <string name="pref_casio_display_screens_summary">Enable and reorder the timekeeping screens</string>
+    <string name="pref_casio_mode_carousel_barometer">Barometer</string>
+    <string name="pref_casio_mode_carousel_temperature">Temperature</string>
+    <string name="pref_casio_mode_carousel_data_recall">Data recall</string>
+    <string name="pref_casio_mode_carousel_sunrise_sunset">Sunrise/sunset</string>
+    <string name="pref_casio_mode_carousel_stopwatch">Stopwatch</string>
+    <string name="pref_casio_mode_carousel_timer">Timer</string>
+    <string name="pref_casio_mode_carousel_alarm">Alarm</string>
+    <string name="pref_casio_mode_carousel_world_time">World time</string>
+    <string name="pref_casio_display_screens_day_date">Day and date</string>
+    <string name="pref_casio_display_screens_pressure_graph_date">Pressure graph + date</string>
+    <string name="pref_casio_display_screens_hours_min_sec">Hours/min/sec</string>
+    <string name="pref_casio_display_screens_steps_today">Steps (today)</string>
+    <string name="pref_casio_display_screens_year_date">Year date</string>
+    <string name="pref_casio_display_screens_pressure_graph">Pressure graph</string>
+    <string name="pref_casio_display_screens_world_time">World time (HH:MM)</string>
+    <string name="pref_casio_display_screens_sunrise_sunset_today">Sunrise/sunset (today)</string>
+    <string name="pref_casio_altimeter_display_plain">Altitude</string>
+    <string name="pref_casio_altimeter_display_100">Altitude ±100 m</string>
+    <string name="pref_casio_altimeter_display_1000">Altitude ±1000 m</string>
+    <string name="pref_casio_pressure_graph_title">Pressure graph</string>
     <string name="pref_title_autoremove_notifications">Autoremove dismissed notifications</string>
     <string name="pref_summary_autoremove_notifications">Notifications are automatically removed from the device when dismissed from the phone</string>
     <string name="pref_title_screen_on_on_notifications">Screen On on Notifications</string>
@@ -522,7 +572,6 @@
     <string name="pref_summary_sync_calendar">Enables calendar alerts, even when disconnected</string>
     <string name="pref_title_sync_caldendar">Sync calendar events</string>
     <string name="permission_not_granted_contacts">Contacts permission not granted</string>
-    <string name="permission_not_granted_calendar">Calendar permission not granted</string>
     <string name="pref_summary_calendar_sync_choose">Choose which calendars and color labels to sync to the device</string>
     <string name="pref_title_calendar_sync_choose">Calendars to sync</string>
     <string name="pref_title_calendar_sync_colors">Event colors to sync</string>
@@ -1275,7 +1324,6 @@
     <string name="sleep_colored_stats_light_avg">Light AVG</string>
     <string name="sleep_colored_stats_rem_avg">REM AVG</string>
     <string name="sleep_colored_stats_awake_avg">Awake AVG</string>
-    <string name="sleep_total_value">Total sleep: %s</string>
     <string name="sleep_avg">Sleep AVG</string>
     <string name="lowest">Lowest</string>
     <string name="highest">Highest</string>
@@ -2149,6 +2197,7 @@
     <string name="devicetype_miband8pro" translatable="false">Xiaomi Smart Band 8 Pro</string>
     <string name="devicetype_miband9" translatable="false">Xiaomi Smart Band 9</string>
     <string name="devicetype_miband9active" translatable="false">Xiaomi Smart Band 9 Active</string>
+    <string name="devicetype_miband11active" translatable="false">Xiaomi Smart Band 11 Active</string>
     <string name="devicetype_miband9pro" translatable="false">Xiaomi Smart Band 9 Pro</string>
     <string name="devicetype_miband10" translatable="false">Xiaomi Smart Band 10</string>
     <string name="devicetype_miband10pro" translatable="false">Xiaomi Smart Band 10 Pro</string>
@@ -2316,6 +2365,8 @@
     <string name="devicetype_garmin_fenix_9_pro_solar" translatable="false">Garmin Fenix 9 Pro Solar</string>
     <string name="devicetype_garmin_quatix_6" translatable="false">Garmin Quatix 6</string>
     <string name="devicetype_garmin_quatix_6x" translatable="false">Garmin Quatix 6X</string>
+    <string name="devicetype_garmin_quatix_7" translatable="false">Garmin Quatix 7</string>
+    <string name="devicetype_garmin_quatix_7x" translatable="false">Garmin Quatix 7X</string>
     <string name="devicetype_garmin_quatix_8" translatable="false">Garmin Quatix 8</string>
     <string name="devicetype_garmin_tactix_7" translatable="false">Garmin Tactix 7</string>
     <string name="devicetype_garmin_tactix_8" translatable="false">Garmin Tactix 8</string>
@@ -2433,6 +2484,7 @@
     <string name="devicetype_casiogwb5600" translatable="false">Casio GW-B5600</string>
     <string name="devicetype_casiogmwb5000" translatable="false">Casio GMW-B5000</string>
     <string name="devicetype_casiogbd200" translatable="false">Casio GBD-200</string>
+    <string name="devicetype_casioggb100" translatable="false">Casio GG-B100</string>
     <string name="devicetype_mismartscale" translatable="false">Mi Smart Scale 2</string>
     <string name="devicetype_micompositionscale" translatable="false">Mi Body Composition Scale 2</string>
     <string name="devicetype_qnscale" translatable="false">QN-Scale (Chipsea CS20)</string>
@@ -2490,6 +2542,7 @@
     <string name="devicetype_soundcore_a30i" translatable="false">Soundcore A30i</string>
     <string name="devicetype_soundcore_liberty3_pro" translatable="false">Soundcore Liberty 3 Pro</string>
     <string name="devicetype_soundcore_liberty4_nc" translatable="false">Soundcore Liberty 4 NC</string>
+    <string name="devicetype_soundcore_motion_plus" translatable="false">Soundcore Motion+</string>
     <string name="devicetype_soundcore_motion300" translatable="false">Soundcore Motion 300</string>
     <string name="devicetype_soundcore_q30" translatable="false">Soundcore Q30</string>
     <string name="devicetype_soundcore_space_one" translatable="false">Soundcore Space One</string>
@@ -2497,6 +2550,7 @@
     <string name="devicetype_soundcore_life_tune_xr" translatable="false">Soundcore Life Tune XR</string>
     <string name="devicetype_soundcore_aerofit2" translatable="false">Soundcore AeroFit 2</string>
     <string name="devicetype_soundcore_sport_x20" translatable="false">Soundcore Sport X20</string>
+    <string name="devicetype_soundcore_r50i_nc" translatable="false">Soundcore R50i NC</string>
     <string name="devicetype_soundcore_p42i" translatable="false">Soundcore P42i</string>
     <string name="devicetype_soundcore_p41i" translatable="false">Soundcore P41i</string>
     <string name="devicetype_soundcore_p40i" translatable="false">Soundcore P40i</string>
@@ -2545,6 +2599,7 @@
     <string name="devicetype_huawei_band11pro" translatable="false">Huawei Band 11 Pro</string>
     <string name="devicetype_huawei_watch_gt" translatable="false">Huawei Watch GT</string>
     <string name="devicetype_huawei_band2pro" translatable="false">Huawei Band 2 (Pro)</string>
+    <string name="devicetype_huawei_band_a2" translatable="false">Huawei Band A2</string>
     <string name="devicetype_huawei_band3pro" translatable="false">Huawei Band 3 (Pro)</string>
     <string name="devicetype_huawei_band4pro" translatable="false">Huawei Band 4 (Pro)</string>
     <string name="devicetype_huawei_watchgt2" translatable="false">Huawei Watch GT 2 (Pro)</string>
@@ -2646,6 +2701,7 @@
     <string name="devicetype_rainbuvvy_t97" translatable="false">Rainbuvvy T97</string>
     <string name="devicetype_garett_eva" translatable="false">Garret Eva</string>
     <string name="devicetype_advan_watch_se1ai" translatable="false">Advan Watch SE1 AI</string>
+    <string name="devicetype_bettdow_fb051" translatable="false">Bettdow FB051</string>
     <string name="devicetype_mt55" translatable="false">MT55</string>
     <string name="devicetype_ultrahuma_ring_air" translatable="false">Ultrahuman Ring AIR</string>
     <string name="devicetype_bandw_pseries" translatable="false">Bowers and Wilkins P series</string>
@@ -2694,6 +2750,7 @@
     <string name="devicetype_garmin_hrm_200" translatable="false">Garmin HRM 200</string>
     <string name="devicetype_garmin_hrm_600" translatable="false">Garmin HRM 600</string>
     <string name="devicetype_coospo_h9z" translatable="false">Coospo H9Z</string>
+    <string name="devicetype_coospo_h808s" translatable="false">Coospo H808S</string>
     <string name="devicetype_solarflow">SolarFlow</string>
     <string name="devicetype_braun_bpw4500" translatable="false">Braun iCheck 7 BPW4500</string>
     <string name="devicetype_ls2_4x">LS2-4X</string>
@@ -2724,6 +2781,25 @@
     <string name="metric_garmin_running_lactate_threshold_power">Running Lactate Threshold Power</string>
     <string name="metric_garmin_training_readiness">Training Readiness</string>
     <string name="metric_garmin_dive_readiness">Dive Readiness</string>
+    <string name="metric_garmin_training_status">Training Status</string>
+    <string name="training_status_productive">Productive</string>
+    <string name="training_status_maintaining">Maintaining</string>
+    <string name="training_status_recovery">Recovery</string>
+    <string name="training_status_strained">Strained</string>
+    <string name="training_status_detraining">Detraining</string>
+    <string name="training_status_paused">Paused</string>
+    <string name="training_status_no_status">No Status</string>
+    <string name="training_status_unproductive">Unproductive</string>
+    <string name="training_status_overreaching">Overreaching</string>
+    <string name="training_status_peaking">Peaking</string>
+    <string name="training_status_unknown">Unknown (%d)</string>
+    <string name="training_status_range">%1$s – %2$s</string>
+    <string name="training_status_today">today</string>
+    <string name="training_status_last_7_days">Last 7 days: %1$s</string>
+    <string name="training_status_load">Load</string>
+    <string name="training_status_breakdown">Breakdown</string>
+    <string name="training_status_history">History</string>
+    <string name="training_status_share">%1$d%% · %2$s</string>
     <string name="training_readiness_zone_prime">Prime</string>
     <string name="training_readiness_zone_prime_desc">Best possible</string>
     <string name="training_readiness_zone_high">High</string>
@@ -2816,6 +2892,8 @@
     <string name="menuitem_temperature">Temperature</string>
     <string name="body_mass_index">BMI</string>
     <string name="menuitem_weight">Weight</string>
+    <string name="menuitem_altitude">Altitude</string>
+    <string name="altitude_value_format">%1$d m</string>
     <string name="menuitem_barometer">Barometer</string>
     <string name="menuitem_flashlight">Flashlight</string>
     <string name="menuitem_text_size">Text Size</string>
@@ -3158,9 +3236,6 @@
     <string name="device_unsupported">UNSUPPORTED</string>
     <string name="device_experimental">EXPERIMENTAL</string>
     <string name="error_background_service_reason">Starting the background service failed because of an exception - click here for more information.\n\nError:</string>
-    <string name="pref_check_permission_show_list">Show permission status</string>
-    <string name="pref_check_permission_status">Check permission status</string>
-    <string name="pref_check_permission_status_summary">Check and ask for missing permissions even when they might not be instantly needed. Disable this only if your devices actually doesn\'t support any of these features. Not granting a permission might cause issues!</string>
     <string name="pref_show_changelog">Show changelog on startup</string>
     <string name="pref_show_changelog_summary">Display the changelog since last version after Gadgetbridge is updated</string>
     <string name="error_exporting_device_preferences">Error exporting device specific preferences</string>
@@ -3820,6 +3895,7 @@
     <string name="devicetype_galaxybuds_3_pro" translatable="false">Galaxy Buds3 Pro</string>
     <string name="devicetype_sanitas_sbm_67" translatable="false">Sanitas SBM67</string>
     <string name="devicetype_silvercrest_sbm_67" translatable="false">SilverCrest SBM67</string>
+    <string name="devicetype_beurer_bm_59" translatable="false">Beurer BM59</string>
     <string name="devicetype_beurer_bm_69" translatable="false">Beurer BM69</string>
     <string name="nothing_prefs_inear_summary">Play/pause the music depending on whether you wear the earbuds</string>
     <string name="nothing_prefs_inear_title">In-Ear detection</string>
@@ -4290,7 +4366,13 @@
     <string name="soundcore_light_effect_music">Music follows</string>
     <string name="haylou_s35_anc_eq_classic">Classic</string>
     <string name="haylou_s35_anc_eq_bass">Bass</string>
+    <string name="soundcore_equalizer_command">Equalizer command</string>
+    <string name="soundcore_equalizer_command_compact">Compact</string>
     <string name="soundcore_equalizer_preset">Preset</string>
+    <string name="soundcore_equalizer_preset_bass_off">Bass Off</string>
+    <string name="soundcore_equalizer_preset_heavy">Heavy</string>
+    <string name="soundcore_equalizer_preset_classic">Classic</string>
+    <string name="soundcore_equalizer_preset_original">Original</string>
     <string name="soundcore_equalizer_preset_signature">soundcore Signature</string>
     <string name="soundcore_equalizer_preset_xtra_bass">Xtra Bass</string>
     <string name="soundcore_equalizer_preset_voice">Voice</string>
@@ -4526,6 +4608,8 @@
     <string name="intent_api_broadcast_activity_sync_title">Broadcast on activity sync finish</string>
     <string name="intent_api_broadcast_activity_sync_summary">Broadcast an intent when activity sync finishes for any device</string>
     <string name="intent_activity_sync_title">Activity sync</string>
+    <string name="intent_api_allow_watch_app_messages_title">Allow messages to watch apps</string>
+    <string name="intent_api_allow_watch_app_messages_summary">Allow other apps to send messages to apps installed on the watch via Intent API</string>
     <string name="intent_api_allow_debug_commands_title">Allow Debug Commands</string>
     <string name="intent_api_allow_debug_commands_summary">Allow triggering debug menu commands via Intent API</string>
     <string name="intent_api_allow_global_settings_summary">Allow 3rd party apps to set global Gadgetbridge settings through intents. Please restart Gadgetbridge in order to take effect.</string>
@@ -4537,6 +4621,7 @@
     <string name="pref_title_debug">Debug request</string>
     <string name="devicetype_asteroidos" translatable="false">AsteroidOS</string>
     <string name="devicetype_soflow_s06" translatable="false">SoFlow SO6</string>
+    <string name="devicetype_ninebot_kickscooter" translatable="false">Ninebot KickScooter</string>
     <string name="devicetype_xiaomi_scooter_5_max" translatable="false">Xiaomi Scooter 5 Max</string>
     <string name="scooter_lock_motor_title">Lock motor</string>
     <string name="scooter_lock_motor_summary">After 24h, the scooter will automatically turn off and won\'t remain locked when it is off. This function cannot protect the scooter from being stolen.</string>
@@ -4584,6 +4669,37 @@
     <string name="xiaomi_scooter_tire_pressure_reset_title">Reset reminder</string>
     <string name="xiaomi_scooter_tire_pressure_reset_summary">Click this button to restart the tire pressure maintenance timer.</string>
     <string name="xiaomi_scooter_tire_pressure_reset_confirmation">Reset the tire pressure maintenance reminder?</string>
+    <string name="ninebot_press_power_button">Press the power button on the scooter to confirm the pairing</string>
+    <string name="ninebot_retrying">No answer from the scooter, trying again (%1$d/%2$d)</string>
+    <string name="ninebot_pairing_failed">Pairing with the scooter failed. If you used the original app in between, connect again and press the power button.</string>
+    <string name="ninebot_code_protection_title">Code protection</string>
+    <string name="ninebot_unlock_title">Unlock</string>
+    <string name="ninebot_unlock_summary">Unlock the scooter now</string>
+    <string name="ninebot_auto_unlock_title">Unlock on connect</string>
+    <string name="ninebot_auto_unlock_summary">Unlock the scooter as soon as it connects to this phone</string>
+    <string name="ninebot_lock_state_title">Lock state</string>
+    <string name="ninebot_lock_state_locked">Locked</string>
+    <string name="ninebot_lock_state_unlocked">Unlocked</string>
+    <string name="ninebot_kers_title">Energy recovery</string>
+    <string name="ninebot_kers_weak">Weak</string>
+    <string name="ninebot_kers_medium">Medium</string>
+    <string name="ninebot_kers_strong">Strong</string>
+    <string name="ninebot_charge_limit_title">Charge limit</string>
+    <string name="ninebot_charge_limit_95">95 %</string>
+    <string name="ninebot_charge_limit_100">100 %</string>
+    <string name="ninebot_power_on_title">Switch on</string>
+    <string name="ninebot_power_on_summary">Switch the scooter on after it was switched off with this app.</string>
+    <string name="ninebot_power_off_title">Switch off</string>
+    <string name="ninebot_power_off_summary">Switch the scooter off. It has to be switched on with the power button again.</string>
+    <string name="ninebot_range_title">Remaining range</string>
+    <string name="ninebot_odometer_title">Total distance</string>
+    <string name="ninebot_temperature_title">Temperature</string>
+    <string name="ninebot_mode_title">Riding mode</string>
+    <string name="ninebot_mode_eco">Eco</string>
+    <string name="ninebot_mode_dynamic">Dynamic</string>
+    <string name="ninebot_mode_sport">Sport</string>
+    <string name="ninebot_search_title">Search for the scooter</string>
+    <string name="ninebot_search_summary">Looks for the scooter every 3 seconds and unlocks it as soon as it is found. Uses more battery of the phone.</string>
     <string name="mi_hipee_p1_history">Raw posture history</string>
     <string name="mi_hipee_p1_position">Position</string>
     <string name="mi_hipee_p1_history_forward">Forward (humpback)</string>
@@ -4653,6 +4769,8 @@
     <string name="voice_service_class_title">Voice service class</string>
     <string name="voice_service_class_summary">Full service path handling voice commands</string>
     <string name="voice_service">Voice Service</string>
+    <string name="voice_service_not_found">Voice service not found, check the voice service package and class</string>
+    <string name="voice_service_zepp_os_info">When a voice service is set, opening the voice assistant on the watch records up to 14 seconds of audio and sends it to that app instead of playing it on the phone. The app can reply with text, which is shown on the watch.</string>
     <string name="pref_app_logs_title">App logs</string>
     <string name="pref_app_logs_summary">Enable logs from watch apps</string>
     <string name="pref_app_logs_start_summary">Start logging from watch apps</string>
@@ -4682,6 +4800,7 @@
     <string name="loyalty_cards_sync_summary">Tap to sync the cards to the watch</string>
     <string name="loyalty_cards_sync_watch_request_title">Sync automatically</string>
     <string name="loyalty_cards_sync_watch_request_summary">Allow the watch to sync the latest cards automatically</string>
+    <string name="loyalty_cards_sync_on_change_summary">Automatically sync card changes to the watch</string>
     <string name="loyalty_cards_sync_options">Sync Options</string>
     <string name="loyalty_cards_sync">Sync</string>
     <string name="loyalty_cards_catima">Catima</string>
@@ -5331,7 +5450,6 @@
     <string name="first_start_permissions_desc">Gadgetbridge needs a lot of permissions to perform all its functions. Review the permissions and their purposes below.</string>
     <string name="first_start_permissions_request_all_button">Request all permissions</string>
     <string name="first_start_permissions_do_not_ask_again">Do not ask again</string>
-    <string name="first_start_permissions_do_not_ask_warning_summary">Not granting a permission might cause issues. You can open this screen again from the Settings screen.</string>
     <string name="first_start_permissions_request_button">Request</string>
     <string name="first_start_get_started_title">Get started</string>
     <string name="first_start_get_started_desc">To get started, add your first device directly from this screen, restore a backup or start with a clean database.</string>
@@ -5339,26 +5457,19 @@
     <string name="first_start_get_started_restore_button">Restore backup</string>
     <string name="first_start_get_started_go_to_app_button">Go to the app</string>
     <string name="permission_notifications_summary">Forwarding notifications to connected gadgets</string>
+    <string name="permission_notifications_aloud_summary">Reading notifications aloud</string>
     <string name="permission_manage_dnd_title">Manage Do Not Disturb</string>
     <string name="permission_manage_dnd_summary">Changing DND notification policy</string>
     <string name="permission_displayover_title">Display over other apps</string>
     <string name="permission_displayover_summary">Used by Bangle.js for starting apps and other functionality on your phone</string>
-    <string name="permission_fine_location_title">Fine location</string>
-    <string name="permission_fine_location_summary">Scanning for Bluetooth devices</string>
     <string name="permission_background_location_title">Background location</string>
     <string name="permission_background_location_summary">Scanning for Bluetooth devices in the background and sending the location to certain gadgets</string>
+    <string name="permission_gps_sharing_summary">Sending the phone location to the gadget</string>
     <string name="permission_bluetooth_title">Bluetooth</string>
     <string name="permission_bluetooth_summary">Connecting to Bluetooth devices</string>
-    <string name="permission_bluetooth_admin_title">Bluetooth admin</string>
-    <string name="permission_bluetooth_admin_summary">Discovering and pairing Bluetooth devices</string>
-    <string name="permission_bluetooth_scan_title">Bluetooth scan</string>
-    <string name="permission_bluetooth_scan_summary">Scanning for new Bluetooth devices</string>
-    <string name="permission_bluetooth_connect_title">Bluetooth connect</string>
-    <string name="permission_bluetooth_connect_summary">Connecting to already-paired Bluetooth devices</string>
     <string name="permission_post_notification_title">Post notifications</string>
     <string name="permission_post_notification_summary">Posting ongoing notification which keeps the service running</string>
     <string name="permission_internet_access_title">Internet access</string>
-    <string name="permission_internet_access_summary">Synchronization with online resources</string>
     <string name="permission_contacts_title">Contacts</string>
     <string name="permission_contacts_summary">Sending contacts to gadgets</string>
     <string name="permission_calendar_title">Calendar</string>
@@ -5367,20 +5478,20 @@
     <string name="permission_receive_sms_summary">Forwarding SMS messages to gadgets</string>
     <string name="permission_send_sms_title">Send SMS</string>
     <string name="permission_send_sms_summary">Sending SMS (canned response) from gadgets</string>
-    <string name="permission_read_call_log_title">Read call log</string>
-    <string name="permission_read_call_log_summary">Forwarding call log to gadgets</string>
-    <string name="permission_read_phone_state_title">Read phone state</string>
-    <string name="permission_read_phone_state_summary">Reading status of ongoing calls</string>
-    <string name="permission_call_phone_title">Call phone</string>
-    <string name="permission_call_phone_summary">Initiating phone calls from gadgets</string>
-    <string name="permission_process_outgoing_calls_title">Process outgoing calls</string>
-    <string name="permission_process_outgoing_calls_summary">Reading the number of an outgoing call to display it on a gadget</string>
     <string name="permission_answer_phone_calls_title">Answer phone calls</string>
     <string name="permission_answer_phone_calls_summary">Answering phone calls from gadgets</string>
-    <string name="permission_external_storage_title">External storage</string>
-    <string name="permission_external_storage_summary">Using images, ringtones, app files and more</string>
-    <string name="permission_query_all_packages_title">Query all packages</string>
-    <string name="permission_query_all_packages_summary">Reading names and icons of all installed apps</string>
+    <string name="permission_calls_summary">Forwarding phone calls to gadgets</string>
+    <string name="permissions_section_recommended">Recommended</string>
+    <string name="permissions_section_optional">Optional</string>
+    <string name="permissions_section_granted">Granted</string>
+    <string name="permissions_grant_recommended">Grant recommended</string>
+    <string name="permissions_section_needed_for">Needed for %1$s</string>
+    <string name="permissions_hint">Some recommended permissions are not granted</string>
+    <string name="permissions_hint_grant">Grant</string>
+    <plurals name="permission_hint_missing">
+        <item quantity="one">Permission not granted: %1$s</item>
+        <item quantity="other">Permissions not granted: %1$s</item>
+    </plurals>
     <string name="about_build_details_copied_to_clipboard">Build details copied to clipboard</string>
     <string name="devicetype_marstek_b2500" translatable="false">Marstek B2500</string>
     <string name="battery_discharge_intervals">Battery Discharge Intervals</string>
@@ -5662,6 +5773,7 @@
     <string name="devicetype_oukitel_bt103" translatable="false">Oukitel BT103</string>
     <string name="devicetype_swiss_peak" translatable="false">Swiss Peak</string>
     <string name="devicetype_una_watch" translatable="false">UNA Watch</string>
+    <string name="devicetype_coros_pace_3" translatable="false">COROS PACE 3</string>
     <string name="devicetype_dm58" translatable="false">DM58</string>
     <string name="devicetype_zeblaze_stratos_4_pro" translatable="false">Zeblaze Stratos 4 Pro</string>
     <string name="devicetype_y6" translatable="false">Y6</string>
@@ -6399,6 +6511,7 @@
     <string name="workout_template_save_failed">Could not save this workout template.</string>
     <string name="workout_template_unsupported">Not supported by this device</string>
     <string name="workout_template_share_failed">Could not share this workout template</string>
+    <string name="workout_template_import_failed">Could not import this workout template</string>
 
     <plurals name="workout_template_step_count">
         <item quantity="one">%d step</item>
@@ -6611,4 +6724,5 @@
     <string name="vendor_data_import_garmin_step_4">Download the zip file to this phone. Do not extract it.</string>
     <string name="vendor_data_import_garmin_step_5">Select the zip file.</string>
     <string name="vendor_data_import_garmin_unknown_product">Garmin product %1$d</string>
+    <string name="appmanager_everything_up_to_date_message">Everything is up to date</string>
 </resources>

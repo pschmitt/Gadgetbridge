@@ -39,8 +39,8 @@ public class FemometerVinca2DeviceCoordinator extends AbstractBLEDeviceCoordinat
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return FemometerVinca2DeviceSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new FemometerVinca2DeviceSupport();
     }
 
     @Override

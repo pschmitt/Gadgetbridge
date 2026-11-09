@@ -5,7 +5,7 @@ import android.database.ContentObserver
 import android.net.Uri
 import android.os.Handler
 import android.os.SystemClock
-import nodomain.freeyourgadget.gadgetbridge.GBApplication.deviceService
+import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.model.NavigationRouteSpec
 import nodomain.freeyourgadget.gadgetbridge.util.NavigationUtils
 import nodomain.freeyourgadget.gadgetbridge.util.maps.TrackPoint
@@ -60,7 +60,7 @@ class CoMapsNavigationRouteReceiver internal constructor(
             ).use { cursor ->
                 val navRoute = NavigationRouteSpec()
                 if (cursor == null || !cursor.moveToFirst()) {
-                     deviceService().onSetNavigationRoute(navRoute);
+                    GBApplication.deviceService().onSetNavigationRoute(navRoute)
                     return
                 }
 
@@ -79,7 +79,7 @@ class CoMapsNavigationRouteReceiver internal constructor(
 
                 LOG.debug("NAVI: {}", navRoute)
 
-                deviceService().onSetNavigationRoute(navRoute)
+                GBApplication.deviceService().onSetNavigationRoute(navRoute)
             }
         } catch (e: SecurityException) {
             LOG.debug("Permission to read CoMaps navigation data has not been granted")

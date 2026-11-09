@@ -32,6 +32,7 @@ import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetVariant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
+import kotlin.math.roundToInt
 
 class BodyCompositionWidgetsTest : TestBase() {
     // Synthetic profile and reading (the calculator's own test vectors), not a real person's.
@@ -53,7 +54,7 @@ class BodyCompositionWidgetsTest : TestBase() {
         assertNotNull(composition)
         val c = composition!!
         assertEquals(context.getString(R.string.body_composition_percent, c.bodyFatPercent), render(BodyFatWidget, data()))
-        assertEquals(context.getString(R.string.body_composition_percent, c.bodyWaterPercent), render(BodyWaterWidget, data()))
+        assertEquals(context.getString(R.string.body_energy_percentage, c.bodyWaterPercent.roundToInt()), render(BodyWaterWidget, data()))
         assertEquals(WeightWidget.formatWeight(context, c.muscleMassKg.toDouble()), render(MuscleMassWidget, data()))
         assertEquals(context.getString(R.string.body_composition_kcal, c.basalMetabolicRate), render(BasalMetabolicRateWidget, data()))
         // and they are four different numbers, so a mix-up between them would show

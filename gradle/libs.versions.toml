@@ -1,26 +1,29 @@
 [versions]
 ahocorasick = "0.6.3"
 android-emojify = "1.9.7"
-android-gradle-plugin = "9.4.1"
+android-gradle-plugin = "9.5.1"
 androidsvg = "1.4"
 androidx-activity = "1.13.0"
 androidx-appcompat = "1.8.0"
+androidx-browser = "1.10.0"
 androidx-camera = "1.6.2"
 androidx-cardview = "1.0.0"
 androidx-constraintlayout = "2.2.2"
 androidx-core = "1.19.1"
 androidx-core-splashscreen = "1.2.0"
+androidx-exifinterface = "1.4.2"
 androidx-fragment = "1.9.1"
 androidx-gridlayout = "1.1.0"
 androidx-health-connect = "1.1.0"
 androidx-legacy = "1.0.0"
 androidx-lifecycle = "2.11.0"
 androidx-media3 = "1.11.1"
-androidx-palette = "1.0.0"
+androidx-palette = "1.1.0"
 androidx-preference = "1.2.1"
 androidx-recyclerview = "1.4.0"
+androidx-security-crypto = "1.1.0"
 androidx-viewpager = "1.1.0"
-androidx-workmanager = "2.11.2"
+androidx-workmanager = "2.12.0"
 apache-commons = "3.21.0"
 cbor = "0.9"
 ckchangelog = "1.2.2"
@@ -35,31 +38,29 @@ freemarker = "2.3.35"
 greendao = "2.2.1"
 gson = "2.15.0"
 hamcrest = "3.0"
+hilt = "2.60.1"
 json = "20260814"
-jsoup = "1.23.2"
+jsoup = "1.24.1"
 junit = "4.13.2"
-kotlin = "2.4.20"
+kaitai-plugin = "0.2.0"
+kaitai-struct-runtime = "0.11"
+kotlin = "2.4.21"
+kotlinx-coroutines = "1.11.0"
+ksp = "2.3.13"
 logback-android = "3.0.0"
 mapsforge = "0.30.0"
 material = "1.14.0"
 mockito = "5.24.0"
 mpandroidchart = "v4.0.1"
-zxing = "3.5.4"
 msgpack = "0.9.12"
 okhttp = "5.5.1"
 protobuf = "4.36.2"
-protobuf-plugin = "0.10.0"
-kaitai-plugin = "0.2.0"
+protobuf-plugin = "0.10.1"
 robolectric = "4.17"
 searchpreference = "2.7.3"
 slf4j = "2.0.20"
 snakeyaml = "2.7"
-solarpositioning = "3.0.3"
-security-crypto = "1.1.0"
-browser = "1.10.0"
-exifinterface = "1.4.2"
-kaitai-struct-runtime = "0.11"
-kotlinx-coroutines = "1.11.0"
+zxing = "3.5.4"
 
 [libraries]
 ahocorasick = { group = "org.ahocorasick", name = "ahocorasick", version.ref = "ahocorasick" }
@@ -69,6 +70,7 @@ android-emojify-gson = { group = "com.github.wax911.android-emojify", name = "gs
 androidsvg = { group = "com.caverock", name = "androidsvg", version.ref = "androidsvg" }
 androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "androidx-activity" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx-appcompat" }
+androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "androidx-browser" }
 androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "androidx-camera" }
 androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "androidx-camera" }
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "androidx-camera" }
@@ -77,6 +79,7 @@ androidx-cardview = { group = "androidx.cardview", name = "cardview", version.re
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "androidx-core-splashscreen" }
+androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "androidx-exifinterface" }
 androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "androidx-fragment" }
 androidx-gridlayout = { group = "androidx.gridlayout", name = "gridlayout", version.ref = "androidx-gridlayout" }
 androidx-health-connect-client = { group = "androidx.health.connect", name = "connect-client", version.ref = "androidx-health-connect" }
@@ -89,6 +92,7 @@ androidx-media3-ui = { group = "androidx.media3", name = "media3-ui", version.re
 androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", version.ref = "androidx-palette" }
 androidx-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "androidx-preference" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "androidx-recyclerview" }
+androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "androidx-security-crypto" }
 androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "androidx-viewpager" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "androidx-workmanager" }
 apache-commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", version.ref = "apache-commons" }
@@ -105,9 +109,13 @@ freemarker = { group = "org.freemarker", name = "freemarker", version.ref = "fre
 greendao = { group = "org.greenrobot", name = "greendao", version.ref = "greendao" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 hamcrest = { group = "org.hamcrest", name = "hamcrest-library", version.ref = "hamcrest" }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 json = { group = "org.json", name = "json", version.ref = "json" }
 jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+kaitai-struct-runtime = { group = "io.kaitai", name = "kaitai-struct-runtime", version.ref = "kaitai-struct-runtime" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 logback-android = { group = "com.github.tony19", name = "logback-android", version.ref = "logback-android" }
 mapsforge-core = { group = "com.github.mapsforge.mapsforge", name = "mapsforge-core", version.ref = "mapsforge" }
 mapsforge-map = { group = "com.github.mapsforge.mapsforge", name = "mapsforge-map", version.ref = "mapsforge" }
@@ -124,13 +132,7 @@ protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "protob
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 searchpreference = { group = "com.github.ByteHamster", name = "SearchPreference", version.ref = "searchpreference" }
 slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
-snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyaml" }
-solarpositioning = { group = "net.e175.klaus", name = "solarpositioning", version.ref = "solarpositioning" }
-androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "security-crypto" }
-androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
-androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
-kaitai-struct-runtime = { group = "io.kaitai", name = "kaitai-struct-runtime", version.ref = "kaitai-struct-runtime" }
-kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+snakeyaml = { group = "org.yaml", name = "snakeyaml", version.ref = "snakeyaml" }
 zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
 
 [bundles]
@@ -158,3 +160,5 @@ android-application = { id = "com.android.application", version.ref = "android-g
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobuf-plugin" }
 kaitai = { id = "org.freeyourgadget.kaitai", version.ref = "kaitai-plugin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }

@@ -35,17 +35,24 @@ import java.util.UUID
 
 /**
  * BLE support for the "QN-Scale" family of Chipsea CS20-based body-composition scales (tested
- * against an Arboleaf CS20N). See [QnScaleProtocol] for the frame format.
+ * against an Arboleaf CS20N and, with the VA protocol, a GE Fit Plus). See [QnScaleProtocol] for the
+ * frame format.
  *
  * Unlike most Gadgetbridge devices, this handshake is scale-initiated rather than phone-initiated:
  * after notifications are enabled the scale itself sends a ScaleInfo frame unprompted, and every
  * later step (config -> ack -> time sync -> history trigger -> history query -> stored measurement)
  * happens as a reaction to whatever the scale just sent, not as a fixed up-front sequence. This
  * mirrors the actual order captured from the manufacturer's own app.
+ *
+ * VA scales insert a user exchange after the history trigger (0xA0 hello -> 0xA1 -> 0xA0 profile ->
+ * 0xA1 -> 0x22 query + 0xA2 last weight); without it they report no stored data and stream no live
+ * weights.
  */
 class QnScaleDeviceSupport : AbstractBTLESingleDeviceSupport(LOG) {
     private var weightScaleFactor: Float = 100.0f
     private var protocolType: Byte? = null
+    private var liveSaved = false
+    private var configSent = false
 
     init {
         addSupportedService(UUID_SERVICE_QN_SCALE)
@@ -56,6 +63,10 @@ class QnScaleDeviceSupport : AbstractBTLESingleDeviceSupport(LOG) {
     }
 
     override fun initializeDevice(builder: TransactionBuilder): TransactionBuilder {
+        weightScaleFactor = 100.0f
+        protocolType = null
+        liveSaved = false
+        configSent = false
         builder.setDeviceState(GBDevice.State.INITIALIZING)
         builder.notify(UUID_CHARACTERISTIC_NOTIFY, true)
         // Everything past this point (config, time sync, history sync) is driven reactively by
@@ -76,19 +87,39 @@ class QnScaleDeviceSupport : AbstractBTLESingleDeviceSupport(LOG) {
             return false
         }
 
-        when (val frame = QnScaleProtocol.parse(value, weightScaleFactor)) {
+        when (val frame = QnScaleProtocol.parse(value, weightScaleFactor, protocolType)) {
             is QnScaleProtocol.Frame.ScaleInfo -> {
                 weightScaleFactor = frame.scaleFactor
                 protocolType = frame.protocolType
-                sendConfig()
+                // The scale repeats this frame after the config; configure once per connection.
+                if (!configSent) {
+                    configSent = true
+                    sendConfig()
+                }
             }
 
             is QnScaleProtocol.Frame.ConfigAck -> sendTimeSync()
 
-            is QnScaleProtocol.Frame.HistoryTrigger -> sendHistoryQuery()
+            is QnScaleProtocol.Frame.HistoryTrigger ->
+                if (isVa()) send("VA hello", QnScaleProtocol.buildVaHello()) else sendHistoryQuery()
+
+            is QnScaleProtocol.Frame.VaUserReply -> when (frame.step) {
+                QnScaleProtocol.VA_STEP_HELLO -> {
+                    val user = ActivityUser()
+                    send("VA profile", QnScaleProtocol.buildVaProfile(user.heightCm, user.age, user.gender == ActivityUser.GENDER_MALE))
+                }
+                QnScaleProtocol.VA_STEP_PROFILE -> {
+                    val type = protocolType ?: return true
+                    send("VA history query", QnScaleProtocol.buildVaStoredDataQuery(type))
+                    send("VA last weight", QnScaleProtocol.buildVaLastWeight(lastWeightKg()))
+                }
+                else -> LOG.debug("Unhandled QN-Scale VA reply: {}", GB.hexdump(value))
+            }
+
+            is QnScaleProtocol.Frame.NoStoredMeasurements -> LOG.debug("QN-Scale has no stored measurements")
 
             is QnScaleProtocol.Frame.StoredMeasurement -> {
-                val timestampMillis = QnScaleProtocol.qnEpochSecondsToMillis(frame.deviceEpochSeconds)
+                val timestampMillis = QnScaleProtocol.qnEpochSecondsToMillis(frame.deviceEpochSeconds, protocolType)
                 if (frame.deviceEpochSeconds > lastImportedHistoryEpochSeconds()) {
                     saveMeasurement(frame.weightKg, frame.resistance1, timestampMillis)
                     saveLastImportedHistoryEpochSeconds(frame.deviceEpochSeconds)
@@ -99,12 +130,25 @@ class QnScaleDeviceSupport : AbstractBTLESingleDeviceSupport(LOG) {
 
             is QnScaleProtocol.Frame.LiveWeight -> {
                 if (frame.stable) {
-                    saveMeasurement(frame.weightKg, frame.resistance1, System.currentTimeMillis())
-                    sendStableAck()
+                    // The scale repeats its final frame; a weigh-in is saved once, and the next
+                    // one begins with unstable frames.
+                    if (!liveSaved) {
+                        saveMeasurement(frame.weightKg, frame.resistance1, System.currentTimeMillis())
+                        liveSaved = true
+                        sendStableAck()
+                        if (isVa()) {
+                            // The scale also stores this weigh-in and returns it on the next sync;
+                            // its stored timestamp is a few seconds either side of now.
+                            val skipUntil = QnScaleProtocol.nowAsQnEpochSeconds(protocolType) + LIVE_STORED_MARGIN_SECONDS
+                            if (skipUntil > lastImportedHistoryEpochSeconds()) saveLastImportedHistoryEpochSeconds(skipUntil)
+                        }
+                    }
+                } else {
+                    liveSaved = false
                 }
             }
 
-            is QnScaleProtocol.Frame.Unknown -> LOG.debug("Unhandled QN-Scale opcode: 0x{}", Integer.toHexString(frame.opcode))
+            is QnScaleProtocol.Frame.Unknown -> LOG.debug("Unhandled QN-Scale frame: {}", GB.hexdump(value))
         }
 
         return true
@@ -138,7 +182,7 @@ class QnScaleDeviceSupport : AbstractBTLESingleDeviceSupport(LOG) {
 
     private fun sendTimeSync() {
         val type = protocolType ?: return
-        val frame = QnScaleProtocol.buildTimeSyncFrame(type, QnScaleProtocol.nowAsQnEpochSeconds())
+        val frame = QnScaleProtocol.buildTimeSyncFrame(type, QnScaleProtocol.nowAsQnEpochSeconds(type))
         createTransactionBuilder("time sync").apply {
             write(UUID_CHARACTERISTIC_WRITE, *frame)
             queue()
@@ -161,6 +205,29 @@ class QnScaleDeviceSupport : AbstractBTLESingleDeviceSupport(LOG) {
             write(UUID_CHARACTERISTIC_WRITE, *frame)
             queue()
         }
+    }
+
+    private fun send(task: String, frame: ByteArray) {
+        createTransactionBuilder(task).apply {
+            write(UUID_CHARACTERISTIC_WRITE, *frame)
+            queue()
+        }
+    }
+
+    private fun isVa(): Boolean = protocolType == QnScaleProtocol.PROTOCOL_TYPE_VA
+
+    private fun prefs() = GBApplication.getDeviceSpecificSharedPrefs(device.address)
+
+    /** The last weight this scale recorded, else the weight in the user's profile. */
+    private fun lastWeightKg(): Float {
+        try {
+            GBApplication.acquireDB().use { handler ->
+                GenericWeightSampleProvider(device, handler.daoSession).latestSample?.let { return it.weightKg }
+            }
+        } catch (e: Exception) {
+            LOG.error("Error reading the last QN-Scale weight", e)
+        }
+        return ActivityUser().weightKg.toFloat()
     }
 
     private fun saveMeasurement(weightKg: Float, resistanceOhm: Int, timestampMillis: Long) {
@@ -191,14 +258,11 @@ class QnScaleDeviceSupport : AbstractBTLESingleDeviceSupport(LOG) {
     }
 
     private fun lastImportedHistoryEpochSeconds(): Long {
-        return GBApplication.getDeviceSpecificSharedPrefs(device.address).getLong(PREF_LAST_HISTORY_EPOCH_SECONDS, 0L)
+        return prefs().getLong(PREF_LAST_HISTORY_EPOCH_SECONDS, 0L)
     }
 
     private fun saveLastImportedHistoryEpochSeconds(epochSeconds: Long) {
-        GBApplication.getDeviceSpecificSharedPrefs(device.address)
-            .edit()
-            .putLong(PREF_LAST_HISTORY_EPOCH_SECONDS, epochSeconds)
-            .apply()
+        prefs().edit().putLong(PREF_LAST_HISTORY_EPOCH_SECONDS, epochSeconds).apply()
     }
 
     companion object {
@@ -209,6 +273,7 @@ class QnScaleDeviceSupport : AbstractBTLESingleDeviceSupport(LOG) {
         private val UUID_CHARACTERISTIC_WRITE: UUID = UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb")
 
         private const val PREF_LAST_HISTORY_EPOCH_SECONDS = "qnscale_last_history_epoch_seconds"
+        private const val LIVE_STORED_MARGIN_SECONDS = 60L
 
         private const val UNIT_BYTE_KILOGRAM: Byte = 0x01
         private const val UNIT_BYTE_POUND: Byte = 0x02

@@ -1,92 +1,71 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.debug
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
-import nodomain.freeyourgadget.gadgetbridge.GBDatabaseManager
 import nodomain.freeyourgadget.gadgetbridge.R
-import nodomain.freeyourgadget.gadgetbridge.database.DBHelper
 import nodomain.freeyourgadget.gadgetbridge.util.GB
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
+@AndroidEntryPoint
 class DatabaseDebugFragment : AbstractDebugFragment() {
+    private val viewModel: DatabaseDebugViewModel by viewModels()
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.debug_preferences_database, rootKey)
 
         onClick(PREF_DEBUG_EMPTY_DATABASE) { emptyDatabase() }
         onClick(PREF_DEBUG_DELETE_OLD_DATABASE) { deleteOldActivityDbFile() }
-        if (!hasOldActivityDatabase()) {
-            findPreference<Preference>(PREF_DEBUG_DELETE_OLD_DATABASE)!!.isVisible = false
-        }
+    }
 
-        addTables()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { viewModel.uiState.collect { render(it) } }
+                launch { viewModel.events.collect { onEvent(it) } }
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        addTables()
+        viewModel.refresh()
     }
 
-    private fun addTables() {
+    private fun render(state: DatabaseDebugUiState) {
+        state.version?.let {
+            findPreference<Preference>(PREF_DEBUG_DATABASE_VERSION)?.summary = it.toString()
+        }
+        findPreference<Preference>(PREF_DEBUG_DELETE_OLD_DATABASE)!!.apply {
+            isVisible = state.showDeleteOldDatabase
+            isEnabled = !state.deleteInProgress
+        }
+        findPreference<Preference>(PREF_DEBUG_EMPTY_DATABASE)!!.isEnabled = !state.deleteInProgress
+
         val tablesHeader: PreferenceCategory = findPreference(PREF_HEADER_DATABASE_TABLES)!!
         removeDynamicPrefs(tablesHeader)
-
-        val tableNames = mutableListOf<String>()
-
-        try {
-            GBApplication.acquireDB().use { db ->
-                findPreference<Preference>(PREF_DEBUG_DATABASE_VERSION)?.summary = db.database.version.toString()
-
-                val cursor = db.database.rawQuery(
-                    """
-                        SELECT name 
-                        FROM sqlite_master 
-                        WHERE type='table'
-                          AND name NOT LIKE 'android_%'
-                          AND name NOT LIKE 'sqlite_%'
-                        """.trimIndent(),
-                    null
-                )
-
-                cursor.use {
-                    while (it.moveToNext()) {
-                        val name = it.getString(it.getColumnIndexOrThrow("name"))
-                        tableNames.add(name)
-                    }
-                }
-                tableNames.sortWith(Comparator { o1, o2 -> o1.compareTo(o2, true) })
-            }
-        } catch (e: Exception) {
-            LOG.error("Error accessing database", e)
-        }
-
-        for (tableName in tableNames) {
+        for (tableName in state.tables) {
             addDynamicPref(tablesHeader, tableName) {
-                goTo(
-                    DatabaseTableDebugFragment().apply {
-                        arguments = Bundle().apply { putString("tableName", tableName) }
-                    }
-                )
+                viewModel.onTableSelected(tableName)
             }
         }
     }
 
-    private fun hasOldActivityDatabase(): Boolean {
-        return DBHelper(requireContext()).existsDB("ActivityDatabase")
-    }
-
-    private fun emptyDatabase() {
-        MaterialAlertDialogBuilder(requireContext())
-            .setCancelable(true)
-            .setIcon(R.drawable.ic_warning)
-            .setTitle(R.string.dbmanagementactivity_delete_activity_data_title)
-            .setMessage(R.string.dbmanagementactivity_really_delete_entire_db)
-            .setPositiveButton(R.string.delete) { _, _ ->
-                if (GBDatabaseManager.deleteActivityDatabase(requireContext())) {
+    private fun onEvent(event: DatabaseDebugEvent) {
+        when (event) {
+            is DatabaseDebugEvent.DatabaseDeleted -> {
+                if (event.success) {
                     GB.toast(
                         requireContext(),
                         getString(R.string.dbmanagementactivity_database_successfully_deleted),
@@ -104,6 +83,39 @@ class DatabaseDebugFragment : AbstractDebugFragment() {
                     )
                 }
             }
+
+            is DatabaseDebugEvent.OldDatabaseDeleted -> {
+                GB.toast(
+                    requireContext(),
+                    getString(
+                        if (event.success) {
+                            R.string.dbmanagementactivity_old_activity_db_successfully_deleted
+                        } else {
+                            R.string.dbmanagementactivity_old_activity_db_deletion_failed
+                        }
+                    ),
+                    Toast.LENGTH_SHORT,
+                    GB.INFO
+                )
+            }
+
+            is DatabaseDebugEvent.NavigateToTable -> {
+                goTo(
+                    DatabaseTableDebugFragment().apply {
+                        arguments = Bundle().apply { putString("tableName", event.tableName) }
+                    }
+                )
+            }
+        }
+    }
+
+    private fun emptyDatabase() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setCancelable(true)
+            .setIcon(R.drawable.ic_warning)
+            .setTitle(R.string.dbmanagementactivity_delete_activity_data_title)
+            .setMessage(R.string.dbmanagementactivity_really_delete_entire_db)
+            .setPositiveButton(R.string.delete) { _, _ -> viewModel.deleteDatabase() }
             .setNegativeButton(R.string.cancel) { _, _ -> }
             .show()
     }
@@ -114,43 +126,12 @@ class DatabaseDebugFragment : AbstractDebugFragment() {
             .setTitle(R.string.dbmanagementactivity_delete_old_activity_db)
             .setIcon(R.drawable.ic_warning)
             .setMessage(R.string.dbmanagementactivity_delete_old_activitydb_confirmation)
-            .setPositiveButton(R.string.delete) { _, _ ->
-                if (GBDatabaseManager.deleteOldActivityDatabase(requireContext())) {
-                    GB.toast(
-                        requireContext(),
-                        getString(R.string.dbmanagementactivity_old_activity_db_successfully_deleted),
-                        Toast.LENGTH_SHORT,
-                        GB.INFO
-                    )
-                } else {
-                    GB.toast(
-                        requireContext(),
-                        getString(R.string.dbmanagementactivity_old_activity_db_deletion_failed),
-                        Toast.LENGTH_SHORT,
-                        GB.INFO
-                    )
-                }
-
-                if (!hasOldActivityDatabase()) {
-                    findPreference<Preference>(PREF_DEBUG_DELETE_OLD_DATABASE)!!.isVisible = false
-                }
-            }.setNegativeButton(R.string.cancel) { _, _ -> }.show()
-    }
-
-    // TODO ability to run raw SQL from the UI
-    private fun runSql() {
-        try {
-            GBApplication.acquireDB().use { db ->
-                db.database.execSQL("DROP TABLE IF EXISTS TABLE_NAME_TO_DROP_HERE")
-            }
-        } catch (e: Exception) {
-            LOG.error("Error accessing database", e)
-        }
+            .setPositiveButton(R.string.delete) { _, _ -> viewModel.deleteOldDatabase() }
+            .setNegativeButton(R.string.cancel) { _, _ -> }
+            .show()
     }
 
     companion object {
-        private val LOG: Logger = LoggerFactory.getLogger(DatabaseDebugFragment::class.java)
-
         private const val PREF_DEBUG_DATABASE_VERSION = "pref_debug_database_version"
         private const val DANGEROUS_ACTIONS = "dangerous_actions"
         private const val PREF_DEBUG_DELETE_OLD_DATABASE = "pref_debug_delete_old_database"

@@ -44,8 +44,8 @@ class UnaDeviceCoordinator : AbstractBLEDeviceCoordinator() {
     override fun getDeviceKind(device: GBDevice): DeviceCoordinator.DeviceKind =
         DeviceCoordinator.DeviceKind.WATCH
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport> =
-        UnaDeviceSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport =
+        UnaDeviceSupport()
 
     override fun getDeviceNameResource(): Int = R.string.devicetype_una_watch
 

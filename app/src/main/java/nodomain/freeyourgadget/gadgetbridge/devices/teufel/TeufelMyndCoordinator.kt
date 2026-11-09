@@ -35,8 +35,8 @@ class TeufelMyndCoordinator : AbstractBLClassicDeviceCoordinator() {
         return DeviceCoordinator.DeviceKind.SPEAKER
     }
 
-    override fun getDeviceSupportClass(device: GBDevice): Class<out DeviceSupport?> {
-        return TeufelMyndSupport::class.java
+    override fun createDeviceSupport(device: GBDevice): DeviceSupport {
+        return TeufelMyndSupport()
     }
 
     override fun suggestUnbindBeforePair(): Boolean {

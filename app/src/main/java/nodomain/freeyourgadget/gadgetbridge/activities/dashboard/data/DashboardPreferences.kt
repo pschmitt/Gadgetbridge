@@ -38,8 +38,10 @@ class DashboardPreferences(
         preferences.edit { putBoolean(PREF_START_EDITING, true) }
     }
 
+    fun hasStartEditingRequest(): Boolean = preferences.getBoolean(PREF_START_EDITING, false)
+
     fun consumeStartEditingRequest(): Boolean {
-        if (!preferences.getBoolean(PREF_START_EDITING, false)) return false
+        if (!hasStartEditingRequest()) return false
         preferences.edit(commit = true) { remove(PREF_START_EDITING) }
         return true
     }

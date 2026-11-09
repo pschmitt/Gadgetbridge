@@ -1,3 +1,4 @@
+import com.android.build.api.variant.BuildConfigField
 import com.android.build.api.variant.ResValue
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -7,101 +8,51 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kaitai)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 tasks.withType(Test).configureEach {
-    systemProperty "MiFirmwareDir", System.getProperty("MiFirmwareDir", null)
-    systemProperty "logback.configurationFile", System.getProperty("user.dir", null) + "/app/src/main/assets/logback.xml"
-    systemProperty "GB_LOGFILES_DIR", Files.createTempDirectory("gblog").toString()
+    final def miFirmwareDir = providers.systemProperty("MiFirmwareDir")
+    if (miFirmwareDir.isPresent()) {
+        systemProperty("MiFirmwareDir", miFirmwareDir.get())
+    }
+
+    systemProperty("logback.configurationFile", System.getProperty("user.dir", null) + "/app/src/main/assets/logback.xml")
+
+    doFirst {
+        systemProperty("GB_LOGFILES_DIR", Files.createTempDirectory("gblog").toString())
+    }
 }
 
-final def getVersionCode = { ->
+Integer getVersionCode() {
     try {
         final def commitCount = providers.exec {
-            commandLine('git', 'rev-list', 'HEAD', '--count')
+            commandLine("git", "rev-list", "HEAD", "--count")
         }.standardOutput.asText.get().trim()
         return Integer.valueOf(commitCount)
     } catch (ignored) {
         return null
     }
 }
+ext.getVersionCode = getVersionCode()
 
-tasks.register("buildGitChangelog"){
-    final def changelogFile = new File("${project.rootDir}/app/build/generated/res/changelog/xml/changelog_git.xml")
+apply from: rootProject.file("gradle/changelog.gradle")
 
-    def gitFile = project.rootProject.file('.git')
-    def gitHead = null
-
-    if (gitFile.directory) {
-        gitHead = new File(gitFile, 'HEAD')
-    } else if (gitFile.file) {
-        def gitDir = gitFile.text.trim().replaceFirst(/^gitdir:\s*/, '')
-        gitHead = new File(gitDir).with {
-            isAbsolute() ? new File(it, 'HEAD') : new File(gitFile.parentFile, it.path + '/HEAD')
-        }
-    }
-
-    inputs.file(gitHead)
-    outputs.file(changelogFile)
-
-    doLast {
-        def allCommits
-        try {
-            allCommits = providers.exec {
-                commandLine('git', 'log', '--pretty=format:%H %s')
-            }.standardOutput.asText.get()
-        } catch (ignored) {
-            logger.warn("Skipping git changelog: git is not available")
-            changelogFile.getParentFile().mkdirs()
-            changelogFile.write(groovy.xml.XmlUtil.serialize(new Node(null, 'changelog')))
-            return
-        }
-
-        def commitVersionCode = getVersionCode()
-        def includedCommits = 0
-        def includedTranslations = 0
-        final def changelogNode = new Node(null, 'changelog')
-
-        allCommits.trim().eachLine { final line ->
-            if (includedCommits > 100) {
-                return true
-            }
-
-            final def (fullCommitHash, commitMessage) = line.split(" ", 2)
-            final def commitHash = fullCommitHash.take(10)
-            if (commitMessage.contains("Translated using Weblate")) {
-                if (includedTranslations == 0) {
-                    final def releaseNode = new Node(changelogNode, 'release', [version: commitHash, versioncode: commitVersionCode--])
-                    def _ = new Node(releaseNode, 'change', [:], "Sync translations from Weblate")
-                }
-                includedTranslations++
-                return true
-            }
-
-            final def releaseNode = new Node(changelogNode, 'release', [version: commitHash, versioncode: commitVersionCode--])
-            def _ = new Node(releaseNode, 'change', [:], commitMessage)
-            includedCommits++
-        }
-
-        changelogFile.getParentFile().mkdirs()
-        changelogFile.write(groovy.xml.XmlUtil.serialize(changelogNode))
-    }
-}
-
-final def getGitHashShort = { ->
+String getGitHashShort() {
     try {
         return providers.exec {
-            commandLine('git', 'rev-parse', 'HEAD')
+            commandLine("git", "rev-parse", "HEAD")
         }.standardOutput.asText.get().trim().take(10)
     } catch (ignored) {
         return null
     }
 }
 
-final def getGitDirtyFlag = { ->
+String getGitDirtyFlag() {
     try {
         return providers.exec {
-            commandLine('git', 'status', '--porcelain')
+            commandLine("git", "status", "--porcelain")
         }.standardOutput.asText.get().trim().isBlank() ? "" : " (dirty)"
     } catch (ignored) {
         return " (unknown status)"
@@ -125,7 +76,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    namespace = 'nodomain.freeyourgadget.gadgetbridge'
+    namespace = "nodomain.freeyourgadget.gadgetbridge"
     compileSdk {
         version = release(37) {
             it.minorApiLevel = 0
@@ -133,73 +84,73 @@ android {
     }
 
     defaultConfig {
-        applicationId "nodomain.freeyourgadget.gadgetbridge"
+        applicationId = "nodomain.freeyourgadget.gadgetbridge"
 
         // Note: update toolchain.languageVersion when changing targetSdk
         //noinspection OldTargetApi
         targetSdk = 35
         // Note: update sourceCompatibility and targetCompatibility when changing minSdk
-        minSdk = 23
+        minSdk = 24
 
         // Note: always bump BOTH versionCode and versionName!
-        versionName "0.95.1"
-        versionCode 255
-        vectorDrawables.useSupportLibrary = true
-        buildConfigField "String", "GIT_HASH_SHORT", "\"${getGitHashShort()}\""
-        buildConfigField "String", "GIT_DIRTY_STATUS", "\"${getGitDirtyFlag()}\""
-        buildConfigField "boolean", "INTERNET_ACCESS", "false"
-
-        manifestPlaceholders = [
-            appAuthRedirectScheme: "${applicationId}"
-        ]
+        versionName = "2026.11.1"
+        versionCode = 257
+        buildConfigField("String", "GIT_HASH_SHORT", "\"${getGitHashShort()}\"")
+        buildConfigField("String", "GIT_DIRTY_STATUS", "\"${getGitDirtyFlag()}\"")
+        buildConfigField("boolean", "INTERNET_ACCESS", "false")
     }
 
+    final def nightlyStoreFile = providers.systemProperty("nightly_store_file")
+    final def nightlyStorePassword = providers.systemProperty("nightly_store_password")
+    final def nightlyKeyAlias = providers.systemProperty("nightly_key_alias")
+    final def nightlyKeyPassword = providers.systemProperty("nightly_key_password")
+
     signingConfigs {
-        nightly {
-            if (System.getProperty("nightly_store_file") != null) {
-                storeFile file(System.getProperty("nightly_store_file"))
-                storePassword System.getProperty("nightly_store_password")
-                keyAlias System.getProperty("nightly_key_alias")
-                keyPassword System.getProperty("nightly_key_password")
+        create("nightly") {
+            if (nightlyStoreFile.isPresent()) {
+                storeFile = file(nightlyStoreFile.get())
+                storePassword = nightlyStorePassword.orNull
+                keyAlias = nightlyKeyAlias.orNull
+                keyPassword = nightlyKeyPassword.orNull
             }
         }
     }
 
     flavorDimensions += "device_type"
     productFlavors {
-        mainline {
+        create("mainline") {
             // Ensure that when starting from scratch, 'mainline' is selected, not 'banglejs'
             getIsDefault().set(true)
             // the default build product flavor
-            dimension "device_type"
+            dimension = "device_type"
             //applicationIdSuffix ""
             //versionNameSuffix ""
         }
 
-        banglejs {
-            dimension "device_type"
-            applicationId "com.espruino.gadgetbridge"
-            applicationIdSuffix ".banglejs"
-            versionNameSuffix "-banglejs"
-            buildConfigField "boolean", "INTERNET_ACCESS", "true"
+        create("banglejs") {
+            dimension = "device_type"
+            applicationId = "com.espruino.gadgetbridge"
+            applicationIdSuffix = ".banglejs"
+            versionNameSuffix = "-banglejs"
+            buildConfigField("boolean", "INTERNET_ACCESS", "true")
             // Note: app/src/banglejs/AndroidManifest.xml contains some extra permissions
         }
     }
 
     sourceSets {
-        main {
-            java.srcDirs += "build/generated/sources/gbdao"
-            java.srcDirs += "build/generated/sources/fit"
-            kotlin.srcDirs += "build/generated/sources/kaitaiaux"
-            res.srcDirs += "build/generated/res/changelog"
+        named("main") {
+            java.srcDirs("build/generated/sources/gbdao")
+            java.srcDirs("build/generated/sources/fit")
+            kotlin.srcDirs("build/generated/sources/kaitaiaux")
+            res.srcDirs("build/generated/res/changelog")
         }
-        test {
+        named("test") {
             // The optional FIT round-trip corpus (FitExporterReadmeRoundTripTest) is read
             // by filesystem path, not the classpath, and is not committed. Exclude it from
             // the test resources so Gradle does not copy tens of thousands of files into
             // the unit-test runtime on every build.
             resources {
-                exclude "FIT-test-files-main/**"
+                exclude("FIT-test-files-main/**")
             }
         }
     }
@@ -210,49 +161,39 @@ android {
         //    proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         //}
 
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        getByName("release") {
+            minifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
 
-        nightly {
-            applicationIdSuffix ".nightly"
-            versionNameSuffix "-${getGitHashShort}"
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
-            minifyEnabled true
-            debuggable false
+        final def nightlySigning = nightlyStoreFile.isPresent()
+            ? signingConfigs.getByName("nightly")
+            : signingConfigs.getByName("debug")
 
-            if (System.getProperty("nightly_store_file") != null) {
-                signingConfig = signingConfigs.nightly
-            } else {
-                signingConfig = signingConfigs.debug
-            }
+        create("nightly") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".nightly"
+            versionNameSuffix = "-${getGitHashShort()}"
+            signingConfig = nightlySigning
         }
 
-        nopebble {
-            applicationIdSuffix ".nightly_nopebble"
-            versionNameSuffix "-${getGitHashShort}"
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
-            minifyEnabled true
-            debuggable false
-
-            if (System.getProperty("nightly_store_file") != null) {
-                signingConfig = signingConfigs.nightly
-            } else {
-                signingConfig = signingConfigs.debug
-            }
+        create("nopebble") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".nightly_nopebble"
+            versionNameSuffix = "-${getGitHashShort()}"
+            signingConfig = nightlySigning
         }
     }
 
     lint {
         abortOnError = true
-        lintConfig = file("${rootDir}/app/src/main/lint.xml")
+        lintConfig = layout.projectDirectory.file("src/main/lint.xml").asFile
         // If true, generate an HTML report (with issue explanations, sourcecode, etc)
         htmlReport = true
         // Optional path to report (default will be lint-results.html in the builddir)
         htmlOutput = layout.buildDirectory.file("reports/lint/lint.html").get().asFile
         // Ignore checks present in the snapshot
-        baseline = file("lint-baseline.xml")
+        baseline = layout.projectDirectory.file("lint-baseline.xml").asFile
     }
 
     testOptions {
@@ -261,19 +202,13 @@ android {
             includeAndroidResources = true
         }
     }
+
     buildFeatures {
         aidl = true
         buildConfig = true
         viewBinding = true
         // AGP 9 defaults to false, but we still use it in the androidComponents.onVariants block below
         resValues = true
-    }
-    packagingOptions {
-        // Unable to strip the following libraries, packaging them as they are.
-        // https://issuetracker.google.com/issues/353554169
-        jniLibs.keepDebugSymbols.add("**/libimage_processing_util_jni.so")
-        jniLibs.keepDebugSymbols.add("**/libsurface_util_jni.so")
-        jniLibs.keepDebugSymbols.add("**/libandroidx.graphics.path.so")
     }
 }
 
@@ -282,6 +217,17 @@ androidComponents {
         variant.resValues.put(
             variant.makeResValueKey("string", "applicationId"),
             variant.applicationId.map { new ResValue(it, null) }
+        )
+
+        // Scheme of the link an online service's login returns to. A URI scheme only allows
+        // letters, digits, "+", "-" and "." (RFC 3986), so the underscore of nightly_nopebble
+        // becomes "-"; browsers read a link with an underscore in its scheme as a relative path.
+        def oauthRedirectScheme = variant.applicationId.map { it.replace('_', '-') }
+        variant.manifestPlaceholders.put("oauthRedirectScheme", oauthRedirectScheme)
+        variant.unitTest?.manifestPlaceholders?.put("oauthRedirectScheme", oauthRedirectScheme)
+        variant.buildConfigFields.put(
+            "OAUTH_REDIRECT_SCHEME",
+            oauthRedirectScheme.map { new BuildConfigField("String", "\"${it}\"", null) }
         )
 
         if (variant.buildType == "nightly" || variant.buildType == "nopebble") {
@@ -300,109 +246,113 @@ androidComponents {
 }
 
 dependencies {
-    coreLibraryDesugaring libs.desugar.jdk.libs
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
-    implementation libs.androidx.constraintlayout
-    implementation libs.bundles.androidx.camera
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.bundles.androidx.camera)
 
-    testImplementation libs.junit
-    testImplementation libs.mockito
-    testImplementation libs.robolectric
-    testImplementation libs.hamcrest
-    testImplementation libs.kotlinx.coroutines.test
+    testImplementation(libs.junit)
+    testImplementation(libs.mockito)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.hamcrest)
+    testImplementation(libs.kotlinx.coroutines.test)
 
-    implementation libs.androidx.core.ktx
-    implementation libs.androidx.core.splashscreen
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core.splashscreen)
 
-    implementation libs.androidx.appcompat
-    implementation libs.androidx.preference.ktx
-    implementation libs.androidx.cardview
-    implementation libs.androidx.recyclerview
-    implementation libs.androidx.legacy.support.v4
-    implementation libs.androidx.gridlayout
-    implementation libs.androidx.palette.ktx
-    implementation libs.androidx.activity.ktx
-    implementation libs.androidx.fragment.ktx
-    implementation libs.androidx.viewpager2
-    implementation libs.androidx.work.runtime.ktx
-    implementation libs.androidx.lifecycle.process
-    implementation libs.androidx.lifecycle.runtime.ktx
-    implementation libs.androidx.lifecycle.viewmodel.ktx
-    implementation libs.androidx.security.crypto
-    implementation libs.androidx.browser
-    implementation libs.androidx.exifinterface
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.preference.ktx)
+    implementation(libs.androidx.cardview)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.legacy.support.v4)
+    implementation(libs.androidx.gridlayout)
+    implementation(libs.androidx.palette.ktx)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.viewpager2)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.lifecycle.process)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.security.crypto)
+    implementation(libs.androidx.browser)
+    implementation(libs.androidx.exifinterface)
 
-    implementation libs.material
-    implementation libs.flexbox
-    implementation libs.gson
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
 
-    implementation libs.dfu
-    implementation libs.logback.android
-    implementation libs.slf4j.api
-    implementation libs.mpandroidchart
-    implementation libs.durationformatter
-    implementation libs.ckchangelog
-    implementation libs.coil
-    implementation libs.androidx.media3.exoplayer
-    implementation libs.androidx.media3.ui
-    implementation libs.solarpositioning
-    implementation libs.cbor
+    implementation(libs.material)
+    implementation(libs.flexbox)
+    implementation(libs.gson)
+
+    implementation(libs.dfu)
+    implementation(libs.logback.android)
+    implementation(libs.slf4j.api)
+    implementation(libs.mpandroidchart)
+    implementation(libs.durationformatter)
+    implementation(libs.ckchangelog)
+    implementation(libs.coil)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
+    // klausbrunner/solarpositioning v3.0.3 is vendored in the app, for SDK < 33 compatibility
+    //implementation(libs.solarpositioning)
+    implementation(libs.cbor)
     // use pristine greendao instead of our custom version, since our custom jitpack-packaged
     // version contains way too much and our custom patches are in the generator only.
-    implementation libs.greendao
-    implementation libs.apache.commons.lang3
-    implementation libs.cyanogenmod.sdk
-    implementation libs.colorpicker
-    implementation libs.bundles.android.emojify
-    implementation libs.protobuf.lite
-    implementation libs.okhttp
-    implementation libs.msgpack
-    implementation libs.searchpreference
+    implementation(libs.greendao)
+    implementation(libs.apache.commons.lang3)
+    implementation(libs.cyanogenmod.sdk)
+    implementation(libs.colorpicker)
+    implementation(libs.bundles.android.emojify)
+    implementation(libs.protobuf.lite)
+    implementation(libs.okhttp)
+    implementation(libs.msgpack)
+    implementation(libs.searchpreference)
 
-    implementation libs.bundles.mapsforge
-    implementation libs.androidsvg
-    implementation libs.jsoup
-    implementation libs.kaitai.struct.runtime
-    implementation libs.zxing.core
+    implementation(libs.bundles.mapsforge)
+    implementation(libs.androidsvg)
+    implementation(libs.jsoup)
+    implementation(libs.kaitai.struct.runtime)
+    implementation(libs.zxing.core)
 
     // Bouncy Castle is included directly in GB, to avoid pulling the entire dependency
     // It's included in the org.bouncycastle.shaded package, to fix conflicts with roboelectric
-    //implementation 'org.bouncycastle:bcpkix-jdk18on:1.76'
-    //implementation 'org.bouncycastle:bcprov-jdk18on:1.76'
+    //implementation("org.bouncycastle:bcpkix-jdk18on:1.76")
+    //implementation("org.bouncycastle:bcprov-jdk18on:1.76")
 
     // Android SDK bundles org.json, but we need an actual implementation to replace the stubs in tests
-    testImplementation libs.json
+    testImplementation(libs.json)
 
     // Needed for Armenian transliteration
-    implementation libs.ahocorasick
+    implementation(libs.ahocorasick)
 
     // Android Health Connect
-    implementation libs.androidx.health.connect.client
+    implementation(libs.androidx.health.connect.client)
 
     // Protocol Buffer specifications
-    implementation project(':GBProtobufGenerator')
+    implementation(project(":GBProtobufGenerator"))
 }
 
-preBuild.dependsOn(":GBDaoGenerator:genSources")
-preBuild.dependsOn(':FitCodeGenerator:genFit')
-preBuild.dependsOn(':KaitaiAuxGenerator:genKaitaiAux')
-preBuild.dependsOn(tasks.buildGitChangelog)
-
-gradle.beforeProject {
-    preBuild.dependsOn(":GBDaoGenerator:genSources")
-    preBuild.dependsOn(':FitCodeGenerator:genFit')
-    preBuild.dependsOn(':KaitaiAuxGenerator:genKaitaiAux')
+tasks.named("preBuild").configure {
+    dependsOn(project(":GBDaoGenerator").tasks.named("genSources"))
+    dependsOn(project(":FitCodeGenerator").tasks.named("genFit"))
+    dependsOn(project(":KaitaiAuxGenerator").tasks.named("genKaitaiAux"))
+    dependsOn(tasks.named("buildGitChangelog"))
 }
 
-tasks.register('cleanGenerated', Delete) {
-    delete fileTree('src/main/java/nodomain/freeyourgadget/gadgetbridge/entities') {
-        include '**/*.java'
-        exclude '**/Abstract*.java'
-        exclude '**/GenericActivitySample.java'
+tasks.register("cleanGenerated", Delete) { task ->
+    task.delete {
+        layout.projectDirectory.dir("src/main/java/nodomain/freeyourgadget/gadgetbridge/entities").asFileTree.matching {
+            include("**/*.java")
+            exclude("**/Abstract*.java")
+            exclude("**/GenericActivitySample.java")
+        }
     }
 }
 
-tasks.clean.dependsOn(tasks.cleanGenerated)
+tasks.named("clean").configure {
+    dependsOn(cleanGenerated)
+}
 
 kaitai {
     javaPackage = "nodomain.freeyourgadget.gadgetbridge.kaitai"

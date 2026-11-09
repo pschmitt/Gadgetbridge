@@ -173,9 +173,7 @@
     <string name="discovery_stop_scanning">Interrompi scansione</string>
     <string name="discovery_start_scanning">Inizia scansione</string>
     <string name="action_discover">Connetti un nuovo dispositivo</string>
-    <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="title_activity_android_pairing">Accoppia dispositivo</string>
-    <string name="android_pairing_hint">Utilizza la funzione del sistema operativo per accoppiare il dispositivo.</string>
     <string name="title_activity_mi_band_pairing">Accoppia la Mi Band</string>
     <string name="pairing">Accoppiamento con %s…</string>
     <string name="pairing_creating_bond_with">Creazione bonding con %1$s (%2$s)</string>
@@ -226,7 +224,6 @@
     <string name="stats_y_axis_label">Passi al minuto</string>
     <string name="control_center_find_lost_device">Trova dispositivo smarrito</string>
     <string name="control_center_cancel_to_stop_vibration">Annulla per fermare la vibrazione.</string>
-    <string name="title_activity_charts">Attività e Sonno</string>
     <string name="title_activity_set_alarm">Configurazione sveglia</string>
     <string name="controlcenter_start_configure_alarms">Configurazione sveglia</string>
     <string name="title_activity_alarm_details">Sveglia</string>
@@ -582,17 +579,8 @@
     <string name="overstep">Passi eccedenti: %1$s</string>
     <string name="debugactivity_really_factoryreset_title">Vuoi veramente ripristinare le impostazioni di fabbrica\?</string>
     <string name="debugactivity_really_factoryreset">Effettuare il ripristino delle impostazioni di fabbrica cancellerà tutti i dati presenti sul dispositivo connesso (se supportato). I dispositivi Xiaomi/Huami cambiano anche MAC Address Bluetooth, e in modo risultano dispositivi nuovi per Gadgetbrige.</string>
-    <string name="title_activity_notification_filter">Filtro Notifiche</string>
-    <string name="edittext_notification_filter_words_hint">Inserisci le parole desiderate, una per linea</string>
-    <string name="toast_notification_filter_saved_successfully">Filtro Notifiche salvato</string>
     <string name="filter_mode_none">Non filtrare</string>
-    <string name="filter_mode_whitelist">Mostra quando sono contenute le parole</string>
-    <string name="filter_mode_blacklist">Blocca quando sono contenute le parole</string>
-    <string name="filter_submode_at_least_one">Almeno una delle parole</string>
-    <string name="filter_submode_all">Tutte le parole</string>
-    <string name="toast_notification_filter_words_empty_hint">Per favore, inserisci almeno una parola</string>
     <string name="filter_mode">Modalità filtro</string>
-    <string name="mode_configuration">Modalità Configurazione</string>
     <string name="save_configuration">Salva Configurazione</string>
     <string name="appwidget_not_connected">Non connesso, sveglia non impostata.</string>
     <string name="activity_type_exercise">Esercizio</string>
@@ -672,8 +660,6 @@
     <string name="pref_header_charts">Impostazioni dei grafici</string>
     <string name="pref_title_charts_average">Mostra le medie nei grafici</string>
     <string name="pref_title_charts_range">Intervallo dei grafici</string>
-    <string name="pref_charts_range_on">L\'intervallo dei grafici è impostato su di un mese</string>
-    <string name="pref_charts_range_off">L\'intervallo dei grafici è impostato su di una settimana</string>
     <string name="weekstepschart_steps_a_month">Passi al mese</string>
     <string name="weeksleepchart_sleep_a_month">Sonno per mese</string>
     <string name="menuitem_nfc">NFC</string>
@@ -688,7 +674,6 @@
     <string name="activity_DB_delete_legacy_button">Elimina db precedente</string>
     <string name="activity_DB_empty_button">Svuota database</string>
     <string name="activity_db_management_empty_DB">Svuota database</string>
-    <string name="activity_db_management_exportimport_label">Esportazione e importazione</string>
     <string name="activity_db_management_empty_db_warning">Attenzione! Premendo questo pulsante si cancella il database e si riparte da zero.</string>
     <string name="widget_set_alarm_after">Imposta sveglia dopo:</string>
     <string name="widget_5_minutes">5 minuti</string>
@@ -718,7 +703,6 @@
     <string name="prefs_button_triple_press_action_selection_title">Evento 3 azione</string>
     <string name="prefs_button_long_press_action_selection_title">Azione di pressione prolungata del pulsante</string>
     <string name="alarm_snooze">Snooze</string>
-    <string name="error_no_location_access">Per il corretto funzionamento della scansione dei dispositivi occorre concedere e abilitare l\'accesso alla posizione</string>
     <string name="pref_title_allow_high_mtu">Consenti MTU elevato</string>
     <string name="pref_summary_allow_high_mtu">Aumenta la velocità di trasferimento, ma potrebbe non funzionare su alcuni dispositivi Android.</string>
     <string name="pref_title_sync_caldendar">Sincronizza gli eventi del calendario</string>
@@ -804,7 +788,6 @@
     <string name="error_background_service_reason_truncated">L\'avvio del servizio in background non è riuscito perché…</string>
     <string name="error_background_service">Impossibile avviare il servizio in background</string>
     <string name="error_version_check_extreme_caution">ATTENZIONE: Errore durante la verifica delle informazioni sulla versione! Non dovresti continuare! Visto il nome della versione \"%s\"</string>
-    <string name="permission_granting_mandatory">Sono richieste tutte queste autorizzazioni e l\'app potrebbe essere instabile se non concesse</string>
     <string name="about_additional_contributions">Grazie mille a tutti i collaboratori non elencati per aver contribuito con codice, traduzioni, supporto, idee, motivazione, segnalazioni di bug, donazioni … ✊</string>
     <string name="about_additional_device_support">Supporto a dispositivi aggiuntivi</string>
     <string name="about_contributors">Contributori</string>
@@ -1077,7 +1060,6 @@
     <string name="menuitem_events">Eventi</string>
     <string name="activity_type_strength_training">Allenamento di forza</string>
     <string name="dbmanagementactivity_export_finished">Eliminazione completata</string>
-    <string name="activity_DB_ShowContentButton">Mostra i contenuti della cartella di importazione/esportazione</string>
     <string name="activity_data_management_directory_content_title">Esporta/Importa i contenuti della cartella</string>
     <string name="dbmanagementactivity_export_confirmation">Vuoi davvero esportare i dati\? I dati delle attività esportati precedentemente (se presenti) e le preferenza verranno sovrascritte.</string>
     <string name="dbmanagementactivity_export_data_title">Vuoi esportare i dati\?</string>
@@ -1128,17 +1110,14 @@
     <string name="heart_rate_result">Risultato della misurazione</string>
     <string name="pref_title_huami_force_new_protocol">Nuovo protocollo di autenticazione</string>
     <string name="pref_summary_huami_force_new_protocol">Abilita se il tuo dispositivo non si riesce più a connettere dopo un aggiornamento del firmware</string>
-    <string name="pref_title_notification_use_as_deny">Nega le notifiche dalle applicazioni selezionate</string>
     <string name="title_activity_notification_management">Impostazioni Notifiche</string>
     <string name="pref_message_privacy_mode_complete">Nascondi tutto il contenuto</string>
     <string name="menuitem_barometer">Barometro</string>
     <string name="menuitem_flashlight">Torcia</string>
     <string name="gpx_receiver_overwrite_some_files">Alcuni file(s) esistono già. Sovrascrivere\?</string>
     <string name="pref_header_notification_application_settings">Impostazioni per applicazione</string>
-    <string name="uncheck_all_applications">Deseleziona tutte le applicazioni</string>
     <string name="button_watchface_select_image">Cambia immagine di sfondo</string>
     <string name="pref_applications_settings">Lista applicazioni</string>
-    <string name="pref_title_notification_use_as_allow">Permetti le notifiche dalle applicazioni selezionate</string>
     <string name="pref_title_physical_buttons">Pulsanti fisici</string>
     <string name="qhybrid_calibration_counterclockwise">Senso contro-orario</string>
     <string name="qhybrid_summary_file_management">Carica e scarica files</string>
@@ -1166,7 +1145,6 @@
     <string name="prefs_activity_in_device_card_steps_title_summary">Mostra passi totali</string>
     <string name="pref_header_system">Sistema</string>
     <string name="pref_header_equalizer">Equalizzatore</string>
-    <string name="pref_title_notification_use_as">Utilizza la lista delle applicazioni per…</string>
     <string name="pref_title_message_privacy_mode">Modalità privacy per i messaggi</string>
     <string name="pref_message_privacy_mode_off">Mostra tutto il contenuto</string>
     <string name="controlcenter_start_configure_reminders">Configura promemoria</string>
@@ -1191,7 +1169,6 @@
     <string name="discovery_bluetooth_scan">Scansione Bluetooth:</string>
     <string name="discovery_bluetooth_le_scan">Scansione Bluetooth LE:</string>
     <string name="reminder_time_once">%1$s, una volta sola</string>
-    <string name="check_all_applications">Controlla tutte le applicazioni</string>
     <string name="prefs_reserve_reminder_calendar_summary">Numero di eventi del calendario che verranno sincronizzati</string>
     <string name="pref_write_logfiles_not_available">L\'inizializzazione dei file di log non è riuscita, la scrittura dei file di log non è attualmente disponibile. Riavvia l\'applicazione per provare a inizializzare di nuovo i file di log.</string>
     <string name="pref_world_clocks_title">Orologi mondiali</string>
@@ -1205,7 +1182,6 @@
     <string name="menuitem_female_health">Salute femminile</string>
     <string name="menuitem_unknown_app">Sconosciuto (%s)</string>
     <string name="quick_alarm_description">Sveglia dal widget</string>
-    <string name="toast_app_must_be_selected">L\'app deve essere selezionata per essere configurata</string>
     <string name="permission_notification_policy_access">%1$s deve accedere alle impostazioni Non Disturbare per poterle soddisfare sull\'orologio quando lo schermo del telefono è spento. \n \nTocca \"%2$s\" e poi \"%1$s\" e attiva \"Consenti Non Disturbare\", quindi tocca \"Indietro\" per tornare a %1$s.</string>
     <string name="prefs_password_4_digits_1_to_4_summary">La password deve avere 4 cifre, usando i numeri da 1 a 4</string>
     <string name="permission_display_over_other_apps">%1$s ha bisogno dell\'autorizzazione per essere visualizzata sopra le altre app, per consentire agli orologi Bangle.js di avviare attività tramite intenti quando %1$s è in background. \n \nQuesto può essere usato per avviare un\'app musicale e riprodurre una canzone, e varie altre cose. \n \nTocca \"%2$s\" e poi \"%1$s\" e abilita \"Consenti visualizzazione su altre app\", quindi tocca \"Indietro\" per tornare a %1$s. \n \nPer evitare che %1$s chieda autorizzazioni, vai in \"Impostazioni\" e deseleziona \"Verifica stato autorizzazioni\". \n \nAssicurati di concedere a %1$s le autorizzazioni necessarie per funzionare correttamente.</string>
@@ -1330,7 +1306,6 @@
     <string name="pref_screen_notification_profile_find_device">Trova dispositivo</string>
     <string name="prefs_game_mode">Modalità gioco</string>
     <string name="pref_title_notifications_generic_settings">Impostazioni notifiche Android</string>
-    <string name="toast_app_must_not_be_selected">L\'app non deve essere selezionata per essere configurata</string>
     <string name="qhybrid_pref_summary_actions">Azioni per la app Commute</string>
     <string name="nothing_prefs_inear_summary">Riproduci/pausa la musica a seconda che si indossino gli auricolari</string>
     <string name="activity_summary_detail_clear_gpx_track">Cancella traccia GPX</string>
@@ -2107,8 +2082,6 @@
     <string name="loyalty_cards_sync">Sincronizza</string>
     <string name="activity_prefs_goals">Obiettivi</string>
     <string name="charts_legend_stress_average">Stress medio</string>
-    <string name="error_no_bluetooth_scan">L\'accesso alla scansione Bluetooth deve essere consentito e abilitato perché la scansione funzioni correttamente</string>
-    <string name="error_no_bluetooth_connect">L\'accesso alla connessione Bluetooth deve essere consentito e abilitato perché la scansione funzioni correttamente</string>
     <string name="activity_type_surfing">Surf</string>
     <string name="activity_type_windsurfing">Windsurf</string>
     <string name="activity_type_rugby">Rugby</string>
@@ -2255,7 +2228,6 @@
     <string name="prefs_wena3_notification_settings_title">Impostazioni Notifiche</string>
     <string name="pai_chart_per_week">PAI settimanale</string>
     <string name="pai_chart_per_month">PAI mensile</string>
-    <string name="weekstepschart_steps_a_week_or_month">Passi mensili/settimanali</string>
     <string name="weeksleepchart_sleep_a_week_or_month">Sono mensile/settimanale</string>
     <string name="dnd_all_day">Tutto il giorno</string>
     <string name="busy_task_fetch_sports_details_interrupted">Il recupero dei dettagli sportivi è stato interrotto</string>
@@ -2392,7 +2364,6 @@
     <string name="menuitem_readiness">Preparazione</string>
     <string name="menuitem_body_composition">Composizione corporea</string>
     <string name="menuitem_buzzer_intensity">Intensità cicalino</string>
-    <string name="alarm_smart_wakeup_interval">Intervallo di attivazione intelligente:</string>
     <string name="standing_time">Tempo di riposo</string>
     <string name="prefs_password_4_digits_0_to_9_summary">La password deve essere di 4 cifre, utilizzando solo numeri</string>
     <string name="active_time">Tempo di attività</string>
@@ -2913,9 +2884,6 @@
     <string name="pref_summary_fossil_hr_navigation_instructions">Configurare il comportamento dell\'app di navigazione nell\'orologio</string>
     <string name="activity_info">Info attività</string>
     <string name="soundcore_button_brightness">Luminosità dei pulsanti</string>
-    <string name="soundcore_button_brightness_low">Bassa</string>
-    <string name="soundcore_button_brightness_high">Alta</string>
-    <string name="soundcore_button_brightness_medium">Media</string>
     <string name="button_open_menu_companion">Apri menu della app del companion</string>
     <string name="widget_name_colored_tile">%1$s (tessera colorata)</string>
     <string name="scan_scanning_multiple_devices">Scansione di %d dispositivi</string>
@@ -2959,19 +2927,10 @@
     <string name="pref_sleep_mode_schedule_summary">Invia un promemoria e attiva la modalità di riposo al momento di coricarsi. All\'ora di sveglia programmata, la sveglia suonerà.</string>
     <string name="scan_scanning_all_devices">Scansione di tutti i dispositivi</string>
     <string name="scan_scanning_single_device">Scansione di 1 dispositivo</string>
-    <string name="soundcore_equalizer_band7">Banda 7</string>
-    <string name="soundcore_equalizer_band8">Banda 8</string>
-    <string name="soundcore_equalizer_band9">Banda 9</string>
     <string name="soundcore_equalizer_frequency">Frequenza</string>
     <string name="soundcore_equalizer_value">Valore</string>
     <string name="miscale_weight_unit_title">Unità di Peso</string>
     <string name="miscale_weight_unit_summary">Imposta l\'unità di peso per le misure visualizzate</string>
-    <string name="soundcore_equalizer_band1">Banda 1</string>
-    <string name="soundcore_equalizer_band2">Banda 2</string>
-    <string name="soundcore_equalizer_band3">Banda 3</string>
-    <string name="soundcore_equalizer_band4">Banda 4</string>
-    <string name="soundcore_equalizer_band5">Banda 5</string>
-    <string name="soundcore_equalizer_band6">Banda 6</string>
     <string name="soundcore_equalizer_preset">Predisposizione</string>
     <string name="soundcore_equalizer_preset_signature">Firma soundcore</string>
     <string name="soundcore_equalizer_preset_xtra_bass">Bass eXtra</string>
@@ -3002,10 +2961,8 @@
     <string name="error_showing_changelog">Errore di visualizzazione del registro modifiche</string>
     <string name="bottom_nav_devices">Dispositivi</string>
     <string name="bottom_nav_dashboard">Cruscotto</string>
-    <string name="pref_dashboard_first_title">Mostra prima il cruscotto</string>
     <string name="dashboard_settings">Impostazioni Cruscotto</string>
     <string name="pref_dashboard_cards_summary">Disegnare tessere intorno ai widget del cruscotto</string>
-    <string name="pref_dashboard_first_summary">Mostra il cruscotto all\'avvio di Gadgetbridge, invece della schermata dei dispositivi</string>
     <string name="pref_auto_reply_calls_title">Rispondi automaticamente alle chiamate telefoniche</string>
     <string name="pref_auto_reply_calls_summary">Il telefono risponde automaticamente alle chiamate in arrivo</string>
     <string name="pref_summary_bottom_navigation_bar_off">Passa da una schermata principale all\'altra solo con lo swipe orizzontale</string>
@@ -3744,7 +3701,6 @@
     <string name="notif_export_zip_failed_title">Esportazione archivio zip non riuscita! Controlla le impostazioni.</string>
     <string name="unknown_error">Errore sconosciuto</string>
     <string name="uploading_resources">Caricamento risorse…</string>
-    <string name="charts_two_items_only">Puoi confrontare solo due elementi alla volta.</string>
     <string name="charts_at_least_one_item">Deve essere selezionato almeno un elemento.</string>
     <string name="fwinstaller_file_not_compatible_to_device">Il file selezionato non è compatibile col dispositivo</string>
     <string name="fwinstaller_no_compatible_device_found">Nessun dispositivo compatibile per installare %1s trovato</string>

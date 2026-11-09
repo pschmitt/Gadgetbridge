@@ -29,7 +29,7 @@ class DashboardWidgetLoaderImpl(
         settings: DashboardSettings,
     ): Any? = withContext(ioDispatcher) {
         val instance = placed.instance
-        val prefs = Prefs(GBApplication.getWidgetSharedPrefs(instance.instanceId))
+        val prefs = Prefs(requireNotNull(GBApplication.getWidgetSharedPrefs(instance.instanceId)))
         val config = WidgetConfig(
             instance,
             prefs,

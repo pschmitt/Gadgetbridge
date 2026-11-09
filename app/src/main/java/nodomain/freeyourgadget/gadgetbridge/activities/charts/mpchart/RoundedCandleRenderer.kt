@@ -9,6 +9,7 @@ import com.github.mikephil.charting.interfaces.dataprovider.CandleDataProvider
 import com.github.mikephil.charting.interfaces.datasets.ICandleDataSet
 import com.github.mikephil.charting.renderer.CandleStickChartRenderer
 import com.github.mikephil.charting.renderer.CombinedChartRenderer
+import com.github.mikephil.charting.renderer.LineChartRenderer
 import com.github.mikephil.charting.utils.Utils
 import com.github.mikephil.charting.utils.ViewPortHandler
 
@@ -90,6 +91,8 @@ internal class RoundedCandleRenderer(
             for (i in subRenderers.indices) {
                 if (subRenderers[i] is CandleStickChartRenderer) {
                     subRenderers[i] = RoundedCandleRenderer(chart, animator, viewPortHandler)
+                } else if (subRenderers[i] is LineChartRenderer) {
+                    subRenderers[i] = SpanLineRenderer(chart, animator, viewPortHandler)
                 }
             }
         }

@@ -69,7 +69,7 @@ class WidgetInstanceSettingsFragment : AbstractPreferenceFragment(), SettingsRen
         refreshHandle?.cleanup()
         preferenceScreen.removeAll()
 
-        val prefs = Prefs(GBApplication.getWidgetSharedPrefs(instanceId))
+        val prefs = Prefs(requireNotNull(GBApplication.getWidgetSharedPrefs(instanceId)))
         val items = mutableListOf<DeviceSetting>()
         items += commonSettings(widget, launcherWidget != null)
         widget.settings(requireContext(), variant)?.let {

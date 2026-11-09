@@ -17,7 +17,7 @@ public class TestWorkoutLoadSampleProvider extends AbstractTestSampleProvider<Wo
 
     @NonNull
     @Override
-    public List<WorkoutLoadSample> getAllSamples(final long timestampFrom, final long timestampTo) {
+    protected List<WorkoutLoadSample> generateSamples(final long timestampFrom, final long timestampTo) {
         final List<WorkoutLoadSample> samples = new ArrayList<>();
 
         for (long day = startOfDay(timestampFrom); day < timestampTo; day += DAY_MILLIS) {
@@ -36,7 +36,7 @@ public class TestWorkoutLoadSampleProvider extends AbstractTestSampleProvider<Wo
     @Nullable
     @Override
     public WorkoutLoadSample getLatestSample() {
-        return new TestWorkoutLoadSample(startOfDay(System.currentTimeMillis()) + WORKOUT_TIME_MILLIS);
+        return getLatestSample(System.currentTimeMillis());
     }
 
     @Nullable

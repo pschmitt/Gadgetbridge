@@ -52,7 +52,7 @@ import de.greenrobot.daogenerator.ToOne;
  */
 @SuppressWarnings({"UnusedReturnValue", "SameParameterValue", "unused"})
 public class GBDaoGenerator {
-    private static final String OUTPUT_DIR = "app/build/generated/sources/gbdao";
+    private static final String DEFAULT_OUTPUT_DIR = "app/build/generated/sources/gbdao";
     private static final String LEGACY_DIR = "app/src/main/java/nodomain/freeyourgadget/gadgetbridge/entities";
 
     private static final String VALID_FROM_UTC = "validFromUTC";
@@ -78,6 +78,7 @@ public class GBDaoGenerator {
     private static final String SAMPLE_RESPIRATORY_RATE = "respiratoryRate";
     private static final String SAMPLE_SLEEP_SCORE = "sleepScore";
     private static final String SAMPLE_SPO2 = "spo2";
+    private static final String SAMPLE_ALTITUDE = "altitude";
     private static final String SAMPLE_STRESS = "stress";
     private static final String SAMPLE_TEMPERATURE = "temperature";
     private static final String SAMPLE_WEIGHT_KG = "weightKg";
@@ -104,13 +105,14 @@ public class GBDaoGenerator {
     );
 
     public static void main(String[] args) throws Exception {
-        File outputDir = new File(OUTPUT_DIR);
+        final String outputDirPath = (args.length > 0) ? args[0] : DEFAULT_OUTPUT_DIR;
+        File outputDir = new File(outputDirPath);
         if (!outputDir.exists()) {
             //noinspection ResultOfMethodCallIgnored
             outputDir.mkdirs();
         }
 
-        final Schema schema = new Schema(159, MAIN_PACKAGE + ".entities");
+        final Schema schema = new Schema(160, MAIN_PACKAGE + ".entities");
 
         final List<Entity> sampleProvidersToGenerate = new LinkedList<>();
         final List<Entity> batterySampleProvidersToGenerate = new LinkedList<>();
@@ -307,6 +309,7 @@ public class GBDaoGenerator {
 
         sampleProvidersToGenerate.add(addGenericHeartRateSample(schema, user, device));
         sampleProvidersToGenerate.add(addGenericSpo2Sample(schema, user, device));
+        sampleProvidersToGenerate.add(addGenericAltitudeSample(schema, user, device));
         sampleProvidersToGenerate.add(addGenericRespiratoryRateSample(schema, user, device));
         sampleProvidersToGenerate.add(addGenericStressSample(schema, user, device));
         sampleProvidersToGenerate.add(addGenericHrvValueSample(schema, user, device));
@@ -327,22 +330,22 @@ public class GBDaoGenerator {
         final DeviceDataTablesGenerator deviceDataTablesGenerator = new DeviceDataTablesGenerator(schema, device);
         deviceDataTablesGenerator.validate();
 
-        deleteOldFiles();
+        deleteOldFiles(outputDirPath);
 
-        new DaoGenerator().generateAll(schema, OUTPUT_DIR);
+        new DaoGenerator().generateAll(schema, outputDirPath);
 
-        deviceDataTablesGenerator.generate(loadTemplate("gadgetbridge/device-data-tables.ftl"), OUTPUT_DIR);
+        deviceDataTablesGenerator.generate(loadTemplate("gadgetbridge/device-data-tables.ftl"), outputDirPath);
 
         final long start = System.currentTimeMillis();
 
         final Template timeSampleProviderTemplate = loadTemplate("gadgetbridge/time-sample-provider.ftl");
         for (Entity entity : sampleProvidersToGenerate) {
-            generateSampleProvider(timeSampleProviderTemplate, entity);
+            generateSampleProvider(timeSampleProviderTemplate, entity, outputDirPath);
         }
 
         final Template batterySampleProviderTemplate = loadTemplate("gadgetbridge/battery-sample-provider.ftl");
         for (Entity entity : batterySampleProvidersToGenerate) {
-            generateSampleProvider(batterySampleProviderTemplate, entity);
+            generateSampleProvider(batterySampleProviderTemplate, entity, outputDirPath);
         }
 
         long time = System.currentTimeMillis() - start;
@@ -398,7 +401,7 @@ public class GBDaoGenerator {
         }
     }
 
-    private static void deleteOldFiles() throws IOException {
+    private static void deleteOldFiles(final String outputDirPath) throws IOException {
         // Cleanup the legacy directory to avoid classpath conflicts during build for users that pull the latest changes
         // FIXME: Remove this eventually, and app/src/main/java/nodomain/freeyourgadget/gadgetbridge/entities/.gitignore as well
         if (new File(LEGACY_DIR, "DaoSession.java").isFile()) {
@@ -430,7 +433,7 @@ public class GBDaoGenerator {
             });
         }
 
-        Files.walkFileTree(new File(OUTPUT_DIR).toPath(), new SimpleFileVisitor<>() {
+        Files.walkFileTree(new File(outputDirPath).toPath(), new SimpleFileVisitor<>() {
             @SuppressWarnings("NullableProblems")
             @Override
             public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) {
@@ -2849,6 +2852,7 @@ public class GBDaoGenerator {
 
     private static Entity addGenericHeartRateSample(Schema schema, Entity user, Entity device) {
         Entity heartRateSample = addEntity(schema, "GenericHeartRateSample");
+        heartRateSample.implementsSerializable();
         addCommonTimeSampleProperties("AbstractHeartRateSample", heartRateSample, user, device);
         heartRateSample.addIntProperty(SAMPLE_HEART_RATE).codeBeforeGetter(OVERRIDE).notNull();
         return heartRateSample;
@@ -2866,6 +2870,13 @@ public class GBDaoGenerator {
         addCommonTimeSampleProperties("AbstractSpo2Sample", spo2sample, user, device);
         spo2sample.addIntProperty(SAMPLE_SPO2).notNull().codeBeforeGetter(OVERRIDE);
         return spo2sample;
+    }
+
+    private static Entity addGenericAltitudeSample(Schema schema, Entity user, Entity device) {
+        Entity altitudeSample = addEntity(schema, "GenericAltitudeSample");
+        addCommonTimeSampleProperties("AbstractAltitudeSample", altitudeSample, user, device);
+        altitudeSample.addIntProperty(SAMPLE_ALTITUDE).notNull().codeBeforeGetter(OVERRIDE);
+        return altitudeSample;
     }
 
     private static Entity addGenericRespiratoryRateSample(Schema schema, Entity user, Entity device) {
@@ -3027,8 +3038,8 @@ public class GBDaoGenerator {
         return weightSampleF8;
     }
 
-    private static void generateSampleProvider(final Template template, final Entity entity) throws Exception {
-        final File outputDir = new File(OUTPUT_DIR + "/nodomain/freeyourgadget/gadgetbridge/devices");
+    private static void generateSampleProvider(final Template template, final Entity entity, final String outputDirPath) throws Exception {
+        final File outputDir = new File(outputDirPath + "/nodomain/freeyourgadget/gadgetbridge/devices");
         //noinspection ResultOfMethodCallIgnored
         outputDir.mkdirs();
         final Map<String, Object> root = new HashMap<>();

@@ -70,8 +70,8 @@ public class Beyond3ProCoordinator extends AbstractBLEDeviceCoordinator {
 
     @NonNull
     @Override
-    public Class<? extends DeviceSupport> getDeviceSupportClass(final GBDevice device) {
-        return Beyond3ProSupport.class;
+    public DeviceSupport createDeviceSupport(final GBDevice device) {
+        return new Beyond3ProSupport();
     }
 
     @Override

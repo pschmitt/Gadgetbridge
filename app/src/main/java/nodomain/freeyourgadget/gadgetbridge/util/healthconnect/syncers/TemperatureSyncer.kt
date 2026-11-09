@@ -147,33 +147,7 @@ internal object TemperatureSyncer : HealthConnectSyncer {
                 val recordStartTime = Instant.ofEpochMilli(validSkinSamplesInSlice.first().timestamp)
                 val recordEndTime = Instant.ofEpochMilli(validSkinSamplesInSlice.last().timestamp).plusSeconds(1)
 
-                // Calculate deltas as change since last measurement, not from baseline
-                val deltas = mutableListOf<SkinTemperatureRecord.Delta>()
-                var previousTempC: Double? = null
-
-                for (sample in validSkinSamplesInSlice) {
-                    val currentTempC = sample.temperature.toDouble()
-                    val deltaValue = if (previousTempC != null) {
-                        currentTempC - previousTempC
-                    } else {
-                        // First measurement: delta from baseline
-                        currentTempC - baselineForCurrentRecord
-                    }
-
-                    if (deltaValue !in -30.0..30.0 || !deltaValue.isFinite()) {
-                        LOG.skipOutOfRange(deviceName, "SkinTemperatureDelta", deltaValue, "-30..30 °C")
-                        previousTempC = currentTempC
-                        continue
-                    }
-
-                    deltas.add(
-                        SkinTemperatureRecord.Delta(
-                            time = Instant.ofEpochMilli(sample.timestamp),
-                            delta = TemperatureDelta.celsius(deltaValue)
-                        )
-                    )
-                    previousTempC = currentTempC
-                }
+                val deltas = skinDeltas(validSkinSamplesInSlice, baselineForCurrentRecord, deviceName)
 
                 if (deltas.isNotEmpty()) {
                     recordsToInsert.add(
@@ -228,6 +202,32 @@ internal object TemperatureSyncer : HealthConnectSyncer {
             recordType = "Temperature",
             latestRecordTimestamp = latest
         )
+    }
+
+    /**
+     * Health Connect stores each skin temperature as its difference from the record's baseline,
+     * so readers get the temperature back as baseline + delta.
+     */
+    internal fun skinDeltas(
+        samples: List<TemperatureSample>,
+        baselineC: Double,
+        deviceName: String
+    ): List<SkinTemperatureRecord.Delta> {
+        val deltas = mutableListOf<SkinTemperatureRecord.Delta>()
+        for (sample in samples) {
+            val deltaValue = sample.temperature.toDouble() - baselineC
+            if (deltaValue !in -30.0..30.0 || !deltaValue.isFinite()) {
+                LOG.skipOutOfRange(deviceName, "SkinTemperatureDelta", deltaValue, "-30..30 °C")
+                continue
+            }
+            deltas.add(
+                SkinTemperatureRecord.Delta(
+                    time = Instant.ofEpochMilli(sample.timestamp),
+                    delta = TemperatureDelta.celsius(deltaValue)
+                )
+            )
+        }
+        return deltas
     }
 
     // Helper class to manage dynamic baseline calculation per device

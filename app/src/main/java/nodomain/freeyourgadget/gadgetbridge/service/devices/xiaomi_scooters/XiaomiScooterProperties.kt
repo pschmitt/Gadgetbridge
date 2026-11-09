@@ -295,7 +295,7 @@ object XiaomiScooterProperties {
     /** Writes one decoded telemetry reading to the database. */
     fun interface SampleSink {
         /** [timestamp] is in milliseconds since the epoch. */
-        fun persist(device: GBDevice, session: DaoSession, context: Context?, timestamp: Long, value: Float)
+        fun persist(device: GBDevice, session: DaoSession, context: Context, timestamp: Long, value: Float)
     }
 
     /** A [TelemetryProperty] for a measurement: decoded once, then both formatted and persisted. */
