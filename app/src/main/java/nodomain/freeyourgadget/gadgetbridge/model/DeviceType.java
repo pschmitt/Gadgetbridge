@@ -112,6 +112,7 @@ import nodomain.freeyourgadget.gadgetbridge.devices.garmin.gps.GarminGpsmap66sCo
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.gps.GarminGpsmap66srCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.gps.GarminGpsmapH1Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.gps.GarminInReachMini2;
+import nodomain.freeyourgadget.gadgetbridge.devices.garmin.gps.GarminMontana700Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.hrm.GarminHrm200Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.hrm.GarminHrm600Coordinator;
 import nodomain.freeyourgadget.gadgetbridge.devices.garmin.hrm.GarminHrmProPlusCoordinator;
@@ -908,6 +909,7 @@ public enum DeviceType {
     GARMIN_GPSMAP_66SR(GarminGpsmap66srCoordinator::new),
     GARMIN_GPSMAP_H1(GarminGpsmapH1Coordinator::new),
     GARMIN_ETREX_SE(GarminETrexSeCoordinator::new),
+    GARMIN_MONTANA_700(GarminMontana700Coordinator::new),
     GARMIN_ENDURO(GarminEnduroCoordinator::new),
     GARMIN_ENDURO_2(GarminEnduro2Coordinator::new),
     GARMIN_ENDURO_3(GarminEnduro3Coordinator::new),

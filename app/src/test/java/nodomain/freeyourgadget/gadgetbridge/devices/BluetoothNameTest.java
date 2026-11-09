@@ -129,6 +129,8 @@ public class BluetoothNameTest extends TestBase {
             put("Forerunner 170 Music", DeviceType.GARMIN_FORERUNNER_170_MUSIC);
             put("R60", DeviceType.BLACKVIEW_R60);
             put("eTrex SE", DeviceType.GARMIN_ETREX_SE);
+            put("Montana 700 #3123456780", DeviceType.GARMIN_MONTANA_700); // #7283
+            put("Montana 700", DeviceType.GARMIN_MONTANA_700); // #7283
             put("GPSMAP H1", DeviceType.GARMIN_GPSMAP_H1); // #6122
             put("GPSMAP 66S", DeviceType.GARMIN_GPSMAP_66S); // matrix
             put("GPSMAP 66S #1234512345", DeviceType.GARMIN_GPSMAP_66S); // matrix
