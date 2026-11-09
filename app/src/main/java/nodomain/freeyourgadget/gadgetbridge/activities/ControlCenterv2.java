@@ -352,7 +352,7 @@ public class ControlCenterv2 extends AppCompatActivity
             NavTab tab = NavTab.fromItemId(menuItem.getItemId());
             int index = visibleTabs.indexOf(tab);
             if (index >= 0 && !rebuildingNav) {
-                viewPager.setCurrentItem(index, true);
+                viewPager.setCurrentItem(index, AndroidUtils.areAnimationsEnabled(this));
             }
             return true;
         });
@@ -388,6 +388,15 @@ public class ControlCenterv2 extends AppCompatActivity
                 this, drawer, toolbar, R.string.controlcenter_navigation_drawer_open, R.string.controlcenter_navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
+        toolbar.setNavigationOnClickListener(v -> {
+            // The drawer ignores the system's animator duration scale
+            final boolean animate = AndroidUtils.areAnimationsEnabled(this);
+            if (drawer.isDrawerOpen(GravityCompat.START)) {
+                drawer.closeDrawer(GravityCompat.START, animate);
+            } else {
+                drawer.openDrawer(GravityCompat.START, animate);
+            }
+        });
         // Every theme defines its own toolbar_bg
         // Not TypedValue.data: the Dynamic surface colors are color state list resources (lStar),
         // for which data is not a color. MaterialColors resolves those too.
@@ -599,7 +608,7 @@ public class ControlCenterv2 extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull final MenuItem item) {
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        drawer.closeDrawer(GravityCompat.START, AndroidUtils.areAnimationsEnabled(this));
 
         final int itemId = item.getItemId();
         if (itemId == R.id.action_settings) {

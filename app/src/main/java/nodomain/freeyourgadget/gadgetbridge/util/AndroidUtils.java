@@ -37,6 +37,7 @@ import android.os.Parcelable;
 import android.os.PowerManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -393,5 +394,9 @@ public class AndroidUtils {
         } catch (PackageManager.NameNotFoundException e) {
             return false;
         }
+    }
+
+    public static boolean areAnimationsEnabled(final Context context) {
+        return Settings.Global.getFloat(context.getContentResolver(), Settings.Global.ANIMATOR_DURATION_SCALE, 1f) != 0f;
     }
 }
