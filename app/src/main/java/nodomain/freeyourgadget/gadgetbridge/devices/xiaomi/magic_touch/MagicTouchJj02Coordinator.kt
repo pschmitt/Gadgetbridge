@@ -17,9 +17,7 @@
 package nodomain.freeyourgadget.gadgetbridge.devices.xiaomi.magic_touch
 
 import nodomain.freeyourgadget.gadgetbridge.R
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsCustomizer
-import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsScreen
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.DeviceSettingsSpec
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.deviceSettings
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLEDeviceCoordinator
@@ -81,20 +79,10 @@ class MagicTouchJj02Coordinator : AbstractBLEDeviceCoordinator() {
         return parseCloudToken(authKey) != null
     }
 
+    override fun getSupportedDeviceSpecificAuthenticationSettings(): IntArray =
+        intArrayOf(R.xml.devicesettings_magic_touch_jj02_pairingkey)
+
     override fun getDeviceSettings(device: GBDevice): DeviceSettingsSpec = deviceSettings {
-        screen(
-            key = DeviceSpecificSettingsScreen.AUTHENTICATION.key,
-            title = R.string.pref_header_authentication,
-            icon = R.drawable.ic_vpn_key,
-        ) {
-            text(
-                key = DeviceSettingsPreferenceConst.PREF_AUTH_KEY,
-                title = R.string.magic_touch_jj02_bind_key_title,
-                summary = R.string.magic_touch_jj02_bind_key_summary,
-                icon = R.drawable.ic_vpn_key,
-                connectedOnly = false,
-            )
-        }
         // The on-device MiOT customName property (siid 4 piid 11), not the
         // Bluetooth name: the massager advertises read-only as
         // `xiaomi.magic_touch.jj02`, so the standard deviceName() does not

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:icon="@drawable/ic_vpn_key"
+        android:key="authkey"
+        android:maxLength="26"
+        android:summary="@string/magic_touch_jj02_bind_key_summary"
+        android:title="@string/magic_touch_jj02_bind_key_title" />
+
+</androidx.preference.PreferenceScreen>
