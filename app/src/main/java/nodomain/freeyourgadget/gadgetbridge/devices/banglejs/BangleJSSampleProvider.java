@@ -122,6 +122,9 @@ public class BangleJSSampleProvider extends AbstractSampleProvider<BangleJSActiv
         if (sample.getRawIntensity() != 0 && sample.getRawIntensity() != ActivitySample.NOT_MEASURED) {
             nearestSample.setRawIntensity(sample.getRawIntensity());
         }
+        if (sample.getRawKind() != ActivityKind.UNKNOWN.getCode()) {
+            nearestSample.setRawKind(sample.getRawKind());
+        }
 
         addGBActivitySample(nearestSample);
     }
