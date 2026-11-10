@@ -22,6 +22,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -38,6 +39,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -49,12 +52,14 @@ import nodomain.freeyourgadget.gadgetbridge.activities.SettingsActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventBatteryInfo;
+import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventMusicControl;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventVersionInfo;
 import nodomain.freeyourgadget.gadgetbridge.devices.ColmiHeartRateSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.devices.yawell.ring.YawellRingLiveActivityContext;
 import nodomain.freeyourgadget.gadgetbridge.devices.yawell.ring.YawellRingConstants;
 import nodomain.freeyourgadget.gadgetbridge.devices.yawell.ring.YawellRingPacketHandler;
 import nodomain.freeyourgadget.gadgetbridge.entities.ColmiHeartRateSample;
+import nodomain.freeyourgadget.gadgetbridge.externalevents.opentracks.OpenTracksController;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser;
 import nodomain.freeyourgadget.gadgetbridge.model.Alarm;
@@ -84,6 +89,12 @@ public class YawellRingDeviceSupport extends AbstractBTLESingleDeviceSupport {
     private int daysAgo;
     private int packetsTotalNr;
     private Calendar syncingDay;
+
+    private static int currentButtonActionId = 0;
+    private static int currentButtonPressCount = 0;
+    private static long currentButtonPressTime = 0;
+    private static long currentButtonTimerActivationTime = 0;
+    private Timer buttonActionTimer = null;
 
     // The ring sometimes never answers a history request. Without a timeout the device stays
     // busy forever, and ServiceDeviceSupport then drops every call and notification.
@@ -207,6 +218,10 @@ public class YawellRingDeviceSupport extends AbstractBTLESingleDeviceSupport {
             switch (value[0]) {
                 case YawellRingConstants.CMD_SET_DATE_TIME:
                     LOG.info("Received set date/time response: {}", StringUtils.bytesToHex(value));
+                    break;
+                case YawellRingConstants.CMD_BUTTON:
+                    LOG.info("Received button packet: {}", StringUtils.bytesToHex(value));
+                    handleButtonEvent();
                     break;
                 case YawellRingConstants.CMD_BATTERY:
                     int levelResponse = value[1];
@@ -733,9 +748,6 @@ public class YawellRingDeviceSupport extends AbstractBTLESingleDeviceSupport {
     public void onNotification(NotificationSpec notificationSpec) {
         if (!getCoordinator().supportsAppNotifications(getDevice())) return;
 
-        BluetoothGattCharacteristic characteristic = getCharacteristic(YawellRingConstants.CHARACTERISTIC_WRITE);
-        if (characteristic == null) return;
-
         String from = notificationSpec.getSender() != null ? notificationSpec.getSender() : notificationSpec.getTitle();
         String text = StringUtils.join(":", from, notificationSpec.getBody()).toString();
         // The firmware only buzzes once per message, so repeat it to make it noticeable
@@ -745,9 +757,7 @@ public class YawellRingDeviceSupport extends AbstractBTLESingleDeviceSupport {
         // transactions instead of sleeping in one, so that other BLE traffic is not blocked.
         for (int i = 0; i < count; i++) {
             backgroundTasksHandler.postDelayed(() -> {
-                TransactionBuilder builder = createTransactionBuilder("pushNotification");
-                writePushMessage(builder, characteristic, YawellRingConstants.PUSH_TYPE_SMS, text);
-                builder.queue();
+                sendPushMessage(YawellRingConstants.PUSH_TYPE_SMS, "pushNotification", text);
             }, i * 1000L);
         }
     }
@@ -771,13 +781,137 @@ public class YawellRingDeviceSupport extends AbstractBTLESingleDeviceSupport {
                 return;
         }
 
+        String caller = callSpec.getName() != null ? callSpec.getName() : callSpec.getNumber();
+        sendPushMessage(type, "pushCallState", caller);
+    }
+
+    private void handleButtonEvent() {
+
+        // If disabled we return from function immediately
+        Prefs prefs = new Prefs(GBApplication.getDeviceSpecificSharedPrefs(gbDevice.getAddress()));
+        if (!prefs.getBoolean(YawellRingConstants.PREF_BUTTON_ACTION_ENABLE, false)) {
+            return;
+        }
+
+        int buttonPressMaxDelay = prefs.getInt(YawellRingConstants.PREF_BUTTON_ACTION_PRESS_MAX_INTERVAL, 2000);
+        int requiredButtonPressCount = prefs.getInt(YawellRingConstants.PREF_BUTTON_ACTION_PRESS_COUNT, 0);
+
+        if (requiredButtonPressCount > 0) {
+            long timeSinceLastPress = System.currentTimeMillis() - currentButtonPressTime;
+
+            if ((currentButtonPressTime == 0) || (timeSinceLastPress < buttonPressMaxDelay)) {
+                currentButtonPressCount++;
+            } else {
+                currentButtonPressCount = 1;
+                currentButtonActionId = 0;
+            }
+            if (buttonActionTimer != null){
+                buttonActionTimer.cancel();
+            }
+
+            currentButtonPressTime = System.currentTimeMillis();
+            if (currentButtonPressCount == requiredButtonPressCount) {
+                currentButtonTimerActivationTime = currentButtonPressTime;
+                LOG.info("Activating button timer");
+                buttonActionTimer = new Timer("Button Action Timer");
+                buttonActionTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        processButtonAction();
+                        buttonActionTimer.cancel();
+                    }
+                }, buttonPressMaxDelay, buttonPressMaxDelay);
+
+                currentButtonActionId++;
+                currentButtonPressCount = 0;
+            }
+        }
+    }
+
+    private void processButtonAction() {
+        if (currentButtonTimerActivationTime != currentButtonPressTime) {
+            return;
+        }
+        //handle user events settings. 0 is long press, rest are button_id 1-3
+        switch (currentButtonActionId) {
+            case 0:
+                executeButtonAction("button_long_press_action_selection");
+                break;
+            case 1:
+                executeButtonAction("button_single_press_action_selection");
+                break;
+            case 2:
+                executeButtonAction("button_double_press_action_selection");
+                break;
+            case 3:
+                executeButtonAction("button_triple_press_action_selection");
+                break;
+            default:
+                break;
+        }
+
+        currentButtonActionId = 0;
+        currentButtonPressCount = 0;
+        currentButtonPressTime = System.currentTimeMillis();
+    }
+
+    private void executeButtonAction(String buttonKey) {
+        String buttonPreference = getDevicePrefs().getString(buttonKey, YawellRingConstants.PREF_BUTTON_ACTION_SELECTION_OFF);
+
+        if (buttonPreference.equals(YawellRingConstants.PREF_BUTTON_ACTION_SELECTION_OFF)) {
+            return;
+        }
+        if (getDevicePrefs().getBoolean(YawellRingConstants.PREF_BUTTON_ACTION_VIBRATE, false)) {
+            vibrateOnce();
+        }
+        switch (buttonPreference) {
+            case YawellRingConstants.PREF_BUTTON_ACTION_SELECTION_BROADCAST:
+                sendSystemBroadcastWithButtonId();
+                break;
+            case YawellRingConstants.PREF_BUTTON_ACTION_SELECTION_FITNESS_APP_START:
+                OpenTracksController.startRecording(this.getContext());
+                break;
+            case YawellRingConstants.PREF_BUTTON_ACTION_SELECTION_FITNESS_APP_STOP:
+                OpenTracksController.stopRecording(this.getContext());
+                break;
+            case YawellRingConstants.PREF_BUTTON_ACTION_SELECTION_FITNESS_APP_TOGGLE:
+                OpenTracksController.toggleRecording(this.getContext());
+                break;
+            default:
+                handleMediaButton(buttonPreference);
+        }
+    }
+
+    private void vibrateOnce() {
+        sendPushMessage(YawellRingConstants.PUSH_TYPE_SMS, "vibrateOne", "Vibrate");
+    }
+
+    private void sendPushMessage(byte type, String taskName, String text) {
         BluetoothGattCharacteristic characteristic = getCharacteristic(YawellRingConstants.CHARACTERISTIC_WRITE);
         if (characteristic == null) return;
-
-        String caller = callSpec.getName() != null ? callSpec.getName() : callSpec.getNumber();
-        TransactionBuilder builder = createTransactionBuilder("pushCallState");
-        writePushMessage(builder, characteristic, type, caller);
+        TransactionBuilder builder = createTransactionBuilder(taskName);
+        writePushMessage(builder, characteristic, type, text);
         builder.queue();
+    }
+
+    private void sendSystemBroadcastWithButtonId() {
+        Prefs prefs = new Prefs(GBApplication.getDeviceSpecificSharedPrefs(gbDevice.getAddress()));
+        String requiredButtonPressMessage = prefs.getString(YawellRingConstants.PREF_BUTTON_ACTION_BROADCAST,
+                this.getContext().getString(R.string.mi2_prefs_button_press_broadcast_default_value));
+        Intent in = new Intent();
+        in.setAction(requiredButtonPressMessage);
+        in.putExtra("button_id", currentButtonActionId);
+        LOG.info("Sending " + requiredButtonPressMessage + " with button_id " + currentButtonActionId);
+        this.getContext().getApplicationContext().sendBroadcast(in);
+    }
+
+    private void handleMediaButton(String mediaAction) {
+        if (mediaAction.equals(YawellRingConstants.PREF_BUTTON_ACTION_SELECTION_OFF)) {
+            return;
+        }
+        GBDeviceEventMusicControl deviceEventMusicControl = new GBDeviceEventMusicControl();
+        deviceEventMusicControl.event = GBDeviceEventMusicControl.Event.valueOf(mediaAction);
+        evaluateGBDeviceEvent(deviceEventMusicControl);
     }
 
     /**

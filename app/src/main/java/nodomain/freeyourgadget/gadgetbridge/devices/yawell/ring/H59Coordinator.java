@@ -65,6 +65,11 @@ public class H59Coordinator extends AbstractYawellRingCoordinator {
     }
 
     @Override
+    public boolean hasButton(@NonNull final GBDevice device) {
+        return true;
+    }
+
+    @Override
     public boolean supportsAppNotifications(@NonNull final GBDevice device) {
         return true;
     }

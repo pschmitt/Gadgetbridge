@@ -27,6 +27,7 @@ public class YawellRingConstants {
     public static final UUID CHARACTERISTIC_NOTIFY_V2 = UUID.fromString("de5bf729-d711-4e47-af26-65e3012a5dc7");
 
     public static final byte CMD_SET_DATE_TIME = 0x01;
+    public static final byte CMD_BUTTON = 0x02;
     public static final byte CMD_BATTERY = 0x03;
     public static final byte CMD_PHONE_NAME = 0x04;
     public static final byte CMD_DISPLAY_PREF = 0x05;
@@ -69,6 +70,17 @@ public class YawellRingConstants {
     public static final int PUSH_CHUNK_SIZE = 11;
     public static final int PUSH_MAX_CHUNKS = 4;
     public static final String PREF_NOTIFICATION_VIBRATION_COUNT = "yawell_notification_vibration_count";
+    public static final String PREF_BUTTON_ACTION_ENABLE = "button_action_enable";
+    public static final String PREF_BUTTON_ACTION_VIBRATE = "button_action_vibrate";
+    public static final String PREF_BUTTON_ACTION_PRESS_COUNT = "button_action_press_count";
+    public static final String PREF_BUTTON_ACTION_PRESS_MAX_INTERVAL = "button_action_press_max_interval";
+    public static final String PREF_BUTTON_ACTION_BROADCAST_DELAY = "button_action_broadcast_delay";
+    public static final String PREF_BUTTON_ACTION_BROADCAST = "button_action_broadcast";
+    public static final String PREF_BUTTON_ACTION_SELECTION_OFF = "UNKNOWN";
+    public static final String PREF_BUTTON_ACTION_SELECTION_BROADCAST = "BROADCAST";
+    public static final String PREF_BUTTON_ACTION_SELECTION_FITNESS_APP_START = "FITNESS_CONTROL_START";
+    public static final String PREF_BUTTON_ACTION_SELECTION_FITNESS_APP_STOP = "FITNESS_CONTROL_STOP";
+    public static final String PREF_BUTTON_ACTION_SELECTION_FITNESS_APP_TOGGLE = "FITNESS_CONTROL_TOGGLE";
 
     public static final byte BIG_DATA_TYPE_TEMPERATURE = 0x25;
     public static final byte BIG_DATA_TYPE_SLEEP = 0x27;

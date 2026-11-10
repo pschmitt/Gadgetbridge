@@ -118,6 +118,10 @@ abstract class AbstractYawellRingCoordinator : AbstractBLEDeviceCoordinator() {
         return false
     }
 
+    open fun hasButton(device: GBDevice): Boolean {
+        return false
+    }
+
     override fun supportsAppNotifications(device: GBDevice): Boolean {
         return false
     }
@@ -197,6 +201,12 @@ abstract class AbstractYawellRingCoordinator : AbstractBLEDeviceCoordinator() {
     }
 
     override fun getDeviceSettings(device: GBDevice): DeviceSettingsSpec = deviceSettings {
+        if (hasButton(device)) {
+            xmlScreen(
+                screen = DeviceSpecificSettingsScreen.GENERIC,
+                subScreens = intArrayOf(R.xml.devicesettings_buttonactions),
+            )
+        }
         screen(
             key = DeviceSpecificSettingsScreen.HEALTH.key,
             title = R.string.pref_header_health,
