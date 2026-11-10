@@ -24,6 +24,8 @@ import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.compon
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.deviceSettings
 import nodomain.freeyourgadget.gadgetbridge.devices.AbstractBLClassicDeviceCoordinator
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControl
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.QuickControls
 import nodomain.freeyourgadget.gadgetbridge.devices.nothing.prefs.NothingAudioMode
 import nodomain.freeyourgadget.gadgetbridge.devices.nothing.prefs.NothingEqualizer
 import nodomain.freeyourgadget.gadgetbridge.devices.nothing.prefs.NothingTapAction
@@ -182,6 +184,13 @@ abstract class AbstractEarCoordinator : AbstractBLClassicDeviceCoordinator() {
 
     override fun getDefaultIconResource(): Int {
         return R.drawable.ic_device_nothingear
+    }
+
+    override fun getQuickControls(device: GBDevice): List<QuickControl> {
+        return QuickControls.fromDeviceSettings(
+            device = device,
+            keys = listOf(DeviceSettingsPreferenceConst.PREF_NOTHING_EAR1_AUDIOMODE)
+        )
     }
 
     abstract fun incrementCounter(): Boolean
