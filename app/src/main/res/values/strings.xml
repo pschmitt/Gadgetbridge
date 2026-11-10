@@ -6479,6 +6479,34 @@
     <string name="ugreen_high_quality">Hi-Res Audio Decoding</string>
     <string name="ugreen_high_quality_summary">Enable high-resolution audio decoding (LDAC)</string>
 
+    <string name="devicetype_soundpeats_q3_pro" translatable="false">SOUNDPEATS Q3 Pro</string>
+    <string name="soundpeats_movie_mode">Movie mode</string>
+    <string name="soundpeats_movie_mode_summary">Optimize the sound stage for movies and series</string>
+    <string name="soundpeats_touch_lock">Lock touch controls</string>
+    <string name="soundpeats_eq_preset_treble">Treble enhancement</string>
+    <string name="soundpeats_eq_preset_bass_reduction">Bass reduction</string>
+    <string name="soundpeats_eq_preset_rock">Rock &amp; roll</string>
+    <string name="soundpeats_eq_preset_popular">Popular</string>
+    <string name="soundpeats_eq_preset_folk">Folk</string>
+    <string name="soundpeats_eq_preset_classical">Classical music</string>
+    <string name="soundpeats_eq_preset_acg">ACG</string>
+    <string name="soundpeats_eq_preset_hifi">Hi-Fi</string>
+    <string name="soundpeats_eq_preset_book_whisper">Book whisper</string>
+    <string name="soundpeats_custom_eq">Custom equalizer</string>
+    <string name="soundpeats_custom_eq_save">Save current as profile…</string>
+    <string name="soundpeats_custom_eq_delete">Delete current profile</string>
+    <string name="soundpeats_custom_eq_name">Profile name</string>
+    <string name="soundpeats_eq_master_gain">Master gain</string>
+    <string name="soundpeats_db_value">%1$d dB</string>
+    <string name="soundpeats_custom_eq_edit">Edit custom equalizer</string>
+    <string name="soundpeats_custom_eq_reset">Reset to flat</string>
+    <string name="soundpeats_custom_eq_import">Import parametric EQ…</string>
+    <string name="soundpeats_custom_eq_import_done">Imported %1$d filters</string>
+    <string name="soundpeats_custom_eq_import_failed">No parametric filters found in that file</string>
+    <string name="soundpeats_custom_eq_saved">Profile \"%1$s\" saved</string>
+    <string name="soundpeats_water_drainage">Water drainage</string>
+    <string name="soundpeats_water_drainage_summary">Run the water-ejection routine on the earbuds</string>
+
     <string name="pref_workout_templates_title">Workout templates</string>
     <string name="pref_workout_templates_summary">Create and manage structured workouts</string>
     <string name="workout_template_add">Add workout template</string>
