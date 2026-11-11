@@ -547,7 +547,7 @@ public class CommunicatorV2 implements ICommunicator {
      * Realtime accelerometer stream. Each message is 16 bytes:
      * <p>
      * - bits 0..12: timestamp in milliseconds, wraps every 8192 ms
-     * - bits 13..15: always 3, number of samples that follow?
+     * - bits 13..15: unknown, 3 or 7
      * - bits 16..123: 9 signed 12-bit values, little-endian nibble packing, as 3 (x, y, z)
      * samples - the axes are interleaved, not grouped per axis
      * - bits 124..127: always 1, unknown
@@ -576,16 +576,10 @@ public class CommunicatorV2 implements ICommunicator {
 
             final int header = BLETypeConversions.toUint16(value, 0);
             final int timestamp = header & 0x1fff;
-            final int numSamples = header >> 13;
-
-            if (numSamples > 3) {
-                LOG.warn("Unexpected realtime accelerometer sample count {}: {}", numSamples, GB.hexdump(value));
-                return;
-            }
 
             final SleepAsAndroidSender sleepAsAndroidSender = mSupport.getSleepAsAndroidSender();
 
-            for (int i = 0; i < numSamples; i++) {
+            for (int i = 0; i < 3; i++) {
                 final float x = accelSample(value, i * 3);
                 final float y = accelSample(value, i * 3 + 1);
                 final float z = accelSample(value, i * 3 + 2);
