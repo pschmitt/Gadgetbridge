@@ -159,6 +159,7 @@ public class BluetoothNameTest extends TestBase {
             put("HUAWEI Band 11 Pro-C5A", DeviceType.HUAWEIBAND11PRO); // #5989
             put("HUAWEI band A2-AFC", DeviceType.HUAWEIBANDA2); // #7280
             put("HUAWEI FreeClip 2", DeviceType.HUAWEI_FREECLIP2);
+            put("HUAWEI B7-99A", DeviceType.HUAWEITALKBANDB7); // #7308
             put("Edge Explore", DeviceType.GARMIN_EDGE_EXPLORE); // #4855
             put("Edge Explore 2", DeviceType.GARMIN_EDGE_EXPLORE_2); // #4855
             put("Redmi Smart Band 3 CCF1", DeviceType.REDMISMARTBAND3);
