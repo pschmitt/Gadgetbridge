@@ -251,7 +251,9 @@ public class GarminSupport extends AbstractBTLESingleDeviceSupport implements IC
         addSupportedService(CommunicatorV1.UUID_SERVICE_GARMIN_GFDI_V0);
         addSupportedService(CommunicatorV1.UUID_SERVICE_GARMIN_GFDI_V1);
         addSupportedService(CommunicatorV2.UUID_SERVICE_GARMIN_ML_GFDI);
-        addSupportedService(GarminWatchAppCommunicator.UUID_SERVICE_GARMIN_WATCH_APPS);
+        // #7306 - We can't declare the watch apps service as supported, since it has characteristics
+        // with the same UUID as GFDI V1.
+        //addSupportedService(GarminWatchAppCommunicator.UUID_SERVICE_GARMIN_WATCH_APPS);
         protocolBufferHandler = new ProtocolBufferHandler(this);
         fileTransferHandler = new FileTransferHandler(this);
         filesToDownload = new LinkedList<>();
