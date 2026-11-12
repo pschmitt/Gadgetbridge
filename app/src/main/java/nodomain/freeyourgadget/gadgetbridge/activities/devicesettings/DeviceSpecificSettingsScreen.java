@@ -42,6 +42,7 @@ public enum DeviceSpecificSettingsScreen {
     LOCATION("pref_screen_location", R.xml.devicesettings_root_location, R.string.pref_header_location, R.drawable.ic_gps_location),
     NOTIFICATIONS("pref_screen_notifications", R.xml.devicesettings_root_notifications, R.string.pref_header_notifications, R.drawable.ic_notifications),
     DATE_TIME("pref_screen_date_time", R.xml.devicesettings_root_date_time, R.string.dateformat_date_time, R.drawable.ic_timer),
+    DEVICE_ACTIONS("screen_events_forwarding", R.xml.devicesettings_device_actions, R.string.prefs_events_forwarding_title, R.drawable.ic_extension),
     WORKOUT("pref_screen_workout", R.xml.devicesettings_root_workout, R.string.menuitem_workout, R.drawable.ic_activity_unknown_small),
     HEALTH("pref_screen_health", R.xml.devicesettings_root_health, R.string.pref_header_health, R.drawable.ic_health),
     TOUCH_OPTIONS("pref_screen_touch_options", R.xml.devicesettings_root_touch_options, R.string.prefs_galaxy_touch_options, R.drawable.ic_touch),

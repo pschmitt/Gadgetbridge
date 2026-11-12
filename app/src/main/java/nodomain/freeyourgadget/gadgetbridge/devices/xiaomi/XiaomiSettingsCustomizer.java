@@ -28,6 +28,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.preference.ListPreference;
+import androidx.preference.MultiSelectListPreference;
 import androidx.preference.Preference;
 
 import org.slf4j.Logger;
@@ -38,12 +39,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsCustomizer;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSpecificSettingsHandler;
@@ -84,6 +87,25 @@ public class XiaomiSettingsCustomizer implements DeviceSpecificSettingsCustomize
                 handler.getContext().startActivity(intent);
                 return true;
             });
+        }
+
+        setActionSummaryProvider(handler.findPreference("events_forwarding_workoutstart_action_selections"));
+        setActionSummaryProvider(handler.findPreference("events_forwarding_workoutstop_action_selections"));
+
+        // The fall asleep/wake up/non-wear categories require the watch to have reported
+        // BasicDeviceState, unlike the workout categories on the same screen - hide them
+        // individually instead of gating the whole "Device actions" screen on that flag.
+        if (!prefs.getBoolean(XiaomiPreferences.FEAT_DEVICE_ACTIONS, false)) {
+            for (final String key : new String[]{
+                    "events_forwarding_category_fellsleep",
+                    "events_forwarding_category_wokeup",
+                    "events_forwarding_category_startnonwear",
+            }) {
+                final Preference category = handler.findPreference(key);
+                if (category != null) {
+                    category.setVisible(false);
+                }
+            }
         }
 
         final Preference activityMonitoringPref = handler.findPreference(DeviceSettingsPreferenceConst.PREF_HEARTRATE_ACTIVITY_MONITORING);
@@ -172,6 +194,28 @@ public class XiaomiSettingsCustomizer implements DeviceSpecificSettingsCustomize
 
     @Override
     public void writeToParcel(@NonNull final Parcel dest, final int flags) {
+    }
+
+    private static void setActionSummaryProvider(final Preference preference) {
+        if (!(preference instanceof MultiSelectListPreference)) {
+            return;
+        }
+        ((MultiSelectListPreference) preference).setSummaryProvider(pref -> {
+            final MultiSelectListPreference multiSelectPref = (MultiSelectListPreference) pref;
+            final Set<String> selected = multiSelectPref.getValues();
+            final CharSequence[] entryValues = multiSelectPref.getEntryValues();
+            final CharSequence[] entries = multiSelectPref.getEntries();
+            if (selected.isEmpty() || entryValues == null || entries == null) {
+                return multiSelectPref.getContext().getString(R.string.none);
+            }
+            final List<String> selectedEntries = new ArrayList<>();
+            for (int i = 0; i < entryValues.length; i++) {
+                if (selected.contains(entryValues[i].toString())) {
+                    selectedEntries.add(entries[i].toString());
+                }
+            }
+            return String.join(", ", selectedEntries);
+        });
     }
 
     private static final AtomicBoolean PARSING_FROM_STORAGE = new AtomicBoolean(false);

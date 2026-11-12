@@ -9,6 +9,7 @@
         android:title="@string/prefs_events_forwarding_title">
 
         <PreferenceCategory
+            android:key="events_forwarding_category_fellsleep"
             android:title="@string/prefs_events_forwarding_fellsleep"
             android:icon="@drawable/ic_nights_stay">
 
@@ -31,6 +32,7 @@
         </PreferenceCategory>
 
         <PreferenceCategory
+            android:key="events_forwarding_category_wokeup"
             android:title="@string/prefs_events_forwarding_wokeup"
             android:icon="@drawable/ic_wb_sunny">
 
@@ -53,6 +55,7 @@
         </PreferenceCategory>
 
         <PreferenceCategory
+            android:key="events_forwarding_category_startnonwear"
             android:title="@string/prefs_events_forwarding_startnonwear"
             android:icon="@drawable/ic_no_watch">
 

@@ -382,6 +382,10 @@ public class DeviceSpecificSettingsFragment extends AbstractPreferenceFragment i
         for (final DeviceSpecificSettingsScreen value : DeviceSpecificSettingsScreen.values()) {
             final PreferenceScreen prefScreen = findPreference(value.getKey());
             if (prefScreen != null) {
+                if (value == DeviceSpecificSettingsScreen.DEVICE_ACTIONS && prefScreen.getPreferenceCount() > 0) {
+                    // This XML screen already navigates through PreferenceScreen.onClick().
+                    continue;
+                }
                 if (modelSpec != null && modelSpec.findScreen(value.getKey()) != null && prefScreen.getPreferenceCount() > 0) {
                     // This screen is a model ScreenSetting rendered in-memory by
                     // DeviceSettingRenderer; it already navigates via the default nested

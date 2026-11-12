@@ -43,6 +43,7 @@ import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSett
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventUpdatePreferences;
+import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventWorkoutState;
 import nodomain.freeyourgadget.gadgetbridge.devices.xiaomi.XiaomiSampleProvider;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.Device;
@@ -920,9 +921,11 @@ public class XiaomiHealthService extends AbstractXiaomiService {
                 locationRequested = false;
                 workoutStarted = true;
                 gpsTimeoutHandler.removeCallbacksAndMessages(null);
+                final ActivityKind activityKind = sportToActivityKind(workoutStatus.getSport());
                 if (startOnPhone) {
-                    OpenTracksController.startRecording(getSupport().getContext(), sportToActivityKind(workoutStatus.getSport()));
+                    OpenTracksController.startRecording(getSupport().getContext(), activityKind);
                 }
+                getSupport().evaluateGBDeviceEvent(new GBDeviceEventWorkoutState(GBDeviceEventWorkoutState.WorkoutStatus.STARTED));
                 break;
             case WORKOUT_PAUSED:
             case WORKOUT_RESUMED:
@@ -932,6 +935,7 @@ public class XiaomiHealthService extends AbstractXiaomiService {
                 if (startOnPhone) {
                     OpenTracksController.stopRecording(getSupport().getContext());
                 }
+                getSupport().evaluateGBDeviceEvent(new GBDeviceEventWorkoutState(GBDeviceEventWorkoutState.WorkoutStatus.STOPPED));
                 break;
         }
     }

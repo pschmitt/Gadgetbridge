@@ -662,9 +662,11 @@ public abstract class XiaomiCoordinator extends AbstractBLEDeviceCoordinator {
         if (supports(device, FEAT_CAMERA_REMOTE)) {
             deviceSpecificSettings.addRootScreen(R.xml.devicesettings_camera_remote);
         }
-        if (supports(device, FEAT_DEVICE_ACTIONS)) {
-            deviceSpecificSettings.addRootScreen(R.xml.devicesettings_device_actions);
-        }
+        // Always added: workout start/stop forwarding does not depend on FEAT_DEVICE_ACTIONS,
+        // which only reflects whether the watch has reported BasicDeviceState (fall
+        // asleep/wake up/non-wear support). Those three categories are hidden at runtime
+        // in XiaomiSettingsCustomizer when the device hasn't reported that support.
+        deviceSpecificSettings.addRootScreen(DeviceSpecificSettingsScreen.DEVICE_ACTIONS, R.xml.devicesettings_workout_device_actions);
         deviceSpecificSettings.addRootScreen(R.xml.devicesettings_phone_silent_mode);
 
         //
